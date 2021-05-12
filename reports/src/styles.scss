@@ -9,7 +9,8 @@
     --color-style-juxtapose: #e63946;
 
     // the main colours for the fonts
-    --color-font-main: rgba(0, 0, 0, .9);   
+    --color-font-main: rgba(0, 0, 0, .9); 
+    --color-test: black;  
 }
 
 :root, *::before, *::after {
@@ -27,6 +28,7 @@ body {
     width: 80%;
     margin: 0 auto;
     background-color: var(--color-style-light);
+    height: 100%;
 }
 
 
