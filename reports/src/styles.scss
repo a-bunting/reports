@@ -1,0 +1,47 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+    // the main colours for the app
+    --color-style-main: #a8dadc;
+    --color-style-light: #f1faee;
+    --color-style-dark: #457b9d;
+    --color-style-verydark: #1d3557;
+    --color-style-juxtapose: #e63946;
+
+    // the main colours for the fonts
+    --color-font-main: rgba(0, 0, 0, .9);   
+}
+
+:root, *::before, *::after {
+    box-sizing: inherit;
+    border: 0;
+    margin: 0;
+}
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+
+body {
+    width: 80%;
+    margin: 0 auto;
+    background-color: var(--color-style-light);
+}
+
+
+
+
+
+@mixin fontDefault {
+    font-size: 2rem;
+    color: $color-font-main;
+    letter-spacing: .15rem;
+}
+
+@mixin absPos {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

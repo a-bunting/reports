@@ -1,0 +1,42 @@
+.flex-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    flex-basis: 10rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2rem 5rem;
+
+    font-size: 2rem;
+}
+
+.main {
+    flex: 1 0;
+    padding: 2rem 5rem;
+}
+
+footer {
+    flex-basis: 5rem;
+    padding: 2rem 5rem;
+    font-size: 1.4rem;
+
+}
+
+// The main menu and its items.
+.menu {
+
+    font-size: 3rem;
+
+    &__item {
+        &:not(:last-child) {
+            margin-right: 3rem;
+        }
+    }
+}
+
+.logo {
+    font-size: 4rem;
+}
