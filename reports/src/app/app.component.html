@@ -1,19 +1,25 @@
 <div class="flex-layout">
     <header class="header">
         
-        <nav class="menu">
-            <a href="" class="menu__item">Templates</a><a href="" class="menu__item">Classes</a><a href="" class="menu__item">Reports</a>
+        <nav class="header__menu">
+            <a class="header__menu--item" routerLink="templates/">Templates</a>
+            <a href="" class="header__menu--item" routerLink="classes/">Classes</a>
+            <a href="" class="header__menu--item" routerLink="reports/">Reports</a>
         </nav>
         
-        <div class="logo">
+        <div class="header__logo">
             !Bogo>Reports
         </div>
         
     </header>
     
+    <div class="divider-line divider-line__thick u__margin-top--medium u__margin-bottom--medium"></div>
+    
     <main class="main">
+        <router-outlet></router-outlet>
     </main>
-    <router-outlet>this</router-outlet>
+
+    <div class="divider-line divider-line__thick u__margin-top--medium"></div>
         
     <footer class="footer">
         Reports and everything within is copyright to !Bogo> (Alex Bunting) 2021. No parts may be reused for any purpose without express permission.

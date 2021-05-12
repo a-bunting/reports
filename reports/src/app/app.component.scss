@@ -1,42 +1,77 @@
 .flex-layout {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
-header {
-    flex-basis: 10rem;
+.header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 2rem 5rem;
+    align-items: stretch;
+    transform: translateY(-.3rem);
 
     font-size: 2rem;
+
+    // The main menu and its items.
+    &__menu {
+
+        font-size: 2.4rem;
+        padding-left: 5rem;
+        display: flex;
+
+        &--item {
+            width: 15rem;
+
+            background-color: var(--color-style-main);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-style-dark);
+            border-radius: 0 0 1rem 1rem;
+
+            text-decoration: none;
+
+            transition: all .2s;
+
+            &:hover {
+                background-color: var(--color-style-juxtapose);
+                color: var(--color-style-light);
+            }
+
+            &:not(:last-child) {
+                margin-right: .5rem;
+            }
+        }
+    }
+
+    &__logo {
+        padding: .5rem 5rem;
+        font-size: 4rem;
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+        text-align: center;
+
+        transition: letter-spacing .2s, color .2s;
+
+        &:hover {
+            color: var(--color-style-juxtapose);
+            letter-spacing: .4rem;
+        }
+    }
 }
 
-.main {
-    flex: 1 0;
+main {
+    flex: 1;
     padding: 2rem 5rem;
 }
 
 footer {
     flex-basis: 5rem;
     padding: 2rem 5rem;
-    font-size: 1.4rem;
-
-}
-
-// The main menu and its items.
-.menu {
-
-    font-size: 3rem;
-
-    &__item {
-        &:not(:last-child) {
-            margin-right: 3rem;
-        }
-    }
-}
-
-.logo {
-    font-size: 4rem;
+    font-size: 1.3rem;
+    font-style: italic;
+    text-align: center;
+    letter-spacing: .1rem;
 }
