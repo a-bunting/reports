@@ -1,0 +1,51 @@
+.auth {
+    padding: 2rem 5rem;
+
+    &__form {
+        display: grid;
+        row-gap: .8rem;
+        grid-template-columns: 15rem 30rem;
+    }
+
+    &__label {
+        padding: .5rem 1rem;
+        font-size: 2rem;
+        letter-spacing: .2rem;
+    }
+
+    &__input {
+        border-radius: 1rem;
+        font-size: 1.6rem;
+        padding-left: 1rem;
+        letter-spacing: .2rem;
+
+        &:hover {
+
+        }
+    }
+
+    &__buttons {
+        grid-column: 2 / span 1;
+    }
+
+    &__button {
+        font-size: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+        padding: .5rem 2rem;
+        margin-top: 1rem;
+
+        &:not(:last-child) {
+            margin-right: 1rem;
+        }
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    &__signup-links {
+        grid-column: 2 / span 1;
+        font-size: 2rem;
+    }
+}

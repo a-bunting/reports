@@ -1,0 +1,27 @@
+.admin {
+    padding: 0 2rem;
+
+    &__menu {
+        display: flex;
+    }
+
+    &__link {
+        padding: 1rem 2rem;
+        background-color: var(--color-style-dark);
+        border-radius: 1rem;
+        font-size: 2rem;
+        text-decoration: none;
+        color: var(--color-style-light);
+        
+        transition: all .2s;
+
+        &:hover {
+            color: var(--color-style-verydark);
+            background-color: var(--color-style-juxtapose);
+        }
+    }
+
+    &__panel {
+        margin-top: 1rem;
+    }
+}

@@ -1,0 +1,28 @@
+<div class="component-intro">
+    <h1 class="component-intro__title">Login</h1>
+    
+    <h4 class="component-intro__description">
+        Login to view your personal data.
+    </h4>
+</div>
+
+<div class="auth">
+    <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
+        <div class="auth__form">
+            <div class="auth__label">Email</div>
+            <input type="email" id="email" class="auth__input" name="email" ngModel required email>
+
+            <div class="auth__label">Password</div>
+            <input type="password" id="password" class="auth__input" name="password" minLength="6" ngModel required password>
+
+            <div class="auth__signup-links" *ngIf="!isLoginMode">
+                Alternatives, signup with google
+            </div>
+
+            <div class="auth__buttons">
+                <button type="button" class="auth__button" [disabled]="!authForm.valid">{{ isLoginMode ? 'Login' : 'Sign up with Email' }}</button>
+                <button type="button" class="auth__button" (click)="onSwitchMode()">{{ !isLoginMode ? 'Back to Login' : 'Sign Up' }}</button>
+            </div>
+        </div>
+    </form>
+</div>

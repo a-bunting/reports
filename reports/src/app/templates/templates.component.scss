@@ -5,9 +5,10 @@
 
     &__list {
         flex: 0 1 30rem;
-        display: grid;
-        grid-template-columns: 1fr;
-        align-items: center;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
     &__template-selector {

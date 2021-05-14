@@ -1,0 +1,15 @@
+.admin-sentences {
+
+    display: flex;
+
+    &__level {
+
+        flex: 1;
+        height: 10rem;
+
+        &--one { background-color: aquamarine ;}
+        &--two { background-color: turquoise ;}
+        &--three { background-color: yellow ;}
+        &--four { background-color: lightcoral ;}
+    }
+}
