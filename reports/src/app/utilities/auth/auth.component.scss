@@ -1,4 +1,5 @@
 .auth {
+    position: relative;
     padding: 2rem 5rem;
 
     &__form {
@@ -48,4 +49,28 @@
         grid-column: 2 / span 1;
         font-size: 2rem;
     }
+
+    &__error {
+        padding: 1rem 2rem;
+        background-color: var(--color-style-juxtapose);
+        font-size: 2rem;
+        color: var(--color-style-light);
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+        border: 2px solid var(--color-style-light);
+        cursor: pointer;
+    }
+}
+
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, .6);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

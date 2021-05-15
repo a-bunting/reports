@@ -13,6 +13,7 @@ import { AuthComponent } from './utilities/auth/auth.component';
 import { FormsModule } from '@angular/forms';
 import { AdminComponent } from './admin/admin.component';
 import { SentencesComponent } from './admin/sentences/sentences.component';
+import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spinner.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { SentencesComponent } from './admin/sentences/sentences.component';
     EditTemplateComponent,
     AuthComponent,
     AdminComponent,
-    SentencesComponent
+    SentencesComponent,
+    LoadingSpinnerComponent
   ],
   imports: [
     BrowserModule,

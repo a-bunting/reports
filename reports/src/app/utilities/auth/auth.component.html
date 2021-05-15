@@ -7,6 +7,15 @@
 </div>
 
 <div class="auth">
+
+    <div class="auth__error" *ngIf="error" (click)="clearError()">
+        <p>{{ error }}</p>
+    </div>
+
+    <div class="loading" *ngIf="isLoading">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
+
     <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
         <div class="auth__form">
             <div class="auth__label">Email</div>
@@ -20,7 +29,7 @@
             </div>
 
             <div class="auth__buttons">
-                <button type="button" class="auth__button" [disabled]="!authForm.valid">{{ isLoginMode ? 'Login' : 'Sign up with Email' }}</button>
+                <button type="button" class="auth__button" (click)="onSubmit(authForm)" [disabled]="!authForm.valid">{{ isLoginMode ? 'Login' : 'Sign up with Email' }}</button>
                 <button type="button" class="auth__button" (click)="onSwitchMode()">{{ !isLoginMode ? 'Back to Login' : 'Sign Up' }}</button>
             </div>
         </div>
