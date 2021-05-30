@@ -8,16 +8,19 @@ import { CreateTemplateComponent } from './templates/create-template/create-temp
 import { EditTemplateComponent } from './templates/edit-template/edit-template.component';
 import { TemplatesComponent } from './templates/templates.component';
 import { AuthComponent } from './utilities/auth/auth.component';
+import { DashboardComponent } from './utilities/dashboard/dashboard.component';
+import { AuthGuard } from './utilities/auth/auth-guard.guard';
 
 const routes: Routes = [
-    {path: 'reports', component: ReportsComponent},
-    {path: 'templates', component: TemplatesComponent, children: [
+    {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard]},
+    {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
+    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard], children: [
         {path: 'create-template', component: CreateTemplateComponent},
         {path: 'edit-template', component: EditTemplateComponent}
     ]},
-    {path: 'classes', component: ClassesComponent},
+    {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard]},
     {path: 'auth', component: AuthComponent},
-    {path: 'admin', component: AdminComponent, children: [
+    {path: 'admin', component: AdminComponent, canActivate: [AuthGuard], children: [
         {path: 'sentences', component: SentencesComponent}
     ]}
 ];

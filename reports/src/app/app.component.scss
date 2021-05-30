@@ -37,6 +37,7 @@
             &:hover {
                 background-color: var(--color-style-juxtapose);
                 color: var(--color-style-light);
+                cursor: pointer;
             }
 
             &:not(:last-child) {

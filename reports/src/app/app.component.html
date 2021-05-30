@@ -2,11 +2,12 @@
     <header class="header">
         
         <nav class="header__menu">
-            <a class="header__menu--item" routerLink="auth/">Login</a>
-            <a class="header__menu--item" routerLink="templates/">Templates</a>
-            <a href="" class="header__menu--item" routerLink="classes/">Classes</a>
-            <a href="" class="header__menu--item" routerLink="reports/">Reports</a>
-            <a href="" class="header__menu--item" routerLink="admin/">Admin</a>
+            <a class="header__menu--item" *ngIf="!isAuthenticated" routerLink="auth/">Login</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="templates/">Templates</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="classes/">Classes</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="reports/">Reports</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="admin/">Admin</a>
         </nav>
         
         <div class="header__logo">

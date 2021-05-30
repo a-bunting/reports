@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { blockTemplate } from '../templates/templates.component'; // defined in templates
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { AuthService } from '../utilities/auth/auth.service';
+import { exhaustMap, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 /**
 {
@@ -16,13 +18,13 @@ import { map } from 'rxjs/operators';
 }
 **/
 
-interface sentence {
+export interface sentence {
     endpoint?: boolean, starter?: boolean, 
     name: string, sentence?: string, meta?: string | number
     subCategories: [sentence], tests?: [test]
 }
 
-interface test {
+export interface test {
     comparison: string, function: string
 }
 
@@ -32,17 +34,10 @@ interface test {
 
 export class DatabaseService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
-    getSentences() {
-        this.http.get('https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/sentences/0/subCategories.json')
-        // .pipe(map(responseData => {
-        //     // transform the data into a more usable format...
-        //     // np need, returned in json format right now...
-        // }))
-        .subscribe((responseData: sentence) => {
-            return responseData;
-        })
+    getSentences(): Observable<any> {
+        return this.http.get('https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/sentences/0/subCategories.json');
     }
 
     recursiveArray(data) {

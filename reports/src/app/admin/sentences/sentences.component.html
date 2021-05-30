@@ -6,20 +6,30 @@
 
 <div class="admin-sentences">
     
-    <div class="admin-sentences__level admin-sentences__level--one">
+    <div class="loading" *ngIf="isLoading">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
 
+    <div class="admin-sentences__level admin-sentences__level--one"
+            *ngFor="let path of dataPath; let o = index">
+
+        <div class="admin-sentences__stem-phrase"
+             *ngFor="let value of path.name; let i = index"
+             (click)="selectStem(o, i)">
+            {{ value }}
+        </div>
     </div>
     
-    <div class="admin-sentences__level admin-sentences__level--two">
+    <!-- 
+        deprecated mathod, poor
+        <div class="admin-sentences__level admin-sentences__level--one"
+            *ngFor="let levelData of visibleData; let o = index">
 
-    </div>
-    
-    <div class="admin-sentences__level admin-sentences__level--three">
-
-    </div>
-    
-    <div class="admin-sentences__level admin-sentences__level--four">
-
-    </div>
+        <div class="admin-sentences__stem-phrase"
+             *ngFor="let stem of levelData; let i = index"
+             (click)="selectStem(o, i)">
+            {{ stem.name ? stem.name : stem.sentence }}
+        </div>
+    </div> -->
 
 </div>

@@ -50,8 +50,8 @@ export class SentencesComponent implements OnInit {
     getNameArray(index: number): string[] {
         let newStringAarray: string[];
 
-
-        for(let o = 0; o < this.sentenceData[index].length ; o++) {
+        // needs work...
+        for(let o = 0; o < this.sentenceData[index].subCategories.length ; o++) {
             newStringAarray.push(this.sentenceData[index][o].name);
         }
 

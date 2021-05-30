@@ -1,15 +1,50 @@
 .admin-sentences {
 
     display: flex;
-
+    position: relative;
+    
     &__level {
-
+        
         flex: 1;
         height: 10rem;
+        border-radius: 1rem;
 
         &--one { background-color: aquamarine ;}
         &--two { background-color: turquoise ;}
         &--three { background-color: yellow ;}
         &--four { background-color: lightcoral ;}
     }
+
+    &__stem-phrase {
+        background-color: var(--color-style-main);
+        font-size: 1.6rem;
+        letter-spacing: .15rem;
+        padding: 1rem 2rem;
+        margin: .5rem;
+        border-radius: 1rem;
+        
+        &--select {
+            padding: .5rem 1rem;
+            border-radius: 1rem;
+        }
+
+        transition: all .2s;
+        &:hover {
+            cursor: pointer;
+            background-color: var(--color-style-juxtapose);
+        }
+    }
+}
+
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, .6);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
