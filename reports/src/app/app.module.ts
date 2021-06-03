@@ -17,6 +17,9 @@ import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spi
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthInterceptorService } from './utilities/auth/auth-interceptor.service';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
+import { environment } from 'src/environments/environment';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @NgModule({
   declarations: [
@@ -36,9 +39,11 @@ import { AuthenticationService } from './utilities/authentication/authentication
     BrowserModule,
     AppRoutingModule, 
     FormsModule, 
-    HttpClientModule
+    HttpClientModule, 
+    AngularFireModule.initializeApp(environment.firebaseConfig)
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
+  providers: [
+        {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
         AuthenticationService
     ],
   bootstrap: [AppComponent]

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { AuthenticationService } from '../authentication/authentication.service';
 import { AuthService, AuthResponseData } from './auth.service';
 
 @Component({
@@ -12,7 +13,9 @@ import { AuthService, AuthResponseData } from './auth.service';
 
 export class AuthComponent implements OnInit {
 
-  constructor(private authService: AuthService, private router: Router) { }
+
+    
+  constructor(private authService: AuthenticationService, private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -38,7 +41,7 @@ export class AuthComponent implements OnInit {
     const email = form.value.email;
     const password = form.value.password;
 
-    let authObs: Observable<AuthResponseData>;
+    let authObs: Observable<any>;
     
     if(!this.isLoginMode) {
         // new user mode
@@ -50,7 +53,6 @@ export class AuthComponent implements OnInit {
 
     authObs.subscribe(responseData => {
         this.isLoading = false;
-        this.router.navigate(['/dashboard']);
     }, 
     errorMessage => {
         this.error = errorMessage;
