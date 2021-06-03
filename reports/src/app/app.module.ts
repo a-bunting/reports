@@ -16,6 +16,7 @@ import { SentencesComponent } from './admin/sentences/sentences.component';
 import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spinner.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthInterceptorService } from './utilities/auth/auth-interceptor.service';
+import { AuthenticationService } from './utilities/authentication/authentication.service';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,9 @@ import { AuthInterceptorService } from './utilities/auth/auth-interceptor.servic
     FormsModule, 
     HttpClientModule
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}],
+  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
+        AuthenticationService
+    ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
