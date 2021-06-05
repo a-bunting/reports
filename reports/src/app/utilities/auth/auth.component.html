@@ -18,6 +18,9 @@
 
     <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
         <div class="auth__form">
+            <div class="auth__label" *ngIf="!isLoginMode">Name</div>
+            <input type="name" id="name" class="auth__input" name="name"  *ngIf="!isLoginMode" ngModel required>
+            
             <div class="auth__label">Email</div>
             <input type="email" id="email" class="auth__input" name="email" ngModel required email>
 

@@ -15,6 +15,9 @@ export class AuthInterceptorService implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler) {
         return this.authService.user.pipe(take(1), exhaustMap(user => {
 
+            // disable this for now whilst building they new authentication modules.
+            return next.handle(req);
+
             if(!user) {
                 // if there is no user do not add the token...
                 return next.handle(req);
