@@ -29,6 +29,8 @@ export class AuthenticationService {
         return from(this.fAuth.createUserWithEmailAndPassword(email, password).then())
         .pipe(catchError(this.handleError), tap(result => {
             result.user.getIdToken(true).then((token: string) => {
+                
+                // authenticate the user
                 this.handleAuthentication(
                     result.user.email, 
                     result.user.uid,
@@ -56,9 +58,7 @@ export class AuthenticationService {
 
     login(email: string, password: string): Observable<any> {
         return from(this.fAuth.signInWithEmailAndPassword(email, password).then(result => {
-            // get the id token to authenticate and store...
-            console.log(result.user.uid);
-            
+            // get the id token to authenticate and store...            
             this.firebase.collection('users').doc(result.user.uid).get().pipe(take(1)).subscribe((doc: any) => {
                 // get the token and handle authentication...
                 result.user.getIdToken(true).then((token: string) => {
