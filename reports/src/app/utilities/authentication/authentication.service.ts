@@ -29,8 +29,6 @@ export class AuthenticationService {
         return from(this.fAuth.createUserWithEmailAndPassword(email, password).then())
         .pipe(catchError(this.handleError), tap(result => {
             result.user.getIdToken(true).then((token: string) => {
-                
-                // authenticate the user
                 this.handleAuthentication(
                     result.user.email, 
                     result.user.uid,
