@@ -82,7 +82,7 @@ export class AuthenticationService {
             this.router.navigate(['/auth']);
         }).catch(error => {
             console.log(`An error occurred during logout: ${error.message}`); 
-      }))
+      })) 
     }
 
     autoLogin() {
