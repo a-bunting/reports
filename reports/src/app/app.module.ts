@@ -19,7 +19,9 @@ import { AuthInterceptorService } from './utilities/auth/auth-interceptor.servic
 import { AuthenticationService } from './utilities/authentication/authentication.service';
 import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire';
+import { AngularFireFunctions } from '@angular/fire/functions';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { UsersComponent } from './admin/users/users.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +35,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
     AdminComponent,
     SentencesComponent,
     LoadingSpinnerComponent,
-    DashboardComponent
+    DashboardComponent,
+    UsersComponent
   ],
   imports: [
     BrowserModule,
@@ -44,7 +47,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
   ],
   providers: [
         {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
-        AuthenticationService
+        AuthenticationService,
+        AngularFireFunctions
     ],
   bootstrap: [AppComponent]
 })

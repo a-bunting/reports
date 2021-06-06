@@ -7,7 +7,7 @@
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="templates/">Templates</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="classes/">Classes</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="reports/">Reports</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="admin/">Admin</a>
+            <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLink="admin/">Admin</a>
         </nav>
         
         <div class="header__logo">

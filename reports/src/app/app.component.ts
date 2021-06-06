@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { AuthService } from './utilities/auth/auth.service';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
 
 @Component({
@@ -13,6 +12,7 @@ import { AuthenticationService } from './utilities/authentication/authentication
 export class AppComponent implements OnInit, OnDestroy {
 
     isAuthenticated: boolean = false;
+    isAdmin: boolean = true; // change to false once integrated fully.
     private userSub: Subscription;
 
     constructor(private authService: AuthenticationService) {}

@@ -3,7 +3,6 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, throwError } from 'rxjs';
-import { catchError, take, tap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/services/database.service';
 import { User } from '../auth/user.model';
 
@@ -21,62 +20,59 @@ export class AuthenticationService {
 
     user = new BehaviorSubject<User>(null);
 
-    constructor(private fAuth: AngularFireAuth, private firebase: AngularFirestore, private router: Router, private db: DatabaseService) {
-        
-    }
+    constructor(private fAuth: AngularFireAuth, 
+                private firebase: AngularFirestore,
+                private router: Router, 
+                private db: DatabaseService) {}
 
-    signup(email: string, password: string, name: string): Observable<any> {
-        return from(this.fAuth.createUserWithEmailAndPassword(email, password).then())
-        .pipe(catchError(this.handleError), tap(result => {
-            result.user.getIdToken(true).then((token: string) => {
-                
-                // authenticate the user
-                this.handleAuthentication(
-                    result.user.email, 
-                    result.user.uid,
-                    name,
-                    token 
-                );
-
-                console.log(`${result.user.uid}`);
-
-                // add the user to the users database:
-                from(this.firebase.collection('users').doc(result.user.uid).set({
+    signup(email: string, password: string, name: string): Promise<any> {
+        // start by attempting to sign up the user...
+        return this.fAuth.createUserWithEmailAndPassword(email, password).then(result => {
+            // then get the token and custom claims for this user
+            return result.user.getIdTokenResult(true).then((token: any) => {
+                // finally add the user to the users database:
+                return this.firebase.collection('users').doc(result.user.uid).set({
                     email: email,
                     name: name
                 })
-                .catch((error) => {
-                    console.log(`Error: ${error.message}`);
-                }))
-                .pipe(take(1)).subscribe(response => {
+                .then(() => {
                     // response from server
-                    console.log("success");
+                    console.log(`Success: User ${name} (${email}) has been signed up.`);
+                    
+                    // authenticate the user in the code
+                    // user is not an admin by default.
+                    this.handleAuthentication(
+                        result.user.email, 
+                        result.user.uid,
+                        name,
+                        false,  
+                        token.token 
+                    );
+                }).catch((error: any) => {
+                    console.log(`Error: ${error.message}`);
                 })
-            })
-        }));
+                    
+            });
+        });
     }
 
-    login(email: string, password: string): Observable<any> {
-        return from(this.fAuth.signInWithEmailAndPassword(email, password).then(result => {
+    login(email: string, password: string): Promise<any> {
+        return this.fAuth.signInWithEmailAndPassword(email, password).then(result => {
             // get the id token to authenticate and store...
-            console.log(result.user.uid);
-            
-            this.firebase.collection('users').doc(result.user.uid).get().pipe(take(1)).subscribe((doc: any) => {
+            return this.firebase.collection('users').doc(result.user.uid).get().subscribe((doc: any) => {
                 // get the token and handle authentication...
-                result.user.getIdToken(true).then((token: string) => {
+                return result.user.getIdTokenResult(true).then((token: any) => {
+                    // authenticate the user in the code
                     this.handleAuthentication(
                         result.user.email, 
                         result.user.uid,
                         doc.data().name,
-                        token 
+                        token.claims.admin,
+                        token.token 
                     );
-                }).catch(error => {
-                    console.log(`Error: ${error.message}`);    
-                });
-            })
-        }).catch(error => {
-            console.log(`Error: ${error.message}`);    
-        }));
+                }, this.handleError)
+            }, error => { this.handleError(error) })
+        }, this.handleError)
     }
     
     logout(): Observable<any> {
@@ -95,6 +91,7 @@ export class AuthenticationService {
             email: string;
             id: string;
             name: string;
+            admin: boolean;
             _token: string;
             _tokenExpirationDate: string;
         } = JSON.parse(localStorage.getItem('userData'));
@@ -111,7 +108,7 @@ export class AuthenticationService {
         //     }
         // })
 
-        const loadedUser = new User(userData.email, userData.id, userData.name, userData._token, new Date(userData._tokenExpirationDate));
+        const loadedUser = new User(userData.email, userData.id, userData.name, userData.admin, userData._token, new Date(userData._tokenExpirationDate));
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
@@ -123,6 +120,7 @@ export class AuthenticationService {
             this.autoLogout(expirationDuration);
         }
     }
+
 
     /**
      * Auto logout feature
@@ -143,9 +141,9 @@ export class AuthenticationService {
      * @param token 
      * @param expiresIn 
      */
-    private handleAuthentication(email: string, userId: string, name: string, token: string): void {
+    private handleAuthentication(email: string, userId: string, name: string, admin: boolean, token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-        const user = new User(email, userId, name, token, expirationDate);
+        const user = new User(email, userId, name, admin, token, expirationDate);
         this.autoLogout(3600 * 1000);
         this.user.next(user);
 
@@ -160,39 +158,40 @@ export class AuthenticationService {
   /**
      * handles any errors output from the login or signup functions
      * @param errorResponse 
-     * @returns 
+     * @returns error message
      */
    private handleError(errorResponse: any) {
+        let errorMessage = 'An Unknown Error Occurred!';
 
-    let errorMessage = 'An Unknown Error Occurred!';
-
-    if(!errorResponse.code) {
-        return throwError(errorMessage);
-    } else {
-        
-        switch(errorResponse.code) {
-            case 'auth/weak-password':
-                errorMessage = "The password you entered is too weak. Please make a stronger password by making it longer, using a mixture of capital and small letters, numbers and/or symbols.";
-                break;
-            case 'auth/email-already-exists':
-                errorMessage = "This email address exists already.";
-                break;
-            case 'auth/too-many-requests':
-                errorMessage = "You have attempted to signup too many times, please try again later.";
-                break;
-            case 'auth/user-not-found':
-            case 'auth/invalid-password':
-                errorMessage = "Either the username or password entered is invalid";
-                break;
-            case 'auth/user-disabled':
-                errorMessage = "Your account has been locked. Please contact your school administrator.";
-                break;
-            default:
-                errorMessage = "An error occurred, please try again later.";
-                break;
+        if(!errorResponse.code) {
+            return throwError(errorMessage);
+        } else {
+            
+            switch(errorResponse.code) {
+                case 'auth/weak-password':
+                    errorMessage = "The password you entered is too weak. Please make a stronger password by making it longer, using a mixture of capital and small letters, numbers and/or symbols.";
+                    break;
+                case 'auth/email-already-exists':
+                    errorMessage = "This email address exists already.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "You have attempted to signup too many times, please try again later.";
+                    break;
+                case 'auth/user-not-found':
+                case 'auth/invalid-password':
+                    errorMessage = "Either the username or password entered is invalid";
+                    break;
+                case 'auth/user-disabled':
+                    errorMessage = "Your account has been locked. Please contact your school administrator.";
+                    break;
+                default:
+                    errorMessage = "An error occurred, please try again later.";
+                    break;
+            }
         }
+        
+        return errorMessage;
     }
-    return throwError(errorMessage);
-    }
+
 
 }
