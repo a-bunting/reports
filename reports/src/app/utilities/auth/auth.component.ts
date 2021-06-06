@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { AuthService, AuthResponseData } from './auth.service';
 
@@ -46,13 +46,13 @@ export class AuthComponent implements OnInit {
     
     if(!this.isLoginMode) {
         // new user mode
-        authObs = this.authService.signup(email, password, name);
+        authObs = from(this.authService.signup(email, password, name));
     } else {
         // login mode...
-        authObs = this.authService.login(email, password);
+        authObs = from(this.authService.login(email, password));
     }
 
-    authObs.subscribe(responseData => {
+    authObs.subscribe((responseData: any) => {
         this.isLoading = false;
     }, 
     errorMessage => {
