@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, from, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, from, Observable } from 'rxjs';
+import { catchError, take, tap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/services/database.service';
 import { User } from '../auth/user.model';
 
@@ -56,23 +57,28 @@ export class AuthenticationService {
         });
     }
 
-    login(email: string, password: string): Promise<any> {
-        return this.fAuth.signInWithEmailAndPassword(email, password).then(result => {
+    login(email: string, password: string): Observable<any> {
+        return from(this.fAuth.signInWithEmailAndPassword(email, password))
+            .pipe(take(1), catchError(this.handleError), tap((result: any) => {
+            
             // get the id token to authenticate and store...
-            return this.firebase.collection('users').doc(result.user.uid).get().subscribe((doc: any) => {
-                // get the token and handle authentication...
-                return result.user.getIdTokenResult(true).then((token: any) => {
-                    // authenticate the user in the code
-                    this.handleAuthentication(
-                        result.user.email, 
-                        result.user.uid,
-                        doc.data().name,
-                        token.claims.admin,
-                        token.token 
-                    );
-                }, this.handleError)
-            }, error => { this.handleError(error) })
-        }, this.handleError)
+            // return from(this.firebase.collection('users').doc(result.user.uid).get())
+            //         .pipe(take(1), catchError(this.handleError), tap((doc: any) => {
+                    
+                    // get the token and handle authentication...
+                    return from(result.user.getIdTokenResult(true)).pipe(take(1), catchError(this.handleError)).subscribe((token: any) => {
+                        // authenticate the user in the code
+                        this.handleAuthentication(
+                            result.user.email, 
+                            result.user.uid,
+                            // doc.data().name,
+                            "Alex Bunting",
+                            token.claims.admin,
+                            token.token 
+                        );
+                    });
+            // }));
+        }));
     }
     
     logout(): Observable<any> {
@@ -160,11 +166,11 @@ export class AuthenticationService {
      * @param errorResponse 
      * @returns error message
      */
-   private handleError(errorResponse: any) {
+   private handleError(errorResponse: any): string {
         let errorMessage = 'An Unknown Error Occurred!';
 
         if(!errorResponse.code) {
-            return throwError(errorMessage);
+            return errorMessage;
         } else {
             
             switch(errorResponse.code) {

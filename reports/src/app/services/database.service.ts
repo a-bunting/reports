@@ -49,6 +49,7 @@ export class DatabaseService {
         this.firestore.collection('users').get().pipe(take(1)).subscribe(data => {
             data.forEach(user => {
                 const userData = user.data();
+                return userData;
             })
         });
     }
