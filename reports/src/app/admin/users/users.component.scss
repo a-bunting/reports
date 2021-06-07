@@ -19,15 +19,6 @@
         width: 30rem;
     }
 
-    &__button {
-        background-color: transparent;
-        margin-left: -7rem;
-
-        &:hover {
-            font-weight: bold;
-            cursor: pointer;
-        }
-    }
 }
 
 .users-list {
@@ -35,11 +26,26 @@
     flex-direction: column;
     font-size: 1.6rem;
 
-    &__header, &__user {
+    &__header, &__user, &__loading {
         display: flex;
         align-items: center;
         padding: .2rem;
     }
+
+    &__loading {
+        background-color: var(--color-style-dark);
+        padding: 2rem 4rem;
+   }
+
+   &__error {
+
+    color: var(--color-style-juxtapose);
+    transition: all .2s;
+    &:hover {
+        cursor: pointer;
+        color: white;
+    }
+   }
     
     &__name {
         flex: 1;
@@ -54,6 +60,9 @@
     &__controls {
         text-align: center;
         padding: .5rem 1rem;
+        display: flex;
+        justify-content: center;
+        flex: 1;
     }
 
     &__header {
@@ -75,12 +84,6 @@
         }
     }
 
-    &__controls {
-        display: flex;
-        justify-content: center;
-        flex: 1;
-    }
-
     &__control {
         padding: .5rem 1rem;
         border-radius: 1rem;
@@ -95,6 +98,10 @@
             color: var(--color-style-main);
             background-color: var(--color-style-dark);
             cursor: pointer;
+        }
+
+        &--enabled {
+            background-color: var(--color-style-juxtapose);
         }
     }
 }

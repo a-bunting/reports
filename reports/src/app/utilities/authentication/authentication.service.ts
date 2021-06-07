@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, from, Observable } from 'rxjs';
-import { catchError, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, concat, from, Observable } from 'rxjs';
+import { catchError, mergeMap, take, tap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/services/database.service';
 import { User } from '../auth/user.model';
 
@@ -79,6 +79,10 @@ export class AuthenticationService {
                     });
             // }));
         }));
+    }
+
+    login2(email: string, password: string): Observable<any> {
+        return null;
     }
     
     logout(): Observable<any> {
