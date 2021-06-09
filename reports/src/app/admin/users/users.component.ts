@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { map, mergeMap, reduce, take } from 'rxjs/operators';
+import { map, mergeMap, take } from 'rxjs/operators';
 import { User } from 'src/app/utilities/auth/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { ConsoleService } from 'src/app/admin/services/console.service';

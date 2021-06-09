@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { UserCredential, IdTokenResult } from '@firebase/auth-types';
 import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, concat, from, merge, Observable } from 'rxjs';
-import { catchError, map, mergeAll, mergeMap, take, tap } from 'rxjs/operators';
-import { DatabaseService } from 'src/app/services/database.service';
+import { BehaviorSubject, from, Observable } from 'rxjs';
+import { catchError, mergeMap, take, tap } from 'rxjs/operators';
 import { User } from '../auth/user.model';
 
 export interface AuthResponseData {
@@ -23,8 +23,7 @@ export class AuthenticationService {
 
     constructor(private fAuth: AngularFireAuth, 
                 private firebase: AngularFirestore,
-                private router: Router, 
-                private db: DatabaseService) {}
+                private router: Router) {}
 
     signup(email: string, password: string, name: string): Promise<any> {
         // start by attempting to sign up the user...
@@ -82,23 +81,20 @@ export class AuthenticationService {
             // }));
         }));
     }
-/*
-Hey, I continue to appreciate the help but its the same issue. Logging in works perfectly except when I try to read from the database, so the .doc() is what's causing the problems still. Same error message :/
-
-I also think request.auth should not be null if there is a user logged in...
-*/
-
 
     login2(email: string, password: string): Observable<any> {
-        const signInObs: Observable<any> = from(this.fAuth.signInWithEmailAndPassword(email, password));
+        const signInObs: Observable<UserCredential> = from(this.fAuth.signInWithEmailAndPassword(email, password));
         
-        return signInObs.pipe(take(1), catchError(this.handleError), mergeMap((result: any) => {
+        return signInObs.pipe(take(1), catchError(this.handleError), mergeMap((result: UserCredential) => {
             console.log(`done this ONE... ${result.user.uid}`);
-            return from(this.firebase.collection('users').doc(result.user.uid).get()).pipe(take(1), catchError(this.handleError), mergeMap((doc: DocumentSnapshot<any>) => {
-                console.log(`done this two... ${doc.data().name}`);
-                return from(result.user.getIdTokenResult(true)).pipe(take(1), catchError(this.handleError), map((token: any) => {
+            
+            return this.firebase.collection('users').doc(result.user.uid).get().pipe(catchError(this.handleError), mergeMap((doc: DocumentSnapshot<any>) => {
+                console.log(`done this two... ${typeof doc}`);
+                
+                return result.user.getIdTokenResult(true).then((token: IdTokenResult) => {
                     // authenticate the user in the code
                     console.log(`done this three.. ${token.claims.admin}`);
+                                        
                     this.handleAuthentication(
                         result.user.email, 
                         result.user.uid,
@@ -106,7 +102,9 @@ I also think request.auth should not be null if there is a user logged in...
                         token.claims.admin,
                         token.token 
                     );
-                }));
+                }).catch(error => {
+                    throw new Error(error);
+                });
             })); 
         }));
     }
@@ -148,9 +146,6 @@ I also think request.auth should not be null if there is a user logged in...
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
-
-            this.db.getUsers();
-
             // set the auto logout feature
             const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
             this.autoLogout(expirationDuration);

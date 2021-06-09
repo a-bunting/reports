@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { blockTemplate } from '../templates/templates.component'; // defined in templates
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../utilities/auth/auth.service';
-import { catchError, take, tap } from 'rxjs/operators';
+import { catchError, map, take, tap } from 'rxjs/operators';
 import { from, Observable, throwError } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, QuerySnapshot, DocumentSnapshot } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { User } from '../utilities/auth/user.model';
 
 /**
 {
@@ -37,38 +38,49 @@ export interface test {
 
 export class DatabaseService {
 
-    constructor(private http: HttpClient, private firestore: AngularFirestore) { }
+    private user: User;
+
+    constructor(private auth: AuthenticationService, private http: HttpClient, private firebase: AngularFirestore) { 
+        // subscribe to the user details;
+        auth.user.subscribe((user: User) => {
+            this.user = user;
+        });
+    }
 
     getSentences(): Observable<any> {
         return this.http.get('https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/sentences/0/subCategories.json');
     }
 
-    // temporary here - just for testing...
-    // returns user data - need to make a interface for this then fix this all.
-    getUsers(): any {
-        this.firestore.collection('users').get().pipe(take(1)).subscribe(data => {
-            data.forEach(user => {
-                const userData = user.data();
-                return userData;
-            })
-        });
+    /**
+     * Get all the groups this user is a part of
+     * @returns Observable<QuerySnapshot<any>> to subscribe to...
+     */
+    getGroups(): Observable<QuerySnapshot<any>> {
+        const userId = this.user.id;
+        return this.firebase.collection('group', grp => grp.where('managers', 'array-contains', this.firebase.collection('users').doc(userId).ref)).get();
     }
 
-    getTemplate(): blockTemplate {
-        let returnTemplate: blockTemplate;
-        // get the requested template
-
-        return returnTemplate;
+    getUserName(uid: string): Observable<any> {
+        return this.firebase.collection('users').doc(uid).get().pipe(take(1), tap((data: DocumentSnapshot<any>) => {
+            return {name: data.data().name, email: data.data().email, id: uid};
+        }));
     }
 
-    storeNewTemplate(template: blockTemplate) {
-        this.http.post(
-            'https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/templates.json', 
-            template
-        )
-        .subscribe(posts => {
+    // getTemplate(): blockTemplate {
+    //     let returnTemplate: blockTemplate;
+    //     // get the requested template
+
+    //     return returnTemplate;
+    // }
+
+    // storeNewTemplate(template: blockTemplate) {
+    //     this.http.post(
+    //         'https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/templates.json', 
+    //         template
+    //     )
+    //     .subscribe(posts => {
             
-        });
-    }
+    //     });
+    // }
 
 }
