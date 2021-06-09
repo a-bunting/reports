@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, concat, from, Observable } from 'rxjs';
-import { catchError, mergeMap, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, concat, from, merge, Observable } from 'rxjs';
+import { catchError, map, mergeAll, mergeMap, take, tap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/services/database.service';
 import { User } from '../auth/user.model';
 
@@ -58,6 +58,8 @@ export class AuthenticationService {
     }
 
     login(email: string, password: string): Observable<any> {
+        return this.login2(email, password);
+
         return from(this.fAuth.signInWithEmailAndPassword(email, password))
             .pipe(take(1), catchError(this.handleError), tap((result: any) => {
             
@@ -80,9 +82,33 @@ export class AuthenticationService {
             // }));
         }));
     }
+/*
+Hey, I continue to appreciate the help but its the same issue. Logging in works perfectly except when I try to read from the database, so the .doc() is what's causing the problems still. Same error message :/
+
+I also think request.auth should not be null if there is a user logged in...
+*/
+
 
     login2(email: string, password: string): Observable<any> {
-        return null;
+        const signInObs: Observable<any> = from(this.fAuth.signInWithEmailAndPassword(email, password));
+        
+        return signInObs.pipe(take(1), catchError(this.handleError), mergeMap((result: any) => {
+            console.log(`done this ONE... ${result.user.uid}`);
+            return from(this.firebase.collection('users').doc(result.user.uid).get()).pipe(take(1), catchError(this.handleError), mergeMap((doc: DocumentSnapshot<any>) => {
+                console.log(`done this two... ${doc.data().name}`);
+                return from(result.user.getIdTokenResult(true)).pipe(take(1), catchError(this.handleError), map((token: any) => {
+                    // authenticate the user in the code
+                    console.log(`done this three.. ${token.claims.admin}`);
+                    this.handleAuthentication(
+                        result.user.email, 
+                        result.user.uid,
+                        doc.data().name,
+                        token.claims.admin,
+                        token.token 
+                    );
+                }));
+            })); 
+        }));
     }
     
     logout(): Observable<any> {
