@@ -11,6 +11,7 @@ import { AuthComponent } from './utilities/auth/auth.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthGuard } from './utilities/auth/auth-guard.guard';
 import { UsersComponent } from './admin/users/users.component';
+import { CreateGroupComponent } from './classes/create-group/create-group.component';
 
 const routes: Routes = [
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard]},
@@ -19,7 +20,9 @@ const routes: Routes = [
         {path: 'create-template', component: CreateTemplateComponent},
         {path: 'edit-template', component: EditTemplateComponent}
     ]},
-    {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard]},
+    {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard], children: [
+        {path: 'create-group', component: CreateGroupComponent}
+    ]},
     {path: 'auth', component: AuthComponent},
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard], children: [
         {path: 'sentences', component: SentencesComponent},
