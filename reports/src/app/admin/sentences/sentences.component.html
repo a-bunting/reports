@@ -11,15 +11,9 @@
     </div>
 
     <!-- set clickable if there is a route to take -->
-    <div    class="admin-sentences__level admin-sentences__level--one" 
-            *ngFor="let sentenceStem of viewData; let o = index" 
-    >
-
-        <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index" (click)="onStemClick(o, i)">
-            {{ sentence.name }}
-            <span class="admin-sentences__stem-phrase--depth-icon" *ngIf="sentenceStem.subcategories">
-                >>
-            </span>
+    <div class="admin-sentences__level admin-sentences__level--one"  *ngFor="let sentenceStem of viewData; let o = index" >
+        <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index" (click)="setView(o, i)">
+            {{ (sentence.name !== null) ? sentence.name : sentence.sentence }}
         </div>
     </div>
 

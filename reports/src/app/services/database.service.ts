@@ -62,13 +62,10 @@ export class DatabaseService {
     }
 
     getUserName(uid: string): Observable<any> {
-<<<<<<< HEAD
-        return this.firebase.collection('users').doc(uid).get().pipe(take(1), map((data: DocumentSnapshot<any>) => {
-            return {name: data.data().name, email: data.data().email, id: uid};
-        }));
-=======
+        // return this.firebase.collection('users').doc(uid).get().pipe(take(1), map((data: DocumentSnapshot<any>) => {
+        //     return {name: data.data().name, email: data.data().email, id: uid};
+        // }));
         return this.firebase.collection('users').doc(uid).get();
->>>>>>> a36fe8e6fb7ea07fe36a402b941aeb3564638748
     }
 
     // getTemplate(): blockTemplate {

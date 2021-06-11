@@ -14,12 +14,9 @@ interface sentenceStem {
 })
 export class SentencesComponent implements OnInit {
 
-    levels: number = 1;
+    // detlete when done
     isLoading: boolean = true;
     sentenceData: sentence[] = [];
-    // viewData: sentence[] = [];
-
-    dataPath: [{id: number; name: string[]}] = [{id: 0, name: [""]}];
     
     constructor(private databaseService: DatabaseService) {}
 
@@ -29,9 +26,9 @@ export class SentencesComponent implements OnInit {
             returnData.forEach(data => {
                 this.sentenceData.push(data.data());
             })
-            console.log(this.sentenceData);
+            // console.log(JSON.stringify(this.sentenceData));
 
-            this.rebuildView();
+            this.getSentenceData(this.route, false);
 
             this.isLoading = false;
         }, (error: any) => {
@@ -39,91 +36,138 @@ export class SentencesComponent implements OnInit {
         });
     }
 
-    setViewData(path: number[]): sentenceStem[] {
-        // set a new variable to populate
-        let viewData: sentenceStem[] = this.getInitialView();
-        // iterate over the path
-        path.forEach((route: number) => {
-            // not working yet
-            //let sentenceStem: sentenceStem;
-            //viewData.push(this.sentenceData[route])
-        })
-        // return the view data
-        console.log(path);
-        return viewData;
-    }
+    viewData: [[{name: string, sentence: string}]];
 
-    getInitialView(): sentenceStem[] {
-        var viewLevel: sentenceStem[] = [];
+    getSentenceData(route: number[], singleStream: boolean, data?: string[]) {
+        // route must always start with a 0
+        route[0] = 0;
+        console.log(route);
 
-        this.sentenceData.forEach((sentence: sentence) => {
-            let subcats: boolean = typeof sentence.subcategories === undefined ? false : true;
-            let newSentence: sentenceStem = {name: sentence.name, subcategories: subcats};
-            viewLevel.push(newSentence);
-        });
+        let ret: [[{name: string, sentence: string}]] = [[{name: null, sentence: null}]];
+        let sntncData = this.sentenceData;
 
-        return viewLevel;
-    }
-
-
-    route: number[] = [];
-    viewData: sentenceStem[][] = [[]];
-
-    onStemClick(level: number, id: number) {
-        this.route[level] = id;
-        this.route.length = level - 1; // get rid of all subsequent items.
-        this.rebuildView();
-    }
-
-    topLevelStems() {
-
-    }
-
-    rebuildView() {
-
-        let newData: [sentenceStem[]] = [null];
-        let subdata: sentence[] = this.sentenceData;
-
-        this.route.forEach((route: number) => {
-            let data: sentence = subdata[route];
-            let levelData: sentenceStem[] = [];
-
-            // console.log(data);
-
+        route.forEach((value: number, routePosition: number) => {
             try {
+                let subData = sntncData[value].subcategories;
+                let returnData: [{name: string, sentence: string}] = [{name: null, sentence: null}];
 
-                console.log("subcat");
-                console.log(data.subcategories);
-
-                let i: number  = 0;
-
-                while(data.subcategories[i]) {
-                    let subcats: boolean = typeof data.subcategories[i] === undefined ? false : true;
-                    levelData.push({name: data.subcategories[i].name, subcategories: subcats});
-                    i++;
+                try {
+                    // check to see if there is subdata, and if not just use the sentence stem
+                    subData.forEach((dataStem: sentence, index: number) => {
+                        const name = (dataStem.name ? dataStem.name : null);
+                        const sentence = (dataStem.sentence ? dataStem.sentence : null);
+                        returnData[index] = {name: name, sentence: sentence};
+                    })
+                } catch {
+                    // no subdata, this is the end of the road....
+                    const name = (subData[value].name !== null ? subData[value].name : null);
+                    const sentence = (subData[value].sentence !== null ? subData[value].sentence : null);
+                    returnData = [{name: name, sentence: sentence}];
                 }
 
-            } catch (error) {
-                console.log(`error: ${error.message}`);
-            }
-
-            newData.push(levelData);
-
-            try {
-                subdata = subdata[route].subcategories;
-            } catch (error) {
-                subdata = subdata;
-            }
+                ret[routePosition] = returnData;
+                // set the data stream as the subcategories of the first branch...
+                sntncData = sntncData[value].subcategories;
+            } catch {}
         })
 
-        console.log(newData);
-        this.viewData = newData;
+        this.viewData = ret;
+
+        /*
+        - Take an array of numbers which determines the route.
+        - Always includes the top tier.
+
+        Uses the data from the setneces database which looks like this:
+
+        [{
+            "subcategories": [{
+                "subcategories": [{
+                    "name": "Grade",
+                    "subcategories": [{
+                        "name": "Grade",
+                        "subcategories": [{
+                            "subcategories": [{
+                                "endpoint": true,
+                                "sentence": "where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."
+                            }],
+                            "name": "Long"
+                        }, {
+                            "name": "medium",
+                            "tests": [{
+                                "function": "gradeChange",
+                                "comparison": "meta"
+                            }],
+                            "subcategories": [{
+                                "endpoint": true,
+                                "sentence": "not achieving quite as well as (LAST GRADE PERIOD).",
+                                "meta": -2
+                            }, {
+                                "sentence": "achieving just as well as (LAST GRADE PERIOD).",
+                                "meta": 0,
+                                "endpoint": true
+                            }, {
+                                "meta": 2,
+                                "endpoint": true,
+                                "sentence": "achieving better than (LAST GRADE PERIOD)."
+                            }, {
+                                "sentence": "achieving far better than (GENDER) did in (LAST GRADE PERIOD).",
+                                "meta": 20,
+                                "endpoint": true
+                            }]
+                        }, {
+                            "subcategories": [{
+                                "sentence": ".",
+                                "endpoint": true
+                            }],
+                            "name": "short"
+                        }]
+                    }],
+                    "endpoint": true,
+                    "sentence": "earning (*GENDER NOUN)self an (LETTER) throughout the period"
+                }, {
+                    "name": "Learning",
+                    "subcategories": [{
+                        "endpoint": true,
+                        "sentence": "where (GENDER}NAME) learned about (TOPICS)."
+                    }, {
+                        "starter": true,
+                        "sentence": "During this (PERIOD) (NAME}GENDER) learned about (TOPICS)",
+                        "endpoint": true
+                    }]
+                }],
+                "name": "Introductions",
+                "starter": true
+            }, {
+                "sentence": "Not written - Test",
+                "name": "What they did well",
+                "endpoint": true
+            }]
+        }]
+
+        Needs to return something like this
+        [
+            // this is level one
+            [
+                {name: name of stem, sentence: sentence stem},
+                {name: name of stem, sentence: sentence stem},
+                {name: name of stem, sentence: sentence stem}
+            ],
+            // this is level two
+            [
+                {name: name of stem, sentence: sentence stem}
+            ]
+        ]
+        */
     }
 
-    generateBottomLevelViewData(data: sentence[]): sentenceStem[] {
+    route: [number] = [0];
 
-        return senste0
+    setView(position: number, index: number) {
+        this.route[position+1] = index;
+        this.route.splice(position+2);
+        this.getSentenceData(this.route, false);
     }
+
 
     /*
     [{…}]

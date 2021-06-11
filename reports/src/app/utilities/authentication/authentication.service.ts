@@ -23,7 +23,8 @@ export class AuthenticationService {
 
     constructor(private fAuth: AngularFireAuth, 
                 private firebase: AngularFirestore,
-                private router: Router) {}
+                private router: Router) {
+                }
 
     signup(email: string, password: string, name: string): Promise<any> {
         // start by attempting to sign up the user...
@@ -57,6 +58,9 @@ export class AuthenticationService {
     }
 
     login(email: string, password: string): Observable<any> {
+        // this.slowLoginFunction(email, password);
+        // return null;
+
         return this.login2(email, password);
 
         return from(this.fAuth.signInWithEmailAndPassword(email, password))
@@ -89,7 +93,7 @@ export class AuthenticationService {
             console.log(`done this ONE... ${result.user.uid}`);
             
             return this.firebase.collection('users').doc(result.user.uid).get().pipe(catchError(this.handleError), mergeMap((doc: DocumentSnapshot<any>) => {
-                console.log(`done this two... ${typeof doc}`);
+                console.log(`done this two... ${doc.data().name}`);
                 
                 return result.user.getIdTokenResult(true).then((token: IdTokenResult) => {
                     // authenticate the user in the code
@@ -107,6 +111,40 @@ export class AuthenticationService {
                 });
             })); 
         }));
+    }
+
+    slowLoginFunction(email: string, password: string): boolean {
+
+        const signInObs: Observable<UserCredential> = from(this.fAuth.signInWithEmailAndPassword(email, password));
+
+        signInObs.subscribe(result => {
+
+            const docGet = this.firebase.collection('users').doc(result.user.uid).get();
+
+            docGet.subscribe((doc: DocumentSnapshot<any>) => {
+
+                const getToken = from(result.user.getIdTokenResult(true));
+
+                getToken.subscribe(token => {
+
+                    this.handleAuthentication(
+                        result.user.email, 
+                        result.user.uid,
+                        doc.data().name,
+                        token.claims.admin,
+                        token.token 
+                    );
+
+                    return true;
+
+                }, error => { console.log(`Error token: ${error.message}`); return false; })
+
+            }, error => { console.log(`Error doc: ${error.message}: ${result.user.uid}`); return false; })
+
+        }, error => { console.log(`Error login: ${error.message}`); return false; })
+
+        return null;
+
     }
     
     logout(): Observable<any> {
