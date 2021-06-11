@@ -61,7 +61,7 @@ export class DatabaseService {
     }
 
     getUserName(uid: string): Observable<any> {
-        return this.firebase.collection('users').doc(uid).get().pipe(take(1), tap((data: DocumentSnapshot<any>) => {
+        return this.firebase.collection('users').doc(uid).get().pipe(take(1), map((data: DocumentSnapshot<any>) => {
             return {name: data.data().name, email: data.data().email, id: uid};
         }));
     }
