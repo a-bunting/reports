@@ -22,6 +22,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { UsersComponent } from './admin/users/users.component';
+import { CreateGroupComponent } from './classes/create-group/create-group.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { UsersComponent } from './admin/users/users.component';
     SentencesComponent,
     LoadingSpinnerComponent,
     DashboardComponent,
-    UsersComponent
+    UsersComponent,
+    CreateGroupComponent
   ],
   imports: [
     BrowserModule,

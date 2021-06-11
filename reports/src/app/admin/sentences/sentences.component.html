@@ -10,26 +10,17 @@
         <app-loading-spinner></app-loading-spinner>
     </div>
 
-    <div class="admin-sentences__level admin-sentences__level--one"
-            *ngFor="let path of dataPath; let o = index">
+    <!-- set clickable if there is a route to take -->
+    <div    class="admin-sentences__level admin-sentences__level--one" 
+            *ngFor="let sentenceStem of viewData; let o = index" 
+    >
 
-        <div class="admin-sentences__stem-phrase"
-             *ngFor="let value of path.name; let i = index"
-             (click)="selectStem(o, i)">
-            {{ value }}
+        <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index" (click)="onStemClick(o, i)">
+            {{ sentence.name }}
+            <span class="admin-sentences__stem-phrase--depth-icon" *ngIf="sentenceStem.subcategories">
+                >>
+            </span>
         </div>
     </div>
-    
-    <!-- 
-        deprecated mathod, poor
-        <div class="admin-sentences__level admin-sentences__level--one"
-            *ngFor="let levelData of visibleData; let o = index">
-
-        <div class="admin-sentences__stem-phrase"
-             *ngFor="let stem of levelData; let i = index"
-             (click)="selectStem(o, i)">
-            {{ stem.name ? stem.name : stem.sentence }}
-        </div>
-    </div> -->
 
 </div>

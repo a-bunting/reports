@@ -4,7 +4,7 @@ import { UserCredential, IdTokenResult } from '@firebase/auth-types';
 import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
-import { catchError, mergeMap, take, tap } from 'rxjs/operators';
+import { catchError, mergeMap, take, tap, toArray } from 'rxjs/operators';
 import { User } from '../auth/user.model';
 
 export interface AuthResponseData {

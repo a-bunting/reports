@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
-import { concat, merge, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { forkJoin, Observable } from 'rxjs';
+import { map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
 import { DatabaseService } from '../services/database.service';
 
 export interface Group {
@@ -20,51 +20,29 @@ export class ClassesComponent implements OnInit {
     constructor(private db: DatabaseService) { }
 
     ngOnInit(): void {
-
-        const groups = this.getAllGroups();
-
-        groups.subscribe(() => {
-            console.log(JSON.stringify(this.groups));
-        })
-
+        this.getAllGroups().subscribe(all => console.log('done', all));
     }
 
     getAllGroups(): Observable<any> {
-        let newListOfGroups: Group[] = [];
-
-        return this.db.getGroups().pipe(map((groups: QuerySnapshot<any>) => {
-            groups.forEach((group: QueryDocumentSnapshot<any>) => {
-                
-                // define the variables for the groups
-                let newGroup: Group = {name: group.data().name, managers: null};
-                let groupManagers: {name: string, email: string, uid: string}[] = [];
-
-                // create the empty array for the observables for each user query
-                let obsArray: Observable<any>[] = [];
-
-                // for each user reference get an observable reference to the data
-                group.data().managers.forEach(user => {
-                    obsArray.push(this.db.getUserName(user.id));
-                });
-
-                // use concat to execute all subscriptions at once
-                concat(obsArray).subscribe(data => {
-                    // log the output of the observable 
-                    console.log(data);
-                });
-
-                // add these values to the group variables
-                newGroup.managers = groupManagers;
-                newListOfGroups.push(newGroup);
-            })
-            
-            // make the groups list the global list and repopulate the screen
-            this.groups = newListOfGroups;
-
-        }, (error: any) => {
-            // standard error...
-            console.log(`Error loading groups: ${error.message}`);
-        }));
+        return this.db.getGroups().pipe(
+            // mergeAll(),
+            // mergeMap((group: QueryDocumentSnapshot<any>) => {
+            //     const managersInGroup = forkJoin(
+            //         group.data().managers.map(userManager => {
+            //             this.db.getUserName(userManager.uid).pipe(
+            //                 map(userName => ({ ...userManager, name: userName}))
+            //             )
+            //         })
+            //     );
+            //     return managersInGroup.pipe(
+            //         map(managersOfGroup => ({
+            //             name: group.data().name,
+            //             managers: managersOfGroup
+            //         }))
+            //     );
+            // }), 
+            // toArray() 
+        );
     }
 
 }

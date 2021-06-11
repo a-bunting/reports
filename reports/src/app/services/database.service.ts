@@ -25,7 +25,7 @@ import { User } from '../utilities/auth/user.model';
 export interface sentence {
     endpoint?: boolean, starter?: boolean, 
     name: string, sentence?: string, meta?: string | number
-    subCategories: [sentence], tests?: [test]
+    subcategories?: [sentence], tests?: [test]
 }
 
 export interface test {
@@ -48,6 +48,7 @@ export class DatabaseService {
     }
 
     getSentences(): Observable<any> {
+        return this.firebase.collection('sentences').get();    
         return this.http.get('https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/sentences/0/subCategories.json');
     }
 
@@ -61,9 +62,13 @@ export class DatabaseService {
     }
 
     getUserName(uid: string): Observable<any> {
+<<<<<<< HEAD
         return this.firebase.collection('users').doc(uid).get().pipe(take(1), map((data: DocumentSnapshot<any>) => {
             return {name: data.data().name, email: data.data().email, id: uid};
         }));
+=======
+        return this.firebase.collection('users').doc(uid).get();
+>>>>>>> a36fe8e6fb7ea07fe36a402b941aeb3564638748
     }
 
     // getTemplate(): blockTemplate {
