@@ -11,9 +11,13 @@
     </div>
 
     <!-- set clickable if there is a route to take -->
-    <div class="admin-sentences__level admin-sentences__level--one"  *ngFor="let sentenceStem of viewData; let o = index" >
-        <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index" (click)="setView(o, i)">
-            {{ (sentence.name !== null) ? sentence.name : sentence.sentence }}
+    <div class="admin-sentences__level admin-sentences__level--{{o}}"  *ngFor="let sentenceStem of viewData; let o = index" >
+        <div class="admin-sentences__stem-phrase"  *ngFor="let sentence of sentenceStem; let i = index">
+            <div class="admin-sentences__stem-phrase--name" [class.admin-sentences__stem-phrase--selectable]="sentence.name" *ngIf="sentence.name" (click)="setView(o, i)">
+                <div>{{ sentence.name }}</div>
+                <div class="admin-sentences__stem-phrase--hand">&#9755;</div>
+            </div>
+            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngIf="sentence.sentence" (input)="modifyComment($event, o, i)" contenteditable>{{ sentence.sentence }}</div>
         </div>
     </div>
 

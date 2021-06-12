@@ -6,34 +6,80 @@
     &__level {
         
         flex: 1;
-        height: 10rem;
         border-radius: 1rem;
 
-        &--one { background-color: aquamarine ;}
-        &--two { background-color: turquoise ;}
-        &--three { background-color: yellow ;}
-        &--four { background-color: lightcoral ;}
+        &--0 { background-color: lighten(#457b9d, 0);}
+        &--1 { background-color: lighten(#457b9d, 10%);}
+        &--2 { background-color: lighten(#457b9d, 20%);}
+        &--3 { background-color: lighten(#457b9d, 30%);}
+        &--4 { background-color: lighten(#457b9d, 40%);}
     }
 
     &__stem-phrase {
         background-color: var(--color-style-main);
-        font-size: 1.6rem;
-        letter-spacing: .15rem;
-        padding: 1rem 2rem;
-        margin: .5rem;
+        font-size: 1.4rem;
+        letter-spacing: .1rem;
+        padding: .5rem .5rem;
+        margin: .3rem;
         border-radius: 1rem;
         
+        display: flex;
+        flex-direction: column;
+
+        &--name {
+            font-weight: bold;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            background-color: rgba(white, .4);
+            border-radius: 1rem;
+            padding-left: 1rem;
+        }
+        
+        &--hand {
+            font-size: 3rem;
+            margin-left: 1rem;
+            margin-top: -1.3rem;
+            padding-top: .6rem;
+            animation: pointRight 1.5s ease-in-out infinite;    
+        }
+
+        &--sentence {
+            font-style: italic;
+            font-size: 1.3rem;
+            margin: 0 .5rem;
+            margin-top: .5rem;
+        }
+
         &--select {
             padding: .5rem 1rem;
             border-radius: 1rem;
         }
 
+        &--selectable {
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        &--editable {
+            &:hover {
+                cursor: text;
+            }
+        }
+
         transition: all .2s;
+        
         &:hover {
-            cursor: pointer;
             background-color: var(--color-style-juxtapose);
         }
     }
+}
+
+@keyframes pointRight {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(1rem); }
+    100% { transform: translateX(0); }
 }
 
 .loading {
