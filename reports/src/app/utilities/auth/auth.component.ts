@@ -49,7 +49,7 @@ export class AuthComponent implements OnInit {
         authObs = from(this.authService.signup(email, password, name));
     } else {
         // login mode...
-        authObs = this.authService.login2(email, password);
+        authObs = this.authService.login3(email, password);
     }
 
     authObs.subscribe((responseData: any) => {

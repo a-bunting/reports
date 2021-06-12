@@ -22,7 +22,7 @@ export class AuthenticationService {
     user = new BehaviorSubject<User>(null);
 
     constructor(private fAuth: AngularFireAuth, 
-                private firebase: AngularFirestore,
+                private firestore: AngularFirestore,
                 private router: Router) {
                 }
 
@@ -32,7 +32,7 @@ export class AuthenticationService {
             // then get the token and custom claims for this user
             return result.user.getIdTokenResult(true).then((token: any) => {
                 // finally add the user to the users database:
-                return this.firebase.collection('users').doc(result.user.uid).set({
+                return this.firestore.collection('users').doc(result.user.uid).set({
                     email: email,
                     name: name
                 })
@@ -61,13 +61,13 @@ export class AuthenticationService {
         // this.slowLoginFunction(email, password);
         // return null;
 
-        return this.login2(email, password);
+        return this.login3(email, password);
 
         return from(this.fAuth.signInWithEmailAndPassword(email, password))
             .pipe(take(1), catchError(this.handleError), tap((result: any) => {
             
             // get the id token to authenticate and store...
-            // return from(this.firebase.collection('users').doc(result.user.uid).get())
+            // return from(this.firestore.collection('users').doc(result.user.uid).get())
             //         .pipe(take(1), catchError(this.handleError), tap((doc: any) => {
                     
                     // get the token and handle authentication...
@@ -86,66 +86,93 @@ export class AuthenticationService {
         }));
     }
 
-    login2(email: string, password: string): Observable<any> {
-        const signInObs: Observable<UserCredential> = from(this.fAuth.signInWithEmailAndPassword(email, password));
+    // login2(email: string, password: string): Observable<any> {
+    //     const signInObs: Observable<UserCredential> = from(this.fAuth.signInWithEmailAndPassword(email, password));
         
-        return signInObs.pipe(take(1), catchError(this.handleError), mergeMap((result: UserCredential) => {
-            console.log(`done this ONE... ${result.user.uid}`);
+    //     return signInObs.pipe(take(1), catchError(this.handleError), mergeMap((result: UserCredential) => {
+    //         console.log(`done this ONE... ${result.user.uid}`);
             
-            return this.firebase.collection('users').doc(result.user.uid).get().pipe(catchError(this.handleError), mergeMap((doc: DocumentSnapshot<any>) => {
-                console.log(`done this two... ${doc.data().name}`);
+    //         return this.firestore.collection('users').doc(result.user.uid).get().pipe(catchError(this.handleError), mergeMap((doc: DocumentSnapshot<any>) => {
+    //             console.log(`done this two... ${doc.data().name}`);
                 
-                return result.user.getIdTokenResult(true).then((token: IdTokenResult) => {
-                    // authenticate the user in the code
-                    console.log(`done this three.. ${token.claims.admin}`);
+    //             return result.user.getIdTokenResult(true).then((token: IdTokenResult) => {
+    //                 // authenticate the user in the code
+    //                 console.log(`done this three.. ${token.claims.admin}`);
                                         
-                    this.handleAuthentication(
-                        result.user.email, 
-                        result.user.uid,
-                        doc.data().name,
-                        token.claims.admin,
-                        token.token 
-                    );
-                }).catch(error => {
-                    throw new Error(error);
-                });
-            })); 
-        }));
+    //                 this.handleAuthentication(
+    //                     result.user.email, 
+    //                     result.user.uid,
+    //                     doc.data().name,
+    //                     token.claims.admin,
+    //                     token.token 
+    //                 );
+    //             }).catch(error => {
+    //                 throw new Error(error);
+    //             });
+    //         })); 
+    //     }));
+    // }
+
+    login3(email: string, password: string): Observable<any> {
+        const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
+            const userDocRef = this.firestore.collection('users').doc(result.user.uid);
+
+            // promise all rejects if one fails or continues if all succeed
+            return Promise.all([
+                Promise.resolve(result.user), 
+                result.user.getIdTokenResult(),
+                userDocRef.get()
+            ]);
+        }).then(([user, tokenData, userDataSnapshot]) => {
+            this.handleAuthentication(
+                user.email, 
+                user.uid,
+                "Alex Bunting", //userDataSnapshot.data().name
+                tokenData.claims.admin,
+                tokenData.token 
+            );
+        })
+
+        return from(signIn);
     }
 
-    slowLoginFunction(email: string, password: string): boolean {
 
-        const signInObs: Observable<UserCredential> = from(this.fAuth.signInWithEmailAndPassword(email, password));
 
-        signInObs.subscribe(result => {
 
-            const docGet = this.firebase.collection('users').doc(result.user.uid).get();
 
-            docGet.subscribe((doc: DocumentSnapshot<any>) => {
+    // slowLoginFunction(email: string, password: string): boolean {
 
-                const getToken = from(result.user.getIdTokenResult(true));
+    //     const signInObs: Observable<UserCredential> = from(this.fAuth.signInWithEmailAndPassword(email, password));
 
-                getToken.subscribe(token => {
+    //     signInObs.subscribe(result => {
 
-                    this.handleAuthentication(
-                        result.user.email, 
-                        result.user.uid,
-                        doc.data().name,
-                        token.claims.admin,
-                        token.token 
-                    );
+    //         const docGet = this.firestore.collection('users').doc(result.user.uid).get();
 
-                    return true;
+    //         docGet.subscribe((doc: DocumentSnapshot<any>) => {
 
-                }, error => { console.log(`Error token: ${error.message}`); return false; })
+    //             const getToken = from(result.user.getIdTokenResult(true));
 
-            }, error => { console.log(`Error doc: ${error.message}: ${result.user.uid}`); return false; })
+    //             getToken.subscribe(token => {
 
-        }, error => { console.log(`Error login: ${error.message}`); return false; })
+    //                 this.handleAuthentication(
+    //                     result.user.email, 
+    //                     result.user.uid,
+    //                     doc.data().name,
+    //                     token.claims.admin,
+    //                     token.token 
+    //                 );
 
-        return null;
+    //                 return true;
 
-    }
+    //             }, error => { console.log(`Error token: ${error.message}`); return false; })
+
+    //         }, error => { console.log(`Error doc: ${error.message}: ${result.user.uid}`); return false; })
+
+    //     }, error => { console.log(`Error login: ${error.message}`); return false; })
+
+    //     return null;
+
+    // }
     
     logout(): Observable<any> {
         return from(this.fAuth.signOut().then((result) => {
