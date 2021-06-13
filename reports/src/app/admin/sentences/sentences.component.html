@@ -12,10 +12,16 @@
 
     <!-- set clickable if there is a route to take -->
     <div class="admin-sentences__level admin-sentences__level--{{o}}"  *ngFor="let sentenceStem of viewData; let o = index" >
-        <div class="admin-sentences__stem-phrase"  *ngFor="let sentence of sentenceStem; let i = index">
-            <div class="admin-sentences__stem-phrase--name" [class.admin-sentences__stem-phrase--selectable]="sentence.name" *ngIf="sentence.name" (click)="setView(o, i)">
+        
+        <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index">
+            <div class="admin-sentences__stem-phrase--name" [class.admin-sentences__stem-phrase--selectable]="sentence.name" [class.admin-sentences__stem-phrase--route]="route[o+1] === i"  *ngIf="sentence.name" (click)="setView(o, i)">
                 <div>{{ sentence.name }}</div>
                 <div class="admin-sentences__stem-phrase--hand">&#9755;</div>
+            </div>
+            <div class="admin-sentences__stem-phrase--icons" *ngIf="sentence.endpoint || sentence.starter || sentence.tests">
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--startpoint]="sentence.starter" [class.admin-sentences__stem-phrase--deselected]="!sentence.starter" (click)="modifyStartpointData()">S</div>
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--endpoint]="sentence.endpoint" [class.admin-sentences__stem-phrase--deselected]="!sentence.endpoint" (click)="modifyEndpointData()">E</div>
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--tests]="sentence.tests" [class.admin-sentences__stem-phrase--deselected]="!sentence.tests" (click)="modifyTestsData()">Tests</div>
             </div>
             <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngIf="sentence.sentence" (input)="modifySentenceData($event, o, i)" contenteditable>{{ sentence.sentence }}</div>
         </div>

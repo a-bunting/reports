@@ -27,7 +27,7 @@ export class SentencesComponent implements OnInit {
         if(localStorage.getItem('sentences-data') !== null) {
             // retrieve the data from local storage and parse it into the sentence data...
             this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));
-            this.getSentenceData(this.route, false, ['name','sentence','endpoint', 'startpoint', 'tests', 'meta', 'comparison', 'function']);
+            this.getSentenceData(this.route, false, this.selection);
             this.isLoading = false;
         } else {
             // no instance of the saved data so geta  fresh version.
@@ -39,7 +39,7 @@ export class SentencesComponent implements OnInit {
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 
-                this.getSentenceData(this.route, false, ['name','sentence','endpoint', 'startpoint', 'tests', 'meta', 'comparison', 'function']);
+                this.getSentenceData(this.route, false, this.selection);
                 this.isLoading = false;
             }, (error: any) => {
                 console.log(`Error retrieving data: ${error.message}`);
@@ -105,27 +105,53 @@ export class SentencesComponent implements OnInit {
     }
 
     route: [number] = [0];
+    selection: string[] = ['name','sentence','endpoint', 'starter', 'tests', 'meta', 'comparison', 'function'];
 
     setView(position: number, index: number) {
         this.route[position+1] = index;
         this.route.splice(position+2);
-        this.getSentenceData(this.route, false, ['name','sentence','endpoint', 'startpoint', 'tests', 'meta', 'comparison', 'function']);
+        this.getSentenceData(this.route, false, this.selection);
     }
 
     
-    modifySentenceData(newComment, position: number, index: number) {
-        console.log(typeof newComment)
-        console.log(newComment.target.innerText);
+    modifySentenceData(newComment, position: number, subPosition: number) {
+        
+        // let sntncData = this.sentenceData;
+        // let newData = this.sentenceData;
 
-        let sntncData = this.sentenceData;
+        // this.route.forEach((routeId: number, i: number) => {
+        //     sntncData = sntncData[routeId].subcategories;
+        // });
 
-        this.route.forEach((position: number, index: number) => {
-            let subData = sntncData[position].subcategories;
+        // // need to get to this point Headers.length.toExponential.
+        // // this.sentenceData[this.route[0]]['subcategories'][this.route[1]]['subcategories'][index].sentence = newComment.target.innerText;
+
+        // console.log(sntncData[index].sentence);
+        // console.log(newComment.target.innerText);
+    
+        this.sentenceData.forEach(function iterate(sntnce, index) {
+            if(index === position) {
+                console.log(sntnce.subcategories[subPosition].sentence);
+                return;
+            }
+            Array.isArray(sntnce.subcategories) && sntnce.subcategories.forEach(iterate);
+        })
+
+        // console.log(this.sentenceData);
 
 
-            
-            sntncData = sntncData[position].subcategories;
-        });
+    }
+
+    modifyStartpointData() {
+        
+    }
+
+    modifyEndpointData() {
+
+    }
+
+    modifyTestsData() {
+
     }
 
     /*
