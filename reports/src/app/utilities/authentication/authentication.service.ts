@@ -116,18 +116,18 @@ export class AuthenticationService {
     login3(email: string, password: string): Observable<any> {
         const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
-
+            
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
                 Promise.resolve(result.user), 
                 result.user.getIdTokenResult(),
-                userDocRef.get()
+                userDocRef.ref.get()
             ]);
         }).then(([user, tokenData, userDataSnapshot]) => {
             this.handleAuthentication(
                 user.email, 
                 user.uid,
-                "Alex Bunting", //userDataSnapshot.data().name
+                userDataSnapshot.get('name'),
                 tokenData.claims.admin,
                 tokenData.token 
             );

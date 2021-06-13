@@ -17,6 +17,7 @@ export class SentencesComponent implements OnInit {
     // detlete when done
     isLoading: boolean = true;
     sentenceData: sentence[] = [];
+    viewData: [[{}]];
     
     constructor(private databaseService: DatabaseService) {}
 
@@ -26,7 +27,7 @@ export class SentencesComponent implements OnInit {
         if(localStorage.getItem('sentences-data') !== null) {
             // retrieve the data from local storage and parse it into the sentence data...
             this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));
-            this.getSentenceDataWORKINGBASIC(this.route, false, ['name','sentence','endpoint']);
+            this.getSentenceData(this.route, false, ['name','sentence','endpoint', 'startpoint', 'tests', 'meta', 'comparison', 'function']);
             this.isLoading = false;
         } else {
             // no instance of the saved data so geta  fresh version.
@@ -38,7 +39,7 @@ export class SentencesComponent implements OnInit {
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 
-                this.getSentenceDataWORKINGBASIC(this.route, false, ['name','sentence','endpoint']);
+                this.getSentenceData(this.route, false, ['name','sentence','endpoint', 'startpoint', 'tests', 'meta', 'comparison', 'function']);
                 this.isLoading = false;
             }, (error: any) => {
                 console.log(`Error retrieving data: ${error.message}`);
@@ -46,58 +47,11 @@ export class SentencesComponent implements OnInit {
         }
     }
 
-    // viewData: [[{name: string, sentence: string}]];
-
+    // current version just displays the data but does nothing with it...
     getSentenceData(route: number[], singleStream: boolean, data?: string[]) {
         // route must always start with a 0
         route[0] = 0;
-        console.log(route);
-
-        let ret: [[{name: string, sentence: string}]] = [[{name: null, sentence: null}]];
-        let sntncData = this.sentenceData;
-
-        route.forEach((value: number, routePosition: number) => {
-            try {
-                let subData = sntncData[value].subcategories;
-                let returnData: [{name: string, sentence: string}] = [{name: null, sentence: null}];
-
-                try {
-                    // check to see if there is subdata, and if not just use the sentence stem
-                    subData.forEach((dataStem: sentence, index: number) => {
-                        const name = (dataStem.name ? dataStem.name : null);
-                        const sentence = (dataStem.sentence ? dataStem.sentence : null);
-                        returnData[index] = {name: name, sentence: sentence};
-                    })
-                } catch {
-                    // no subdata, this is the end of the road....
-                    const name = (subData[value].name !== null ? subData[value].name : null);
-                    const sentence = (subData[value].sentence !== null ? subData[value].sentence : null);
-                    returnData = [{name: name, sentence: sentence}];
-                }
-
-                ret[routePosition] = returnData;
-                // set the data stream as the subcategories of the first branch...
-                sntncData = sntncData[value].subcategories;
-            } catch {
-                // nothing here yet...
-            }
-        })
-
-        this.viewData = ret;
-    }
-
-    modifyComment(newComment, position: number, index: number) {
-        console.log(typeof newComment)
-        console.log(newComment.target.innerText);
-    }
-
-    viewData: [[{}]];
-
-    // current version just displays the data but does nothing with it...
-    getSentenceDataWORKINGBASIC(route: number[], singleStream: boolean, data?: string[]) {
-        // route must always start with a 0
-        route[0] = 0;
-        console.log(route);
+        //console.log(route);
 
         // let ret: [[{name: string, sentence: string}]] = [[{name: null, sentence: null}]];
         let ret: [[{}]] = [[{}]];
@@ -121,12 +75,10 @@ export class SentencesComponent implements OnInit {
                             }
                         })
                     })
-                } catch (error) {
-                    console.log(error);
+                } catch {
                     // no subdata, this is the end of the road....
                     let noSubDataReturn: {} = {};
 
-                    // THINK THIS NEEDS FINISHING ...
                     data.forEach((key: string) => {
                         // get the value for the key value pair
                         const val: string | boolean | number = (subData[value][key] ? subData[value][key] : undefined);
@@ -148,9 +100,32 @@ export class SentencesComponent implements OnInit {
                 // nothing here yet...
             }
         })
-
         console.log(ret);
         this.viewData = ret;
+    }
+
+    route: [number] = [0];
+
+    setView(position: number, index: number) {
+        this.route[position+1] = index;
+        this.route.splice(position+2);
+        this.getSentenceData(this.route, false, ['name','sentence','endpoint', 'startpoint', 'tests', 'meta', 'comparison', 'function']);
+    }
+
+    
+    modifySentenceData(newComment, position: number, index: number) {
+        console.log(typeof newComment)
+        console.log(newComment.target.innerText);
+
+        let sntncData = this.sentenceData;
+
+        this.route.forEach((position: number, index: number) => {
+            let subData = sntncData[position].subcategories;
+
+
+            
+            sntncData = sntncData[position].subcategories;
+        });
     }
 
     /*
@@ -239,14 +214,45 @@ export class SentencesComponent implements OnInit {
     ]
     */
 
-    route: [number] = [0];
+    // viewData: [[{name: string, sentence: string}]];
 
-    setView(position: number, index: number) {
-        this.route[position+1] = index;
-        this.route.splice(position+2);
-        this.getSentenceDataWORKINGBASIC(this.route, false, ['name', 'sentence', 'endpoint']);
-    }
+    // getSentenceData(route: number[], singleStream: boolean, data?: string[]) {
+    //     // route must always start with a 0
+    //     route[0] = 0;
+    //     console.log(route);
 
+    //     let ret: [[{name: string, sentence: string}]] = [[{name: null, sentence: null}]];
+    //     let sntncData = this.sentenceData;
+
+    //     route.forEach((value: number, routePosition: number) => {
+    //         try {
+    //             let subData = sntncData[value].subcategories;
+    //             let returnData: [{name: string, sentence: string}] = [{name: null, sentence: null}];
+
+    //             try {
+    //                 // check to see if there is subdata, and if not just use the sentence stem
+    //                 subData.forEach((dataStem: sentence, index: number) => {
+    //                     const name = (dataStem.name ? dataStem.name : null);
+    //                     const sentence = (dataStem.sentence ? dataStem.sentence : null);
+    //                     returnData[index] = {name: name, sentence: sentence};
+    //                 })
+    //             } catch {
+    //                 // no subdata, this is the end of the road....
+    //                 const name = (subData[value].name !== null ? subData[value].name : null);
+    //                 const sentence = (subData[value].sentence !== null ? subData[value].sentence : null);
+    //                 returnData = [{name: name, sentence: sentence}];
+    //             }
+
+    //             ret[routePosition] = returnData;
+    //             // set the data stream as the subcategories of the first branch...
+    //             sntncData = sntncData[value].subcategories;
+    //         } catch {
+    //             // nothing here yet...
+    //         }
+    //     })
+
+    //     this.viewData = ret;
+    // }
 
     /*
     [{…}]

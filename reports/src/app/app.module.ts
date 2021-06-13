@@ -20,9 +20,10 @@ import { AuthenticationService } from './utilities/authentication/authentication
 import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth, AngularFireAuthModule } from '@angular/fire/auth';
 import { UsersComponent } from './admin/users/users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 @NgModule({
   declarations: [
@@ -45,12 +46,16 @@ import { CreateGroupComponent } from './classes/create-group/create-group.compon
     AppRoutingModule, 
     FormsModule, 
     HttpClientModule, 
+    AngularFirestoreModule, 
+    AngularFireAuthModule, 
     AngularFireModule.initializeApp(environment.firebaseConfig)
   ],
   providers: [
         {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
         AuthenticationService,
-        AngularFireFunctions
+        AngularFireFunctions, 
+        AngularFireAuthModule, 
+        AngularFirestoreModule
     ],
   bootstrap: [AppComponent]
 })

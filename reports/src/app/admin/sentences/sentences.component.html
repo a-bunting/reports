@@ -17,7 +17,7 @@
                 <div>{{ sentence.name }}</div>
                 <div class="admin-sentences__stem-phrase--hand">&#9755;</div>
             </div>
-            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngIf="sentence.sentence" (input)="modifyComment($event, o, i)" contenteditable>{{ sentence.sentence }}</div>
+            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngIf="sentence.sentence" (input)="modifySentenceData($event, o, i)" contenteditable>{{ sentence.sentence }}</div>
         </div>
     </div>
 
