@@ -137,60 +137,42 @@ export class SentencesComponent implements OnInit, OnDestroy {
     // function to generate all options for this route to check it works fine.
     /**
      * 
-     * * Returns an array like this: 
-     [
-        // this is level one
-        [
-            {key: name of stem, value: sentence stem},
-            ...
-        ],
-        // this is level two
-        [
-            {key: name of stem, value: sentence stem},
-            {key: name of stem, value: sentence stem}
-        ]
-    ]
+     * * Returns an array like this:
     *
      * 
      * @param route use an array like this:
      */
+    possibilities: [{sentence: string, position: number}];
+
     generateSentenceOptions(route: number[]) {
         // const sentenceArray: [sentence[]] = this.getSentenceData(route, false, ['sentence', 'starter','endpoint'])
-        let possibilities: [{sentence: string, position: number}];
+        let possibilities: [{sentence: string, position: number}] = [{sentence: "", position: 0}];
         let depth: number = 0;
 
-        this.sentenceData.forEach(function iterate(value: sentence, i: number): string {
-            if(i === route[depth]) {
-
-                let stnce: string;
-
-                // first look at the subcategories
-                // then return the string
-                // concatenate that string and pass it back recursively
-                // output one string...
-                if(Array.isArray(value.subcategories)) {
-                    depth++;
-                    stnce += value.subcategories.forEach(iterate);  
-                    depth--;
-                }
+        this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+            
+            if(i === route[depth] || depth === route.length) {
 
                 const sentence: string = value.sentence ? value.sentence : undefined;
-
+                
                 if(sentence) {
-                    return sentence;
-                } else return null;
+                    possibilities.forEach((possibility, idx) => {
+                        possibilities.push({sentence: possibility.sentence + sentence, position: depth});
+                        if(depth > possibility.position) {
+                            possibilities.splice(idx, 1);
+                        }
+                    })
+                }
 
-                if(route.length === depth) {
-                    // need to ensure this can add to the array if it isnt there already...
-                    const starter: boolean = value.starter ? value.starter : false;
-                    const endpoint: boolean = value.endpoint ? value.endpoint : false;
-                    return sentence;
-                } else {
+                if(Array.isArray(value.subcategories)) {
                     depth++;
+                    value.subcategories.forEach(iterate);  
                     depth--;
                 }
             }
         })
+
+        this.possibilities = possibilities;
 
     }
 

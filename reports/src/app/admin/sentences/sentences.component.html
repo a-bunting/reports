@@ -34,3 +34,9 @@
     </div>
 
 </div>
+
+<div class="sentences">
+    <div class="sentences__possibility" *ngFor="let possibility of possibilities; let i = index">
+        {{ possibility.sentence.length }} characters - {{ possibility.sentence }}
+    </div>
+</div>
