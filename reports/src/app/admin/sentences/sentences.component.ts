@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { stringify } from '@angular/compiler/src/util';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { DatabaseService, sentence } from '../../services/database.service';
@@ -31,7 +32,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
             // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
             this.initialData = JSON.parse(localStorage.getItem('sentences-data'));                
             // set the data on the display
-            this.getSentenceData(this.route, false, this.selection);
+            this.viewData = this.getSentenceData(this.route, false, this.selection);
             this.isLoading = false;
         } else {
             // no instance of the saved data so geta  fresh version.
@@ -45,7 +46,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 
-                this.getSentenceData(this.route, false, this.selection);
+                this.viewData = this.getSentenceData(this.route, false, this.selection);
                 this.isLoading = false;
             }, (error: any) => {
                 console.log(`Error retrieving data: ${error.message}`);
@@ -59,12 +60,25 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Displays the sentence data given a specific route through the array.
-     * 
+     * Returns an array like this: 
+     [
+        // this is level one
+        [
+            {key: name of stem, value: sentence stem},
+            ...
+        ],
+        // this is level two
+        [
+            {key: name of stem, value: sentence stem},
+            {key: name of stem, value: sentence stem}
+        ]
+    ]
+    *
      * @param route the array of subcategories through the sentenceData array 
      * @param singleStream  whether or not to go down the route only or butterfly out
      * @param data a list of key values to return (i.e. name, sentence, endpoint etc)
      */
-    getSentenceData(route: number[], singleStream: boolean, data?: string[]) {
+    getSentenceData(route: number[], singleStream: boolean, data?: string[]): [sentence[]] {
         // route must always start with a 0
         route[0] = 0;
 
@@ -114,14 +128,76 @@ export class SentencesComponent implements OnInit, OnDestroy {
                 // nothing here yet...
             }
         })
-        // console.log(ret);
-        this.viewData = ret;
+
+        this.generateSentenceOptions(this.route);
+
+        return ret;
+    }
+
+    // function to generate all options for this route to check it works fine.
+    /**
+     * 
+     * * Returns an array like this: 
+     [
+        // this is level one
+        [
+            {key: name of stem, value: sentence stem},
+            ...
+        ],
+        // this is level two
+        [
+            {key: name of stem, value: sentence stem},
+            {key: name of stem, value: sentence stem}
+        ]
+    ]
+    *
+     * 
+     * @param route use an array like this:
+     */
+    generateSentenceOptions(route: number[]) {
+        // const sentenceArray: [sentence[]] = this.getSentenceData(route, false, ['sentence', 'starter','endpoint'])
+        let possibilities: [{sentence: string, position: number}];
+        let depth: number = 0;
+
+        this.sentenceData.forEach(function iterate(value: sentence, i: number): string {
+            if(i === route[depth]) {
+
+                let stnce: string;
+
+                // first look at the subcategories
+                // then return the string
+                // concatenate that string and pass it back recursively
+                // output one string...
+                if(Array.isArray(value.subcategories)) {
+                    depth++;
+                    stnce += value.subcategories.forEach(iterate);  
+                    depth--;
+                }
+
+                const sentence: string = value.sentence ? value.sentence : undefined;
+
+                if(sentence) {
+                    return sentence;
+                } else return null;
+
+                if(route.length === depth) {
+                    // need to ensure this can add to the array if it isnt there already...
+                    const starter: boolean = value.starter ? value.starter : false;
+                    const endpoint: boolean = value.endpoint ? value.endpoint : false;
+                    return sentence;
+                } else {
+                    depth++;
+                    depth--;
+                }
+            }
+        })
+
     }
 
     setView(position: number, index: number) {
         this.route[position+1] = index;
         this.route.splice(position+2);
-        this.getSentenceData(this.route, false, this.selection);
+        this.viewData = this.getSentenceData(this.route, false, this.selection);
     }
 
     modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
@@ -154,13 +230,13 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
         this.modifyData(position, subPosition, 'starter', !currentState);
-        this.getSentenceData(this.route, false, this.selection);
+        this.viewData = this.getSentenceData(this.route, false, this.selection);
         this.changeComparsion();
     }
     
     modifyEndpointData(position: number, subPosition: number, currentState: boolean) {
         this.modifyData(position, subPosition, 'endpoint', !currentState);
-        this.getSentenceData(this.route, false, this.selection);
+        this.viewData = this.getSentenceData(this.route, false, this.selection);
         this.changeComparsion();
     }
 
@@ -262,18 +338,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }]
 
     Needs to return something like this
-    [
-        // this is level one
-        [
-            {name: name of stem, sentence: sentence stem},
-            {name: name of stem, sentence: sentence stem},
-            {name: name of stem, sentence: sentence stem}
-        ],
-        // this is level two
-        [
-            {name: name of stem, sentence: sentence stem}
-        ]
-    ]
+
     */
 
     // viewData: [[{name: string, sentence: string}]];
