@@ -21,8 +21,8 @@ export class AuthenticationService {
 
     user = new BehaviorSubject<User>(null);
 
-    constructor(private fAuth: AngularFireAuth, 
-                private firestore: AngularFirestore,
+    constructor(public firestore: AngularFirestore,
+                public fAuth: AngularFireAuth, 
                 private router: Router) {
                 }
 
@@ -135,10 +135,6 @@ export class AuthenticationService {
 
         return from(signIn);
     }
-
-
-
-
 
     // slowLoginFunction(email: string, password: string): boolean {
 

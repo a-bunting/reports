@@ -46,12 +46,12 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
     AppRoutingModule, 
     FormsModule, 
     HttpClientModule, 
-    AngularFirestoreModule, 
-    AngularFireAuthModule, 
-    AngularFireModule.initializeApp(environment.firebaseConfig)
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule,
+    AngularFirestoreModule 
   ],
   providers: [
-        {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
+        // {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
         AuthenticationService,
         AngularFireFunctions, 
         AngularFireAuthModule, 

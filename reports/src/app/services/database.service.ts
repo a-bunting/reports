@@ -9,22 +9,9 @@ import { AngularFirestore, QuerySnapshot, DocumentSnapshot } from '@angular/fire
 import { AngularFireAuth } from '@angular/fire/auth';
 import { User } from '../utilities/auth/user.model';
 
-/**
-{
-    "name": "sentences",
-    "endpoint": true, 
-    "starter": true, 
-    "sentence": "", 
-    "meta": 0,
-    "subCategories" : [
-
-    ]
-}
-**/
-
 export interface sentence {
     endpoint?: boolean, starter?: boolean, 
-    name: string, sentence?: string, meta?: string | number
+    name?: string, sentence?: string, meta?: string | number
     subcategories?: [sentence], tests?: [test]
 }
 

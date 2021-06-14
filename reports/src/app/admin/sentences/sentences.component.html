@@ -4,6 +4,12 @@
     </h4>
 </div>
 
+<div class="admin-sentences__save-control">
+    <input type="checkbox" class="admin-sentences__autosave--checkbox" name="autoSave" id="autoSave">
+    <label for="autoSave" class="admin-sentences__autosave--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
+    <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save your changes</button>
+</div>
+
 <div class="admin-sentences">
     
     <div class="loading" *ngIf="isLoading">
@@ -18,12 +24,12 @@
                 <div>{{ sentence.name }}</div>
                 <div class="admin-sentences__stem-phrase--hand">&#9755;</div>
             </div>
-            <div class="admin-sentences__stem-phrase--icons" *ngIf="sentence.endpoint || sentence.starter || sentence.tests">
-                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--startpoint]="sentence.starter" [class.admin-sentences__stem-phrase--deselected]="!sentence.starter" (click)="modifyStartpointData()">S</div>
-                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--endpoint]="sentence.endpoint" [class.admin-sentences__stem-phrase--deselected]="!sentence.endpoint" (click)="modifyEndpointData()">E</div>
+            <div class="admin-sentences__stem-phrase--icons">
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--startpoint]="sentence.starter" [class.admin-sentences__stem-phrase--deselected]="!sentence.starter" (click)="modifyStartpointData(o, i, sentence.starter)">S</div>
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--endpoint]="sentence.endpoint" [class.admin-sentences__stem-phrase--deselected]="!sentence.endpoint" (click)="modifyEndpointData(o, i, sentence.endpoint)">E</div>
                 <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--tests]="sentence.tests" [class.admin-sentences__stem-phrase--deselected]="!sentence.tests" (click)="modifyTestsData()">Tests</div>
             </div>
-            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngIf="sentence.sentence" (input)="modifySentenceData($event, o, i)" contenteditable>{{ sentence.sentence }}</div>
+            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" (input)="modifySentenceData(o, i, $event)" data-placeholder="No sentence defined..." contenteditable>{{ sentence.sentence ? sentence.sentence : "" }}</div>
         </div>
     </div>
 

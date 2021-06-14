@@ -1,3 +1,9 @@
+// any empty divs (no sentences) geta  placeholder text
+[contentEditable]:empty:not(:focus)::before {
+    content:attr(data-placeholder);
+    color: rgba(black, .3);
+}
+
 .admin-sentences {
 
     display: flex;
@@ -87,6 +93,10 @@
             font-size: 1.3rem;
             margin: 0 .5rem;
             margin-top: .5rem;
+
+            &:hover {
+                cursor: text;
+            }
         }
 
         &--select {
@@ -110,6 +120,69 @@
         
         &:hover {
             background-color: var(--color-style-juxtapose);
+        }
+    }
+
+    &__save-control {
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+
+        & > * {
+            padding: .8rem 1.6rem;
+        }
+    }
+
+    &__autosave {
+        
+        &--checkbox {
+            display: none;
+        }
+
+        &--checkbox:checked + &--label {
+            &::before {
+                content: "\2713";
+                background-color: var(--color-style-main);
+            }
+        }
+
+        &--checkbox:not(:checked) + &--label {
+            &::before {
+                content: "\00D7";
+                background-color: var(--color-style-juxtapose);
+            }
+        }
+
+        &--label {
+            font-size: 1.6rem;
+            transition: all .2s;
+            margin-left: -1.5rem;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            &::before {
+                padding: 0 1rem;
+                border: .2rem solid black;
+                margin-right: 1rem;
+            }
+
+        }
+    }
+
+    &__save-button {
+        font-size: 1.6rem;
+        border-radius: 1rem;
+        background-color: var(--color-style-dark);
+        transition: all .2s;
+        border: .2rem transparent solid;
+
+        &:hover {
+            cursor: pointer;
+            background-color: var(--color-style-juxtapose);
+            border: .2rem white solid;
+            color: white;
         }
     }
 }

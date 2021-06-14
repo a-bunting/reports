@@ -1,24 +1,25 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { DatabaseService, sentence } from '../../services/database.service';
-
-interface sentenceStem {
-    name: string, subcategories: boolean
-}
 
 @Component({
   selector: 'app-sentences',
   templateUrl: './sentences.component.html',
   styleUrls: ['./sentences.component.scss']
 })
-export class SentencesComponent implements OnInit {
+export class SentencesComponent implements OnInit, OnDestroy {
 
-    // detlete when done
     isLoading: boolean = true;
+    initialData: sentence[];
     sentenceData: sentence[] = [];
-    viewData: [[{}]];
-    
+    viewData: [sentence[]];
+    route: [number] = [0];
+    selection: string[] = ['name','sentence','endpoint', 'starter', 'tests', 'meta', 'comparison', 'function'];
+
+    autosave: boolean = false;
+    unsavedChanges: boolean = false;
+
     constructor(private databaseService: DatabaseService) {}
 
     ngOnInit(): void {
@@ -27,6 +28,9 @@ export class SentencesComponent implements OnInit {
         if(localStorage.getItem('sentences-data') !== null) {
             // retrieve the data from local storage and parse it into the sentence data...
             this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));
+            // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
+            this.initialData = JSON.parse(localStorage.getItem('sentences-data'));                
+            // set the data on the display
             this.getSentenceData(this.route, false, this.selection);
             this.isLoading = false;
         } else {
@@ -36,6 +40,8 @@ export class SentencesComponent implements OnInit {
                 returnData.forEach(data => {
                     this.sentenceData.push(data.data());
                 })
+                // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
+                this.initialData = JSON.parse(JSON.stringify(this.sentenceData));
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 
@@ -47,14 +53,22 @@ export class SentencesComponent implements OnInit {
         }
     }
 
-    // current version just displays the data but does nothing with it...
+    ngOnDestroy() {
+
+    }
+
+    /**
+     * Displays the sentence data given a specific route through the array.
+     * 
+     * @param route the array of subcategories through the sentenceData array 
+     * @param singleStream  whether or not to go down the route only or butterfly out
+     * @param data a list of key values to return (i.e. name, sentence, endpoint etc)
+     */
     getSentenceData(route: number[], singleStream: boolean, data?: string[]) {
         // route must always start with a 0
         route[0] = 0;
-        //console.log(route);
 
-        // let ret: [[{name: string, sentence: string}]] = [[{name: null, sentence: null}]];
-        let ret: [[{}]] = [[{}]];
+        let ret: [sentence[]] = [[]];
         let sntncData = this.sentenceData;
 
         route.forEach((value: number, routePosition: number) => {
@@ -104,79 +118,76 @@ export class SentencesComponent implements OnInit {
         this.viewData = ret;
     }
 
-    route: [number] = [0];
-    selection: string[] = ['name','sentence','endpoint', 'starter', 'tests', 'meta', 'comparison', 'function'];
-
     setView(position: number, index: number) {
         this.route[position+1] = index;
         this.route.splice(position+2);
         this.getSentenceData(this.route, false, this.selection);
     }
 
-    
-    modifySentenceData(newComment, position: number, subPosition: number) {
-        
-        // let sntncData = this.sentenceData;
-        // let newData = this.sentenceData;
+    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
 
-        // this.route.forEach((routeId: number, i: number) => {
-        //     sntncData = sntncData[routeId].subcategories;
-        // });
-
-        // // need to get to this point Headers.length.toExponential.
-        // // this.sentenceData[this.route[0]]['subcategories'][this.route[1]]['subcategories'][index].sentence = newComment.target.innerText;
-
-        // console.log(sntncData[index].sentence);
-        // console.log(newComment.target.innerText);
-    
         let depth: number = 0;
+        let route = this.route;
+        let complete: boolean = false;
         
         this.sentenceData.forEach(function iterate(value: sentence, i: number) {
-            try {
-                if(i === this.route[depth]) {
-                    if(position === depth) {
-                        console.log(value.subcategories[subPosition].sentence);
-                        return
-                    } else {
-                        depth++;
-                        Array.isArray(value.subcategories) && value.subcategories.forEach(iterate);
-                    }
+            if(i === route[depth] && !complete) {
+                if(position === depth && !complete) {
+                    // need to ensure this can add to the array if it isnt there already...
+                    value.subcategories[subPosition][key] = newValue;
+                    complete = true;
+                } else {
+                    depth++;
+                    Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
                 }
-            } catch(e) {
-                console.log(i, position, this.route);
             }
         })
 
-        // let depth = 0;
-        // this.sentenceData.forEach(function iterate(value, i) {
-        //     if(depth === position) {
-        //         console.log(value.subcategories[subPosition].sentence);
-        //     }
-        // })
-
-        // this.sentenceData.forEach(function iterate(sntnce, index) {
-        //     if(index === position) {
-        //         console.log(sntnce.subcategories[subPosition].sentence);
-        //         return;
-        //     }
-        //     Array.isArray(sntnce.subcategories) && sntnce.subcategories.forEach(iterate);
-        // })
-
-        // console.log(this.sentenceData);
-
-
+        // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
+        this.autosave ? this.saveChanges() : this.unsavedChanges = true;
     }
 
-    modifyStartpointData() {
-        
+    modifySentenceData(position: number, subPosition: number, newComment) {
+        this.modifyData(position, subPosition, 'sentence', newComment.target.innerText);
+        this.changeComparsion();
     }
 
-    modifyEndpointData() {
-
+    modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
+        this.modifyData(position, subPosition, 'starter', !currentState);
+        this.getSentenceData(this.route, false, this.selection);
+        this.changeComparsion();
+    }
+    
+    modifyEndpointData(position: number, subPosition: number, currentState: boolean) {
+        this.modifyData(position, subPosition, 'endpoint', !currentState);
+        this.getSentenceData(this.route, false, this.selection);
+        this.changeComparsion();
     }
 
     modifyTestsData() {
 
+    }
+
+    autosaveToggle() {
+        this.autosave = !this.autosave;
+        this.saveChanges();
+    }
+
+    saveChanges() {
+        this.unsavedChanges = false;
+
+        // and then need to commit to the database.
+        localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
+    }
+
+    /**
+     * Simple method to quickly compare the current dataset against the initial dataset.
+     * @returns true is the are equal, false otherwise
+     */
+    changeComparsion(): boolean {
+        let changes: boolean = (JSON.stringify(this.initialData) === JSON.stringify(this.sentenceData));
+        changes ? this.unsavedChanges = false : this.unsavedChanges = true;
+        return changes;
     }
 
     /*
