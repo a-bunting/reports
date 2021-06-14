@@ -100,7 +100,7 @@ export class SentencesComponent implements OnInit {
                 // nothing here yet...
             }
         })
-        console.log(ret);
+        // console.log(ret);
         this.viewData = ret;
     }
 
@@ -129,13 +129,38 @@ export class SentencesComponent implements OnInit {
         // console.log(sntncData[index].sentence);
         // console.log(newComment.target.innerText);
     
-        this.sentenceData.forEach(function iterate(sntnce, index) {
-            if(index === position) {
-                console.log(sntnce.subcategories[subPosition].sentence);
-                return;
+        let depth: number = 0;
+        
+        this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+            try {
+                if(i === this.route[depth]) {
+                    if(position === depth) {
+                        console.log(value.subcategories[subPosition].sentence);
+                        return
+                    } else {
+                        depth++;
+                        Array.isArray(value.subcategories) && value.subcategories.forEach(iterate);
+                    }
+                }
+            } catch(e) {
+                console.log(i, position, this.route);
             }
-            Array.isArray(sntnce.subcategories) && sntnce.subcategories.forEach(iterate);
         })
+
+        // let depth = 0;
+        // this.sentenceData.forEach(function iterate(value, i) {
+        //     if(depth === position) {
+        //         console.log(value.subcategories[subPosition].sentence);
+        //     }
+        // })
+
+        // this.sentenceData.forEach(function iterate(sntnce, index) {
+        //     if(index === position) {
+        //         console.log(sntnce.subcategories[subPosition].sentence);
+        //         return;
+        //     }
+        //     Array.isArray(sntnce.subcategories) && sntnce.subcategories.forEach(iterate);
+        // })
 
         // console.log(this.sentenceData);
 
