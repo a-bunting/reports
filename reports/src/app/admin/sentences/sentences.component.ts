@@ -146,31 +146,59 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     generateSentenceOptions(route: number[]) {
         // const sentenceArray: [sentence[]] = this.getSentenceData(route, false, ['sentence', 'starter','endpoint'])
-        let possibilities: [{sentence: string, position: number}] = [{sentence: "", position: 0}];
+        let possibilities: [{sentence: string, position: number, starter: boolean, endpoint: boolean}] = [{sentence: "", position: 0, starter: true, endpoint: false}];
         let depth: number = 0;
 
-        this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+        this.sentenceData.forEach(function iterate(value: sentence, i: number, arr) {
             
+            // if this is the correct point in the route or if its the end of the route...
             if(i === route[depth] || depth === route.length) {
-
+                // first if there is a sentence here add it to the options array...
                 const sentence: string = value.sentence ? value.sentence : undefined;
-                
+                const starter: boolean = value.starter;
+                const endpoint: boolean = value.endpoint;
+                let removeArray: number[] = [];
+
                 if(sentence) {
-                    possibilities.forEach((possibility, idx) => {
-                        possibilities.push({sentence: possibility.sentence + sentence, position: depth});
-                        if(depth > possibility.position) {
-                            possibilities.splice(idx, 1);
-                        }
-                    })
+
+                    // setup an array of new possiblities
+                    if(possibilities[0].sentence === "") {
+                        possibilities[0] = {sentence: sentence, position: depth, starter: value.starter, endpoint: value.endpoint};
+                    } else {
+                        // this is what to remove from the main array given the state of the new sentence (i.e. if the new sentence is not a starter sentence
+                        // then the old sentence shouldnt exist alone.)
+
+                        possibilities.forEach((next, i) => {
+                            if(depth > next.position) {
+                                // this sentence concatenated with the old sentence.
+                                possibilities.push({sentence: next.sentence + " " + sentence, position: depth, starter: value.starter, endpoint: value.endpoint});
+                                
+                                if(starter) {
+                                    // this has an option to start so add it separately
+                                    possibilities.push({sentence: sentence, position: depth, starter: value.starter, endpoint: value.endpoint});
+                                } else {
+                                    // if this is not a starting comment then delete the old comment
+                                    removeArray.push(i);
+                                }
+                            }
+                        })
+                    }
                 }
 
+                // get rid of any elements which will not be compatible.
+                removeArray.forEach(value => {
+                    possibilities.splice(value, 1);
+                })
+
+                // if there are subcategories iterate into them first
                 if(Array.isArray(value.subcategories)) {
-                    depth++;
-                    value.subcategories.forEach(iterate);  
-                    depth--;
+                    depth++;    // increase depth
+                    value.subcategories.forEach(iterate);  // reiterate
+                    depth--;    // decrease dpeth as you traverse backwards.
                 }
+            
             }
-        })
+        });
 
         this.possibilities = possibilities;
 
