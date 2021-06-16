@@ -5,15 +5,17 @@
 </div>
 
 <div class="admin-sentences__controls">
-    <div class="admin-sentences__save-control">
-        <input type="checkbox" class="admin-sentences__control--checkbox" name="autoSave" id="autoSave">
-        <label for="autoSave" class="admin-sentences__control--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
-        <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save your changes</button>
+    <div class="admin-sentences__controls--subdivision">
+        <div class="admin-sentences__save-control">
+            <input type="checkbox" class="admin-sentences__control--checkbox" name="autoSave" id="autoSave">
+            <label for="autoSave" class="admin-sentences__control--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
+        </div>
+        <div class="admin-sentences__save-control">
+            <input type="checkbox" class="admin-sentences__control--checkbox" name="dataView" id="dataView" [checked]="singleStreamDataView">
+            <label for="dataView" class="admin-sentences__control--label" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single Stream" : "Full View" }})</label>
+        </div>
     </div>
-    <div class="admin-sentences__save-control">
-        <input type="checkbox" class="admin-sentences__control--checkbox" name="dataView" id="dataView" [checked]="singleStreamDataView">
-        <label for="dataView" class="admin-sentences__control--label" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single Stream" : "Full View" }})</label>
-    </div>
+    <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save your changes</button>
 </div>
 
 <div class="admin-sentences">
@@ -23,19 +25,24 @@
     </div>
 
     <!-- set clickable if there is a route to take -->
+    <div class="admin-sentences__level admin-sentences__level--base">
+        <div class="admin-sentences__stem-phrase" (click)="resetRoute()">
+            Base
+        </div>
+    </div>
     <div class="admin-sentences__level admin-sentences__level--{{o}}"  *ngFor="let sentenceStem of viewData; let o = index" >
         
         <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index">
-            <div class="admin-sentences__stem-phrase--name" [class.admin-sentences__stem-phrase--selectable]="sentence.name" [class.admin-sentences__stem-phrase--route]="route[o+1] === i"  *ngIf="sentence.name" (click)="setView(o, i)">
+            <div class="admin-sentences__stem-phrase--name" [class.admin-sentences__stem-phrase--selectable]="sentence.name" [class.admin-sentences__stem-phrase--route]="route[sentence.route+1] === sentence.index"  *ngIf="sentence.name" (click)="setView(sentence.route, sentence.index)">
                 <div>{{ sentence.name }}</div>
                 <div class="admin-sentences__stem-phrase--hand">&#9755;</div>
             </div>
             <div class="admin-sentences__stem-phrase--icons">
-                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--startpoint]="sentence.starter" [class.admin-sentences__stem-phrase--deselected]="!sentence.starter" (click)="modifyStartpointData(o, i, sentence.starter)">S</div>
-                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--endpoint]="sentence.endpoint" [class.admin-sentences__stem-phrase--deselected]="!sentence.endpoint" (click)="modifyEndpointData(o, i, sentence.endpoint)">E</div>
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--startpoint]="sentence.starter" [class.admin-sentences__stem-phrase--deselected]="!sentence.starter" (click)="modifyStartpointData(sentence.route, sentence.index, sentence.starter)">S</div>
+                <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--endpoint]="sentence.endpoint" [class.admin-sentences__stem-phrase--deselected]="!sentence.endpoint" (click)="modifyEndpointData(sentence.route, sentence.index, sentence.endpoint)">E</div>
                 <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--tests]="sentence.tests" [class.admin-sentences__stem-phrase--deselected]="!sentence.tests" (click)="modifyTestsData()">Tests</div>
             </div>
-            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" (input)="modifySentenceData(o, i, $event)" data-placeholder="No sentence defined..." contenteditable>{{ sentence.sentence ? sentence.sentence : "" }}</div>
+            <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" (input)="modifySentenceData(sentence.route, sentence.index, $event)" data-placeholder="No sentence defined..." contenteditable>{{ sentence.sentence ? sentence.sentence : "" }}</div>
         </div>
     </div>
 

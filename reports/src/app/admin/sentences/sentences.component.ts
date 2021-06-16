@@ -90,29 +90,26 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
         route.forEach((value: number, routePosition: number) => {
             try {
-                    
                 let subData = sntncData[value].subcategories;
                 let newReturnData: [{}] = [{}];
-
                 try {
                     // check to see if there is subdata, and if not just use the sentence stem
                     subData.forEach((dataStem: sentence, index: number) => {
                         // if a single stream is needed only select the appropriate routes...
-                        // console.log(dataStem.name ? dataStem.name : "here",value, index, route, !singleStream, value === index, (routePosition + 1) === route.length);
-                        
-                        if(!singleStream || (route[routePosition + 1] === index) || ((routePosition + 1) === route.length)) {
+                        if(!singleStream || (route[routePosition+1] === index) || ((routePosition + 1) === route.length)) {
                             data.forEach((key: string) => {
                                 // get the value for the key value pair
-                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);
+                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
                                 // if it exists add it to the array
                                 if(val !== undefined) {
                                     const add = { [key]: val };
                                     newReturnData[index] = { ...newReturnData[index], ...add};
                                 }
                             })
+                            const editParameters = { route: routePosition, index: index };
+                            newReturnData[index] = { ...newReturnData[index], ...editParameters};
                         }
                     })
-
                 } catch {
                     // no subdata, this is the end of the road....
                     let noSubDataReturn: {} = {};
@@ -126,27 +123,24 @@ export class SentencesComponent implements OnInit, OnDestroy {
                                 const add = { [key]: val };
                                 noSubDataReturn = { ...noSubDataReturn, ...add};
                             }
-                        })     
+                        }) 
+                        // untested...
+                        const editParameters = { route: routePosition, index: 0 };
+                        noSubDataReturn = { ...noSubDataReturn, ...editParameters};    
                     }
-
                     newReturnData = [noSubDataReturn];
                 }
-
                 // add the data to the return variable...
-                ret[routePosition] = newReturnData;
-
+                // no empty objects...                
+                ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
                 // set the data stream as the subcategories of the first branch...
                 sntncData = sntncData[value].subcategories;
-            
             } catch {
                 // nothing here yet...
             }
         })
-
         return ret;
     }
-
-    
 
     // function to generate all options for this route to check it works fine.
     /**
@@ -158,38 +152,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
      */
     possibilities: [{sentence: string, position: number}];
 
+    // NEXT BIG ONE TO DO...
     generateSentenceOptions(route: number[]) {
-
-        const sentences = this.getSentenceData(route, true, ['sentence', 'endpoint', 'starter']);
+        const sentences = this.getSentenceData(route, true, ['name', 'sentence', 'endpoint', 'starter', 'tests']);
         // console.log(sentences);
-        console.log(this.viewData);
-
-        // let depth: number = 0;
-        // let sentenceFromRoute: {sentence: string, starter: boolean, endpoint: boolean, depth: number}[] = [];
-
-        // this.sentenceData.forEach(function iterate(value: sentence, i: number, arr) {
-            
-        //     // if this is the correct point in the route or if its the end of the route...
-        //     if(i === route[depth] || depth === route.length) {
-        //         const sentence: string = value.sentence ? value.sentence : undefined;
-        //         const starter: boolean = value.starter ? value.starter : false;
-        //         const endpoint: boolean = value.endpoint ? value.endpoint : false;
-                
-        //         if(sentence) {
-        //             sentenceFromRoute[sentenceFromRoute.length] = {sentence: sentence, starter: starter, endpoint: endpoint, depth: depth};
-        //         }
-
-        //         if(Array.isArray(value.subcategories)) {
-        //             depth++;    // increase depth
-        //             value.subcategories.forEach(iterate);  // reiterate
-        //         }   
-        //     }
-        // });
-
-        // console.log(sentenceFromRoute);
-
-        // // this.possibilities = possibilities;
-
     }
 
     setFullDataView() {
@@ -253,9 +219,13 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.saveChanges();
     }
 
+    resetRoute() {
+        this.route = [0];
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+    }
+
     saveChanges() {
         this.unsavedChanges = false;
-
         // and then need to commit to the database.
         localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
     }
@@ -269,6 +239,8 @@ export class SentencesComponent implements OnInit, OnDestroy {
         changes ? this.unsavedChanges = false : this.unsavedChanges = true;
         return changes;
     }
+
+
 
     /*
     - Take an array of numbers which determines the route.
@@ -340,57 +312,5 @@ export class SentencesComponent implements OnInit, OnDestroy {
             "endpoint": true
         }]
     }]
-
-    Needs to return something like this
-
     */
-
-    // viewData: [[{name: string, sentence: string}]];
-
-    // getSentenceData(route: number[], singleStream: boolean, data?: string[]) {
-    //     // route must always start with a 0
-    //     route[0] = 0;
-    //     console.log(route);
-
-    //     let ret: [[{name: string, sentence: string}]] = [[{name: null, sentence: null}]];
-    //     let sntncData = this.sentenceData;
-
-    //     route.forEach((value: number, routePosition: number) => {
-    //         try {
-    //             let subData = sntncData[value].subcategories;
-    //             let returnData: [{name: string, sentence: string}] = [{name: null, sentence: null}];
-
-    //             try {
-    //                 // check to see if there is subdata, and if not just use the sentence stem
-    //                 subData.forEach((dataStem: sentence, index: number) => {
-    //                     const name = (dataStem.name ? dataStem.name : null);
-    //                     const sentence = (dataStem.sentence ? dataStem.sentence : null);
-    //                     returnData[index] = {name: name, sentence: sentence};
-    //                 })
-    //             } catch {
-    //                 // no subdata, this is the end of the road....
-    //                 const name = (subData[value].name !== null ? subData[value].name : null);
-    //                 const sentence = (subData[value].sentence !== null ? subData[value].sentence : null);
-    //                 returnData = [{name: name, sentence: sentence}];
-    //             }
-
-    //             ret[routePosition] = returnData;
-    //             // set the data stream as the subcategories of the first branch...
-    //             sntncData = sntncData[value].subcategories;
-    //         } catch {
-    //             // nothing here yet...
-    //         }
-    //     })
-
-    //     this.viewData = ret;
-    // }
-
-    /*
-    [{…}]
-        0:
-            name: "Introduction"
-            starter: true
-            subcategories: {0: {…}, 1: {…}} - cant use length or foreach on this...
-    */
-
 }

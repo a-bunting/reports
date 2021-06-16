@@ -14,6 +14,20 @@
         flex: 1;
         border-radius: 1rem;
 
+        &--base { 
+            background-color: darken(#457b9d, 10%); 
+            flex: 0 0 5rem; 
+            align-self: stretch;
+
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
         &--0 { background-color: lighten(#457b9d, 0);}
         &--1 { background-color: lighten(#457b9d, 10%);}
         &--2 { background-color: lighten(#457b9d, 20%);}
@@ -125,6 +139,12 @@
 
     &__controls {
         display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+
+        &--subdivision {
+            display: flex;
+        }
     }
 
     &__save-control {
@@ -146,7 +166,7 @@
         &--checkbox:checked + &--label {
             &::before {
                 content: "\2713";
-                background-color: var(--color-style-main);
+                background-color: var(--color-style-dark);
             }
         }
 
@@ -161,15 +181,24 @@
             font-size: 1.4rem;
             transition: all .2s;
             margin-left: -1.5rem;
-
+            border-bottom: 1px dotted transparent;
+            padding-bottom: .3rem;
+            
             &:hover {
                 cursor: pointer;
+                border-bottom: 1px dotted black;
+                
+                &::before {
+                    border-color: var(--color-style-juxtapose);
+                    font-weight: bold;
+                }
             }
 
             &::before {
                 padding: 0 1rem;
                 border: .2rem solid black;
                 margin-right: 1rem;
+                transition: all .2s;
             }
 
         }
@@ -181,6 +210,7 @@
         background-color: var(--color-style-dark);
         transition: all .2s;
         border: .2rem transparent solid;
+        padding: .6rem 2rem;
 
         &:hover {
             cursor: pointer;
