@@ -4,10 +4,16 @@
     </h4>
 </div>
 
-<div class="admin-sentences__save-control">
-    <input type="checkbox" class="admin-sentences__autosave--checkbox" name="autoSave" id="autoSave">
-    <label for="autoSave" class="admin-sentences__autosave--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
-    <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save your changes</button>
+<div class="admin-sentences__controls">
+    <div class="admin-sentences__save-control">
+        <input type="checkbox" class="admin-sentences__control--checkbox" name="autoSave" id="autoSave">
+        <label for="autoSave" class="admin-sentences__control--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
+        <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save your changes</button>
+    </div>
+    <div class="admin-sentences__save-control">
+        <input type="checkbox" class="admin-sentences__control--checkbox" name="dataView" id="dataView" [checked]="singleStreamDataView">
+        <label for="dataView" class="admin-sentences__control--label" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single Stream" : "Full View" }})</label>
+    </div>
 </div>
 
 <div class="admin-sentences">

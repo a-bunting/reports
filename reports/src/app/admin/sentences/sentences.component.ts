@@ -20,6 +20,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     autosave: boolean = false;
     unsavedChanges: boolean = false;
+    singleStreamDataView: boolean = true;
 
     constructor(private databaseService: DatabaseService) {}
 
@@ -32,7 +33,8 @@ export class SentencesComponent implements OnInit, OnDestroy {
             // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
             this.initialData = JSON.parse(localStorage.getItem('sentences-data'));                
             // set the data on the display
-            this.viewData = this.getSentenceData(this.route, false, this.selection);
+            this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+            this.generateSentenceOptions(this.route);
             this.isLoading = false;
         } else {
             // no instance of the saved data so geta  fresh version.
@@ -46,7 +48,8 @@ export class SentencesComponent implements OnInit, OnDestroy {
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 
-                this.viewData = this.getSentenceData(this.route, false, this.selection);
+                this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+                this.generateSentenceOptions(this.route);
                 this.isLoading = false;
             }, (error: any) => {
                 console.log(`Error retrieving data: ${error.message}`);
@@ -87,52 +90,63 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
         route.forEach((value: number, routePosition: number) => {
             try {
+                    
                 let subData = sntncData[value].subcategories;
                 let newReturnData: [{}] = [{}];
 
                 try {
                     // check to see if there is subdata, and if not just use the sentence stem
                     subData.forEach((dataStem: sentence, index: number) => {
-                        data.forEach((key: string) => {
-                            // get the value for the key value pair
-                            const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);
-                            // if it exists add it to the array
-                            if(val !== undefined) {
-                                const add = { [key]: val };
-                                newReturnData[index] = { ...newReturnData[index], ...add};
-                            }
-                        })
+                        // if a single stream is needed only select the appropriate routes...
+                        // console.log(dataStem.name ? dataStem.name : "here",value, index, route, !singleStream, value === index, (routePosition + 1) === route.length);
+                        
+                        if(!singleStream || (route[routePosition + 1] === index) || ((routePosition + 1) === route.length)) {
+                            data.forEach((key: string) => {
+                                // get the value for the key value pair
+                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);
+                                // if it exists add it to the array
+                                if(val !== undefined) {
+                                    const add = { [key]: val };
+                                    newReturnData[index] = { ...newReturnData[index], ...add};
+                                }
+                            })
+                        }
                     })
+
                 } catch {
                     // no subdata, this is the end of the road....
                     let noSubDataReturn: {} = {};
 
-                    data.forEach((key: string) => {
-                        // get the value for the key value pair
-                        const val: string | boolean | number = (subData[value][key] ? subData[value][key] : undefined);
-                        // if it exists add it to the array
-                        if(val !== undefined) {
-                            const add = { [key]: val };
-                            noSubDataReturn = { ...noSubDataReturn, ...add};
-                        }
-                    })
+                    if(!singleStream || ((routePosition + 1) === route.length)) {
+                        data.forEach((key: string) => {
+                            // get the value for the key value pair
+                            const val: string | boolean | number = (subData[value][key] ? subData[value][key] : undefined);
+                            // if it exists add it to the array
+                            if(val !== undefined) {
+                                const add = { [key]: val };
+                                noSubDataReturn = { ...noSubDataReturn, ...add};
+                            }
+                        })     
+                    }
 
                     newReturnData = [noSubDataReturn];
                 }
 
-                // ret[routePosition] = returnData;
+                // add the data to the return variable...
                 ret[routePosition] = newReturnData;
+
                 // set the data stream as the subcategories of the first branch...
                 sntncData = sntncData[value].subcategories;
+            
             } catch {
                 // nothing here yet...
             }
         })
 
-        this.generateSentenceOptions(this.route);
-
         return ret;
     }
+
+    
 
     // function to generate all options for this route to check it works fine.
     /**
@@ -145,69 +159,49 @@ export class SentencesComponent implements OnInit, OnDestroy {
     possibilities: [{sentence: string, position: number}];
 
     generateSentenceOptions(route: number[]) {
-        // const sentenceArray: [sentence[]] = this.getSentenceData(route, false, ['sentence', 'starter','endpoint'])
-        let possibilities: [{sentence: string, position: number, starter: boolean, endpoint: boolean}] = [{sentence: "", position: 0, starter: true, endpoint: false}];
-        let depth: number = 0;
 
-        this.sentenceData.forEach(function iterate(value: sentence, i: number, arr) {
+        const sentences = this.getSentenceData(route, true, ['sentence', 'endpoint', 'starter']);
+        // console.log(sentences);
+        console.log(this.viewData);
+
+        // let depth: number = 0;
+        // let sentenceFromRoute: {sentence: string, starter: boolean, endpoint: boolean, depth: number}[] = [];
+
+        // this.sentenceData.forEach(function iterate(value: sentence, i: number, arr) {
             
-            // if this is the correct point in the route or if its the end of the route...
-            if(i === route[depth] || depth === route.length) {
-                // first if there is a sentence here add it to the options array...
-                const sentence: string = value.sentence ? value.sentence : undefined;
-                const starter: boolean = value.starter;
-                const endpoint: boolean = value.endpoint;
-                let removeArray: number[] = [];
+        //     // if this is the correct point in the route or if its the end of the route...
+        //     if(i === route[depth] || depth === route.length) {
+        //         const sentence: string = value.sentence ? value.sentence : undefined;
+        //         const starter: boolean = value.starter ? value.starter : false;
+        //         const endpoint: boolean = value.endpoint ? value.endpoint : false;
+                
+        //         if(sentence) {
+        //             sentenceFromRoute[sentenceFromRoute.length] = {sentence: sentence, starter: starter, endpoint: endpoint, depth: depth};
+        //         }
 
-                if(sentence) {
+        //         if(Array.isArray(value.subcategories)) {
+        //             depth++;    // increase depth
+        //             value.subcategories.forEach(iterate);  // reiterate
+        //         }   
+        //     }
+        // });
 
-                    // setup an array of new possiblities
-                    if(possibilities[0].sentence === "") {
-                        possibilities[0] = {sentence: sentence, position: depth, starter: value.starter, endpoint: value.endpoint};
-                    } else {
-                        // this is what to remove from the main array given the state of the new sentence (i.e. if the new sentence is not a starter sentence
-                        // then the old sentence shouldnt exist alone.)
+        // console.log(sentenceFromRoute);
 
-                        possibilities.forEach((next, i) => {
-                            if(depth > next.position) {
-                                // this sentence concatenated with the old sentence.
-                                possibilities.push({sentence: next.sentence + " " + sentence, position: depth, starter: value.starter, endpoint: value.endpoint});
-                                
-                                if(starter) {
-                                    // this has an option to start so add it separately
-                                    possibilities.push({sentence: sentence, position: depth, starter: value.starter, endpoint: value.endpoint});
-                                } else {
-                                    // if this is not a starting comment then delete the old comment
-                                    removeArray.push(i);
-                                }
-                            }
-                        })
-                    }
-                }
+        // // this.possibilities = possibilities;
 
-                // get rid of any elements which will not be compatible.
-                removeArray.forEach(value => {
-                    possibilities.splice(value, 1);
-                })
+    }
 
-                // if there are subcategories iterate into them first
-                if(Array.isArray(value.subcategories)) {
-                    depth++;    // increase depth
-                    value.subcategories.forEach(iterate);  // reiterate
-                    depth--;    // decrease dpeth as you traverse backwards.
-                }
-            
-            }
-        });
-
-        this.possibilities = possibilities;
-
+    setFullDataView() {
+        this.singleStreamDataView = !this.singleStreamDataView;
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
     }
 
     setView(position: number, index: number) {
         this.route[position+1] = index;
         this.route.splice(position+2);
-        this.viewData = this.getSentenceData(this.route, false, this.selection);
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+        this.generateSentenceOptions(this.route);
     }
 
     modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
@@ -240,13 +234,13 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
         this.modifyData(position, subPosition, 'starter', !currentState);
-        this.viewData = this.getSentenceData(this.route, false, this.selection);
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
         this.changeComparsion();
     }
     
     modifyEndpointData(position: number, subPosition: number, currentState: boolean) {
         this.modifyData(position, subPosition, 'endpoint', !currentState);
-        this.viewData = this.getSentenceData(this.route, false, this.selection);
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
         this.changeComparsion();
     }
 
