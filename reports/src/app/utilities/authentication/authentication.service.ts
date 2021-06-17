@@ -131,6 +131,7 @@ export class AuthenticationService {
                 tokenData.claims.admin,
                 tokenData.token 
             );
+            console.log(userDataSnapshot.get('name'));
         })
 
         return from(signIn);
