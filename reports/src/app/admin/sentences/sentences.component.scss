@@ -50,14 +50,48 @@
         display: flex;
         flex-direction: column;
 
+        &--title {
+            background-color: rgba(white, .4);
+            border-radius: 1rem;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            overflow: none;
+        }
+
         &--name {
             font-weight: bold;
             font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            background-color: rgba(white, .4);
-            border-radius: 1rem;
             padding-left: 1rem;
+        }
+
+        &--controls {
+            display: flex;
+        }
+        
+        &--control {
+            width: 3rem;
+            padding: .4rem .7rem;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &-delete {
+                background-color: red;
+            }
+
+            &-next {
+                background-color: green;
+                border-radius: 0 1rem 1rem 0;
+            }
+            
+            &-rename {
+                font-size: 1rem;
+                background-color: orangered;
+                border-radius: 1rem 0 0 1rem;
+            }
         }
         
         &--add {

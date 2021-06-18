@@ -20,7 +20,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     autosave: boolean = false;
     unsavedChanges: boolean = false;
-    singleStreamDataView: boolean = true;
+    singleStreamDataView: boolean = false;
 
     constructor(private databaseService: DatabaseService) {}
 
@@ -113,7 +113,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
                                     newReturnData[index] = { ...newReturnData[index], ...add};
                                 }
                             })
-                            const editParameters = { route: routePosition, index: index };
+                            const editParameters = { order: routePosition, index: index };
                             newReturnData[index] = { ...newReturnData[index], ...editParameters};
                         }
                     })
@@ -310,7 +310,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.generateSentenceOptions(this.route);
     }
 
-    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
+    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number, callback?: Function) {
 
         let depth: number = 0;
         let route = this.route;
@@ -320,8 +320,12 @@ export class SentencesComponent implements OnInit, OnDestroy {
             if(i === route[depth] && !complete) {
                 if(position === depth && !complete) {
                     // need to ensure this can add to the array if it isnt there already...
-                    value.subcategories[subPosition][key] = newValue;
-                    complete = true;
+                    if(callback) {
+                        callback(value);
+                    } else {
+                        value.subcategories[subPosition][key] = newValue;
+                        complete = true;
+                    }
                 } else {
                     depth++;
                     Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
@@ -332,6 +336,45 @@ export class SentencesComponent implements OnInit, OnDestroy {
         // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
         this.autosave ? this.saveChanges() : this.unsavedChanges = true;
     }
+
+    addNewSubLevel(position: number) {
+        
+        const callback: Function = (value: sentence) => {
+            value.subcategories.push({name: "new", order: position, index: value.subcategories.length-1});
+            this.setView(position, value.subcategories.length-1);
+        }
+        
+        this.modifyData(position, null, null, null, callback);
+        
+        // first get the subcategory data for this stem.
+        // let depth: number = 0;
+        // let route = this.route;
+        // let complete: boolean = false;
+        // let newView: {pos: number, ind: number};
+        
+        // this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+        //     if(i === route[depth] && !complete) {
+        //         if(position === depth && !complete) {
+        //             // need to ensure this can add to the array if it isnt there already...
+        //             value.subcategories.push({name: "new", order: position, index: value.subcategories.length-1});
+        //             newView = { pos: position, ind: value.subcategories.length-1}
+        //             complete = true;
+        //         } else {
+        //             depth++;
+        //             Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
+        //         }
+        //     }
+        // })  
+        // this.setView(newView.pos, newView.ind);
+      }
+  
+      modifyTestsData() {
+  
+      }
+  
+      deleteRoute(position: number, index: number) {
+  
+      }
 
     modifySentenceData(position: number, subPosition: number, newComment) {
         this.modifyData(position, subPosition, 'sentence', newComment.target.innerText);
@@ -352,64 +395,40 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     //    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
 
-    addNewLevel(position: number, subPosition: number) {
-        // first get the subcategory data for this stem.
-        let depth: number = 0;
-        let route = this.route;
-        let complete: boolean = false;
-        let newView: {pos: number, ind: number};
+    // addNewLevel(position: number, subPosition: number) {
+    //     // first get the subcategory data for this stem.
+    //     let depth: number = 0;
+    //     let route = this.route;
+    //     let complete: boolean = false;
+    //     let newView: {pos: number, ind: number};
         
-        this.sentenceData.forEach(function iterate(value: sentence, i: number) {
-            if(i === route[depth] && !complete) {
-                if(position === depth && !complete) {
-                    // need to ensure this can add to the array if it isnt there already...
-                    if(Array.isArray(value.subcategories[subPosition].subcategories)) {
-                        // if subcategories exist then this can be psuhed onto the array that
-                        value.subcategories[subPosition].subcategories.push({name: "new", subcategories: [{name: "New"}]});
-                        newView = {pos: position, ind: value.subcategories[subPosition].subcategories.length - 1};
-                    } else {
-                        // otherwise add the subcategories position and add to it...
-                        value.subcategories[subPosition].subcategories = [{name: "new", subcategories: [{name: "New"}]}];
-                        newView = {pos: position, ind: 0};
-                    }
-                    complete = true;
-                } else {
-                    depth++;
-                    Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
-                }
-            }
-        })
+    //     this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+    //         if(i === route[depth] && !complete) {
+    //             if(position === depth && !complete) {
+    //                 // need to ensure this can add to the array if it isnt there already...
+    //                 if(Array.isArray(value.subcategories[subPosition].subcategories)) {
+    //                     // if subcategories exist then this can be psuhed onto the array that
+    //                     value.subcategories[subPosition].subcategories.push({name: "new", subcategories: [{name: "New"}]});
+    //                     newView = {pos: position, ind: value.subcategories[subPosition].subcategories.length - 1};
+    //                 } else {
+    //                     // otherwise add the subcategories position and add to it...
+    //                     value.subcategories[subPosition].subcategories = [{name: "new", subcategories: [{name: "New"}]}];
+    //                     newView = {pos: position, ind: 0};
+    //                 }
+    //                 complete = true;
+    //             } else {
+    //                 depth++;
+    //                 Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
+    //             }
+    //         }
+    //     })
 
-        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-        this.setView(newView.pos, newView.ind);
+    //     this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+    //     this.setView(newView.pos, newView.ind);
         
-    }
+    // }
 
-    addNewSubLevel(position: number) {
-      // first get the subcategory data for this stem.
-      let depth: number = 0;
-      let route = this.route;
-      let complete: boolean = false;
-      
-      this.sentenceData.forEach(function iterate(value: sentence, i: number) {
-          if(i === route[depth] && !complete) {
-              if(position === depth && !complete) {
-                  // need to ensure this can add to the array if it isnt there already...
-                  value.subcategories.push({name: "new"});
-                  complete = true;
-              } else {
-                  depth++;
-                  Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
-              }
-          }
-      })  
-      this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-
-    }
-
-    modifyTestsData() {
-
-    }
+    
 
     autosaveToggle() {
         this.autosave = !this.autosave;
