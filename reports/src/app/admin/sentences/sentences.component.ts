@@ -90,7 +90,14 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
         route.forEach((value: number, routePosition: number) => {
             try {
-                let subData = sntncData[value].subcategories;
+                let subData;
+                if(Array.isArray(sntncData[value].subcategories)) {
+                    subData = sntncData[value].subcategories;
+                } else {
+                    subData = sntncData[value];
+                    subData.subcategories = [];
+                }
+
                 let newReturnData: [{}] = [{}];
                 try {
                     // check to see if there is subdata, and if not just use the sentence stem
@@ -150,12 +157,145 @@ export class SentencesComponent implements OnInit, OnDestroy {
      * 
      * @param route use an array like this:
      */
-    possibilities: [{sentence: string, position: number}];
+    possibilities;
 
     // NEXT BIG ONE TO DO...
+/**
+ * 
+ * 
+ [
+  [
+    {
+      "name": "Introductions",
+      "sentence": "New sentence",
+      "starter": true,
+      "route": 0,
+      "index": 0
+    }
+  ],
+  [
+    {
+      "name": "Grade",
+      "sentence": "this is",
+      "endpoint": true,
+      "route": 1,
+      "index": 0
+    }
+  ],
+  [
+    {
+      "name": "Grade",
+      "route": 2,
+      "index": 0
+    }
+  ],
+  [
+    {
+      "name": "medium",
+      "sentence": "hhhhh",
+      "endpoint": true,
+      "tests": [
+        {
+          "function": "gradeChange",
+          "comparison": "meta"
+        }
+      ],
+      "route": 3,
+      "index": 1
+    }
+  ],
+  [
+    {
+      "sentence": "not achieving quite as well as (LAST GRADE PERIOD).",
+      "endpoint": true,
+      "route": 4,
+      "index": 0
+    },
+    {
+      "sentence": "achieving just as well as (LAST GRADE PERIOD).",
+      "endpoint": true,
+      "route": 4,
+      "index": 1
+    },
+    {
+      "sentence": "achieving better than (LAST GRADE PERIOD).",
+      "endpoint": true,
+      "route": 4,
+      "index": 2
+    },
+    {
+      "sentence": "achieving far better than (GENDER) did in (LAST GRADE PERIOD).",
+      "endpoint": true,
+      "route": 4,
+      "index": 3
+    }
+  ]
+]
+
+ * 
+ * 
+ * @param route 
+ * 
+ * 
+ */
+
     generateSentenceOptions(route: number[]) {
-        const sentences = this.getSentenceData(route, true, ['name', 'sentence', 'endpoint', 'starter', 'tests']);
-        // console.log(sentences);
+        const data = this.getSentenceData(route, true, ['name', 'sentence', 'endpoint', 'starter', 'tests']);
+        let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
+
+        // iterate over each level of the sentence builder...
+        data.forEach((stem: sentence[], depth: number) => {
+            // iterate overall options within a level
+            const oldSentences = [...sentences];
+
+            stem.forEach((newStem: sentence) => {
+                const sentence = newStem.sentence ? newStem.sentence : undefined;
+                const starter = newStem.starter ? newStem.starter : false;
+                const endpoint = newStem.endpoint ? newStem.endpoint : false;
+
+                if(sentence) {
+                    oldSentences.forEach((previousSentence, idx) => {
+                        
+                        let newSentence: string = previousSentence.sentence + sentence;
+
+                        // only if the new sentence is deeper than the old sentence can it be added.
+                        // peers do not add (sentences with the same depth)
+                        if(previousSentence.depth < (depth + 1)) {
+                            if(starter) {
+                                // if this is a starting sentence it should both add to previous elements
+                                // and have its own element.
+                                // ADD TO PREVIOUS SENTENCE
+                                sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                sentences[idx].delete = true;
+                                // ADD NEW ELEMENT WITH THIS AS THE STARTER
+                                sentences.push({sentence: sentence, depth: depth, delete: false});
+                            } else {
+                                // if this is NOT a starting element it should add to previous elements
+                                // but NOT be added as its own element. Previous elements cannot happen without this
+                                // so the previous element should be flagged for deletion.
+                                // ADD TO PREVIOUS SENTENCE
+                                sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                // DELETE THE PREVIOUS SENTENCE
+                                sentences[idx].delete = true;
+                            }
+                        }
+                    })
+                }
+            })
+
+            // after the first iteration remove the blank first entry
+            if(depth === 0) { sentences.splice(0, 1); }
+
+            // iterate over the sentences and delete all that need to be deleted.
+            for(let i = sentences.length - 1 ; i >= 0 ; i--) {
+                if(sentences[i].delete === true) {
+                    sentences.splice(i, 1);
+                }
+            }
+        })
+
+        // delete suplicates for some reason (to fix later).
+        this.possibilities = sentences.filter((obj, index) => (sentences.findIndex((test, idx) => test.sentence === obj.sentence)) === index);
     }
 
     setFullDataView() {
@@ -208,6 +348,63 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.modifyData(position, subPosition, 'endpoint', !currentState);
         this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
         this.changeComparsion();
+    }
+
+    //    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
+
+    addNewLevel(position: number, subPosition: number) {
+        // first get the subcategory data for this stem.
+        let depth: number = 0;
+        let route = this.route;
+        let complete: boolean = false;
+        let newView: {pos: number, ind: number};
+        
+        this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+            if(i === route[depth] && !complete) {
+                if(position === depth && !complete) {
+                    // need to ensure this can add to the array if it isnt there already...
+                    if(Array.isArray(value.subcategories[subPosition].subcategories)) {
+                        // if subcategories exist then this can be psuhed onto the array that
+                        value.subcategories[subPosition].subcategories.push({name: "new", subcategories: [{name: "New"}]});
+                        newView = {pos: position, ind: value.subcategories[subPosition].subcategories.length - 1};
+                    } else {
+                        // otherwise add the subcategories position and add to it...
+                        value.subcategories[subPosition].subcategories = [{name: "new", subcategories: [{name: "New"}]}];
+                        newView = {pos: position, ind: 0};
+                    }
+                    complete = true;
+                } else {
+                    depth++;
+                    Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
+                }
+            }
+        })
+
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+        this.setView(newView.pos, newView.ind);
+        
+    }
+
+    addNewSubLevel(position: number) {
+      // first get the subcategory data for this stem.
+      let depth: number = 0;
+      let route = this.route;
+      let complete: boolean = false;
+      
+      this.sentenceData.forEach(function iterate(value: sentence, i: number) {
+          if(i === route[depth] && !complete) {
+              if(position === depth && !complete) {
+                  // need to ensure this can add to the array if it isnt there already...
+                  value.subcategories.push({name: "new"});
+                  complete = true;
+              } else {
+                  depth++;
+                  Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
+              }
+          }
+      })  
+      this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+
     }
 
     modifyTestsData() {

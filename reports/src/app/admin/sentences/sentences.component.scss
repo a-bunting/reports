@@ -14,6 +14,10 @@
         flex: 1;
         border-radius: 1rem;
 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
         &--base { 
             background-color: darken(#457b9d, 10%); 
             flex: 0 0 5rem; 
@@ -54,6 +58,22 @@
             background-color: rgba(white, .4);
             border-radius: 1rem;
             padding-left: 1rem;
+        }
+        
+        &--add {
+            font-weight: bold;
+            font-size: 1.2rem;
+            background-color: rgba(white, .4);
+            border-radius: 1rem;
+            text-align: center;
+            padding: .5rem;
+            transition: all .2s;
+
+            &:hover {
+                cursor: pointer;
+                color: white;
+                background-color: var(--color-style-juxtapose);
+            }
         }
         
         &--route {
