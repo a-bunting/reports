@@ -1,17 +1,13 @@
 import { Injectable } from '@angular/core';
-import { blockTemplate } from '../templates/templates.component'; // defined in templates
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../utilities/auth/auth.service';
-import { catchError, map, take, tap } from 'rxjs/operators';
-import { from, Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
-import { AngularFirestore, QuerySnapshot, DocumentSnapshot } from '@angular/fire/firestore';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore, QuerySnapshot } from '@angular/fire/firestore';
 import { User } from '../utilities/auth/user.model';
 
 export interface sentence {
     endpoint?: boolean, starter?: boolean, 
-    name?: string, sentence?: string, meta?: string | number
+    name?: string, sentence?: string[], meta?: string | number
     subcategories?: [sentence], tests?: [test], 
     index?: number; order?: number
 }

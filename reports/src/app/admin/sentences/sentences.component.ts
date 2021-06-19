@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import { stringify } from '@angular/compiler/src/util';
+// [{"subcategories":[{"subcategories":[{"sentence":"earning (*GENDER NOUN)self an (LETTER) throughout the period","subcategories":[{"subcategories":[{"subcategories":[{"endpoint":true,"sentence":"where (GENDER) achieved a (LAST GRADE PERIOD GRADE).","name":"Name"}],"name":"Long","sentence":"here is the middle :D","starter":false},{"tests":[{"comparison":"meta","function":"gradeChange"}],"subcategories":[{"sentence":"not achieving quite as well as (LAST GRADE PERIOD).","endpoint":true,"meta":-2},{"meta":0,"sentence":"achieving just as well as (LAST GRADE PERIOD). PIES LOL","endpoint":true},{"meta":2,"sentence":"achieving better than (LAST GRADE.","endpoint":true},{"sentence":"achieving far better than (GENDER) did in (LAST GRADE PERIOD).","meta":20,"endpoint":true}],"name":"medium","sentence":"","endpoint":true},{"name":"short","subcategories":[{"sentence":".","endpoint":true}],"starter":false}],"name":"Grade","sentence":""},{"name":"Learning","subcategories":[{"name":"1","subcategories":[],"sentence":"This is the final sentence..."}]}],"name":"Grade","endpoint":true,"starter":true},{"name":"Learning","subcategories":[{"endpoint":true,"sentence":"where (GENDER}NAME) learned about (TOPICS).","starter":false},{"sentence":"During this (PERIOD) (NAME}GENDER) learned about (TOPICS)","endpoint":true,"starter":false}]}],"name":"Introductions","starter":true,"endpoint":true,"sentence":"NAME Has had a good semster"},{"endpoint":true,"name":"What they did well","sentence":"","starter":false,"subcategories":[]}]}]
+// backup data!
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { DatabaseService, sentence } from '../../services/database.service';
@@ -16,7 +17,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     sentenceData: sentence[] = [];
     viewData: [sentence[]];
     route: [number] = [0];
-    selection: string[] = ['name','sentence','endpoint', 'starter', 'tests', 'meta', 'comparison', 'function'];
+    selection: string[] = ['name','sentence', 'starter', 'tests', 'meta', 'comparison', 'function'];
 
     autosave: boolean = false;
     unsavedChanges: boolean = false;
@@ -65,7 +66,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     *
      * @param route the array of subcategories through the sentenceData array 
      * @param singleStream  whether or not to go down the route only or butterfly out
-     * @param data a list of key values to return (i.e. name, sentence, endpoint etc)
+     * @param data a list of key values to return (i.e. name, sentence etc)
      */
     getSentenceData(route: number[], singleStream: boolean, data?: string[]): [sentence[]] {
         // route must always start with a 0
@@ -157,7 +158,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     possibilities;
 
     generateSentenceOptions(route: number[]) {
-        const data = this.getSentenceData(route, true, ['name', 'sentence', 'endpoint', 'starter', 'tests']);
+        const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
 
         // iterate over each level of the sentence builder...
@@ -166,40 +167,77 @@ export class SentencesComponent implements OnInit, OnDestroy {
             const oldSentences = [...sentences];
 
             stem.forEach((newStem: sentence) => {
-                const sentence = newStem.sentence ? newStem.sentence : undefined;
-                const starter = newStem.starter ? newStem.starter : false;
-                const endpoint = newStem.endpoint ? newStem.endpoint : false;
-
-                if(sentence) {
-                    oldSentences.forEach((previousSentence, idx) => {
+                
+                if(newStem.sentence) {
+                    newStem.sentence.forEach((sentenceStem: string) => {
                         
-                        let newSentence: string = previousSentence.sentence + " "  + sentence;
-
-                        // only if the new sentence is deeper than the old sentence can it be added.
-                        // peers do not add (sentences with the same depth)
-                        if(previousSentence.depth < (depth + 1)) {
-                            if(starter) {
-                                // if this is a starting sentence it should both add to previous elements
-                                // and have its own element.
-                                // ADD TO PREVIOUS SENTENCE
-                                sentences.push({sentence: newSentence, depth: depth, delete: false});
-                                sentences[idx].delete = true;
-                                // ADD NEW ELEMENT WITH THIS AS THE STARTER
-                                sentences.push({sentence: sentence, depth: depth, delete: false});
-                                console.log("here");
-                            } else {
-                                console.log("here2");
-                                // if this is NOT a starting element it should add to previous elements
-                                // but NOT be added as its own element. Previous elements cannot happen without this
-                                // so the previous element should be flagged for deletion.
-                                // ADD TO PREVIOUS SENTENCE
-                                sentences.push({sentence: newSentence, depth: depth, delete: false});
-                                // DELETE THE PREVIOUS SENTENCE
-                                sentences[idx].delete = true;
-                            }
+                        const sentence = sentenceStem;
+                        const starter = newStem.starter ? newStem.starter : false;
+        
+                        if(sentence) {
+                            oldSentences.forEach((previousSentence, idx) => {
+                                
+                                let newSentence: string = previousSentence.sentence + sentence;
+        
+                                // only if the new sentence is deeper than the old sentence can it be added.
+                                // peers do not add (sentences with the same depth)
+                                if(previousSentence.depth < (depth + 1)) {
+                                    if(starter) {
+                                        // if this is a starting sentence it should both add to previous elements
+                                        // and have its own element.
+                                        // ADD TO PREVIOUS SENTENCE
+                                        sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                        sentences[idx].delete = true;
+                                        // ADD NEW ELEMENT WITH THIS AS THE STARTER
+                                        sentences.push({sentence: sentence, depth: depth, delete: false});
+                                    } else {
+                                        // if this is NOT a starting element it should add to previous elements
+                                        // but NOT be added as its own element. Previous elements cannot happen without this
+                                        // so the previous element should be flagged for deletion.
+                                        // ADD TO PREVIOUS SENTENCE
+                                        sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                        // DELETE THE PREVIOUS SENTENCE
+                                        sentences[idx].delete = true;
+                                    }
+                                }
+                            })
                         }
-                    })
+                    });
                 }
+
+                // const sentence = newStem.sentence ? newStem.sentence : undefined;
+                // const starter = newStem.starter ? newStem.starter : false;
+
+                // if(sentence) {
+                //     oldSentences.forEach((previousSentence, idx) => {
+                        
+                //         let newSentence: string = previousSentence.sentence + sentence;
+
+                //         // only if the new sentence is deeper than the old sentence can it be added.
+                //         // peers do not add (sentences with the same depth)
+                //         if(previousSentence.depth < (depth + 1)) {
+                //             if(starter) {
+                //                 // if this is a starting sentence it should both add to previous elements
+                //                 // and have its own element.
+                //                 // ADD TO PREVIOUS SENTENCE
+                //                 sentences.push({sentence: newSentence, depth: depth, delete: false});
+                //                 sentences[idx].delete = true;
+                //                 // ADD NEW ELEMENT WITH THIS AS THE STARTER
+                //                 sentences.push({sentence: sentence, depth: depth, delete: false});
+                //             } else {
+                //                 // if this is NOT a starting element it should add to previous elements
+                //                 // but NOT be added as its own element. Previous elements cannot happen without this
+                //                 // so the previous element should be flagged for deletion.
+                //                 // ADD TO PREVIOUS SENTENCE
+                //                 sentences.push({sentence: newSentence, depth: depth, delete: false});
+                //                 // DELETE THE PREVIOUS SENTENCE
+                //                 sentences[idx].delete = true;
+                //             }
+                //         }
+                //     })
+                // }
+
+
             })
 
             // after the first iteration remove the blank first entry
@@ -213,9 +251,9 @@ export class SentencesComponent implements OnInit, OnDestroy {
             }
         })
 
-        // delete suplicates for some reason (to fix later).
-        this.possibilities = sentences.filter((obj, index) => (sentences.findIndex((test, idx) => test.sentence === obj.sentence)) === index);
-        this.sortPossibilitiesByLength();
+        // delete duplicates for some reason (to fix later).
+        this.possibilities = sentences.filter((obj, index) => (sentences.findIndex(test => test.sentence === obj.sentence)) === index);
+        this.possibilities.sort((a: sentence, b: sentence) => { return a.sentence.length - b.sentence.length });
     }
 
     setFullDataView() {
@@ -244,8 +282,8 @@ export class SentencesComponent implements OnInit, OnDestroy {
                         callback(value);
                     } else {
                         value.subcategories[subPosition][key] = newValue;
-                        complete = true;
                     }
+                    complete = true;
                 } else {
                     depth++;
                     Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
@@ -264,13 +302,13 @@ export class SentencesComponent implements OnInit, OnDestroy {
             this.setView(position, value.subcategories.length-1);
         }
         this.modifyData(position, null, null, null, callback);
-      }
-  
-      // unfinished..
-      modifyTestsData() {
-  
-      }
-  
+    }
+
+    // unfinished..
+    modifyTestsData() {
+
+    }
+
     deleteRoute(position: number, index: number) {
         const callback: Function = (value: sentence) => {
             value.subcategories.splice(index, 1);
@@ -279,8 +317,11 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.modifyData(position, index, null, null, callback);
     }
 
-    modifySentenceData(position: number, subPosition: number, newComment) {
-        this.modifyData(position, subPosition, 'sentence', newComment.target.innerText);
+    modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment) {
+        const callback: Function = (value: sentence) => {
+            value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
+        }
+        this.modifyData(position, subPosition, null, null, callback);
         this.changeComparsion();
     }
 
@@ -291,12 +332,6 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
         this.modifyData(position, subPosition, 'starter', !currentState);
-        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-        this.changeComparsion();
-    }
-    
-    modifyEndpointData(position: number, subPosition: number, currentState: boolean) {
-        this.modifyData(position, subPosition, 'endpoint', !currentState);
         this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
         this.changeComparsion();
     }
@@ -315,10 +350,6 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.unsavedChanges = false;
         // and then need to commit to the database.
         localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
-    }
-
-    sortPossibilitiesByLength() {
-        this.possibilities = this.possibilities.sort(function(a, b) { return a.length > b.length });
     }
 
     /**

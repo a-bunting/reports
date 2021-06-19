@@ -35,18 +35,25 @@
         <div>
             <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index">
                 <div class="admin-sentences__stem-phrase--title" [class.admin-sentences__stem-phrase--route]="route[sentence.order+1] === sentence.index">
-                    <div class="admin-sentences__stem-phrase--name" (input)="modifyName(sentence.order, sentence.index, $event)" contenteditable="true">{{ sentence.name | slice:0:(80/sentenceStem.length) }}</div>
+                    <div class="admin-sentences__stem-phrase--name" (input)="modifyName(sentence.order, sentence.index, $event)" contenteditable="true" data-placeholder="Unnamed...">{{ sentence.name | slice:0:(50/sentenceStem.length) }}</div>
                     <div class="admin-sentences__stem-phrase--controls">
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete" (click)="deleteRoute(sentence.order, sentence.index)">&times;</div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-starter" [class.admin-sentences__stem-phrase--control-starter--selected]="sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">St</div>
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-next" (click)="setView(sentence.order, sentence.index)">&#9755;</div>
                     </div>
                 </div>
-                <div class="admin-sentences__stem-phrase--icons">
-                    <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--startpoint]="sentence.starter" [class.admin-sentences__stem-phrase--deselected]="!sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">S</div>
-                    <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--endpoint]="sentence.endpoint" [class.admin-sentences__stem-phrase--deselected]="!sentence.endpoint" (click)="modifyEndpointData(sentence.order, sentence.index, sentence.endpoint)">E</div>
-                    <div class="admin-sentences__stem-phrase--icon" [class.admin-sentences__stem-phrase--tests]="sentence.tests" [class.admin-sentences__stem-phrase--deselected]="!sentence.tests" (click)="modifyTestsData()">Tests</div>
+                <div class="admin-sentences__stem-phrase--sentence" 
+                        [class.admin-sentences__stem-phrase--editable]="sentence.sentence" 
+                        (input)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
+                        data-placeholder="No sentences defined..." 
+                        contenteditable="true"
+                        *ngFor="let text of sentence.sentence; let s = index">
+                    <span style="font-weight: bold">Option {{ s+1 }}:</span> {{ text ? text : "" }}
                 </div>
-                <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" (input)="modifySentenceData(sentence.order, sentence.index, $event)" data-placeholder="No sentence defined..." contenteditable="true">{{ sentence.sentence ? sentence.sentence : "" }}</div>
+                <div class="admin-sentences__buttons-bottom">
+                    <div class="admin-sentences__buttons-bottom--add-sentence">Add Sentence</div>
+                    <div class="admin-sentences__buttons-bottom--add-test">Add Test</div>
+                </div>
             </div>
         </div>
         <div class="admin-sentences__stem-phrase--add" (click)="addNewSubLevel(o)">Add sublevel...</div>
