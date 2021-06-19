@@ -324,6 +324,19 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.modifyData(position, subPosition, null, null, callback);
         this.changeComparsion();
     }
+    
+    addNewSentence(position: number, subPosition: number) {
+        const callback: Function = (value: sentence) => {
+            const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
+            
+            if(sentencesAlreadyMade) {
+                value.subcategories[subPosition]['sentence'].push("");
+            } else {
+                value.subcategories[subPosition]['sentence'] = [""];
+            }
+        }
+        this.modifyData(position, subPosition, null, null, callback);
+    }
 
     modifyName(position: number, subPosition: number, newComment) {
         this.modifyData(position, subPosition, 'name', newComment.target.innerText);

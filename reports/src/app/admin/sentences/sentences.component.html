@@ -51,7 +51,7 @@
                     <span style="font-weight: bold">Option {{ s+1 }}:</span> {{ text ? text : "" }}
                 </div>
                 <div class="admin-sentences__buttons-bottom">
-                    <div class="admin-sentences__buttons-bottom--add-sentence">Add Sentence</div>
+                    <div class="admin-sentences__buttons-bottom--add-sentence" (click)="addNewSentence(sentence.order, sentence.index)">Add Sentence</div>
                     <div class="admin-sentences__buttons-bottom--add-test">Add Test</div>
                 </div>
             </div>
