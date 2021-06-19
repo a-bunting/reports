@@ -4,6 +4,66 @@
     color: rgba(black, .3);
 }
 
+.sentences {
+
+    margin-top: 2rem;
+    border-top: 1px dotted black;
+    padding-top: 1rem;
+
+    &__title {
+        font-size: 1.6rem;
+        margin-bottom: 2rem;
+
+        &--structure {
+            margin-top: 1rem;
+            margin-left: 2rem;
+            padding: .6rem 1.2rem;
+            background-color: var(--color-style-main);
+            border-radius: 1rem;
+        }
+    }
+
+    &__row {
+        display: flex;
+        font-size: 1.2rem;
+
+        & > * {
+            padding: .3rem .6rem;
+        }
+    }
+
+    &__header {
+        border-radius: 1rem 0 0 1rem;
+        background-color: var(--color-style-dark);
+        font-weight: bold;
+    }
+
+    &__possibility {
+        background-color: var(--color-style-main);
+
+        &:last-of-type {
+            border-radius: 0 1rem 1rem 0;
+        }
+    }
+
+    &__number, &__characters {
+        text-align: center;
+    }
+
+    &__number {
+        flex-basis: 2rem;
+    }
+
+    &__characters {
+        flex: 0 0 10rem;
+    }
+
+    &__sentence {
+        flex: 1;
+        justify-self: flex-start;
+    }
+}
+
 .admin-sentences {
 
     display: flex;
@@ -64,6 +124,11 @@
             font-weight: bold;
             font-size: 1.5rem;
             padding-left: 1rem;
+            width: 100%;
+
+            &:hover {
+                cursor: text;
+            }
         }
 
         &--controls {
@@ -72,14 +137,21 @@
         
         &--control {
             width: 3rem;
+            height: 100%;
             padding: .4rem .7rem;
             font-size: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
 
+            &:hover {
+                cursor: pointer;
+                filter: brightness(140%);
+            }
+
             &-delete {
-                background-color: red;
+                background-color: orangered;
+                border-radius: 1rem 0 0 1rem;
             }
 
             &-next {
@@ -87,11 +159,6 @@
                 border-radius: 0 1rem 1rem 0;
             }
             
-            &-rename {
-                font-size: 1rem;
-                background-color: orangered;
-                border-radius: 1rem 0 0 1rem;
-            }
         }
         
         &--add {
@@ -170,12 +237,6 @@
         &--select {
             padding: .5rem 1rem;
             border-radius: 1rem;
-        }
-
-        &--selectable {
-            &:hover {
-                cursor: pointer;
-            }
         }
 
         &--editable {

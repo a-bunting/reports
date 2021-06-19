@@ -62,20 +62,6 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Displays the sentence data given a specific route through the array.
-     * Returns an array like this: 
-     [
-        // this is level one
-        [
-            {key: name of stem, value: sentence stem},
-            ...
-        ],
-        // this is level two
-        [
-            {key: name of stem, value: sentence stem},
-            {key: name of stem, value: sentence stem}
-        ]
-    ]
     *
      * @param route the array of subcategories through the sentenceData array 
      * @param singleStream  whether or not to go down the route only or butterfly out
@@ -120,6 +106,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
                 } catch {
                     // no subdata, this is the end of the road....
                     let noSubDataReturn: {} = {};
+                    console.log("DONT DELETE THIS :D");
 
                     if(!singleStream || ((routePosition + 1) === route.length)) {
                         data.forEach((key: string) => {
@@ -149,95 +136,25 @@ export class SentencesComponent implements OnInit, OnDestroy {
         return ret;
     }
 
-    // function to generate all options for this route to check it works fine.
-    /**
-     * 
-     * * Returns an array like this:
-    *
-     * 
+    // not working...
+    getRouteNames(): string[] {
+        let routeNames: string[] = [];
+        let route = this.route;
+
+        this.sentenceData.forEach(function iterate(routeId: sentence, index: number) {
+            routeNames[index] = routeId.name;
+
+            if(index < route.length && Array.isArray(routeId.subcategories)) {
+                routeId.subcategories.forEach(iterate);
+            }
+        })
+        return routeNames;
+    }
+
+    /** function to generate all options for this route to check it works fine.
      * @param route use an array like this:
      */
     possibilities;
-
-    // NEXT BIG ONE TO DO...
-/**
- * 
- * 
- [
-  [
-    {
-      "name": "Introductions",
-      "sentence": "New sentence",
-      "starter": true,
-      "route": 0,
-      "index": 0
-    }
-  ],
-  [
-    {
-      "name": "Grade",
-      "sentence": "this is",
-      "endpoint": true,
-      "route": 1,
-      "index": 0
-    }
-  ],
-  [
-    {
-      "name": "Grade",
-      "route": 2,
-      "index": 0
-    }
-  ],
-  [
-    {
-      "name": "medium",
-      "sentence": "hhhhh",
-      "endpoint": true,
-      "tests": [
-        {
-          "function": "gradeChange",
-          "comparison": "meta"
-        }
-      ],
-      "route": 3,
-      "index": 1
-    }
-  ],
-  [
-    {
-      "sentence": "not achieving quite as well as (LAST GRADE PERIOD).",
-      "endpoint": true,
-      "route": 4,
-      "index": 0
-    },
-    {
-      "sentence": "achieving just as well as (LAST GRADE PERIOD).",
-      "endpoint": true,
-      "route": 4,
-      "index": 1
-    },
-    {
-      "sentence": "achieving better than (LAST GRADE PERIOD).",
-      "endpoint": true,
-      "route": 4,
-      "index": 2
-    },
-    {
-      "sentence": "achieving far better than (GENDER) did in (LAST GRADE PERIOD).",
-      "endpoint": true,
-      "route": 4,
-      "index": 3
-    }
-  ]
-]
-
- * 
- * 
- * @param route 
- * 
- * 
- */
 
     generateSentenceOptions(route: number[]) {
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'endpoint', 'starter', 'tests']);
@@ -256,7 +173,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
                 if(sentence) {
                     oldSentences.forEach((previousSentence, idx) => {
                         
-                        let newSentence: string = previousSentence.sentence + sentence;
+                        let newSentence: string = previousSentence.sentence + " "  + sentence;
 
                         // only if the new sentence is deeper than the old sentence can it be added.
                         // peers do not add (sentences with the same depth)
@@ -269,7 +186,9 @@ export class SentencesComponent implements OnInit, OnDestroy {
                                 sentences[idx].delete = true;
                                 // ADD NEW ELEMENT WITH THIS AS THE STARTER
                                 sentences.push({sentence: sentence, depth: depth, delete: false});
+                                console.log("here");
                             } else {
+                                console.log("here2");
                                 // if this is NOT a starting element it should add to previous elements
                                 // but NOT be added as its own element. Previous elements cannot happen without this
                                 // so the previous element should be flagged for deletion.
@@ -296,6 +215,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
         // delete suplicates for some reason (to fix later).
         this.possibilities = sentences.filter((obj, index) => (sentences.findIndex((test, idx) => test.sentence === obj.sentence)) === index);
+        this.sortPossibilitiesByLength();
     }
 
     setFullDataView() {
@@ -338,46 +258,34 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
     addNewSubLevel(position: number) {
-        
         const callback: Function = (value: sentence) => {
-            value.subcategories.push({name: "new", order: position, index: value.subcategories.length-1});
+            // value.subcategories.push({name: "new", order: position, index: value.subcategories.length-1});
+            value.subcategories.push({name: "new"});
             this.setView(position, value.subcategories.length-1);
         }
-        
         this.modifyData(position, null, null, null, callback);
-        
-        // first get the subcategory data for this stem.
-        // let depth: number = 0;
-        // let route = this.route;
-        // let complete: boolean = false;
-        // let newView: {pos: number, ind: number};
-        
-        // this.sentenceData.forEach(function iterate(value: sentence, i: number) {
-        //     if(i === route[depth] && !complete) {
-        //         if(position === depth && !complete) {
-        //             // need to ensure this can add to the array if it isnt there already...
-        //             value.subcategories.push({name: "new", order: position, index: value.subcategories.length-1});
-        //             newView = { pos: position, ind: value.subcategories.length-1}
-        //             complete = true;
-        //         } else {
-        //             depth++;
-        //             Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
-        //         }
-        //     }
-        // })  
-        // this.setView(newView.pos, newView.ind);
       }
   
+      // unfinished..
       modifyTestsData() {
   
       }
   
-      deleteRoute(position: number, index: number) {
-  
-      }
+    deleteRoute(position: number, index: number) {
+        const callback: Function = (value: sentence) => {
+            value.subcategories.splice(index, 1);
+            this.setView(position - 1, this.route[position]);
+        }
+        this.modifyData(position, index, null, null, callback);
+    }
 
     modifySentenceData(position: number, subPosition: number, newComment) {
         this.modifyData(position, subPosition, 'sentence', newComment.target.innerText);
+        this.changeComparsion();
+    }
+
+    modifyName(position: number, subPosition: number, newComment) {
+        this.modifyData(position, subPosition, 'name', newComment.target.innerText);
         this.changeComparsion();
     }
 
@@ -392,43 +300,6 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
         this.changeComparsion();
     }
-
-    //    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number) {
-
-    // addNewLevel(position: number, subPosition: number) {
-    //     // first get the subcategory data for this stem.
-    //     let depth: number = 0;
-    //     let route = this.route;
-    //     let complete: boolean = false;
-    //     let newView: {pos: number, ind: number};
-        
-    //     this.sentenceData.forEach(function iterate(value: sentence, i: number) {
-    //         if(i === route[depth] && !complete) {
-    //             if(position === depth && !complete) {
-    //                 // need to ensure this can add to the array if it isnt there already...
-    //                 if(Array.isArray(value.subcategories[subPosition].subcategories)) {
-    //                     // if subcategories exist then this can be psuhed onto the array that
-    //                     value.subcategories[subPosition].subcategories.push({name: "new", subcategories: [{name: "New"}]});
-    //                     newView = {pos: position, ind: value.subcategories[subPosition].subcategories.length - 1};
-    //                 } else {
-    //                     // otherwise add the subcategories position and add to it...
-    //                     value.subcategories[subPosition].subcategories = [{name: "new", subcategories: [{name: "New"}]}];
-    //                     newView = {pos: position, ind: 0};
-    //                 }
-    //                 complete = true;
-    //             } else {
-    //                 depth++;
-    //                 Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
-    //             }
-    //         }
-    //     })
-
-    //     this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-    //     this.setView(newView.pos, newView.ind);
-        
-    // }
-
-    
 
     autosaveToggle() {
         this.autosave = !this.autosave;
@@ -446,6 +317,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
         localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
     }
 
+    sortPossibilitiesByLength() {
+        this.possibilities = this.possibilities.sort(function(a, b) { return a.length > b.length });
+    }
+
     /**
      * Simple method to quickly compare the current dataset against the initial dataset.
      * @returns true is the are equal, false otherwise
@@ -456,77 +331,4 @@ export class SentencesComponent implements OnInit, OnDestroy {
         return changes;
     }
 
-
-
-    /*
-    - Take an array of numbers which determines the route.
-    - Always includes the top tier.
-
-    Uses the data from the setneces database which looks like this:
-
-    [{
-        "subcategories": [{
-            "subcategories": [{
-                "name": "Grade",
-                "subcategories": [{
-                    "name": "Grade",
-                    "subcategories": [{
-                        "subcategories": [{
-                            "endpoint": true,
-                            "sentence": "where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."
-                        }],
-                        "name": "Long"
-                    }, {
-                        "name": "medium",
-                        "tests": [{
-                            "function": "gradeChange",
-                            "comparison": "meta"
-                        }],
-                        "subcategories": [{
-                            "endpoint": true,
-                            "sentence": "not achieving quite as well as (LAST GRADE PERIOD).",
-                            "meta": -2
-                        }, {
-                            "sentence": "achieving just as well as (LAST GRADE PERIOD).",
-                            "meta": 0,
-                            "endpoint": true
-                        }, {
-                            "meta": 2,
-                            "endpoint": true,
-                            "sentence": "achieving better than (LAST GRADE PERIOD)."
-                        }, {
-                            "sentence": "achieving far better than (GENDER) did in (LAST GRADE PERIOD).",
-                            "meta": 20,
-                            "endpoint": true
-                        }]
-                    }, {
-                        "subcategories": [{
-                            "sentence": ".",
-                            "endpoint": true
-                        }],
-                        "name": "short"
-                    }]
-                }],
-                "endpoint": true,
-                "sentence": "earning (*GENDER NOUN)self an (LETTER) throughout the period"
-            }, {
-                "name": "Learning",
-                "subcategories": [{
-                    "endpoint": true,
-                    "sentence": "where (GENDER}NAME) learned about (TOPICS)."
-                }, {
-                    "starter": true,
-                    "sentence": "During this (PERIOD) (NAME}GENDER) learned about (TOPICS)",
-                    "endpoint": true
-                }]
-            }],
-            "name": "Introductions",
-            "starter": true
-        }, {
-            "sentence": "Not written - Test",
-            "name": "What they did well",
-            "endpoint": true
-        }]
-    }]
-    */
 }
