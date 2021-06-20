@@ -15,7 +15,10 @@
             <label for="dataView" class="admin-sentences__control--label" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single Stream" : "Full View" }})</label>
         </div>
     </div>
-    <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save your changes</button>
+    <div>
+        <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save changes</button>
+        <button class="admin-sentences__commit-button" *ngIf="!autosave && unsavedChanges" (click)="commitChanges()">Commit to DB</button>
+    </div>
 </div>
 
 <div class="admin-sentences">
@@ -42,17 +45,36 @@
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-next" (click)="setView(sentence.order, sentence.index)">&#9755;</div>
                     </div>
                 </div>
-                <div class="admin-sentences__stem-phrase--sentence" 
-                        [class.admin-sentences__stem-phrase--editable]="sentence.sentence" 
-                        (input)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
-                        data-placeholder="No sentences defined..." 
-                        contenteditable="true"
-                        *ngFor="let text of sentence.sentence; let s = index">
-                    <span style="font-weight: bold">Option {{ s+1 }}:</span> {{ text ? text : "" }}
+                <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngFor="let text of sentence.sentence; let s = index">
+                    <div style="font-weight: bold">Option {{ s+1 }}:</div> 
+                    <div    class="admin-sentences__stem-phrase--sentence--input" 
+                            (keyup.enter)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
+                            (blur)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
+                            data-placeholder="No sentences defined..." 
+                            contenteditable="true">
+                            {{ text ? text : "" }}
+                    </div>
+                </div>
+
+                <div class="admin-sentences__stem-phrase--tests" *ngIf="(sentence.tests && sentence.tests.length > 0) || addTest.order === sentence.order && addTest.index === sentence.index">
+                    <div class="admin-sentences__stem-phrase--test" *ngFor="let test of sentence.tests; let t = index">
+                        <div class="admin-sentences__stem-phrase--test--name">{{ test.name }}</div>
+                        <div class="admin-sentences__stem-phrase--test--buttons">
+                            <div class="admin-sentences__stem-phrase--test--delete" (click)="removeTest(sentence.order, sentence.index, t)">&times;</div>
+                        </div>
+                    </div>
+                    <div class="admin-sentences__stem-phrase--test" *ngIf="addTest.order === sentence.order && addTest.index === sentence.index">
+                        <select name="newTest" id="newTest">
+                            <option value="{{ test.name }}" *ngFor="let test of filterTests(sentence.tests, testsService.testsList); let u = index">{{ test.name }}</option>
+                        </select>
+                        <div class="admin-sentences__stem-phrase--test--buttons">
+                            <div class="admin-sentences__stem-phrase--test--accept" (click)="addNewTest(sentence.order, sentence.index)">&#10004;</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="admin-sentences__buttons-bottom">
                     <div class="admin-sentences__buttons-bottom--add-sentence" (click)="addNewSentence(sentence.order, sentence.index)">Add Sentence</div>
-                    <div class="admin-sentences__buttons-bottom--add-test">Add Test</div>
+                    <div class="admin-sentences__buttons-bottom--add-test" (click)="addNewTestSelectionBox(sentence.order, sentence.index)">Add Test</div>
                 </div>
             </div>
         </div>

@@ -8,12 +8,8 @@ import { User } from '../utilities/auth/user.model';
 export interface sentence {
     endpoint?: boolean, starter?: boolean, 
     name?: string, sentence?: string[], meta?: string | number
-    subcategories?: [sentence], tests?: [test], 
+    subcategories?: [sentence], tests?: {name: string}[], 
     index?: number; order?: number
-}
-
-export interface test {
-    comparison: string, function: string
 }
 
 @Injectable({

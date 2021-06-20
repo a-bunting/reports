@@ -111,7 +111,8 @@
         padding: .5rem .5rem;
         margin: .3rem;
         border-radius: 1rem;
-        
+        transition: all .2s;
+
         display: flex;
         flex-direction: column;
 
@@ -194,40 +195,11 @@
             background-color: rgba(red, .4);
         }
 
-        // &--icons {
-        //     display: flex;
-        //     justify-content: flex-start;
-        //     padding: .6rem .3rem;
-        // }
-
-        // &--icon {
-        //     padding: .2rem .6rem;
-        //     font-size: 1rem;
-        //     transition: all .2s;
-
-        //     &:hover {
-        //         cursor: pointer;
-        //         background-color: rgba(white, .4);
-        //     }
-
-        //     &:not(:last-child) {
-        //         margin-right: .5rem;
-        //     }
-        // }
-
         &--deselected {
             border: .1rem solid rgba(gray, .7); 
             color: rgba(gray, .7); 
         }
 
-        &--startpoint, &--endpoint, &--tests {
-            font-weight: bold;
-        }
-
-        &--startpoint { border: .1rem solid green; color: green; }
-        &--endpoint { border: .1rem solid black; color: black; }
-        &--tests { border: .1rem solid blue; color: blue; }
-        
         &--hand {
             font-size: 3rem;
             margin-left: 1rem;
@@ -241,9 +213,15 @@
             font-size: 1.3rem;
             margin: 0 .5rem;
             margin-top: .5rem;
+            display: flex;
 
             &:hover {
                 cursor: text;
+            }
+
+            &--input {
+                flex: 1;
+                margin-left: .4rem;
             }
         }
 
@@ -258,10 +236,48 @@
             }
         }
 
-        transition: all .2s;
-        
         &:hover {
             background-color: var(--color-style-juxtapose);
+        }
+
+        &--tests {
+            margin: .5rem;
+            border-top: 1px dashed black;
+        }
+    
+        &--test {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            padding: .5rem 0 0 0;
+    
+            &--name {
+                font-style: italic;
+            }
+    
+            &--buttons {
+                display: flex;
+
+                & > * {
+                    padding: .3rem .6rem;
+                    border-radius: .6rem;
+                    text-align: center;
+
+                    &:hover {
+                        filter: brightness(140%);
+                        cursor: pointer;
+                    }
+                }
+            }
+    
+            &--delete { background-color: orangered; }
+            &--accept { background-color: green; }
+
+            select {
+                padding: .3rem .6rem;
+                border-radius: .8rem;
+            }
         }
     }
 
@@ -333,9 +349,17 @@
     }
 
     &__save-button {
-        font-size: 1.6rem;
-        border-radius: 1rem;
+        border-radius: 1rem 0 0 1rem;
         background-color: var(--color-style-dark);
+    }
+    
+    &__commit-button {
+        border-radius: 0 1rem 1rem 0;
+        background-color: var(--color-style-juxtapose);
+    }
+
+    &__save-button, &__commit-button {
+        font-size: 1.6rem;
         transition: all .2s;
         border: .2rem transparent solid;
         padding: .6rem 2rem;

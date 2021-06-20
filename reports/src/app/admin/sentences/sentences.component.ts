@@ -4,6 +4,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { DatabaseService, sentence } from '../../services/database.service';
+import { TestsService, Test } from '../../services/tests.service';
 
 @Component({
   selector: 'app-sentences',
@@ -23,7 +24,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     unsavedChanges: boolean = false;
     singleStreamDataView: boolean = false;
 
-    constructor(private databaseService: DatabaseService) {}
+    constructor(private databaseService: DatabaseService, private testsService: TestsService) {}
 
     ngOnInit(): void {
 
@@ -59,6 +60,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        
+    }
+
+    reUploadToFirebase() {
 
     }
 
@@ -204,40 +209,6 @@ export class SentencesComponent implements OnInit, OnDestroy {
                         }
                     });
                 }
-
-                // const sentence = newStem.sentence ? newStem.sentence : undefined;
-                // const starter = newStem.starter ? newStem.starter : false;
-
-                // if(sentence) {
-                //     oldSentences.forEach((previousSentence, idx) => {
-                        
-                //         let newSentence: string = previousSentence.sentence + sentence;
-
-                //         // only if the new sentence is deeper than the old sentence can it be added.
-                //         // peers do not add (sentences with the same depth)
-                //         if(previousSentence.depth < (depth + 1)) {
-                //             if(starter) {
-                //                 // if this is a starting sentence it should both add to previous elements
-                //                 // and have its own element.
-                //                 // ADD TO PREVIOUS SENTENCE
-                //                 sentences.push({sentence: newSentence, depth: depth, delete: false});
-                //                 sentences[idx].delete = true;
-                //                 // ADD NEW ELEMENT WITH THIS AS THE STARTER
-                //                 sentences.push({sentence: sentence, depth: depth, delete: false});
-                //             } else {
-                //                 // if this is NOT a starting element it should add to previous elements
-                //                 // but NOT be added as its own element. Previous elements cannot happen without this
-                //                 // so the previous element should be flagged for deletion.
-                //                 // ADD TO PREVIOUS SENTENCE
-                //                 sentences.push({sentence: newSentence, depth: depth, delete: false});
-                //                 // DELETE THE PREVIOUS SENTENCE
-                //                 sentences[idx].delete = true;
-                //             }
-                //         }
-                //     })
-                // }
-
-
             })
 
             // after the first iteration remove the blank first entry
@@ -293,11 +264,18 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
         // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
         this.autosave ? this.saveChanges() : this.unsavedChanges = true;
+
+        // redraw the grid and check for save status...
+        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+        this.changeComparsion();
+
+        // regenerate the sentence options
+        this.generateSentenceOptions(this.route);
+
     }
 
     addNewSubLevel(position: number) {
         const callback: Function = (value: sentence) => {
-            // value.subcategories.push({name: "new", order: position, index: value.subcategories.length-1});
             value.subcategories.push({name: "new"});
             this.setView(position, value.subcategories.length-1);
         }
@@ -305,8 +283,47 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
     // unfinished..
-    modifyTestsData() {
+    addTest: {order: number, index: number} = {order: null, index: null};
+    
+    addNewTest(position: number, subPosition: number) {
+        const callback: Function = (value: sentence) => {
 
+            const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
+            const newTest: {name: string} = {name: (<HTMLInputElement>document.getElementById('newTest')).value };
+
+            if(testsAlreadyMade) {
+                value.subcategories[subPosition]['tests'].push(newTest);
+            } else {
+                value.subcategories[subPosition]['tests'] = [newTest];
+            }
+
+            this.addTest = {order: null, index: null};
+        }
+        this.modifyData(position, subPosition, null, null, callback);
+    }
+
+    removeTest(position: number, subPosition: number, testNumber: number) {
+        const callback: Function = (value: sentence) => {
+            value.subcategories[subPosition].tests.splice(testNumber, 1);
+        }
+        this.modifyData(position, subPosition, null, null, callback);
+    }
+
+    addNewTestSelectionBox(position: number, index: number): void {
+        this.addTest = {order: position, index: index};
+    }
+
+    checkIfTestAlreadyAdded(tests: Object[], name: string): boolean {
+        return tests.includes(each => each.name === name);
+    }
+
+    // doesnt current seem to work for some reason...
+    filterTests(testsAdded: {name: string}[], allTests: Test[]) {
+        if(testsAdded) {
+            return allTests.filter(test => testsAdded.indexOf(each => { test.name === each.name }) === -1 );
+        } else {
+            return allTests;
+        }
     }
 
     deleteRoute(position: number, index: number) {
@@ -318,11 +335,11 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
     modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment) {
+        console.log("here");
         const callback: Function = (value: sentence) => {
             value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
         }
         this.modifyData(position, subPosition, null, null, callback);
-        this.changeComparsion();
     }
     
     addNewSentence(position: number, subPosition: number) {
@@ -340,13 +357,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     modifyName(position: number, subPosition: number, newComment) {
         this.modifyData(position, subPosition, 'name', newComment.target.innerText);
-        this.changeComparsion();
     }
 
     modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
         this.modifyData(position, subPosition, 'starter', !currentState);
-        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-        this.changeComparsion();
     }
 
     autosaveToggle() {
