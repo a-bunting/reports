@@ -6,6 +6,14 @@
 
 <div class="admin-sentences__controls">
     <div class="admin-sentences__controls--subdivision">
+
+        <div class="admin-sentences__control-bar">
+            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-autosave">AutoSave</div>
+            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-dataview">Full Data View</div>
+            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-savelocal">Save Data Locally</div>
+            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-commit">Commit to Database</div>
+        </div>
+<!-- 
         <div class="admin-sentences__save-control">
             <input type="checkbox" class="admin-sentences__control--checkbox" name="autoSave" id="autoSave">
             <label for="autoSave" class="admin-sentences__control--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
@@ -13,12 +21,12 @@
         <div class="admin-sentences__save-control">
             <input type="checkbox" class="admin-sentences__control--checkbox" name="dataView" id="dataView" [checked]="singleStreamDataView">
             <label for="dataView" class="admin-sentences__control--label" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single Stream" : "Full View" }})</label>
-        </div>
+        </div> -->
     </div>
-    <div>
+    <!-- <div>
         <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save changes</button>
-        <button class="admin-sentences__commit-button" *ngIf="!autosave && unsavedChanges" (click)="commitChanges()">Commit to DB</button>
-    </div>
+        <button class="admin-sentences__commit-button" *ngIf="!autosave && unsavedChanges" (click)="reUploadToFirebase()">Commit to DB</button>
+    </div> -->
 </div>
 
 <div class="admin-sentences">
@@ -38,7 +46,13 @@
         <div>
             <div class="admin-sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index">
                 <div class="admin-sentences__stem-phrase--title" [class.admin-sentences__stem-phrase--route]="route[sentence.order+1] === sentence.index">
-                    <div class="admin-sentences__stem-phrase--name" (input)="modifyName(sentence.order, sentence.index, $event)" contenteditable="true" data-placeholder="Unnamed...">{{ sentence.name | slice:0:(50/sentenceStem.length) }}</div>
+                    <div    class="admin-sentences__stem-phrase--name" 
+                            (blur)="modifyName(sentence.order, sentence.index, $event)" 
+                            (keyup.enter)="modifyName(sentence.order, sentence.index, $event)" 
+                            contenteditable="true" 
+                            data-placeholder="Unnamed...">
+                        {{ sentence.name | slice:0:(50/sentenceStem.length) }}
+                    </div>
                     <div class="admin-sentences__stem-phrase--controls">
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete" (click)="deleteRoute(sentence.order, sentence.index)">&times;</div>
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-starter" [class.admin-sentences__stem-phrase--control-starter--selected]="sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">St</div>

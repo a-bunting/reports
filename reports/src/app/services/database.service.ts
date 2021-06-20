@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { AngularFirestore, QuerySnapshot } from '@angular/fire/firestore';
 import { User } from '../utilities/auth/user.model';
@@ -27,9 +27,12 @@ export class DatabaseService {
         });
     }
 
-    getSentences(): Observable<any> {
-        return this.firebase.collection('sentences').get();    
-        return this.http.get('https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/sentences/0/subCategories.json');
+    getSentences(docname: string): Observable<any> {
+        return this.firebase.collection('sentences').doc(docname).get();    
+    }
+
+    uploadSentences(docname: string, data: sentence): Observable<any> {
+        return from(this.firebase.collection('sentences').doc(docname).set(data));
     }
 
     /**

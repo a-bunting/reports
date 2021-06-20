@@ -3,6 +3,9 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
+import { AuthService } from 'src/app/utilities/auth/auth.service';
+import { User } from 'src/app/utilities/auth/user.model';
+import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { DatabaseService, sentence } from '../../services/database.service';
 import { TestsService, Test } from '../../services/tests.service';
 
@@ -14,6 +17,8 @@ import { TestsService, Test } from '../../services/tests.service';
 export class SentencesComponent implements OnInit, OnDestroy {
 
     isLoading: boolean = true;
+
+    // these do NOT need to be an array, but in a slow start everything got coded this way and so thats how it is!...
     initialData: sentence[];
     sentenceData: sentence[] = [];
     viewData: [sentence[]];
@@ -24,7 +29,14 @@ export class SentencesComponent implements OnInit, OnDestroy {
     unsavedChanges: boolean = false;
     singleStreamDataView: boolean = false;
 
-    constructor(private databaseService: DatabaseService, private testsService: TestsService) {}
+    user: User;
+
+    constructor(private databaseService: DatabaseService, private testsService: TestsService, private auth: AuthenticationService) {
+        // get the user details...
+        auth.user.subscribe((newUser: User) => {
+            this.user = newUser;
+        })
+    }
 
     ngOnInit(): void {
 
@@ -40,11 +52,12 @@ export class SentencesComponent implements OnInit, OnDestroy {
             this.isLoading = false;
         } else {
             // no instance of the saved data so geta  fresh version.
-            this.databaseService.getSentences().pipe(take(1)).subscribe(returnData => {
-                // add data to the sentenceData array...
-                returnData.forEach(data => {
-                    this.sentenceData.push(data.data());
-                })
+            this.databaseService.getSentences('template').pipe(take(1)).subscribe(returnData => {
+                // // add data to the sentenceData array...
+                // returnData.forEach(data => {
+                //     this.sentenceData.push(data.data());
+                // })
+                this.sentenceData[0] = returnData.data();
                 // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
                 this.initialData = JSON.parse(JSON.stringify(this.sentenceData));
                 // set the data into local storage to make it quicker ot retrieve next time...
@@ -60,11 +73,15 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        
+        // when leaving without specifically comitting only upload to the development version
+        this.reUploadToFirebase('dev');
     }
 
-    reUploadToFirebase() {
-
+    reUploadToFirebase(docName?: string) {
+        const doc = docName ? docName : 'template';
+        this.databaseService.uploadSentences(doc, this.sentenceData[0]).subscribe(returnData => {
+            console.log(returnData);
+        })
     }
 
     /**
