@@ -1,32 +1,19 @@
 <div class="component-intro">    
     <h4 class="component-intro__description">
-        Edit the main template for the sentence structures available.
+        Edit the main template for the sentence structures available. Note that some operations cannot logically be undone, and so be careful to save frequently and reload data if fatal mistakes are made.
     </h4>
 </div>
 
 <div class="admin-sentences__controls">
-    <div class="admin-sentences__controls--subdivision">
-
-        <div class="admin-sentences__control-bar">
-            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-autosave">AutoSave</div>
-            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-dataview">Full Data View</div>
-            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-savelocal">Save Data Locally</div>
-            <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-commit">Commit to Database</div>
-        </div>
-<!-- 
-        <div class="admin-sentences__save-control">
-            <input type="checkbox" class="admin-sentences__control--checkbox" name="autoSave" id="autoSave">
-            <label for="autoSave" class="admin-sentences__control--label" (click)="autosaveToggle()">Autosave Changes ({{ autosave ? "Enabled" : "Disabled" }})</label>
-        </div>
-        <div class="admin-sentences__save-control">
-            <input type="checkbox" class="admin-sentences__control--checkbox" name="dataView" id="dataView" [checked]="singleStreamDataView">
-            <label for="dataView" class="admin-sentences__control--label" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single Stream" : "Full View" }})</label>
-        </div> -->
+    <div class="admin-sentences__control-bar">
+        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-autosave" [class.admin-sentences__control-bar--control-selected]="!autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</div>
+        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-dataview" [class.admin-sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</div>
+        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-savelocal" [class.admin-sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</div>
+        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-commit" [class.admin-sentences__control-bar--control-disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</div>
     </div>
-    <!-- <div>
-        <button class="admin-sentences__save-button" *ngIf="!autosave && unsavedChanges" (click)="saveChanges()">Save changes</button>
-        <button class="admin-sentences__commit-button" *ngIf="!autosave && unsavedChanges" (click)="reUploadToFirebase()">Commit to DB</button>
-    </div> -->
+    <div class="admin-sentences__copy-indicator" *ngIf="copiedItem" (click)="clearCopiedItem()">
+        Item Copied - Click to clear
+    </div>
 </div>
 
 <div class="admin-sentences">
@@ -54,9 +41,11 @@
                         {{ sentence.name | slice:0:(50/sentenceStem.length) }}
                     </div>
                     <div class="admin-sentences__stem-phrase--controls">
-                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete" (click)="deleteRoute(sentence.order, sentence.index)">&times;</div>
-                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-starter" [class.admin-sentences__stem-phrase--control-starter--selected]="sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">St</div>
-                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-next" (click)="setView(sentence.order, sentence.index)">&#9755;</div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete tooltipped" (click)="deleteRoute(sentence.order, sentence.index)">&times; <div class="tooltip">Delete Item (cannot be undone)</div></div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-moveleft tooltipped" (click)="reOrderItemLeft(sentence.order, sentence.index)" *ngIf="o > 0"><span style="transform: scale(-1, 1);">&#x27AA;</span> <div class="tooltip">Move this item one level to the left (to undo, copy and paste it back forwards)</div></div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-copy tooltipped" (click)="copyItem(sentence.order, sentence.index)">&#x2750; <div class="tooltip">Copy this stem and its subcomponents</div></div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-starter tooltipped" [class.admin-sentences__stem-phrase--control-starter--selected]="sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">&#x270E; <div class="tooltip">Starter sentence - sentences may start with this phrase.</div></div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-next tooltipped" (click)="setView(sentence.order, sentence.index)">&#x27AA;<div class="tooltip">Navigate deeper into this category</div></div>
                     </div>
                 </div>
                 <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngFor="let text of sentence.sentence; let s = index">
@@ -66,8 +55,9 @@
                             (blur)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
                             data-placeholder="No sentences defined..." 
                             contenteditable="true">
-                            {{ text ? text : "" }}
+                            {{ text ? text : null }}
                     </div>
+                    <div class="admin-sentences__stem-phrase--sentence--delete" (click)="deleteSentence(sentence.order, sentence.index, s)">&times;</div>
                 </div>
 
                 <div class="admin-sentences__stem-phrase--tests" *ngIf="(sentence.tests && sentence.tests.length > 0) || addTest.order === sentence.order && addTest.index === sentence.index">
@@ -86,13 +76,17 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="admin-sentences__buttons-bottom">
                     <div class="admin-sentences__buttons-bottom--add-sentence" (click)="addNewSentence(sentence.order, sentence.index)">Add Sentence</div>
                     <div class="admin-sentences__buttons-bottom--add-test" (click)="addNewTestSelectionBox(sentence.order, sentence.index)">Add Test</div>
                 </div>
             </div>
         </div>
-        <div class="admin-sentences__stem-phrase--add" (click)="addNewSubLevel(o)">Add sublevel...</div>
+        <div>
+            <div class="admin-sentences__stem-phrase--add" *ngIf="copiedItem" (click)="pasteItem(o)">Paste  Item Here</div>
+            <div class="admin-sentences__stem-phrase--add" (click)="addNewSubLevel(o)">Add sublevel...</div>
+        </div>
 
     </div>
 

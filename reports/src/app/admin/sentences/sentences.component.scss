@@ -1,5 +1,5 @@
 // any empty divs (no sentences) geta  placeholder text
-[contentEditable]:empty:not(:focus)::before {
+[contenteditable]:empty:not(:focus)::before {
     content:attr(data-placeholder);
     color: rgba(black, .3);
 }
@@ -77,7 +77,7 @@
         padding: .5rem 0 .5rem 0;
         
         &:first-of-type { border-radius: 1rem 0 0 1rem; }
-        &:last-of-type { border-radius: 0 1rem 1rem 0; }
+        &:last-of-type { border-radius: 0 1rem 1rem 0; flex: 2; }
 
         &--base { 
             background-image: linear-gradient(to right, darken(#457b9d, 10%), lighten(#457b9d, 0%));
@@ -104,30 +104,57 @@
         &--8 { background-image: linear-gradient(to right, lighten(#457b9d, 80%), lighten(#457b9d, 90%)); }
     }
 
+    &__copy-indicator {
+        font-size: 1.4rem;
+        transition: all .2s;
+        border: .2rem transparent solid;
+        padding: .4rem 1rem;
+        background-color: var(--color-style-juxtapose);
+        border-radius: 1rem;
+
+        &:hover {
+            cursor: pointer;
+            border: .2rem white solid;
+            color: white;
+            filter: brightness(80%);
+        }
+    }
+
     &__control-bar {
         display: flex;
-        margin-bottom: 1rem;
 
         &--control {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             transition: all .2s;
             border: .2rem transparent solid;
             padding: .4rem 1rem;
 
             &:hover {
                 cursor: pointer;
-                background-color: var(--color-style-juxtapose);
                 border: .2rem white solid;
                 color: white;
+                filter: brightness(80%);
             }
 
             &:first-of-type { border-radius: 1rem 0 0 1rem; }
             &:last-of-type { border-radius: 0 1rem 1rem 0; }
-            &-autosave { background-color: green; }
-            &-dataview { background-color: pink; }
-            &-savelocal { background-color: blue; }
-            &-commit { background-color: red; }
-            &-unavailable { background-color: gray; }
+            &-autosave { background-color: var(--color-style-main); }
+            &-dataview { background-color: var(--color-style-main); }
+            &-savelocal { background-color: var(--color-style-main); }
+            &-commit { background-color: var(--color-style-main); }
+            
+            &-selected { 
+                filter: brightness(80%); 
+            }
+            
+            &-disabled {
+                background-color: gray;
+                &:hover {
+                    cursor: default;
+                    border: .2rem transparent solid;
+                    color: black;
+                }
+            }
         }
     }
 
@@ -155,9 +182,10 @@
 
         &--name {
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             padding-left: 1rem;
             width: 100%;
+            white-space: nowrap;
 
             &:hover {
                 cursor: text;
@@ -169,8 +197,8 @@
         }
         
         &--control {
-            width: 3rem;
-            padding: .4rem .7rem;
+            width: 2.4rem;
+            padding: .1rem .6rem;
             font-size: 2rem;
             display: flex;
             justify-content: center;
@@ -179,6 +207,14 @@
             &:hover {
                 cursor: pointer;
                 filter: brightness(140%);
+            }
+
+            &-copy {
+                background-color: cadetblue;
+            }
+
+            &-moveleft {
+                background-color: crimson;
             }
 
             &-delete {
@@ -200,6 +236,22 @@
                 border-radius: 0 1rem 1rem 0;
             }
             
+        }
+
+        &--reorder {
+            display: flex;
+            justify-content: space-between;
+            padding: .3rem .5rem;
+            
+            & > * {
+                transition: all .2s;
+                padding: .3rem .5rem;
+                border-radius: 1rem;
+                &:hover {
+                    cursor: pointer;
+                    background-color: var(--color-style-dark);
+                }
+            }
         }
         
         &--add {
@@ -241,6 +293,8 @@
             margin: 0 .5rem;
             margin-top: .5rem;
             display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
 
             &:hover {
                 cursor: text;
@@ -249,6 +303,18 @@
             &--input {
                 flex: 1;
                 margin-left: .4rem;
+            }
+
+            &--delete { 
+                background-color: orangered;
+                padding: .3rem .6rem;
+                border-radius: .6rem;
+                text-align: center;
+
+                &:hover {
+                    filter: brightness(140%);
+                    cursor: pointer;
+                }
             }
         }
 
@@ -297,7 +363,7 @@
                     }
                 }
             }
-    
+
             &--delete { background-color: orangered; }
             &--accept { background-color: green; }
 
@@ -312,20 +378,7 @@
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-
-        &--subdivision {
-            display: flex;
-        }
-    }
-
-    &__save-control {
         margin-bottom: 1rem;
-        display: flex;
-        justify-content: space-between;
-
-        & > * {
-            padding: .8rem 1.6rem;
-        }
     }
 
     &__control {
@@ -375,30 +428,6 @@
         }
     }
 
-    // &__save-button {
-    //     border-radius: 1rem 0 0 1rem;
-    //     background-color: var(--color-style-dark);
-    // }
-    
-    // &__commit-button {
-    //     border-radius: 0 1rem 1rem 0;
-    //     background-color: var(--color-style-juxtapose);
-    // }
-
-    // &__save-button, &__commit-button {
-    //     font-size: 1.6rem;
-    //     transition: all .2s;
-    //     border: .2rem transparent solid;
-    //     padding: .6rem 2rem;
-
-    //     &:hover {
-    //         cursor: pointer;
-    //         background-color: var(--color-style-juxtapose);
-    //         border: .2rem white solid;
-    //         color: white;
-    //     }
-    // }
-
     &__buttons-bottom {
         display: flex;
         justify-content: space-between;
@@ -406,14 +435,15 @@
         margin-top: .5rem;
         padding: .2rem .5rem;
         background-color: lighten(#457b9d, 30%);
-        border-radius: 0 0 1rem 1rem;
         font-size: 1.2rem;
+    }
 
+    &__buttons-bottom {
+        border-radius: 0 0 1rem 1rem;
         &--add-test, &--add-sentence {
             flex: 1;
             text-align: center;
             
-        
             &:hover {
                 cursor: pointer;
                 background-color: lighten(#457b9d, 10%);

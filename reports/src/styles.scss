@@ -81,3 +81,27 @@ body {
 .u__margin-bottom--small { margin-bottom: .5rem; }
 .u__margin-bottom--medium { margin-bottom: 1rem; }
 .u__margin-bottom--large { margin-bottom: 2rem; }
+
+.tooltipped {
+    position: relative;
+
+    &:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+.tooltip {
+    position: absolute;
+    visibility: hidden;
+    font-size: 1.2rem;
+    padding: .5rem 1rem;
+    background-color: grey;
+    left: -5rem;
+    top: 110%;
+    width: 20rem;
+    border-radius: 1rem;
+    opacity: 0;
+    transition: all .2s;
+    text-align: center;
+}
