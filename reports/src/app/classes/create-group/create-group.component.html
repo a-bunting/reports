@@ -1,1 +1,45 @@
-<p>create-group works!</p>
+<div class="component-intro">    
+    <h4 class="component-intro__description">
+        Create new group...
+    </h4>
+</div>
+
+<div class="create-group">
+    <div class="create-group__group-name">
+        <div class="create-group__group-name--text">New group name</div>
+        <div class="create-group__group-name--input">
+            <input type="text" name="groupNameText" id="groupNameText">
+        </div>
+    </div>
+
+    <div class="create-group__input">
+
+        <div class="create-group__text">
+            <div class="create-group__text--header-check">
+                <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" checked>
+                <label for="groupInputHeaderBox">Top row is header text (recommended!)</label>
+            </div>
+            <div class="create-group__text--textbox">
+                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line."></textarea>
+            </div>
+            <div class="create-group__text--submit">
+                <button class="create-group__text--submit--button">Create Group</button>
+            </div>
+        </div>
+
+        <div class="create-group__or">
+            or...
+        </div>
+
+        <div class="create-group__drop" draggable="true">
+            <div class="create-group__drop--text">
+                Drag CSV file here...
+            </div>
+        </div>
+    </div>
+
+    <div class="create-group__data">
+
+    </div>
+
+</div>

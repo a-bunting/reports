@@ -1,0 +1,140 @@
+.create-group {
+    padding: .5rem 1rem;
+
+    &__group-name {
+        font-size: 1.6rem;
+        border-radius: 1rem;
+        background-color: var(--color-style-juxtapose);
+        padding: .5rem 1rem;
+        letter-spacing: .15rem;
+
+        display: flex;
+        align-items: center;
+
+        &--text {
+            font-weight: bold;
+            padding: .8rem 1.6rem;
+        }
+        &--input {
+            margin-left: 1rem;
+
+            input {
+                border-radius: 1rem;
+                padding: .8rem 1.6rem;
+                width: 30rem;
+                letter-spacing: .15rem;
+            }
+        }
+    }
+
+    &__or {
+        align-self: center;
+        padding: 1rem 1rem;
+        font-size: 2rem;
+    }
+
+    &__input {
+        display: flex;
+        margin-top: 2rem;
+    }
+
+    &__text {
+        flex: 2;
+        padding: .5rem 1rem;
+
+        &--header-check {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+
+            input { display: none; }
+
+            input:checked + label::before {
+                content: "\2714";
+                background-color: var(--color-style-main);
+            }
+
+            input:not(:checked) + label::before {
+                content: "\2716";
+                background-color: var(--color-style-dark);
+            }
+
+            label {
+                
+                &::before {
+                    transition: all .2s;
+                    border: 1px solid black;
+                    padding: 0 .8rem;
+                    width: 3rem;
+                    margin-right: 1rem;
+                    border-radius: .5rem;
+                    border: .2rem solid transparent;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                }
+                
+                &:hover::before {
+                    border: .2rem solid white;
+                    box-shadow: 0 .2rem .4rem black;
+                }
+            }
+            
+        }
+
+        &--textbox {
+
+            &--input {
+                width: 100%;
+                height: 15vw;
+                border-radius: 1rem;
+                padding: .5rem;
+
+                &::placeholder {
+                    color: rgba(black, .5);
+                }
+            }
+        }
+
+        &--submit {
+            margin-top: 1rem;
+
+            &--button {
+                padding: .8rem 1.6rem;
+                border-radius: 1rem;
+                transition: all .2s;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: var(--color-style-juxtapose);
+                    color: white;
+                    border: .2rem solid white;
+                }
+            }
+        }
+    }
+    
+    &__drop {
+        flex: 1;
+        padding: .5rem 1rem;
+        position: relative;
+        border: .2rem solid rgba(black, .5);
+        border-radius: 1rem;
+
+        &--text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            text-align: center;
+            color: rgba(black, .5);
+        }
+
+        &:-moz-drag-over {
+            color: black;
+            border: .2rem solid black;
+        }
+    }
+}
