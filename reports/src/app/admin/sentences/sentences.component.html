@@ -110,7 +110,7 @@
     <div class="sentences__title">
         Below are the potential sentences from the sentence structure:
         <div class="sentences__title--structure">
-            <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined" }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
+            <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined (at 'Base' level)" }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
         </div>
     </div>
     <div class="sentences__row sentences__header">

@@ -288,7 +288,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     addNewSubLevel(position: number) {
         const callback: Function = (value: sentence) => {
-            value.subcategories.push({name: "new"});
+            value.subcategories.push({name: `${value.subcategories.length + 1}`});
         }
         this.modifyData(position, null, null, null, callback);
     }
