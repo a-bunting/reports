@@ -16,6 +16,18 @@ export interface Group {
 export class ClassesComponent implements OnInit {
 
     groups: Group[];
+    createNewGroup: boolean = false;
+
+    // group database structure
+    /*
+    
+    randomId: string
+    {
+        name: group name, 
+        
+    }
+    
+    */
 
     constructor(private db: DatabaseService) { }
 
