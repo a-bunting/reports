@@ -11,8 +11,16 @@
         <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-savelocal" [class.admin-sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</div>
         <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-commit" [class.admin-sentences__control-bar--control-disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</div>
     </div>
-    <div class="admin-sentences__copy-indicator" *ngIf="copiedItem" (click)="clearCopiedItem()">
-        Item Copied - Click to clear
+    <div class="admin-sentences__memory">
+        <div class="admin-sentences__undo" [class.admin-sentences__undo--empty]="undoChain.length === 0" (click)="undoLastChange()">
+            {{ undoChain.length !== 0 ? undoChain[undoChain.length - 1].commandName : "Undo list empty" }}
+            <span class="admin-sentences__undo--full" *ngIf="undoChain.length === maxUndo">
+                (Undo list full)
+            </span>
+        </div>
+        <div class="admin-sentences__copy-indicator" [class.admin-sentences__copy-indicator--empty]="!copiedItem" (click)="clearCopiedItem()">
+            {{ copiedItem ? "Item Copied - Click to clear" : "Copy memory empty" }}
+        </div>
     </div>
 </div>
 
@@ -41,7 +49,7 @@
                         {{ sentence.name | slice:0:(50/sentenceStem.length) }}
                     </div>
                     <div class="admin-sentences__stem-phrase--controls">
-                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete tooltipped" (click)="deleteRoute(sentence.order, sentence.index)">&times; <div class="tooltip">Delete Item (cannot be undone)</div></div>
+                        <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete tooltipped" (click)="deleteRoute(sentence.order, sentence.index)">&times; <div class="tooltip">Delete Item</div></div>
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-moveleft tooltipped" (click)="reOrderItemLeft(sentence.order, sentence.index)" *ngIf="o > 0"><span style="transform: scale(-1, 1);">&#x27AA;</span> <div class="tooltip">Move this item one level to the left (to undo, copy and paste it back forwards)</div></div>
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-copy tooltipped" (click)="copyItem(sentence.order, sentence.index)">&#x2750; <div class="tooltip">Copy this stem and its subcomponents</div></div>
                         <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-starter tooltipped" [class.admin-sentences__stem-phrase--control-starter--selected]="sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">&#x270E; <div class="tooltip">Starter sentence - sentences may start with this phrase.</div></div>
@@ -90,13 +98,19 @@
 
     </div>
 
+    <div class="admin-sentences__level admin-sentences__level--infobox"  *ngIf="viewData.length === 1">
+        <div class="admin-sentences__level--infobox-text">
+            Select a category on the left to expand your sentences database
+        </div> 
+    </div>
+
 </div>
 
 <div class="sentences">
     <div class="sentences__title">
         Below are the potential sentences from the sentence structure:
         <div class="sentences__title--structure">
-            <span *ngFor="let name of getRouteNames(); let i = index">{{ name }} <div class="span" *ngIf="i === getRouteNames().length"></div></span>
+            <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined" }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
         </div>
     </div>
     <div class="sentences__row sentences__header">

@@ -70,7 +70,6 @@
     &__level {
         
         flex: 1;
-        
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -82,7 +81,6 @@
         &--base { 
             background-image: linear-gradient(to right, darken(#457b9d, 10%), lighten(#457b9d, 0%));
             flex: 0 0 5rem; 
-            align-self: stretch;
 
             display: flex; 
             flex-direction: column;
@@ -93,6 +91,22 @@
             }
         }
 
+        &--infobox {
+            background-image: linear-gradient(to right, lighten(#457b9d, 10%) 10%, gray 30%, gray);
+            position: relative;
+
+            &-text {
+                font-size: 3rem;
+                line-height: 3.5rem;
+                letter-spacing: .15rem;
+                text-align: center;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 50%;
+            }
+        }
         &--0 { background-image: linear-gradient(to right, lighten(#457b9d, 0%), lighten(#457b9d, 10%)); }
         &--1 { background-image: linear-gradient(to right, lighten(#457b9d, 10%), lighten(#457b9d, 20%)); }
         &--2 { background-image: linear-gradient(to right, lighten(#457b9d, 20%), lighten(#457b9d, 30%)); }
@@ -104,19 +118,62 @@
         &--8 { background-image: linear-gradient(to right, lighten(#457b9d, 80%), lighten(#457b9d, 90%)); }
     }
 
-    &__copy-indicator {
+    &__memory {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    &__undo {
         font-size: 1.4rem;
         transition: all .2s;
         border: .2rem transparent solid;
         padding: .4rem 1rem;
         background-color: var(--color-style-juxtapose);
-        border-radius: 1rem;
+        border-radius: 1rem 0 0 1rem;
 
         &:hover {
             cursor: pointer;
             border: .2rem white solid;
             color: white;
             filter: brightness(80%);
+        }
+
+        &--empty {
+            background-color: gray;
+
+            &:hover {
+                cursor: default;
+                border: .2rem transparent solid;
+                color: black;
+                filter: brightness(100%);
+            }
+        }
+    }
+
+    &__copy-indicator {
+        font-size: 1.4rem;
+        transition: all .2s;
+        border: .2rem transparent solid;
+        padding: .4rem 1rem;
+        background-color: var(--color-style-juxtapose);
+        border-radius: 0 1rem 1rem 0;
+
+        &:hover {
+            cursor: pointer;
+            border: .2rem white solid;
+            color: white;
+            filter: brightness(80%);
+        }
+
+        &--empty {
+            background-color: gray;
+
+            &:hover {
+                cursor: default;
+                border: .2rem transparent solid;
+                color: black;
+                filter: brightness(100%);
+            }
         }
     }
 

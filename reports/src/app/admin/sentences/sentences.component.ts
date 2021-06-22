@@ -146,97 +146,21 @@ export class SentencesComponent implements OnInit, OnDestroy {
         })
         return ret;
     }
-
-    // getSentenceDataOLD(route: number[], singleStream: boolean, data?: string[]): [sentence[]] {
-    //     // route must always start with a 0
-    //     route[0] = 0;
-
-    //     let ret: [sentence[]] = [[]];
-    //     let sntncData = this.sentenceData;
-
-    //     route.forEach((value: number, routePosition: number) => {
-    //         try {
-
-    //             let subData;
-
-    //             if(Array.isArray(sntncData[value].subcategories)) {
-    //                 subData = sntncData[value].subcategories;
-    //             } else {
-    //                 subData = sntncData[value];
-    //                 subData.subcategories = [];
-    //             }
-
-    //             let newReturnData: [{}] = [{}];
-                
-    //             // try catch inappropriate here :)
-    //             try {
-    //                 // check to see if there is subdata, and if not just use the sentence stem
-    //                 subData.forEach((dataStem: sentence, index: number) => {
-    //                     // if a single stream is needed only select the appropriate routes...
-    //                     if(!singleStream || (route[routePosition+1] === index) || ((routePosition + 1) === route.length)) {
-    //                         data.forEach((key: string) => {
-    //                             // get the value for the key value pair
-    //                             const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
-    //                             // if it exists add it to the array
-    //                             if(val !== undefined) {
-    //                                 const add = { [key]: val };
-    //                                 newReturnData[index] = { ...newReturnData[index], ...add};
-    //                             }
-    //                         })
-    //                         const subcategories = dataStem.subcategories ? true : false;
-    //                         const editParameters = { order: routePosition, index: index, subcategories: subcategories };
-    //                         newReturnData[index] = { ...newReturnData[index], ...editParameters};
-    //                     }
-    //                 })
-    //             } catch {
-    //                 // no subdata, this is the end of the road....
-    //                 let noSubDataReturn: {} = {};
-                    
-    //                 if(!singleStream || ((routePosition + 1) === route.length)) {
-    //                     // this only triggers when it is trying to navigate to a subdirectory that doesnt exist
-    //                     // in this case the view will not work as desired...
-    //                     // this needs somehow to allow the view to continue navigation as usual...
-
-    //                     console.log("DONT DELETE THIS :D");
-    //                     data.forEach((key: string) => {
-    //                         // get the value for the key value pair
-    //                         const val: string | boolean | number = (subData[value][key] ? subData[value][key] : undefined);
-    //                         // if it exists add it to the array
-    //                         if(val !== undefined) {
-    //                             const add = { [key]: val };
-    //                             noSubDataReturn = { ...noSubDataReturn, ...add};
-    //                         }
-    //                     }) 
-    //                     // untested...
-    //                     const subcategories = subData['subcategories'] ? true : false;
-    //                     const editParameters = { route: routePosition, index: 0, subcategories: true };
-    //                     noSubDataReturn = { ...noSubDataReturn, ...editParameters};    
-    //                 }
-    //                 newReturnData = [noSubDataReturn];
-    //             }
-    //             // add the data to the return variable...
-    //             // no empty objects...                
-    //             ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
-    //             // set the data stream as the subcategories of the first branch...
-    //             sntncData = sntncData[value].subcategories;
-    //         } catch {
-    //             // nothing here yet...
-    //         }
-    //     })
-    //     return ret;
-    // }
-
-    // not working...
     
     getRouteNames(): string[] {
         let routeNames: string[] = [];
         let route = this.route;
+        let depth: number = 0;
 
         this.sentenceData.forEach(function iterate(routeId: sentence, index: number) {
-            routeNames[index] = routeId.name;
 
-            if(index < route.length && Array.isArray(routeId.subcategories)) {
-                routeId.subcategories.forEach(iterate);
+            if(route[depth] === index) {
+                routeNames[depth] = routeId.name;
+    
+                if(index < route.length && Array.isArray(routeId.subcategories)) {
+                    depth++;
+                    routeId.subcategories.forEach(iterate);
+                }
             }
         })
         return routeNames;
@@ -317,7 +241,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
     }
 
+    lastPositionChange: {position: number, index: number} = {position: null, index: null};
+
     setView(position: number, index: number) {
+        this.lastPositionChange = {position: position, index: index};
         this.route[position+1] = index;
         this.route.splice(position+2);
         this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
@@ -409,16 +336,58 @@ export class SentencesComponent implements OnInit, OnDestroy {
         }
     }
 
+    undoChain: {commandName: string, data: sentence, fn: Function}[] = [];
+    maxUndo: number = 10;
+
+    /**
+     * Adds a command to the undo chain.
+     * @param command 
+     * @param data 
+     * @param fn 
+     */
+    addToUndo(command: string, data: sentence, fn: Function) {
+        this.undoChain.push({commandName: command, data: data, fn: fn});
+        // undo chain is limited for memory reasons......
+        if(this.undoChain.length > this.maxUndo) {
+            // remove the first element of the chain, this can no onger be undone.
+            this.undoChain.shift();
+        }
+    }
+
+    undoLastChange() {
+        // get the function and the data
+        const fn: Function = this.undoChain[this.undoChain.length - 1].fn;
+        const data: sentence = this.undoChain[this.undoChain.length - 1].data;
+        // execute the undo operation
+        fn(data);
+        // remove from the undo list
+        this.undoChain.pop();
+        // reset the view with the changes...
+        this.setView(this.lastPositionChange.position, this.lastPositionChange.index);
+    }
+
     deleteRoute(position: number, index: number) {
         const callback: Function = (value: sentence) => {
+            // add to undo what is about to happen
+            const fn: Function = (data: sentence) => {
+                value.subcategories.push(data);
+            }
+            // add to undo list
+            this.addToUndo("Deletion of " + value.subcategories[index].name, value.subcategories[index], fn);
+            
+            // remove the item from the array
             value.subcategories.splice(index, 1);
-            this.setView(position - 1, this.route[position]);
+
+            try {
+                this.setView(this.lastPositionChange.position, this.lastPositionChange.index);
+            } catch(e) {
+                this.setView(position - 1, this.route[position]);
+            }
         }
         this.modifyData(position, index, null, null, callback);
     }
 
     modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment) {
-        console.log("here");
         const callback: Function = (value: sentence) => {
             value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
         }
@@ -453,6 +422,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.modifyData(position, subPosition, 'starter', !currentState);
     }
 
+    // copy and paste items in the view...
     copiedItem: sentence;
 
     copyItem(position: number, subPosition: number) {
@@ -539,3 +509,86 @@ export class SentencesComponent implements OnInit, OnDestroy {
     }
 
 }
+
+
+
+    // getSentenceDataOLD(route: number[], singleStream: boolean, data?: string[]): [sentence[]] {
+    //     // route must always start with a 0
+    //     route[0] = 0;
+
+    //     let ret: [sentence[]] = [[]];
+    //     let sntncData = this.sentenceData;
+
+    //     route.forEach((value: number, routePosition: number) => {
+    //         try {
+
+    //             let subData;
+
+    //             if(Array.isArray(sntncData[value].subcategories)) {
+    //                 subData = sntncData[value].subcategories;
+    //             } else {
+    //                 subData = sntncData[value];
+    //                 subData.subcategories = [];
+    //             }
+
+    //             let newReturnData: [{}] = [{}];
+                
+    //             // try catch inappropriate here :)
+    //             try {
+    //                 // check to see if there is subdata, and if not just use the sentence stem
+    //                 subData.forEach((dataStem: sentence, index: number) => {
+    //                     // if a single stream is needed only select the appropriate routes...
+    //                     if(!singleStream || (route[routePosition+1] === index) || ((routePosition + 1) === route.length)) {
+    //                         data.forEach((key: string) => {
+    //                             // get the value for the key value pair
+    //                             const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
+    //                             // if it exists add it to the array
+    //                             if(val !== undefined) {
+    //                                 const add = { [key]: val };
+    //                                 newReturnData[index] = { ...newReturnData[index], ...add};
+    //                             }
+    //                         })
+    //                         const subcategories = dataStem.subcategories ? true : false;
+    //                         const editParameters = { order: routePosition, index: index, subcategories: subcategories };
+    //                         newReturnData[index] = { ...newReturnData[index], ...editParameters};
+    //                     }
+    //                 })
+    //             } catch {
+    //                 // no subdata, this is the end of the road....
+    //                 let noSubDataReturn: {} = {};
+                    
+    //                 if(!singleStream || ((routePosition + 1) === route.length)) {
+    //                     // this only triggers when it is trying to navigate to a subdirectory that doesnt exist
+    //                     // in this case the view will not work as desired...
+    //                     // this needs somehow to allow the view to continue navigation as usual...
+
+    //                     console.log("DONT DELETE THIS :D");
+    //                     data.forEach((key: string) => {
+    //                         // get the value for the key value pair
+    //                         const val: string | boolean | number = (subData[value][key] ? subData[value][key] : undefined);
+    //                         // if it exists add it to the array
+    //                         if(val !== undefined) {
+    //                             const add = { [key]: val };
+    //                             noSubDataReturn = { ...noSubDataReturn, ...add};
+    //                         }
+    //                     }) 
+    //                     // untested...
+    //                     const subcategories = subData['subcategories'] ? true : false;
+    //                     const editParameters = { route: routePosition, index: 0, subcategories: true };
+    //                     noSubDataReturn = { ...noSubDataReturn, ...editParameters};    
+    //                 }
+    //                 newReturnData = [noSubDataReturn];
+    //             }
+    //             // add the data to the return variable...
+    //             // no empty objects...                
+    //             ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
+    //             // set the data stream as the subcategories of the first branch...
+    //             sntncData = sntncData[value].subcategories;
+    //         } catch {
+    //             // nothing here yet...
+    //         }
+    //     })
+    //     return ret;
+    // }
+
+    // not working...
