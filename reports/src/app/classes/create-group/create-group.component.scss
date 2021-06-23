@@ -7,9 +7,11 @@
         background-color: var(--color-style-juxtapose);
         padding: .5rem 1rem;
         letter-spacing: .15rem;
+        width: 55rem;
 
         display: flex;
         align-items: center;
+        justify-content: space-between;
 
         &--text {
             font-weight: bold;
@@ -86,7 +88,7 @@
 
             &--input {
                 width: 100%;
-                height: 15vw;
+                height: 12vw;
                 border-radius: 1rem;
                 padding: .5rem;
 
@@ -99,10 +101,15 @@
         &--submit {
             margin-top: 1rem;
 
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+
             &--button {
                 padding: .8rem 1.6rem;
                 border-radius: 1rem;
                 transition: all .2s;
+                border: .2rem solid transparent;
 
                 &:hover {
                     cursor: pointer;
@@ -136,5 +143,17 @@
             color: black;
             border: .2rem solid black;
         }
+    }
+
+    &__data {
+
+    }
+
+    &__row {
+        display: flex;
+    }
+
+    &__col {
+        flex: 1;
     }
 }

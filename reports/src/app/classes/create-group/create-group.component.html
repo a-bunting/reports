@@ -15,15 +15,16 @@
     <div class="create-group__input">
 
         <div class="create-group__text">
-            <div class="create-group__text--header-check">
-                <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" checked>
-                <label for="groupInputHeaderBox">Top row is header text (recommended!)</label>
-            </div>
+            
             <div class="create-group__text--textbox">
                 <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line."></textarea>
             </div>
             <div class="create-group__text--submit">
-                <button class="create-group__text--submit--button">Create Group</button>
+                <div class="create-group__text--header-check">
+                    <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>
+                    <label for="groupInputHeaderBox">Top row is header text (recommended!)</label>
+                </div>
+                <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
             </div>
         </div>
 
@@ -39,7 +40,12 @@
     </div>
 
     <div class="create-group__data">
-
+        <div class="create-group__row" *ngFor="let row of userData; let i = index">
+            <div class="create-group__col" *ngFor="let user of row | keyvalue : returnZero">
+                <div *ngIf="i === 0">{{ user.key }}</div> 
+                <div *ngIf="i > 0">{{ user.value }}</div>
+            </div>
+        </div>
     </div>
 
 </div>
