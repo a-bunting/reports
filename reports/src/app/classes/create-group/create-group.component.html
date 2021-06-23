@@ -39,13 +39,25 @@
         </div>
     </div>
 
-    <div class="create-group__data">
-        <div class="create-group__row" *ngFor="let row of userData; let i = index">
-            <div class="create-group__col" *ngFor="let user of row | keyvalue : returnZero">
-                <div *ngIf="i === 0">{{ user.key }}</div> 
-                <div *ngIf="i > 0">{{ user.value }}</div>
-            </div>
-        </div>
+    <div class="create-group__data" *ngIf="userData">
+
+        <table class="create-group__data--table">
+            <thead>
+                <tr class="create-group__data--row create-group__data--header" *ngFor="let row of userData | slice:0:1">
+                    <td class="create-group__data--cell" *ngFor="let user of row | keyvalue : returnZero">{{ user.key }}</td> 
+                    <td></td>
+                </tr>                
+            </thead>
+            <tbody>
+                <tr class="create-group__data--row create-group__data--data" *ngFor="let row of userData | slice:1:-1">
+                    <td class="create-group__data--cell" *ngFor="let user of row | keyvalue : returnZero">{{ user.value }}</td>
+                    <td class="create-group__data--cell">
+                        buttons and controls
+                    </td> 
+                </tr>              
+            </tbody>
+        </table>
+
     </div>
 
 </div>

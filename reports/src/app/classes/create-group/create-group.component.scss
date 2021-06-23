@@ -15,7 +15,7 @@
 
         &--text {
             font-weight: bold;
-            padding: .8rem 1.6rem;
+            padding: .8rem .5rem;
         }
         &--input {
             margin-left: 1rem;
@@ -146,14 +146,43 @@
     }
 
     &__data {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: .2rem dashed rgba(black, .3);
+        font-size: 1.4rem;
 
-    }
+        &--table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        &--row {
+            transition: all .2s;
 
-    &__row {
-        display: flex;
-    }
+            &:hover {
+                background-color: var(--color-style-juxtapose);
+            }
+        }
+        
+        &--header {
+            font-weight: bold;
+            background-color: green;
+            background-color: var(--color-style-dark);
+            color: white;            
+        }
+        
+        &--data {
+            background-color: var(--color-style-main);            
 
-    &__col {
-        flex: 1;
+        }
+
+        &--cell {
+            padding: .5rem 1rem;
+
+            &:last-of-type {
+                width: 100%;
+                text-align: right;
+            }
+        }
     }
 }
