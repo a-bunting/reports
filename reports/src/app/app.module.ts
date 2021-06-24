@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,12 +15,11 @@ import { AdminComponent } from './admin/admin.component';
 import { SentencesComponent } from './admin/sentences/sentences.component';
 import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spinner.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
-import { AuthInterceptorService } from './utilities/auth/auth-interceptor.service';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
 import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { AngularFireAuth, AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 import { UsersComponent } from './admin/users/users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
@@ -51,7 +50,6 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
     AngularFirestoreModule 
   ],
   providers: [
-        // {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, 
         AuthenticationService,
         AngularFireFunctions, 
         AngularFireAuthModule, 

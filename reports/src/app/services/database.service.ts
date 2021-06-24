@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { AngularFirestore, QuerySnapshot } from '@angular/fire/firestore';
-import { User } from '../utilities/auth/user.model';
+import { User } from '../utilities/authentication/user.model';
 
 export interface sentence {
     endpoint?: boolean, starter?: boolean, 

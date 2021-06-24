@@ -138,11 +138,6 @@
             text-align: center;
             color: rgba(black, .5);
         }
-
-        &:-moz-drag-over {
-            color: black;
-            border: .2rem solid black;
-        }
     }
 
     &__data {
@@ -160,9 +155,12 @@
                 animation: fadeIn .3s ease-in 0s 1 forwards;
             }
 
-            thead tr {
-                :first-of-type { border-radius: 1rem 0 0 0; }
-                :last-of-type { border-radius: 0 1rem 0 0; }
+            tbody tr, thead tr {
+                td {
+                    &:nth-of-type(odd) {
+                        background-color: rgba(white, .2);
+                    }
+                }
             }
         }
 
@@ -196,6 +194,12 @@
             padding: .5rem 1rem;
             transition: all .2s;
 
+            &--header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
             &:last-of-type {
                 display: flex;
                 justify-content: flex-end;
@@ -225,6 +229,7 @@
             &:hover {
                 cursor: pointer;
                 border: .2rem solid white;
+                filter: brightness(130%);
             }
 
             &-remove {

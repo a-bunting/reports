@@ -3,7 +3,6 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../authentication/authentication.service';
-import { AuthService, AuthResponseData } from './auth.service';
 
 @Component({
   selector: 'app-auth',

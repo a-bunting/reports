@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { from } from 'rxjs';
+import { User } from '../authentication/user.model';
+import { AuthenticationService } from '../authentication/authentication.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,9 +10,29 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor() { }
+    user: User;
+    username: string;
+    facility: string;
 
-  ngOnInit(): void {
-  }
+    constructor(private AuthService: AuthenticationService) {}
+    
+    ngOnInit(): void {
+        this.AuthService.user.subscribe((user: User) => {
+            if(user) {
+                this.user = user;
+                // set the username and establishment
+                this.username = this.user.name;
+                this.facility = this.user.establishment.name;
+            }
+        })
+    }
+
+    onUsernameChange(): void {
+        this.user.setUsername = this.username;
+    }
+
+    onEstablishmentChange(): void {
+        // nothing yet, free agents only to start
+    }
 
 }

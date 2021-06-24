@@ -136,6 +136,10 @@ export class CreateGroupComponent implements OnInit {
         this.userData = newData;
     }
 
+    /**
+     * removes a column
+     * @param index 
+     */
     deleteColumn(index: number): void {
         // strip from the keys array
         const colName: string = this.keys[index];
@@ -146,7 +150,6 @@ export class CreateGroupComponent implements OnInit {
         });
 
         this.keys.splice(index, 1);
-        console.log(this.keys);
     }
 
     /**

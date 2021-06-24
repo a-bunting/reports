@@ -3,7 +3,10 @@ export class User {
         public email: string, 
         public id: string, 
         public name: string,
+        public establishment: {id: string, name: string},
         public admin: boolean,
+        public manager: boolean,
+        public member: boolean,
         private _token: string, 
         private _tokenExpirationDate: Date
     ) {}
@@ -13,5 +16,13 @@ export class User {
             return null;
         }
         return this._token;
+    }
+
+    set setUsername(username: string) {
+        this.name = username;
+    }
+
+    set setEst(est: {id: string, name: string}) {
+        this.establishment = est;
     }
 }

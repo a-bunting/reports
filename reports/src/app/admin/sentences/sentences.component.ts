@@ -3,8 +3,7 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
-import { AuthService } from 'src/app/utilities/auth/auth.service';
-import { User } from 'src/app/utilities/auth/user.model';
+import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { DatabaseService, sentence } from '../../services/database.service';
 import { TestsService, Test } from '../../services/tests.service';

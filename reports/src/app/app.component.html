@@ -3,11 +3,12 @@
         
         <nav class="header__menu">
             <a class="header__menu--item" *ngIf="!isAuthenticated" routerLink="auth/">Login</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="templates/">Templates</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="dashboard/">Dashboard</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated && (isMember || isAdmin)" routerLink="templates/">Templates</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="classes/">Classes</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLink="reports/">Reports</a>
             <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLink="admin/">Admin</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a>
         </nav>
         
         <div class="header__logo">

@@ -44,9 +44,11 @@
         <table class="create-group__data--table">
             <thead>
                 <tr class="create-group__data--row create-group__data--header">
-                    <td class="create-group__data--cell create-group__data--cell--header" *ngFor="let key of keys; let i = index" (keyup.enter)="columnValueChange(i, $event)" (blur)="columnValueChange(i, $event)" contenteditable="true">
-                        <div>{{ key }}</div>
-                        <span class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(i)">&#10006; <span class="tooltip">Delete this column (cannot be reversed)</span></span>
+                    <td class="create-group__data--cell" *ngFor="let key of keys; let i = index">
+                        <div class="create-group__data--cell--header">
+                            <div (keyup.enter)="columnValueChange(i, $event)" (blur)="columnValueChange(i, $event)" contenteditable="true">{{ key }}</div>
+                            <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(i)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></div>
+                        </div>
                     </td> 
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-addcol tooltipped" (click)="addColumn()">&#10010; <div class="tooltip">Add a new column</div></div>

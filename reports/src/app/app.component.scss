@@ -15,20 +15,21 @@
     // The main menu and its items.
     &__menu {
 
-        font-size: 2.4rem;
+        font-size: 2rem;
         padding-left: 5rem;
         display: flex;
 
         &--item {
-            width: 15rem;
+            width: 12rem;
 
             background-color: var(--color-style-main);
-            padding: 0 2rem;
+            padding: 0 2rem 1.4rem 2rem;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
             color: var(--color-style-dark);
             border-radius: 0 0 1rem 1rem;
+            transform: translateY(-1rem);
 
             text-decoration: none;
 
@@ -38,10 +39,16 @@
                 background-color: var(--color-style-juxtapose);
                 color: var(--color-style-light);
                 cursor: pointer;
+                transform: translateY(0);
+                box-shadow: 0 .3rem .6rem rgba(black, .5);
             }
 
             &:not(:last-child) {
                 margin-right: .5rem;
+            }
+
+            &:last-child {
+                margin-left: 2rem;
             }
         }
     }
@@ -54,11 +61,11 @@
         font-weight: 700;
         text-align: center;
 
-        transition: letter-spacing .2s, color .2s;
+        transition: text-shadow .2s, color .2s;
 
         &:hover {
             color: var(--color-style-juxtapose);
-            letter-spacing: .4rem;
+            text-shadow: 0 0 .2rem white;
         }
     }
 }

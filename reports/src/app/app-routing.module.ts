@@ -9,14 +9,16 @@ import { EditTemplateComponent } from './templates/edit-template/edit-template.c
 import { TemplatesComponent } from './templates/templates.component';
 import { AuthComponent } from './utilities/auth/auth.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
-import { AuthGuard } from './utilities/auth/auth-guard.guard';
+import { AuthGuard } from './utilities/authentication/auth-guard.guard';
+import { DemoGuard } from './utilities/authentication/demo-guard.guard';
+import { AdminGuard } from './utilities/authentication/admin.guard';
 import { UsersComponent } from './admin/users/users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 
 const routes: Routes = [
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard]},
     {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
-    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard], children: [
+    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard, DemoGuard], children: [
         {path: 'create-template', component: CreateTemplateComponent},
         {path: 'edit-template', component: EditTemplateComponent}
     ]},
@@ -24,7 +26,7 @@ const routes: Routes = [
         {path: 'create-group', component: CreateGroupComponent}
     ]},
     {path: 'auth', component: AuthComponent},
-    {path: 'admin', component: AdminComponent, canActivate: [AuthGuard], children: [
+    {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
         {path: 'sentences', component: SentencesComponent},
         {path: 'users', component: UsersComponent}
     ]}

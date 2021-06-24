@@ -5,7 +5,7 @@ import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { catchError, mergeMap, take, tap, toArray } from 'rxjs/operators';
-import { User } from '../auth/user.model';
+import { User } from './user.model';
 
 export interface AuthResponseData {
     kind: string, idToken: string, email: string, 
@@ -39,14 +39,27 @@ export class AuthenticationService {
                 .then(() => {
                     // response from server
                     console.log(`Success: User ${name} (${email}) has been signed up.`);
-                    
+
+                    // REMAKE SIGNUP PROPERLY...
+
                     // authenticate the user in the code
                     // user is not an admin by default.
+                    // this.handleAuthentication(
+                    //     result.user.email, 
+                    //     result.user.uid,
+                    //     name,
+                    //     false,  
+                    //     token.token 
+                    // );
+
                     this.handleAuthentication(
-                        result.user.email, 
+                        result.user.email,
                         result.user.uid,
                         name,
-                        false,  
+                        {id: "freeagent", name: "Free Agent"},
+                        false,
+                        false, 
+                        false,
                         token.token 
                     );
                 }).catch((error: any) => {
@@ -68,21 +81,29 @@ export class AuthenticationService {
                 userDocRef.ref.get()
             ]);
         }).then(([user, tokenData, userDataSnapshot]) => {
+
+            const establishment = userDataSnapshot.get('establishment') ? userDataSnapshot.get('establishment') : {id: "freeagent", name: "Free Agent" };
+            const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
+            const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
+            const member = tokenData.claims.member ? tokenData.claims.member : false;
+
             this.handleAuthentication(
                 user.email, 
                 user.uid,
                 userDataSnapshot.get('name'),
-                tokenData.claims.admin,
+                establishment,
+                admin,
+                manager, 
+                member,
                 tokenData.token 
             );
-            console.log(userDataSnapshot.get('name'));
         })
 
         return from(signIn);
     }
     
     logout(): Observable<any> {
-        return from(this.fAuth.signOut().then((result) => {
+        return from(this.fAuth.signOut().then(() => {
             localStorage.removeItem('userData');
             this.user.next(null);
             this.router.navigate(['/auth']);
@@ -97,7 +118,10 @@ export class AuthenticationService {
             email: string;
             id: string;
             name: string;
+            establishment: {id: string, name: string};
             admin: boolean;
+            manager: boolean; 
+            member: boolean;
             _token: string;
             _tokenExpirationDate: string;
         } = JSON.parse(localStorage.getItem('userData'));
@@ -114,7 +138,7 @@ export class AuthenticationService {
         //     }
         // })
 
-        const loadedUser = new User(userData.email, userData.id, userData.name, userData.admin, userData._token, new Date(userData._tokenExpirationDate));
+        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData._token, new Date(userData._tokenExpirationDate));
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
@@ -144,9 +168,9 @@ export class AuthenticationService {
      * @param token 
      * @param expiresIn 
      */
-    private handleAuthentication(email: string, userId: string, name: string, admin: boolean, token: string): void {
+    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-        const user = new User(email, userId, name, admin, token, expirationDate);
+        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, token, expirationDate);
         this.autoLogout(3600 * 1000);
         this.user.next(user);
 
