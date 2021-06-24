@@ -154,11 +154,27 @@
         &--table {
             width: 100%;
             border-collapse: collapse;
+
+            tr {
+                opacity: 0;
+                animation: fadeIn .3s ease-in 0s 1 forwards;
+            }
+
+            thead tr {
+                :first-of-type { border-radius: 1rem 0 0 0; }
+                :last-of-type { border-radius: 0 1rem 0 0; }
+            }
+        }
+
+        &--edited {
+            font-weight: bold;
+            background-color: red;
+            animation: glow 2s linear 0 1 normal;
         }
         
         &--row {
             transition: all .2s;
-
+            
             &:hover {
                 background-color: var(--color-style-juxtapose);
             }
@@ -168,7 +184,7 @@
             font-weight: bold;
             background-color: green;
             background-color: var(--color-style-dark);
-            color: white;            
+            color: white;     
         }
         
         &--data {
@@ -178,11 +194,64 @@
 
         &--cell {
             padding: .5rem 1rem;
+            transition: all .2s;
 
             &:last-of-type {
-                width: 100%;
-                text-align: right;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            &:focus {
+                background-color: rgba(white, .5);
+                font-weight: bold;
+                animation: glow 2s ease-in-out 0 infinite;
+            }
+
+            &:visited { 
+                background-color: red;
+            }
+        }
+        
+        &--buttons {
+
+            padding: .1rem .5rem;
+            font-size: 1.6rem;
+            transition: all .2s;
+            border: .2rem solid transparent;
+            width: 3rem;
+            text-align: center;
+            border-radius: 1rem;
+
+            &:hover {
+                cursor: pointer;
+                border: .2rem solid white;
+            }
+
+            &-remove {
+                background-color: red;
+            }
+
+            &-addcol {
+                background-color: green;
             }
         }
     }
+}
+
+@keyframes fadeIn {
+    100% { opacity: 1; }
+}
+
+@keyframes glow {
+    20% { background-color: rgba(white, .5) }
+    40% { background-color: rgba(white, 1) }
+    60% { background-color: rgba(white, .5) }
+    80% { background-color: rgba(white, 1) }
+    100% { background-color: rgba(white, .5) }
+}
+
+// tooltip overrides
+.tooltip {
+    left: 100%;
+    top: 50%;
 }
