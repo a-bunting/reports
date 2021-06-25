@@ -12,7 +12,7 @@ import { EditTemplateComponent } from './templates/edit-template/edit-template.c
 import { AuthComponent } from './utilities/auth/auth.component';
 import { FormsModule } from '@angular/forms';
 import { AdminComponent } from './admin/admin.component';
-import { SentencesComponent } from './admin/sentences/sentences.component';
+import { AdminSentencesComponent } from './admin/sentences/admin-sentences.component';
 import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spinner.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
@@ -20,9 +20,10 @@ import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { AngularFireAuthModule } from '@angular/fire/auth';
-import { UsersComponent } from './admin/users/users.component';
+import { AdminUsersComponent } from './admin/users/admin-users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { SentencesComponent } from './sentences/sentences.component';
 
 @NgModule({
   declarations: [
@@ -34,11 +35,12 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
     EditTemplateComponent,
     AuthComponent,
     AdminComponent,
-    SentencesComponent,
+    AdminSentencesComponent,
     LoadingSpinnerComponent,
     DashboardComponent,
-    UsersComponent,
-    CreateGroupComponent
+    AdminUsersComponent,
+    CreateGroupComponent,
+    SentencesComponent
   ],
   imports: [
     BrowserModule,

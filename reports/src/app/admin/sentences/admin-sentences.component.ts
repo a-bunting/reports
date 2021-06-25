@@ -1,19 +1,17 @@
-// [{"subcategories":[{"subcategories":[{"sentence":"earning (*GENDER NOUN)self an (LETTER) throughout the period","subcategories":[{"subcategories":[{"subcategories":[{"endpoint":true,"sentence":"where (GENDER) achieved a (LAST GRADE PERIOD GRADE).","name":"Name"}],"name":"Long","sentence":"here is the middle :D","starter":false},{"tests":[{"comparison":"meta","function":"gradeChange"}],"subcategories":[{"sentence":"not achieving quite as well as (LAST GRADE PERIOD).","endpoint":true,"meta":-2},{"meta":0,"sentence":"achieving just as well as (LAST GRADE PERIOD). PIES LOL","endpoint":true},{"meta":2,"sentence":"achieving better than (LAST GRADE.","endpoint":true},{"sentence":"achieving far better than (GENDER) did in (LAST GRADE PERIOD).","meta":20,"endpoint":true}],"name":"medium","sentence":"","endpoint":true},{"name":"short","subcategories":[{"sentence":".","endpoint":true}],"starter":false}],"name":"Grade","sentence":""},{"name":"Learning","subcategories":[{"name":"1","subcategories":[],"sentence":"This is the final sentence..."}]}],"name":"Grade","endpoint":true,"starter":true},{"name":"Learning","subcategories":[{"endpoint":true,"sentence":"where (GENDER}NAME) learned about (TOPICS).","starter":false},{"sentence":"During this (PERIOD) (NAME}GENDER) learned about (TOPICS)","endpoint":true,"starter":false}]}],"name":"Introductions","starter":true,"endpoint":true,"sentence":"NAME Has had a good semster"},{"endpoint":true,"name":"What they did well","sentence":"","starter":false,"subcategories":[]}]}]
-// backup data!
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { DatabaseService, sentence } from '../../services/database.service';
 import { TestsService, Test } from '../../services/tests.service';
+import { SentencesService } from '../../services/sentences.service';
 
 @Component({
-  selector: 'app-sentences',
-  templateUrl: './sentences.component.html',
-  styleUrls: ['./sentences.component.scss']
+  selector: 'app-admin-sentences',
+  templateUrl: './admin-sentences.component.html',
+  styleUrls: ['./admin-sentences.component.scss']
 })
-export class SentencesComponent implements OnInit, OnDestroy {
+export class AdminSentencesComponent implements OnInit, OnDestroy {
 
     isLoading: boolean = true;
 
@@ -31,7 +29,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     user: User;
 
-    constructor(private databaseService: DatabaseService, private testsService: TestsService, private auth: AuthenticationService) {
+    constructor(private databaseService: DatabaseService, private testsService: TestsService, private auth: AuthenticationService, private sentenceService: SentencesService) {
         // get the user details...
         auth.user.subscribe((newUser: User) => {
             this.user = newUser;
@@ -40,36 +38,51 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
 
-        // check if there is an instance of the sentences database in localstorage...
-        if(localStorage.getItem('sentences-data') !== null) {
-            // retrieve the data from local storage and parse it into the sentence data...
-            this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));
-            // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
-            this.initialData = JSON.parse(localStorage.getItem('sentences-data'));                
+        this.isLoading = true;
+
+        this.sentenceService.getSentencesDatabase().subscribe((data: sentence) => {
+            this.sentenceData[0] = data;
+
             // set the data on the display
+            this.initialData = this.sentenceData;
             this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
             this.generateSentenceOptions(this.route);
             this.isLoading = false;
-        } else {
-            // no instance of the saved data so geta  fresh version.
-            this.databaseService.getSentences('template').pipe(take(1)).subscribe(returnData => {
-                // // add data to the sentenceData array...
-                // returnData.forEach(data => {
-                //     this.sentenceData.push(data.data());
-                // })
-                this.sentenceData[0] = returnData.data();
-                // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
-                this.initialData = JSON.parse(JSON.stringify(this.sentenceData));
-                // set the data into local storage to make it quicker ot retrieve next time...
-                localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
+        }, (error) => {
+            console.log(`Error gathering the database: ${error.message}`);
+            this.isLoading = false;
+        })
+
+        // // check if there is an instance of the sentences database in localstorage...
+        // if(localStorage.getItem('sentences-data') !== null) {
+        //     // retrieve the data from local storage and parse it into the sentence data...
+        //     this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));
+        //     // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
+        //     this.initialData = JSON.parse(localStorage.getItem('sentences-data'));                
+        //     // set the data on the display
+        //     this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+        //     this.generateSentenceOptions(this.route);
+        //     this.isLoading = false;
+        // } else {
+        //     // no instance of the saved data so geta  fresh version.
+        //     this.databaseService.getSentences('template').pipe(take(1)).subscribe(returnData => {
+        //         // // add data to the sentenceData array...
+        //         // returnData.forEach(data => {
+        //         //     this.sentenceData.push(data.data());
+        //         // })
+        //         this.sentenceData[0] = returnData.data();
+        //         // set the initial data as the save point in case of edits. This needs to be a new copy, not a reference.
+        //         this.initialData = JSON.parse(JSON.stringify(this.sentenceData));
+        //         // set the data into local storage to make it quicker ot retrieve next time...
+        //         localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 
-                this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-                this.generateSentenceOptions(this.route);
-                this.isLoading = false;
-            }, (error: any) => {
-                console.log(`Error retrieving data: ${error.message}`);
-            });
-        }
+        //         this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+        //         this.generateSentenceOptions(this.route);
+        //         this.isLoading = false;
+        //     }, (error: any) => {
+        //         console.log(`Error retrieving data: ${error.message}`);
+        //     });
+        // }
     }
 
     ngOnDestroy() {

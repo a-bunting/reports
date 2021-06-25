@@ -12,11 +12,11 @@ export interface FirebaseUser {
 }
 
 @Component({
-  selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  selector: 'app-admin-users',
+  templateUrl: './admin-users.component.html',
+  styleUrls: ['./admin-users.component.scss']
 })
-export class UsersComponent implements OnInit {
+export class AdminUsersComponent implements OnInit {
 
     userList: FirebaseUser[];       // the list to display to the user
     fullUserList: FirebaseUser[];   // the list retrived from the database.

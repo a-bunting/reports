@@ -1,13 +1,15 @@
 <div class="component-intro">
     <h1 class="component-intro__title">Administration Panel</h1>
+    <h4 class="component-intro__description">
+    </h4>
+    <div class="component-intro__buttons">
+        <div class="component-intro__buttons--button" routerLink="sentences/" routerLinkActive="link-active">Sentences</div>
+        <div class="component-intro__buttons--button" routerLink="users/" routerLinkActive="link-active">Users</div>
+    </div>
 </div>
 
-<div class="divider-line divider-line__thin u__margin-bottom--medium u__margin-top--medium"></div>
 
-<nav class="admin__menu">
-    <a class="admin__link" routerLink="sentences/" routerLinkActive="link-active">Sentences</a>
-    <a class="admin__link" routerLink="users/" routerLinkActive="link-active">Users</a>
-</nav>
+<div class="divider-line divider-line__thin u__margin-bottom--medium u__margin-top--medium"></div>
 
 <div class="admin__panel">
     <router-outlet></router-outlet>
