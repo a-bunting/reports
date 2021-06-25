@@ -18,7 +18,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     // these do NOT need to be an array, but in a slow start everything got coded this way and so thats how it is!...
     initialData: sentence[];
     sentenceData: sentence[] = [];
-    viewData: [sentence[]];
+    viewData: [sentence[]] = [[]];
     route: [number] = [0];
     selection: string[] = ['name','sentence', 'starter', 'tests', 'meta', 'comparison', 'function'];
 
