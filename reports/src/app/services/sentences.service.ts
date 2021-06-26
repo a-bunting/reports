@@ -1,20 +1,28 @@
 import { createOfflineCompileUrlResolver } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { from, of, Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
-import { DatabaseService, sentence } from '../services/database.service';
+import { map, take, tap } from 'rxjs/operators';
+import { DatabaseService } from '../services/database.service';
+
+export interface sentence {
+    id?: string;
+    endpoint?: boolean, starter?: boolean, 
+    name?: string, sentence?: string[], meta?: string | number
+    subcategories?: [sentence], tests?: {name: string}[], 
+    index?: number; order?: number
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class SentencesService {
 
-    sentenceData: sentence;
+    sentenceData: sentence[] = [];
 
     constructor(private databaseService: DatabaseService) { }
 
     /**
-     * Gets the sentence data and returns it as an observable...
+     * Gets the sentence data from memory or from the database and returns it as an observable...
      * @returns 
      */
     getSentencesDatabase(): Observable<sentence>{
@@ -23,13 +31,17 @@ export class SentencesService {
             // retrieve the data from local storage and parse it into the sentence data...
             this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));               
             // set the data on the display
-            return of(this.sentenceData[0]);
+            return of(this.sentenceData[0]).pipe(take(1), tap(returnData => {
+                // return the data array...
+                return returnData;
+            }));
         } else {
             // no instance of the saved data so geta  fresh version.
             return this.databaseService.getSentences('template').pipe(take(1), map(returnData => {
                 // add data to the sentenceData array...
                 // (this is an array as originally multiple database could be retrieved but then only one...)
                 this.sentenceData[0] = returnData.data();
+                console.log(this.sentenceData);
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 // and return

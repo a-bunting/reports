@@ -4,13 +4,7 @@ import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { AngularFirestore, QuerySnapshot } from '@angular/fire/firestore';
 import { User } from '../utilities/authentication/user.model';
-
-export interface sentence {
-    endpoint?: boolean, starter?: boolean, 
-    name?: string, sentence?: string[], meta?: string | number
-    subcategories?: [sentence], tests?: {name: string}[], 
-    index?: number; order?: number
-}
+import { sentence } from './sentences.service';
 
 @Injectable({
   providedIn: 'root'
