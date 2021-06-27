@@ -48,7 +48,7 @@
                     (keyup.enter)="modifyName(sentence.order, sentence.index, $event)" 
                     contenteditable="true" 
                     data-placeholder="Unnamed...">
-                    {{ sentence.name | slice:0:(50/sentenceStem.length) }}
+                    {{ sentence.name | slice:0:(50/sentenceStem.length) }} ({{ sentence.id }})
                 </div>
                 <div class="admin-sentences__stem-phrase--controls">
                     <div class="admin-sentences__stem-phrase--control admin-sentences__stem-phrase--control-delete tooltipped" (click)="deleteRoute(sentence.order, sentence.index)">&times; <div class="tooltip">Delete Item</div></div>
@@ -61,8 +61,8 @@
             <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngFor="let text of sentence.sentence; let s = index">
                 <div style="font-weight: bold">Option {{ s+1 }}:</div> 
                     <div    class="admin-sentences__stem-phrase--sentence--input" 
-                    (keyup.enter)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
-                    (blur)="modifySentenceData(sentence.order, sentence.index, s, $event)" 
+                    (keyup.enter)="modifySentence(sentence.order, sentence.index, s, $event)" 
+                    (blur)="modifySentence(sentence.order, sentence.index, s, $event)" 
                     data-placeholder="No sentences defined..." 
                     contenteditable="true">
                     {{ text ? text : null }}

@@ -1,9 +1,8 @@
-import { createOfflineCompileUrlResolver } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { from, of, Observable } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { DatabaseService } from '../services/database.service';
-import { TestsService, Test } from './tests.service';
+import { TestsService } from './tests.service';
 
 export interface sentence {
     id: string;
@@ -76,14 +75,14 @@ export class SentencesService {
         // id must always be included for id purposed...
         data.indexOf("id") === -1 ? data.push("id") : "";
 
-        let ret: [sentence[]] = [[]];
+        let ret: [any[]] = [[]]; // the any is a hax for now :/
         let sntncData: sentence[] = this.sentenceData;
 
         // iterate over the route...
         route.forEach((value: string, routePosition: number) => {                
             let subData: sentence[];
             let newReturnData: [{}] = [{}];
-
+            
             for(let i = 0 ; i < sntncData.length ; i++) {
                 if(sntncData[i].id === value) {
                     // this is the route we need...
@@ -94,7 +93,7 @@ export class SentencesService {
                         sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
                         subData = sntncData[i].subcategories;
                     }
-
+                    
                     // check to see if there is subdata, and if not just use the sentence stem
                     subData.forEach((dataStem: sentence, index: number) => {
                         // if a single stream is needed only select the appropriate routes...
@@ -112,14 +111,12 @@ export class SentencesService {
                             newReturnData[index] = { ...newReturnData[index], ...editParameters};
                         }
                     })
-                    // add the data to the return variable...
-                    // no empty objects...                
+                    // add the data to the return variable with no empty objects
                     ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
                     // set the data stream as the subcategories of the first branch...
                     sntncData = sntncData[i].subcategories;
                 }
             }
-            
         })
         return ret;
     }
@@ -151,7 +148,7 @@ export class SentencesService {
      * @param route 
      */
     //  generateSentenceOptions(route: string[]): void {
-     generateSentenceOptions(route: string[]): {sentences: string, depth: number, delete: boolean} {
+     generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
          const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
          let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
  
@@ -170,7 +167,6 @@ export class SentencesService {
          
                          if(sentence) {
                              oldSentences.forEach((previousSentence, idx) => {
-                                 
                                  let newSentence: string = previousSentence.sentence + sentence;
          
                                  // only if the new sentence is deeper than the old sentence can it be added.
@@ -209,17 +205,22 @@ export class SentencesService {
                      sentences.splice(i, 1);
                  }
              }
-
              return sentences;
          })
  
-         // delete duplicates for some reason (to fix later).
-         sentences.filter((obj, index) => (sentences.findIndex(test => test.sentence === obj.sentence)) === index);
-         sentences.sort((a: sentence, b: sentence) => { return a.sentence.length - b.sentence.length });
+         // for some reason there are repeat sentences, delete them simply for now...
+         let unfiltered: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
+         unfiltered.shift(); // this is so hax :/
+
+         sentences.forEach(a => {
+             let i = unfiltered.findIndex(b => a.sentence === b.sentence);
+             i === -1 ? unfiltered.push(a) : null;
+         })
+
+        // sort by length
+        unfiltered.sort((a: {sentence: string, depth: number, delete: boolean}, b: {sentence: string, depth: number, delete: boolean}) => { return a.sentence.length - b.sentence.length });
         
-        return sentences;
-         //  this.possibilities = sentences.filter((obj, index) => (sentences.findIndex(test => test.sentence === obj.sentence)) === index);
-        //  this.possibilities.sort((a: sentence, b: sentence) => { return a.sentence.length - b.sentence.length });
+        return unfiltered;
      }
 
     /**
@@ -235,12 +236,13 @@ export class SentencesService {
     modifyData(position: number, callback: Function, route: string[]): any {
         let depth: number = 0;
         let complete: boolean = false;
+        let returnValue;
         
         this.sentenceData.forEach(function iterate(value: sentence, i: number) {
             if(value.id === route[depth] && !complete) {
                 if(position === depth && !complete) {
                     // need to ensure this can add to the array if it isnt there already...
-                    callback(value);
+                    returnValue = callback(value);
                     // delet this row below when implemented fully.
                     // value.subcategories[subPosition][key] = newValue;
                     complete = true;
@@ -250,7 +252,7 @@ export class SentencesService {
                 }
             }
         })
-        return false;
+        return returnValue;
     }
 
     /**
@@ -328,43 +330,23 @@ export class SentencesService {
     }
 
     /**
-     * Filters the lists of tests to exclude those tests already added.
-     * Used for the dropdown box when adding a new test.
-     * 
-     * Does not currently work for some reason.
-     * UNKNWON IF NEEDED OT BE MOVED, CHECK ON MAIN COMPUTER
-     * 
-     * @param testsAdded lists of the tests already added
-     * @param allTests List of all the tests in the system.
-     * @returns 
-     */
-     filterTests(testsAdded: {name: string}[], allTests: Test[]): Test[] {
-        if(testsAdded) {
-            return allTests.filter(test => testsAdded.indexOf(each => { test.name === each.name }) === -1 );
-        } else {
-            return allTests;
-        }
-    }
-
-    /**
      * Delete this sentence stem
-     * 
-     * NOT FINISHED YET
-     * SAVE FOR TIME WHEN NOT SAT IN CAR DOING THIS!
-     * 
+     * DONE
      * @param position depth within the array
      * @param index position within the subcategories
      */
-     deleteRoute(position: number, index: number, route: string[]): sentence {
+     deleteRoute(position: number, index: number, route: string[]): {text: string, stem: sentence, fn: Function} {
         const callback: Function = (value: sentence) => {
             // add to undo what is about to happen
             const fn: Function = (data: sentence) => {
                 value.subcategories.push(data);
             }
             // add to undo list
-            this.addToUndo("Deletion of " + value.subcategories[index].name, value.subcategories[index], fn);
+            const returnValue: {text: string, stem: sentence, fn: Function} = {text: "Deletion of " + value.subcategories[index].name, stem:  value.subcategories[index], fn: fn};
             // remove the item from the array
             value.subcategories.splice(index, 1);
+            // return the undo data...
+            return returnValue;
 
         }
         return this.modifyData(position, callback, route);
@@ -384,6 +366,7 @@ export class SentencesService {
                 value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
                 return true;
             } catch (e) {
+                console.log(`Error: ${e.message}`);
                 return false;
             }
         }
@@ -473,7 +456,7 @@ export class SentencesService {
 
     /**
      * Copy a sentence type from the database...
-     * Moved over...
+     * DONE
      * @param position The position of thecopied item
      * @param subPosition The position within the subposition array
      */
@@ -501,19 +484,21 @@ export class SentencesService {
             copiedItem.id = genNewId();
 
             // recursively iterate through the copied item to replace the ids on the new items (the only part which isnt copied...)
-            copiedItem.subcategories.forEach(function iterate(stem: sentence, index: number) {
-                // generate a new id
-                stem.id = genNewId();
-                // iterate over the subcategories and add an id to each
-                if(Array.isArray(stem.subcategories)) {
-                    stem.subcategories.forEach(iterate);
-                }
-            }, genNewId)
+            if(Array.isArray(copiedItem.subcategories)) {
+                copiedItem.subcategories.forEach(function iterate(stem: sentence, index: number) {
+                    // generate a new id
+                    stem.id = genNewId();
+                    // iterate over the subcategories and add an id to each
+                    if(Array.isArray(stem.subcategories)) {
+                        stem.subcategories.forEach(iterate);
+                    }
+                }, genNewId)
+            }
 
             // put the pasted item into the right place.
             try {
                 value.subcategories.push(copiedItem);
-                return false;
+                return true;
             } catch(e) {
                 return false;
             }
@@ -550,6 +535,7 @@ export class SentencesService {
     
     /**
      * Generate a new random ID...
+     * DONE
      * @returns 
      */
      generateId(): string {

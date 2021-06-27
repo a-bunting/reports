@@ -12,31 +12,39 @@ import { SentencesService, sentence } from '../../services/sentences.service';
 })
 export class AdminSentencesComponent implements OnInit, OnDestroy {
 
+    // if the page is loading
     isLoading: boolean = true;
-
     // these do NOT need to be an array, but in a slow start everything got coded this way and so thats how it is!...
     initialData: sentence[];
+    // the data to display
     viewData: [sentence[]] = [[]];
+    // the current route, an array of strings which have a unique id to the path
     route: [string] = [""];
+    // the things to include in the viewdata (the bits required on the ui);
+    // this might just slow everything down to be honest...
     selection: string[] = ['id', 'name','sentence', 'starter', 'tests', 'meta', 'comparison', 'function'];
 
-    autosave: boolean = false;
-    unsavedChanges: boolean = false;
+    // boolean comparitors to maintain visual things on the ui
+    autosave: boolean = false; // should this autosave?
+    unsavedChanges: boolean = false; // any unsaved changes?
     databaseMismatch: boolean = false; // if the local and database versions do not match this is true.
-    singleStreamDataView: boolean = false;
+    singleStreamDataView: boolean = false; // should the whole database be shown or only the path you are on
 
-    // HOW TO ADD THIS TO THE SENTENCES SERVICE
+    // if a test is being added this is not empty...
     addTest: {order: number, index: number} = {order: null, index: null};
-    possibilities;
+    // the possible sentence combinations
+    possibilities: {sentence: string, depth: number, delete: boolean}[];
+    // the last change in ui to maintain the view when changing things.
     lastPositionChange: {position: number, index: number, id: string} = {position: null, index: null, id: null};
+    // undo functionality - chain holds the objects and functions to perform the undos.
     undoChain: {commandName: string, data: sentence, fn: Function}[] = [];
     maxUndo: number = 10;
-
+    // user object
     user: User;
 
     constructor(private databaseService: DatabaseService, 
-                private testsService: TestsService, 
                 private auth: AuthenticationService, 
+                private testsService: TestsService,
                 private sentenceService: SentencesService) {
                 
                 // get the user details...
@@ -45,23 +53,29 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
                 })
     }
 
+    /**
+     * On init get the database...
+     */
     ngOnInit(): void {
         this.isLoading = true;
 
         // get the sentence data from the database...
         this.sentenceService.getSentencesDatabase().subscribe((data: sentence) => {
-            const sentenceData: sentence = data;
+            const sentenceData: sentence[] = [data];
             // set the data on the display
-            this.initialData = JSON.parse(JSON.stringify(sentenceData[0]));
+            this.initialData = JSON.parse(JSON.stringify(sentenceData));
             this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
             this.sentenceService.generateSentenceOptions(this.route);
-            this.isLoading = false;
         }, (error) => {
             console.log(`Error gathering the database: ${error.message}`);
+        }, () => {
             this.isLoading = false;
         })
     }
 
+    /**
+     * On destroy upload the database to the development database...
+     */
     ngOnDestroy() {
         // when leaving without specifically comitting only upload to the development version
         this.reUploadToFirebase('dev');
@@ -90,6 +104,9 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * See the full data view - i.e. all sub routes that were not traversed...
+     */
     setFullDataView() {
         this.singleStreamDataView = !this.singleStreamDataView;
         this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
@@ -106,7 +123,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         this.route[position+1] = id;
         this.route.splice(position+2);
         this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-        this.sentenceService.generateSentenceOptions(this.route);
+        this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
     }
 
     /**
@@ -180,28 +197,20 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         return changes;
     }
 
-    modifyData(position: number, callback: Function, route: string[]): void {
-        const modify: boolean = this.sentenceService.modifyData(position, callback, this.route);
-
-        if(modify) {
-            // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
-            this.autosave ? this.saveChanges() : this.unsavedChanges = true;
-            // redraw the grid and check for save status...
-            this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-            this.changeComparsion();
-            // regenerate the sentence options
-            this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
-        } else {
-            console.log("Error modifying data... Data not modified.");
-        }
-    }
-
     modifySuccess(): void {
-
+        // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
+        this.autosave ? this.saveChanges() : this.unsavedChanges = true;
+        // redraw the grid and check for save status...
+        this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+        this.changeComparsion();
+        // regenerate the sentence options
+        this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
+        // set the view
+        this.setView(this.lastPositionChange.position, this.lastPositionChange.index, this.lastPositionChange.id);
     }
-
+    
     modifyFail(): void {
-
+        console.log("fail");
     }
 
     // ORDERING FUNCTIONS - FULL DETAIL IN SENTENCE SERVICE
@@ -217,10 +226,13 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
 
     // NOT FINISHED - FINISH ON MAIN COMPUTER.
     deleteRoute(position: number, subPosition: number) {
-        const deleted: sentence = this.sentenceService.deleteRoute(position, subPosition, this.route);
+        const deleted: {text: string, stem: sentence, fn: Function} = this.sentenceService.deleteRoute(position, subPosition, this.route);
         
         if(deleted) {
-            // this.addToUndo(`Deletion of ${deleted.name}`, deleted.)
+            this.addToUndo(deleted.text, deleted.stem, deleted.fn);
+            this.modifySuccess();
+        } else {
+            this.modifyFail();
         }
     }
 
@@ -238,7 +250,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         deleted ? this.modifySuccess() : this.modifyFail();
     }
 
-    addSentence(position: number, subPosition: number) {
+    addNewSentence(position: number, subPosition: number) {
         const added: boolean = this.sentenceService.addNewSentence(position, subPosition, this.route);
         added ? this.modifySuccess() : this.modifyFail();
     }
@@ -249,8 +261,8 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     }
 
     // CHNAGE FUNCTIONS GENERAL - FULL DETAIL IN SENTENCES SERVICE
-    modifyName(position: number, subPosition: number, newName, route: string[]): void {
-        const name: boolean = this.sentenceService.modifyName(position, subPosition, newName, route);
+    modifyName(position: number, subPosition: number, newName): void {
+        const name: boolean = this.sentenceService.modifyName(position, subPosition, newName, this.route);
         name ? this.modifySuccess() : this.modifyFail();
     }
 
@@ -284,15 +296,18 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * @param subPosition The position within the subposition array
      */
     copyItem(position: number, subPosition: number) {
-        this.copiedItem = this.sentenceService.copyItem(position, subPosition, this.route);
+        const newCopyItem: sentence = this.sentenceService.copyItem(position, subPosition, this.route);
+        
+        if(newCopyItem) {
+            this.copiedItem = newCopyItem;
+            this.modifySuccess();
+        } else {
+            this.modifyFail();
+        }
     }
 
-    /**
-     * Clear the copied item
-     */
-    clearCopiedItem(): void {
-        this.copiedItem = undefined;
-    }
+    /** Clear the copied item  */
+    clearCopiedItem(): void { this.copiedItem = undefined; }
 
     /**
      * Paste the item...
@@ -307,5 +322,26 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         } else {
             this.modifyFail();
         }
+    }
+
+    /**
+     * Filters the lists of tests to exclude those tests already added.
+     * Used for the dropdown box when adding a new test.
+
+     * @param testsAdded lists of the tests already added
+     * @param allTests List of all the tests in the system.
+     * @returns 
+     */
+    filterTests(testsAdded: {name: string}[], allTests: Test[]): Test[] {
+        if(testsAdded) {
+            return allTests.filter(test => testsAdded.indexOf(each => { test.name === each.name }) === -1 );
+        } else {
+            return allTests;
+        }
+    }
+
+    // Some getters to make the HTML a little easier
+    getRouteNames(): string[] {
+        return this.sentenceService.getRouteNames(this.route);
     }
 }
