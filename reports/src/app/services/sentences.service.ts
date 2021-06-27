@@ -224,7 +224,7 @@ export class SentencesService {
 
     /**
      * The function used to modify the array - called with a callback from a separate function
-     * 
+     * DONE
      * @param position position in the array (levels of subcat)
      * @param subPosition position in the subcat
      * @param key the {key: value} pair to target
@@ -232,7 +232,7 @@ export class SentencesService {
      * @param callback the function to do the modification.
      */
     // modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number, callback?: Function): void {
-    modifyData(position: number, callback: Function, route: string[]): boolean {
+    modifyData(position: number, callback: Function, route: string[]): any {
         let depth: number = 0;
         let complete: boolean = false;
         
@@ -244,77 +244,81 @@ export class SentencesService {
                     // delet this row below when implemented fully.
                     // value.subcategories[subPosition][key] = newValue;
                     complete = true;
-                    return true;
                 } else {
                     depth++;
                     Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
                 }
             }
         })
-
         return false;
-
-        // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
-        this.autosave ? this.saveChanges() : this.unsavedChanges = true;
-
-        // redraw the grid and check for save status...
-        this.viewData = this.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-        this.changeComparsion();
-
-        // regenerate the sentence options
-        this.generateSentenceOptions(this.route);
-
     }
 
     /**
      * Add a new sub level to a part of the array
+     * DONE
      * @param position depth of the subarrays
      */
-    addNewSubLevel(position: number): void {
+    addNewSubLevel(position: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
-            value.subcategories.push({name: `${value.subcategories.length + 1}`, id: `${this.generateId()}`});
+            try {
+                value.subcategories.push({name: `${value.subcategories.length + 1}`, id: `${this.generateId()}`});
+                return true;
+            } catch(e) {
+                return false;
+            }
         }
-        this.modifyData(position, null, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Add a new test to a stem...
-     * 
+     * DONE
      * @param position depth into the array
      * @param subPosition position on a subcategory
      */
-     addNewTest(position: number, subPosition: number): void {
+     addNewTest(position: number, subPosition: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
-
-            const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
-            const newTest: {name: string} = {name: (<HTMLInputElement>document.getElementById('newTest')).value };
-
-            if(testsAlreadyMade) {
-                value.subcategories[subPosition]['tests'].push(newTest);
-            } else {
-                value.subcategories[subPosition]['tests'] = [newTest];
+            try {
+                const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
+                const newTest: {name: string} = {name: (<HTMLInputElement>document.getElementById('newTest')).value };
+    
+                if(testsAlreadyMade) {
+                    value.subcategories[subPosition]['tests'].push(newTest);
+                } else {
+                    value.subcategories[subPosition]['tests'] = [newTest];
+                }
+                return true;
+            } catch(e) {
+                return false;
             }
-
-            this.addTest = {order: null, index: null};
         }
-        this.modifyData(position, subPosition, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
 
      /**
      * Remove a test from something
+     * DONE
      * @param position dpeth into the array
      * @param subPosition position in the subcategory
      * @param testNumber the index of the test
      */
-      removeTest(position: number, subPosition: number, testNumber: number): void {
+      removeTest(position: number, subPosition: number, testNumber: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
-            value.subcategories[subPosition].tests.splice(testNumber, 1);
+            try {
+                value.subcategories[subPosition].tests.splice(testNumber, 1);
+                return true;
+            } catch (e) {
+                return false;
+            }
         }
-        this.modifyData(position, subPosition, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Check if the test you want to add is already on the object
+     * 
+     * UNKNWON IF NEEDED CHECK ON MAIN COMPUTER
+     * 
      * @param tests lists of the tests
      * @param name name of the test you want to add
      * @returns true or false if it exists or not...
@@ -328,12 +332,13 @@ export class SentencesService {
      * Used for the dropdown box when adding a new test.
      * 
      * Does not currently work for some reason.
+     * UNKNWON IF NEEDED OT BE MOVED, CHECK ON MAIN COMPUTER
      * 
      * @param testsAdded lists of the tests already added
      * @param allTests List of all the tests in the system.
      * @returns 
      */
-     filterTests(testsAdded: {name: string}[], allTests: Test[]) {
+     filterTests(testsAdded: {name: string}[], allTests: Test[]): Test[] {
         if(testsAdded) {
             return allTests.filter(test => testsAdded.indexOf(each => { test.name === each.name }) === -1 );
         } else {
@@ -344,10 +349,13 @@ export class SentencesService {
     /**
      * Delete this sentence stem
      * 
+     * NOT FINISHED YET
+     * SAVE FOR TIME WHEN NOT SAT IN CAR DOING THIS!
+     * 
      * @param position depth within the array
      * @param index position within the subcategories
      */
-     deleteRoute(position: number, index: number): void {
+     deleteRoute(position: number, index: number, route: string[]): sentence {
         const callback: Function = (value: sentence) => {
             // add to undo what is about to happen
             const fn: Function = (data: sentence) => {
@@ -358,157 +366,186 @@ export class SentencesService {
             // remove the item from the array
             value.subcategories.splice(index, 1);
 
-            // reset the view 
-            try {
-                this.setView(this.lastPositionChange.position, this.lastPositionChange.index, this.lastPositionChange.id);
-            } catch(e) {
-                this.setView(position - 1, 0, this.route[position]);
-            }
         }
-        this.modifyData(position, index, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Modify the sentence data (the text)
+     * DONE
      * @param position position within the array
      * @param subPosition position within the sub array
      * @param sentenceIndex position in the sentence index
      * @param newComment the replacement comment
      */
-     modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment): void {
+     modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
-            value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
+            try {
+                value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
+                return true;
+            } catch (e) {
+                return false;
+            }
         }
-        this.modifyData(position, subPosition, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
     
     /**
      * Add a new sentence to a sentence stem
+     * DONE
      * @param position position within the array
      * @param subPosition position within the subcategories
      */
-    addNewSentence(position: number, subPosition: number) {
+    addNewSentence(position: number, subPosition: number, route: string[]) {
         const callback: Function = (value: sentence) => {
             const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
             
-            if(sentencesAlreadyMade) {
-                value.subcategories[subPosition]['sentence'].push("");
-            } else {
-                value.subcategories[subPosition]['sentence'] = [""];
+            try {
+                if(sentencesAlreadyMade) {
+                    value.subcategories[subPosition]['sentence'].push("");
+                } else {
+                    value.subcategories[subPosition]['sentence'] = [""];
+                }
+                return true;
+            } catch(e) {
+                return false;
             }
         }
-        this.modifyData(position, subPosition, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
     
     /**
      * Delete a sentence from the database
+     * DONE
      * @param position position within the array
      * @param subPosition position within the subcategories
      * @param sentenceIndex position within the sentence array
      */
-    deleteSentence(position: number, subPosition: number, sentenceIndex: number) {
+    deleteSentence(position: number, subPosition: number, sentenceIndex: number, route: string[]) {
         const callback: Function = (value: sentence) => {
-            value.subcategories[subPosition].sentence.splice(sentenceIndex, 1);
+            try {
+                value.subcategories[subPosition].sentence.splice(sentenceIndex, 1);
+                return true;
+            } catch(e) {
+                return false;
+            }
         }
-        this.modifyData(position, subPosition, null, null, callback);
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Modify the name of the stem
+     * DONE
      * @param position position within the array
      * @param subPosition position within the subcategories
      * @param newComment new name
      */
-    modifyName(position: number, subPosition: number, newComment) {
-        this.modifyData(position, subPosition, 'name', newComment.target.innerText);
+    modifyName(position: number, subPosition: number, newComment, route: string[]): boolean {
+        const callback = (value: sentence) => {
+            try {
+                value.subcategories[subPosition]['name'] = newComment.target.innerText;
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Modify the start point data (true -> false, false -> true)
+     * DONE
      * @param position position within the array
      * @param subPosition position within the subcategories
      * @param currentState current state of the start data
      */
-    modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
-        this.modifyData(position, subPosition, 'starter', !currentState);
+    modifyStartpointData(position: number, subPosition: number, currentState: boolean, route: string[]): boolean {
+        const callback = (value: sentence) => {
+            try {
+                value.subcategories[subPosition]['starter'] = !currentState;
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        return this.modifyData(position, callback, route);
     }
-
-    copiedItem: sentence;
 
     /**
      * Copy a sentence type from the database...
+     * Moved over...
      * @param position The position of thecopied item
      * @param subPosition The position within the subposition array
      */
-    copyItem(position: number, subPosition: number) {
+    copyItem(position: number, subPosition: number, route: string[]): sentence {
         const callback: Function = (value: sentence) => {
             // slow copy but good enough for this use case...
-            this.copiedItem = JSON.parse(JSON.stringify(value.subcategories[subPosition]));
+            try {
+                return JSON.parse(JSON.stringify(value.subcategories[subPosition]));
+            } catch (error) {
+                return undefined;
+            }
         }
-        this.modifyData(position, subPosition, null, null, callback);
-    }
-
-    /**
-     * Clear the copied item
-     */
-    clearCopiedItem(): void {
-        this.copiedItem = undefined;
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Paste the copied item into this position.
      * @param position The point to place the pasted item.
      */
-    pasteItem(position: number): void {
-        if(this.copiedItem) {
-            const callback: Function = (value: sentence) => {
-                // all the items need a new id.
-                // new generate id function (as this.generateId cant be passed into the recursive function)
-                const genNewId: Function = (): string => { return this.generateId() }
-                this.copiedItem.id = genNewId();
+    pasteItem(position: number, copiedItem: sentence, route: string[]): boolean {
+        const callback: Function = (value: sentence) => {
+            // all the items need a new id.
+            // new generate id function (as this.generateId cant be passed into the recursive function)
+            const genNewId: Function = (): string => { return this.generateId() }
+            copiedItem.id = genNewId();
 
-                // recursively iterate through the copied item to replace the ids on the new items (the only part which isnt copied...)
-                this.copiedItem.subcategories.forEach(function iterate(stem: sentence, index: number) {
-                    // generate a new id
-                    stem.id = genNewId();
-                    // iterate over the subcategories and add an id to each
-                    if(Array.isArray(stem.subcategories)) {
-                        stem.subcategories.forEach(iterate);
-                    }
-                }, genNewId)
+            // recursively iterate through the copied item to replace the ids on the new items (the only part which isnt copied...)
+            copiedItem.subcategories.forEach(function iterate(stem: sentence, index: number) {
+                // generate a new id
+                stem.id = genNewId();
+                // iterate over the subcategories and add an id to each
+                if(Array.isArray(stem.subcategories)) {
+                    stem.subcategories.forEach(iterate);
+                }
+            }, genNewId)
 
-                // put the pasted item into the right place.
-                value.subcategories.push(this.copiedItem);
-                this.copiedItem = undefined;
+            // put the pasted item into the right place.
+            try {
+                value.subcategories.push(copiedItem);
+                return false;
+            } catch(e) {
+                return false;
             }
-            // attempt to paste it...
-            try {  
-                this.modifyData(position, null, null, null, callback);
-            } catch (error) {
-                // display output error
-                console.log(`Error pasting item: ${error.message}`);
-            }
-            // remove the copied item from the variable
-            this.copiedItem = undefined;
         }
+        // attempt to paste it...
+        return this.modifyData(position, callback, route);
     }
 
     /**
      * Reorder the item to the left - essentially making it the same level as its master.
+     * MOVED OVER...
      * @param position the depth of the item within the database
      * @param subPosition the position in the subcategory of the parent
      */
-    reOrderItemLeft(position: number, subPosition: number) {
+    reOrderItemLeft(position: number, subPosition: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
             const subCallback: Function = (subValue: sentence) => {
                 // duplicate the item one position down
                 subValue.subcategories.push(value.subcategories[subPosition]);
             }
-            this.modifyData(position - 1, subPosition, null, null, subCallback);
+            this.modifyData(position - 1, subCallback, route);
             // and remove the initial value
             value.subcategories.splice(subPosition, 1);
         }
-        this.modifyData(position, subPosition, null, null, callback);
+        
+        try {
+            this.modifyData(position, callback, route);
+            return true;
+        } catch (error) {
+            console.log(error.message);
+            return false;
+        }
     }
     
     /**

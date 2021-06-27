@@ -109,8 +109,6 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         this.sentenceService.generateSentenceOptions(this.route);
     }
 
-   
-
     /**
      * Adds a test selection box to the position and index
      * @param position 
@@ -186,15 +184,128 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         const modify: boolean = this.sentenceService.modifyData(position, callback, this.route);
 
         if(modify) {
-
+            // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
+            this.autosave ? this.saveChanges() : this.unsavedChanges = true;
+            // redraw the grid and check for save status...
+            this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+            this.changeComparsion();
+            // regenerate the sentence options
+            this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
+        } else {
+            console.log("Error modifying data... Data not modified.");
         }
-        // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
-        this.autosave ? this.saveChanges() : this.unsavedChanges = true;
-        // redraw the grid and check for save status...
-        this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-        this.changeComparsion();
-        // regenerate the sentence options
-        this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
     }
 
+    modifySuccess(): void {
+
+    }
+
+    modifyFail(): void {
+
+    }
+
+    // ORDERING FUNCTIONS - FULL DETAIL IN SENTENCE SERVICE
+    reOrderItemLeft(position: number, subPosition: number) {
+        const reorder: boolean = this.sentenceService.reOrderItemLeft(position, subPosition, this.route);
+        reorder ? this.modifySuccess() : this.modifyFail();
+    }
+
+    addNewSubLevel(position: number) {
+        const added: boolean = this.sentenceService.addNewSubLevel(position, this.route);
+        added ? this.modifySuccess() : this.modifyFail();
+    }
+
+    // NOT FINISHED - FINISH ON MAIN COMPUTER.
+    deleteRoute(position: number, subPosition: number) {
+        const deleted: sentence = this.sentenceService.deleteRoute(position, subPosition, this.route);
+        
+        if(deleted) {
+            // this.addToUndo(`Deletion of ${deleted.name}`, deleted.)
+        }
+    }
+
+    
+            // // reset the view  - from delete route ins entences service
+            // try {
+            //     this.setView(this.lastPositionChange.position, this.lastPositionChange.index, this.lastPositionChange.id);
+            // } catch(e) {
+            //     this.setView(position - 1, 0, this.route[position]);
+            // }
+
+    // SENTENCES FUNCTIONS - FULL DETAIL IN SENTENCE SERVICE
+    deleteSentence(position: number, subPosition: number, sentenceIndex: number) {
+        const deleted: boolean = this.sentenceService.deleteSentence(position, subPosition, sentenceIndex, this.route);
+        deleted ? this.modifySuccess() : this.modifyFail();
+    }
+
+    addSentence(position: number, subPosition: number) {
+        const added: boolean = this.sentenceService.addNewSentence(position, subPosition, this.route);
+        added ? this.modifySuccess() : this.modifyFail();
+    }
+
+    modifySentence(position: number, subPosition: number, sentenceIndex: number, modifiedComment) {
+        const modified: boolean = this.sentenceService.modifySentenceData(position, subPosition, sentenceIndex, modifiedComment, this.route);
+        modified ? this.modifySuccess() : this.modifyFail();
+    }
+
+    // CHNAGE FUNCTIONS GENERAL - FULL DETAIL IN SENTENCES SERVICE
+    modifyName(position: number, subPosition: number, newName, route: string[]): void {
+        const name: boolean = this.sentenceService.modifyName(position, subPosition, newName, route);
+        name ? this.modifySuccess() : this.modifyFail();
+    }
+
+    modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
+        const startpoint: boolean = this.sentenceService.modifyStartpointData(position, subPosition, currentState, this.route);
+        startpoint ? this.modifySuccess() : this.modifyFail();
+    }
+
+    // TESTS STUFF - CHECK FOR SENTENCE SERVICE FOR MAIN COMMENTS.
+    removeTest(position: number, subPosition: number, testNumber: number) {
+        const removed: boolean = this.sentenceService.removeTest(position, subPosition, testNumber, this.route);
+        removed ? this.modifySuccess() : this.modifyFail();
+    }
+
+    addNewTest(position: number, subposition: number) {
+        const added: boolean = this.sentenceService.addNewTest(position, subposition, this.route);
+
+        if(added) {
+            this.addTest = { order: null, index: null };
+        } else {
+
+        }
+    }
+
+    // COPY AND PASTE FUNCTION - FULL DETIAL IN SENTENCE SERVICE  for PASTE
+    copiedItem: sentence;
+
+    /**
+     * Copy a sentence type from the database...
+     * @param position The position of thecopied item
+     * @param subPosition The position within the subposition array
+     */
+    copyItem(position: number, subPosition: number) {
+        this.copiedItem = this.sentenceService.copyItem(position, subPosition, this.route);
+    }
+
+    /**
+     * Clear the copied item
+     */
+    clearCopiedItem(): void {
+        this.copiedItem = undefined;
+    }
+
+    /**
+     * Paste the item...
+     * @param position 
+     */
+    pasteItem(position: number) {
+        const paste: boolean = this.sentenceService.pasteItem(position, this.copiedItem, this.route);
+
+        if(paste) {
+            this.copiedItem = undefined;
+            this.modifySuccess();
+        } else {
+            this.modifyFail();
+        }
+    }
 }
