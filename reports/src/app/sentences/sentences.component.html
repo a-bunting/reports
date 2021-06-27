@@ -1,1 +1,132 @@
-<p>sentences works!</p>
+<div class="component-intro">    
+    <h4 class="component-intro__description">
+        <p>Use this page to edit your own version of the sentences database. Note that some operations cannot logically be undone, and so be careful to save frequently and reload data if fatal mistakes are made.</p>
+        <p>Note that by reordering or deleting parts of this structure may break any templates which rely on them, change old data with care if you still intend to use it in your reports.</p>
+    </h4>
+</div>
+
+<div class="sentences__controls">
+    <div class="sentences__control-bar">
+        <div class="sentences__control-bar--control sentences__control-bar--control-autosave" [class.sentences__control-bar--control-selected]="!autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</div>
+        <div class="sentences__control-bar--control sentences__control-bar--control-dataview" [class.sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</div>
+        <div class="sentences__control-bar--control sentences__control-bar--control-savelocal" [class.sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</div>
+        <div class="sentences__control-bar--control sentences__control-bar--control-commit" [class.sentences__control-bar--control-disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</div>
+    </div>
+    <div class="sentences__memory">
+        <div class="sentences__undo" [class.sentences__undo--empty]="undoChain.length === 0" (click)="undoLastChange()">
+            {{ undoChain.length !== 0 ? undoChain[undoChain.length - 1].commandName : "Undo list empty" }}
+            <span class="sentences__undo--full" *ngIf="undoChain.length === maxUndo">
+                (Undo list full)
+            </span>
+        </div>
+        <div class="sentences__copy-indicator" [class.sentences__copy-indicator--empty]="!copiedItem" (click)="clearCopiedItem()">
+            {{ copiedItem ? "Item Copied - Click to clear" : "Copy memory empty" }}
+        </div>
+    </div>
+</div>
+
+<div class="sentences__error" (click)="removeError()" *ngIf="errorText">
+    <span style="font-weight: bold;">Error</span>: {{ errorText }}
+</div>
+
+<div class="sentences">
+    
+    <div class="loading" *ngIf="isLoading">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <!-- set clickable if there is a route to take -->
+    <div *ngIf="!isLoading" class="sentences__level sentences__level--base">
+        <div class="sentences__stem-phrase" (click)="resetRoute()">
+            Base
+        </div>
+    </div>
+
+    <div class="sentences__level sentences__level--{{o}}" *ngFor="let sentenceStem of viewData; let o = index" >
+        
+        <div *ngIf="!isLoading">
+            <div class="sentences__stem-phrase" *ngFor="let sentence of sentenceStem; let i = index">
+                <div class="sentences__stem-phrase--title" [class.sentences__stem-phrase--route]="route[sentence.order+1] === sentence.id">
+                    <div    class="sentences__stem-phrase--name" 
+                    (blur)="modifyName(sentence.order, sentence.index, $event)" 
+                    (keyup.enter)="modifyName(sentence.order, sentence.index, $event)" 
+                    contenteditable="true" 
+                    data-placeholder="Unnamed...">
+                    {{ sentence.name | slice:0:(50/sentenceStem.length) }}
+                </div>
+                <div class="sentences__stem-phrase--controls">
+                    <div class="sentences__stem-phrase--control sentences__stem-phrase--control-delete tooltipped" (click)="deleteRoute(sentence.order, sentence.index)">&times; <div class="tooltip">Delete Item</div></div>
+                    <div class="sentences__stem-phrase--control sentences__stem-phrase--control-moveleft tooltipped" (click)="reOrderItemLeft(sentence.order, sentence.index)" *ngIf="o > 0"><span style="transform: scale(-1, 1);">&#x27AA;</span> <div class="tooltip">Move this item one level to the left (to undo, copy and paste it back forwards)</div></div>
+                    <div class="sentences__stem-phrase--control sentences__stem-phrase--control-copy tooltipped" (click)="copyItem(sentence.order, sentence.index)">&#x2750; <div class="tooltip">Copy this stem and its subcomponents</div></div>
+                    <div class="sentences__stem-phrase--control sentences__stem-phrase--control-starter tooltipped" [class.sentences__stem-phrase--control-starter--selected]="sentence.starter" (click)="modifyStartpointData(sentence.order, sentence.index, sentence.starter)">&#x270E; <div class="tooltip">Starter sentence - sentences may start with this phrase.</div></div>
+                    <div class="sentences__stem-phrase--control sentences__stem-phrase--control-next tooltipped" (click)="setView(sentence.order, sentence.index, sentence.id)">&#x27AA;<div class="tooltip">Navigate deeper into this category</div></div>
+                </div>
+            </div>
+            <div class="sentences__stem-phrase--sentence" [class.sentences__stem-phrase--editable]="sentence.sentence" *ngFor="let text of sentence.sentence; let s = index">
+                <div style="font-weight: bold">Option {{ s+1 }}:</div> 
+                    <div    class="sentences__stem-phrase--sentence--input" 
+                    (keyup.enter)="modifySentence(sentence.order, sentence.index, s, $event)" 
+                    (blur)="modifySentence(sentence.order, sentence.index, s, $event)" 
+                    data-placeholder="No sentences defined..." 
+                    contenteditable="true">
+                    {{ text ? text : null }}
+                </div>
+                <div class="sentences__stem-phrase--sentence--delete" (click)="deleteSentence(sentence.order, sentence.index, s)">&times;</div>
+            </div>
+            
+            <div class="sentences__stem-phrase--tests" *ngIf="(sentence.tests && sentence.tests.length > 0) || addTest.order === sentence.order && addTest.index === sentence.index">
+                    <div class="sentences__stem-phrase--test" *ngFor="let test of sentence.tests; let t = index">
+                        <div class="sentences__stem-phrase--test--name">{{ test.name }}</div>
+                        <div class="sentences__stem-phrase--test--buttons">
+                            <div class="sentences__stem-phrase--test--delete" (click)="removeTest(sentence.order, sentence.index, t)">&times;</div>
+                        </div>
+                    </div>
+                    <div class="sentences__stem-phrase--test" *ngIf="addTest.order === sentence.order && addTest.index === sentence.index">
+                        <select name="newTest" id="newTest">
+                            <option value="{{ test.name }}" *ngFor="let test of filterTests(sentence.tests, testsService.testsList); let u = index">{{ test.name }}</option>
+                        </select>
+                        <div class="sentences__stem-phrase--test--buttons">
+                            <div class="sentences__stem-phrase--test--accept" (click)="addNewTest(sentence.order, sentence.index)">&#10004;</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sentences__buttons-bottom">
+                    <div class="sentences__buttons-bottom--add-sentence" (click)="addNewSentence(sentence.order, sentence.index)">Add Sentence</div>
+                    <div class="sentences__buttons-bottom--add-test" (click)="addNewTestSelectionBox(sentence.order, sentence.index)">Add Test</div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!isLoading">
+            <div class="sentences__stem-phrase--add" *ngIf="copiedItem" (click)="pasteItem(o)">Paste  Item Here</div>
+            <div class="sentences__stem-phrase--add" (click)="addNewSubLevel(o)">Add sublevel...</div>
+        </div>
+        
+    </div>
+
+    <div class="sentences__level sentences__level--infobox"  *ngIf="viewData.length === 1 && !isLoading">
+        <div class="sentences__level--infobox-text">
+            Select a category on the left to expand your sentences database
+        </div> 
+    </div>
+    
+</div>
+
+<div class="sentence-stems">
+    <div class="sentence-stems__title">
+        Below are the potential sentences from the sentence structure:
+        <div class="sentence-stems__title--structure">
+            <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined (at 'Base' level)" }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
+        </div>
+    </div>
+    <div class="sentence-stems__row sentence-stems__header">
+        <div class="sentence-stems__number">#</div>
+        <div class="sentence-stems__characters">Characters</div>
+        <div class="sentence-stems__sentence">Sentence</div>
+    </div>
+    <div class="sentence-stems__row sentence-stems__possibility" *ngFor="let possibility of possibilities; let i = index">
+        <div class="sentence-stems__number">{{ i + 1 }}</div>
+        <div class="sentence-stems__characters">{{ possibility.sentence.length }}</div>
+        <div class="sentence-stems__sentence">{{ possibility.sentence }}</div>
+    </div>
+</div>

@@ -167,17 +167,33 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         this.setView(this.lastPositionChange.position, this.lastPositionChange.index, data.id);
     }
 
-    autosaveToggle() {
+    /**
+     * Toggle autosave
+     */
+    autosaveToggle(): void {
         this.autosave = !this.autosave;
         this.saveChanges();
     }
 
-    resetRoute() {
+    /**
+     * Reset the route...
+     */
+    resetRoute(): void {
         this.route = [""];
         this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
     }
 
-    saveChanges() {
+    /**
+     * remove the error text
+     */
+    removeError(): void {
+        this.errorText = undefined;
+    }
+
+    /**
+     * Commit any changes to the stored database (local storage)
+     */
+    saveChanges(): void {
         if(this.autosave || (!this.autosave && this.unsavedChanges)) {
             this.unsavedChanges = false;
             // and then need to commit to the database.
@@ -209,81 +225,72 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         this.setView(this.lastPositionChange.position, this.lastPositionChange.index, this.lastPositionChange.id);
     }
     
-    modifyFail(): void {
-        console.log("fail");
-    }
+    errorText: string;
 
     // ORDERING FUNCTIONS - FULL DETAIL IN SENTENCE SERVICE
-    reOrderItemLeft(position: number, subPosition: number) {
+    reOrderItemLeft(position: number, subPosition: number): void {
         const reorder: boolean = this.sentenceService.reOrderItemLeft(position, subPosition, this.route);
-        reorder ? this.modifySuccess() : this.modifyFail();
+        reorder ? this.modifySuccess() : this.errorText = "Re ordering of item failed...";
     }
 
-    addNewSubLevel(position: number) {
+    addNewSubLevel(position: number): void {
         const added: boolean = this.sentenceService.addNewSubLevel(position, this.route);
-        added ? this.modifySuccess() : this.modifyFail();
+        added ? this.modifySuccess() : this.errorText = "Addition of sub level failed...";
     }
 
     // NOT FINISHED - FINISH ON MAIN COMPUTER.
-    deleteRoute(position: number, subPosition: number) {
+    deleteRoute(position: number, subPosition: number): void {
         const deleted: {text: string, stem: sentence, fn: Function} = this.sentenceService.deleteRoute(position, subPosition, this.route);
         
         if(deleted) {
             this.addToUndo(deleted.text, deleted.stem, deleted.fn);
             this.modifySuccess();
         } else {
-            this.modifyFail();
+            this.errorText = "Deletion of route failed...";
         }
     }
 
-    
-            // // reset the view  - from delete route ins entences service
-            // try {
-            //     this.setView(this.lastPositionChange.position, this.lastPositionChange.index, this.lastPositionChange.id);
-            // } catch(e) {
-            //     this.setView(position - 1, 0, this.route[position]);
-            // }
-
     // SENTENCES FUNCTIONS - FULL DETAIL IN SENTENCE SERVICE
-    deleteSentence(position: number, subPosition: number, sentenceIndex: number) {
+    deleteSentence(position: number, subPosition: number, sentenceIndex: number): void {
         const deleted: boolean = this.sentenceService.deleteSentence(position, subPosition, sentenceIndex, this.route);
-        deleted ? this.modifySuccess() : this.modifyFail();
+        deleted ? this.modifySuccess() : this.errorText = "Deletion of sentence failed...";
     }
 
-    addNewSentence(position: number, subPosition: number) {
+    addNewSentence(position: number, subPosition: number): void {
         const added: boolean = this.sentenceService.addNewSentence(position, subPosition, this.route);
-        added ? this.modifySuccess() : this.modifyFail();
+        added ? this.modifySuccess() : this.errorText = "Addition of sentence failed...";
     }
 
-    modifySentence(position: number, subPosition: number, sentenceIndex: number, modifiedComment) {
+    modifySentence(position: number, subPosition: number, sentenceIndex: number, modifiedComment): void {
         const modified: boolean = this.sentenceService.modifySentenceData(position, subPosition, sentenceIndex, modifiedComment, this.route);
-        modified ? this.modifySuccess() : this.modifyFail();
+        modified ? this.modifySuccess() : this.errorText = "Modification of sentence failed...";
     }
 
     // CHNAGE FUNCTIONS GENERAL - FULL DETAIL IN SENTENCES SERVICE
     modifyName(position: number, subPosition: number, newName): void {
         const name: boolean = this.sentenceService.modifyName(position, subPosition, newName, this.route);
-        name ? this.modifySuccess() : this.modifyFail();
+        name ? this.modifySuccess() : this.errorText = "Modification of name failed...";
     }
 
-    modifyStartpointData(position: number, subPosition: number, currentState: boolean) {
+    modifyStartpointData(position: number, subPosition: number, currentState: boolean): void {
         const startpoint: boolean = this.sentenceService.modifyStartpointData(position, subPosition, currentState, this.route);
-        startpoint ? this.modifySuccess() : this.modifyFail();
+        startpoint ? this.modifySuccess() : this.errorText = "Toggling of start point failed...";
     }
 
     // TESTS STUFF - CHECK FOR SENTENCE SERVICE FOR MAIN COMMENTS.
-    removeTest(position: number, subPosition: number, testNumber: number) {
+    removeTest(position: number, subPosition: number, testNumber: number): void {
         const removed: boolean = this.sentenceService.removeTest(position, subPosition, testNumber, this.route);
-        removed ? this.modifySuccess() : this.modifyFail();
+        removed ? this.modifySuccess() : this.errorText = "Removal of test failed...";
     }
 
-    addNewTest(position: number, subposition: number) {
+    addNewTest(position: number, subposition: number): void {
         const added: boolean = this.sentenceService.addNewTest(position, subposition, this.route);
 
         if(added) {
             this.addTest = { order: null, index: null };
+            this.modifySuccess();
         } else {
-
+            this.errorText = "Addition of test failed...";
         }
     }
 
@@ -295,14 +302,14 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * @param position The position of thecopied item
      * @param subPosition The position within the subposition array
      */
-    copyItem(position: number, subPosition: number) {
+    copyItem(position: number, subPosition: number): void {
         const newCopyItem: sentence = this.sentenceService.copyItem(position, subPosition, this.route);
         
         if(newCopyItem) {
             this.copiedItem = newCopyItem;
             this.modifySuccess();
         } else {
-            this.modifyFail();
+            this.errorText = "Copy of item failed...";
         }
     }
 
@@ -313,21 +320,20 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * Paste the item...
      * @param position 
      */
-    pasteItem(position: number) {
+    pasteItem(position: number): void {
         const paste: boolean = this.sentenceService.pasteItem(position, this.copiedItem, this.route);
 
         if(paste) {
             this.copiedItem = undefined;
             this.modifySuccess();
         } else {
-            this.modifyFail();
+            this.errorText = "Pasting of item failed...";
         }
     }
 
     /**
      * Filters the lists of tests to exclude those tests already added.
      * Used for the dropdown box when adding a new test.
-
      * @param testsAdded lists of the tests already added
      * @param allTests List of all the tests in the system.
      * @returns 

@@ -41,17 +41,6 @@ export class AuthenticationService {
                     console.log(`Success: User ${name} (${email}) has been signed up.`);
 
                     // REMAKE SIGNUP PROPERLY...
-
-                    // authenticate the user in the code
-                    // user is not an admin by default.
-                    // this.handleAuthentication(
-                    //     result.user.email, 
-                    //     result.user.uid,
-                    //     name,
-                    //     false,  
-                    //     token.token 
-                    // );
-
                     this.handleAuthentication(
                         result.user.email,
                         result.user.uid,
@@ -129,14 +118,6 @@ export class AuthenticationService {
         if(!userData) {
             return;
         }
-
-        // any buggey behaviours that might happen? Two ways of collecting the data...
-        // this.fAuth.onAuthStateChanged(user => {
-        //     if(user) {
-        //         console.log(`user from db: ${user.email}`);
-        //         console.log(`user from local: ${userData.email}`);
-        //     }
-        // })
 
         const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData._token, new Date(userData._tokenExpirationDate));
         

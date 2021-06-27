@@ -25,6 +25,10 @@
     </div>
 </div>
 
+<div class="admin-sentences__error" (click)="removeError()" *ngIf="errorText">
+    <span style="font-weight: bold;">Error</span>: {{ errorText }}
+</div>
+
 <div class="admin-sentences">
     
     <div class="loading" *ngIf="isLoading">

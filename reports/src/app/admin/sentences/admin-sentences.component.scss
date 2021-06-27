@@ -514,4 +514,19 @@
             &-sentence {border-radius: .5rem .5rem .5rem 1rem; }
         }
     }
+
+    &__error {
+        background-color: var(--color-style-juxtapose);
+        border-radius: 1rem;
+        padding: 1rem 2rem;
+        border: .2rem solid white;
+        transition: all .2s;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+
+        &:hover {
+            cursor: pointer;
+            filter: brightness(120%);
+        }
+    }
 }
