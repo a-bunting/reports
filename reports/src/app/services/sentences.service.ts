@@ -18,6 +18,7 @@ export interface sentence {
 })
 export class SentencesService {
 
+    // these do NOT need to be an array, but in a slow start everything got coded this way and so thats how it is!...
     sentenceData: sentence[] = [];
 
     constructor(private databaseService: DatabaseService, private testsService: TestsService) { }
@@ -51,6 +52,14 @@ export class SentencesService {
                 console.log(`Error retrieving data: ${error.message}`);
             }));
         }
+    }
+
+    /**
+     * 
+     * @returns Returns the current state of the database.
+     */
+    getCurrentSentenceData(): sentence[] {
+        return this.sentenceData;
     }
 
     /**
@@ -137,12 +146,12 @@ export class SentencesService {
         return routeNames;
     }
 
-    /** function to generate all options for this route to check it works fine.
-     * @param route use an array like this:
+    /**
+     * Generates all potential options for sentences that could be make from a route
+     * @param route 
      */
-     possibilities;
-
-     generateSentenceOptions(route: string[]): void {
+    //  generateSentenceOptions(route: string[]): void {
+     generateSentenceOptions(route: string[]): {sentences: string, depth: number, delete: boolean} {
          const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
          let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
  
@@ -200,11 +209,17 @@ export class SentencesService {
                      sentences.splice(i, 1);
                  }
              }
+
+             return sentences;
          })
  
          // delete duplicates for some reason (to fix later).
-         this.possibilities = sentences.filter((obj, index) => (sentences.findIndex(test => test.sentence === obj.sentence)) === index);
-         this.possibilities.sort((a: sentence, b: sentence) => { return a.sentence.length - b.sentence.length });
+         sentences.filter((obj, index) => (sentences.findIndex(test => test.sentence === obj.sentence)) === index);
+         sentences.sort((a: sentence, b: sentence) => { return a.sentence.length - b.sentence.length });
+        
+        return sentences;
+         //  this.possibilities = sentences.filter((obj, index) => (sentences.findIndex(test => test.sentence === obj.sentence)) === index);
+        //  this.possibilities.sort((a: sentence, b: sentence) => { return a.sentence.length - b.sentence.length });
      }
 
     /**
@@ -216,27 +231,28 @@ export class SentencesService {
      * @param newValue new value for the key
      * @param callback the function to do the modification.
      */
-    modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number, callback?: Function): void {
+    // modifyData(position: number, subPosition: number, key: string, newValue: string | boolean | number, callback?: Function): void {
+    modifyData(position: number, callback: Function, route: string[]): boolean {
         let depth: number = 0;
-        let route = this.route;
         let complete: boolean = false;
         
         this.sentenceData.forEach(function iterate(value: sentence, i: number) {
             if(value.id === route[depth] && !complete) {
                 if(position === depth && !complete) {
                     // need to ensure this can add to the array if it isnt there already...
-                    if(callback) {
-                        callback(value);
-                    } else {
-                        value.subcategories[subPosition][key] = newValue;
-                    }
+                    callback(value);
+                    // delet this row below when implemented fully.
+                    // value.subcategories[subPosition][key] = newValue;
                     complete = true;
+                    return true;
                 } else {
                     depth++;
                     Array.isArray(value.subcategories) && !complete && value.subcategories.forEach(iterate);
                 }
             }
         })
+
+        return false;
 
         // toggle autosave if data has been modified and toggle unsaved changes if there is no autosave.
         this.autosave ? this.saveChanges() : this.unsavedChanges = true;
