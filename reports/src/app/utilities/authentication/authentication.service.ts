@@ -3,7 +3,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { UserCredential, IdTokenResult } from '@firebase/auth-types';
 import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, from, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, from, Observable } from 'rxjs';
 import { catchError, mergeMap, take, tap, toArray } from 'rxjs/operators';
 import { User } from './user.model';
 
@@ -26,37 +26,38 @@ export class AuthenticationService {
                 private router: Router) {
                 }
 
-    signup(email: string, password: string, name: string): Promise<any> {
-        // start by attempting to sign up the user...
-        return this.fAuth.createUserWithEmailAndPassword(email, password).then(result => {
-            // then get the token and custom claims for this user
-            return result.user.getIdTokenResult(true).then((token: any) => {
-                // finally add the user to the users database:
-                return this.firestore.collection('users').doc(result.user.uid).set({
-                    email: email,
-                    name: name
-                })
-                .then(() => {
-                    // response from server
-                    console.log(`Success: User ${name} (${email}) has been signed up.`);
+    signup(email: string, password: string, name: string): Observable<any> {
 
-                    // REMAKE SIGNUP PROPERLY...
-                    this.handleAuthentication(
-                        result.user.email,
-                        result.user.uid,
-                        name,
-                        {id: "freeagent", name: "Free Agent"},
-                        false,
-                        false, 
-                        false,
-                        token.token 
-                    );
-                }).catch((error: any) => {
-                    console.log(`Error: ${error.message}`);
-                })
-                    
-            });
+        const signUp = this.fAuth.createUserWithEmailAndPassword(email, password).then((result) => {
+            // get the sentences template to copy for this user
+            const getTemplate = this.firestore.collection('sentences').doc('template');
+            // get the users id token
+            const getIdTokenResult = result.user.getIdTokenResult(true);
+
+            return Promise.all([
+                result,
+                getIdTokenResult,
+                getTemplate.ref.get()
+            ]);
+        }).then(([userCreation, token, sentencesTemplate]) => {
+            const newUserEstablishmentProfile: { id: string, name: string } = {id: "freeagent", name: "Free Agent"};
+
+            // when successful then authenticate
+            const authenticate = this.handleAuthentication(
+                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, token.token 
+            );
+
+            // set the sentences template with the users userid - this will be their own copy of the database.
+            this.firestore.collection('sentences').doc(userCreation.user.uid).set(sentencesTemplate.data()).then(() => {
+                authenticate;
+            }, (error) => {
+                console.log(`There was an error in the creation of a new sentences template: ${error.message}`);
+                authenticate;
+            })
         });
+
+        return from(signUp);
+
     }
 
     login3(email: string, password: string): Observable<any> {
