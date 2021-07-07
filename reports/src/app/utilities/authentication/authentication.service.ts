@@ -3,9 +3,9 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { UserCredential, IdTokenResult } from '@firebase/auth-types';
 import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, forkJoin, from, Observable } from 'rxjs';
-import { catchError, mergeMap, take, tap, toArray } from 'rxjs/operators';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 import { User } from './user.model';
+import { sentence } from 'src/app/services/sentences.service';
 
 export interface AuthResponseData {
     kind: string, idToken: string, email: string, 
@@ -26,6 +26,13 @@ export class AuthenticationService {
                 private router: Router) {
                 }
 
+    /**
+     * Sign up a new user to the system.
+     * @param email 
+     * @param password 
+     * @param name 
+     * @returns Observable
+     */
     signup(email: string, password: string, name: string): Observable<any> {
 
         const signUp = this.fAuth.createUserWithEmailAndPassword(email, password).then((result) => {
@@ -33,13 +40,16 @@ export class AuthenticationService {
             const getTemplate = this.firestore.collection('sentences').doc('template');
             // get the users id token
             const getIdTokenResult = result.user.getIdTokenResult(true);
+            // sets the user in the users database.
+            const setUser = this.firestore.collection('users').doc(result.user.uid).set({name: name, email: email});
 
             return Promise.all([
                 result,
                 getIdTokenResult,
-                getTemplate.ref.get()
+                getTemplate.ref.get(), 
+                setUser
             ]);
-        }).then(([userCreation, token, sentencesTemplate]) => {
+        }).then(([userCreation, token, sentencesTemplate, setUser]) => {
             const newUserEstablishmentProfile: { id: string, name: string } = {id: "freeagent", name: "Free Agent"};
 
             // when successful then authenticate
@@ -47,19 +57,31 @@ export class AuthenticationService {
                 email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, token.token 
             );
 
+                console.log(sentencesTemplate.data());
+
             // set the sentences template with the users userid - this will be their own copy of the database.
             this.firestore.collection('sentences').doc(userCreation.user.uid).set(sentencesTemplate.data()).then(() => {
+                // set the data into local storage to make it quicker ot retrieve next time...
+                localStorage.setItem('sentences-data', JSON.stringify(sentencesTemplate.data()));
+                // and authenticate
                 authenticate;
             }, (error) => {
                 console.log(`There was an error in the creation of a new sentences template: ${error.message}`);
                 authenticate;
             })
+        }, (error) => {
+            console.log(`Some part of the user creation process failed: ${error.message}`);
         });
 
         return from(signUp);
-
     }
 
+    /**
+     * Logs a user in.
+     * @param email 
+     * @param password 
+     * @returns Observable
+     */
     login3(email: string, password: string): Observable<any> {
         const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
@@ -95,6 +117,7 @@ export class AuthenticationService {
     logout(): Observable<any> {
         return from(this.fAuth.signOut().then(() => {
             localStorage.removeItem('userData');
+            localStorage.removeItem('sentences-data');
             this.user.next(null);
             this.router.navigate(['/auth']);
         }).catch(error => {

@@ -61,7 +61,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
         this.isLoading = true;
 
         // get the sentence data from the database...
-        this.sentenceService.getSentencesDatabase().subscribe((data: sentence) => {
+        this.sentenceService.getSentencesDatabase(this.user.id).subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
             this.initialData = JSON.parse(JSON.stringify(sentenceData));
@@ -101,6 +101,18 @@ export class SentencesComponent implements OnInit, OnDestroy {
                 this.isLoading = false;
             })
         }
+    }
+
+    replaceWithTemplate(): void {
+        this.sentenceService.replaceWithTemplate(this.user.id).subscribe((data: sentence) => {
+            const sentenceData: sentence[] = [data];
+            // set the data on the display
+            this.initialData = JSON.parse(JSON.stringify(sentenceData));
+            this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+            this.sentenceService.generateSentenceOptions(this.route);
+        }, error => {
+            console.log(`Error: ${error.message}`);
+        })
     }
 
     /**

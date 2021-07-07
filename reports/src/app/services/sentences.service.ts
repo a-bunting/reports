@@ -26,7 +26,7 @@ export class SentencesService {
      * Gets the sentence data from memory or from the database and returns it as an observable...
      * @returns 
      */
-    getSentencesDatabase(): Observable<sentence>{
+    getSentencesDatabase(uid?: string): Observable<sentence>{
         // check if there is an instance of the sentences database in localstorage...
         if(localStorage.getItem('sentences-data') !== null) {
             // retrieve the data from local storage and parse it into the sentence data...
@@ -37,12 +37,13 @@ export class SentencesService {
                 return returnData;
             }));
         } else {
-            // no instance of the saved data so geta  fresh version.
-            return this.databaseService.getSentences('template').pipe(take(1), map(returnData => {
+            // no instance of the saved data so get a fresh version.
+            const docId = uid ? uid : 'template';
+
+            return this.databaseService.getSentences(docId).pipe(take(1), map(returnData => {
                 // add data to the sentenceData array...
                 // (this is an array as originally multiple database could be retrieved but then only one...)
                 this.sentenceData[0] = returnData.data();
-                console.log(this.sentenceData);
                 // set the data into local storage to make it quicker ot retrieve next time...
                 localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
                 // and return
@@ -59,6 +60,27 @@ export class SentencesService {
      */
     getCurrentSentenceData(): sentence[] {
         return this.sentenceData;
+    }
+
+    replaceWithTemplate(uid: string): Observable<sentence> {
+        // get tht template to write...
+        const replace = this.databaseService.getSentences('template').pipe(take(1), tap(templateResults => {
+            // and rewrite..
+            // const rewrite = this.databaseService.uploadSentences(uid, templateResults.data()).pipe(take(1), tap(() => {
+            //     // nothing to do here...
+            // }, error => {
+            //     console.log(`Error rewriting template: ${error.message}`)
+            // }));
+            // Dont auto rewrite to the database, but let the user have the opportunity to make that save...
+            this.sentenceData[0] = templateResults.data();
+            // set the data into local storage to make it quicker ot retrieve next time...
+            localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
+            return this.sentenceData[0];
+        }, error => {
+            console.log(`Error rewriting template: ${error.message}`)
+        }))
+
+        return replace;
     }
 
     /**
@@ -127,6 +149,7 @@ export class SentencesService {
      * @returns string of names
      */
     getRouteNames(route: string[]): string[] {
+
         let routeNames: string[] = [];
         let depth: number = 0;
 
@@ -551,3 +574,6 @@ export class SentencesService {
         return newId;
     }
 }
+
+// backup db
+//[{"id":"FFnsi","subcategories":[{"subcategories":[{"name":"Grade","endpoint":true,"subcategories":[{"subcategories":[{"sentence":["."],"id":"X5Up6","endpoint":true}],"sentence":[""],"id":"xkvmt","name":"Short"},{"sentence":[""],"id":"hYLfU","subcategories":[{"endpoint":true,"sentence":["not achieving quite as well as (LAST GRADE PERIOD)."],"tests":[{"name":"gradeChange"}],"id":"ucK6b","meta":-2,"name":"1"},{"sentence":["achieving just as well as (LAST GRADE PERIOD)."],"meta":0,"endpoint":true,"name":"2","id":"7wrSS"},{"endpoint":true,"name":"3","meta":2,"sentence":["achieving better than (LAST GRADE PERIOD)."],"id":"I9i0H"},{"id":"PHEla","name":"4","meta":20,"sentence":["achieving far better than (GENDER) did in (LAST GRADE PERIOD)."],"endpoint":true}],"name":"Medium","tests":[]},{"id":"zaAkK","subcategories":[{"id":"neFow","sentence":["where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."],"endpoint":true}],"name":"Long","sentence":[""]}],"id":"7B4IX","sentence":["earning (*GENDER NOUN)self an (LETTER) throughout the period"]},{"name":"Learning","id":"nn4gC","subcategories":[{"endpoint":true,"name":"1","sentence":["where (GENDER}NAME) learned about (TOPICS)."],"id":"dnc5u"},{"name":"2","endpoint":true,"starter":true,"sentence":["During this (PERIOD) (NAME}GENDER) learned about (TOPICS)"],"id":"mpfzM"}]}],"sentence":["This is the starter sentence"],"tests":[],"id":"7hYZS","name":"Introductions","starter":true},{"subcategories":[],"name":"What they did well","sentence":["Not written - Test","New value to test for changes..."],"id":"7ZAK2","endpoint":true}]}]

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { forkJoin, Observable } from 'rxjs';
-import { map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
+import { map, mergeAll, mergeMap, take, toArray } from 'rxjs/operators';
 import { DatabaseService } from '../services/database.service';
 
 export interface Group {
@@ -18,43 +18,16 @@ export class ClassesComponent implements OnInit {
     groups: Group[];
     createNewGroup: boolean = false;
 
-    // group database structure
-    /*
-    
-    randomId: string
-    {
-        name: group name, 
-        
-    }
-    
-    */
-
     constructor(private db: DatabaseService) { }
 
     ngOnInit(): void {
-        this.getAllGroups().subscribe(all => console.log('done', all));
+        this.getAllGroups().subscribe((groups: QuerySnapshot<any>) => {
+            console.log('done', groups.docs.values)
+        });
     }
 
     getAllGroups(): Observable<any> {
-        return this.db.getGroups().pipe(
-            // mergeAll(),
-            // mergeMap((group: QueryDocumentSnapshot<any>) => {
-            //     const managersInGroup = forkJoin(
-            //         group.data().managers.map(userManager => {
-            //             this.db.getUserName(userManager.uid).pipe(
-            //                 map(userName => ({ ...userManager, name: userName}))
-            //             )
-            //         })
-            //     );
-            //     return managersInGroup.pipe(
-            //         map(managersOfGroup => ({
-            //             name: group.data().name,
-            //             managers: managersOfGroup
-            //         }))
-            //     );
-            // }), 
-            // toArray() 
-        );
+        return this.db.getGroups().pipe(take(1));
     }
 
 }
