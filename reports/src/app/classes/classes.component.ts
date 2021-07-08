@@ -3,10 +3,7 @@ import { QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/
 import { forkJoin, Observable } from 'rxjs';
 import { map, mergeAll, mergeMap, take, toArray } from 'rxjs/operators';
 import { DatabaseService } from '../services/database.service';
-
-export interface Group {
-    name: string; managers: {name: string, email: string, uid: string}[]
-}
+import { Group } from './create-group/create-group.component';
 
 @Component({
   selector: 'app-classes',
@@ -22,7 +19,9 @@ export class ClassesComponent implements OnInit {
 
     ngOnInit(): void {
         this.getAllGroups().subscribe((groups: QuerySnapshot<any>) => {
-            console.log('done', groups.docs.values)
+            groups.forEach(grp => {
+                console.log('done', grp.data());
+            })
         });
     }
 

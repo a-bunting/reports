@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { UserCredential, IdTokenResult } from '@firebase/auth-types';
-import { AngularFirestore, DocumentSnapshot } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreDocument, DocumentSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { User } from './user.model';
@@ -37,7 +37,7 @@ export class AuthenticationService {
 
         const signUp = this.fAuth.createUserWithEmailAndPassword(email, password).then((result) => {
             // get the sentences template to copy for this user
-            const getTemplate = this.firestore.collection('sentences').doc('template');
+            const getTemplate: AngularFirestoreDocument<sentence> = this.firestore.collection('sentences').doc('template');
             // get the users id token
             const getIdTokenResult = result.user.getIdTokenResult(true);
             // sets the user in the users database.
@@ -57,12 +57,12 @@ export class AuthenticationService {
                 email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, token.token 
             );
 
-                console.log(sentencesTemplate.data());
-
             // set the sentences template with the users userid - this will be their own copy of the database.
             this.firestore.collection('sentences').doc(userCreation.user.uid).set(sentencesTemplate.data()).then(() => {
                 // set the data into local storage to make it quicker ot retrieve next time...
-                localStorage.setItem('sentences-data', JSON.stringify(sentencesTemplate.data()));
+                let sentenceData: sentence[] = [];
+                sentenceData[0] = sentencesTemplate.data();
+                localStorage.setItem('sentences-data', JSON.stringify(sentenceData));
                 // and authenticate
                 authenticate;
             }, (error) => {

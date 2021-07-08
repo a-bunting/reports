@@ -103,7 +103,17 @@ export class SentencesComponent implements OnInit, OnDestroy {
         }
     }
 
+    replaceTriggered: boolean = false;
+    replaceWorking: boolean = false;
+
+    triggerReplace(): void {
+        this.replaceTriggered = !this.replaceTriggered;
+    }
+
     replaceWithTemplate(): void {
+        this.replaceWorking = true;
+        this.isLoading = true;
+        
         this.sentenceService.replaceWithTemplate(this.user.id).subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
@@ -112,6 +122,11 @@ export class SentencesComponent implements OnInit, OnDestroy {
             this.sentenceService.generateSentenceOptions(this.route);
         }, error => {
             console.log(`Error: ${error.message}`);
+        }, () => {
+            this.replaceTriggered = false;
+            this.replaceWorking = false;
+            this.isLoading = false;
+            this.changeComparsion();
         })
     }
 

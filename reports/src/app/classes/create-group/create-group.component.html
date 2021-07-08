@@ -2,7 +2,7 @@
     <div class="create-group__group-name">
         <div class="create-group__group-name--text">New group name</div>
         <div class="create-group__group-name--input">
-            <input type="text" name="groupNameText" id="groupNameText">
+            <input type="text" name="groupNameText" id="groupNameText" [(ngModel)]="groupname">
         </div>
     </div>
 
@@ -18,7 +18,7 @@
                     <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>
                     <label for="groupInputHeaderBox">Top row is header text (recommended!)</label>
                 </div>
-                <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
+                <button class="create-group__text--submit--button create-group__text--submit--enabled" (click)="generateUserData()">Create Group</button>
             </div>
         </div>
 
@@ -30,6 +30,17 @@
             <div class="create-group__drop--text">
                 Drag CSV file here...
             </div>
+        </div>
+    </div>
+
+    <div class="create-group__controls" *ngIf="userDataGenerated">
+        <div class="create-group__control-buttons">
+            <button class="create-group__text--submit--button" [class.create-group__text--submit--enabled]="!dataSubmitting && groupname" *ngIf="userDataGenerated && !groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
+            <button class="create-group__text--submit--button" [class.create-group__text--submit--enabled]="!dataSubmitting && groupname && !dataUpdated" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="userDataGenerated && groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
+        </div>
+        
+        <div class="create-group__success" *ngIf="groupId">
+            Group '<span>{{ groupname }}</span>' (ID: <span>{{ groupId }}</span>) created with manager <span>{{ user.name }}</span>.
         </div>
     </div>
 

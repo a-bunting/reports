@@ -9,7 +9,8 @@
     <div class="sentences__control-bar">
         <div class="sentences__control-bar--control sentences__control-bar--control-autosave" [class.sentences__control-bar--control-selected]="!autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</div>
         <div class="sentences__control-bar--control sentences__control-bar--control-dataview" [class.sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</div>
-        <div class="sentences__control-bar--control sentences__control-bar--control-replace" (click)="replaceWithTemplate()">Replace with Template</div>
+        <div class="sentences__control-bar--control sentences__control-bar--control-replace" *ngIf="!replaceTriggered" (click)="triggerReplace()">Replace with Template</div>
+        <div class="sentences__control-bar--control sentences__control-bar--control-replace" [class.sentences__control-bar--control-disabled]="replaceWorking" *ngIf="replaceTriggered" (click)="replaceWithTemplate()">{{ !replaceWorking ? "I am sure (click to confirm)" : "Replacing with Template..." }}</div>
         <div class="sentences__control-bar--control sentences__control-bar--control-savelocal" [class.sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</div>
         <div class="sentences__control-bar--control sentences__control-bar--control-commit" [class.sentences__control-bar--control-disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</div>
     </div>

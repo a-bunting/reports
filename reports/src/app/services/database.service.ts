@@ -5,6 +5,7 @@ import { AuthenticationService } from '../utilities/authentication/authenticatio
 import { AngularFirestore, QuerySnapshot } from '@angular/fire/firestore';
 import { User } from '../utilities/authentication/user.model';
 import { sentence } from './sentences.service';
+import { Group, Student } from '../classes/create-group/create-group.component';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +35,15 @@ export class DatabaseService {
      * @returns Observable<QuerySnapshot<any>> to subscribe to...
      */
     getGroups(): Observable<QuerySnapshot<any>> {
-        const userId = this.user.id;
-        return this.firebase.collection('group', grp => grp.where('managers', 'array-contains', this.firebase.collection('users').doc(userId).ref)).get();
+        return this.firebase.collection('group', grp => grp.where('managers', 'array-contains', this.user.id)).get();
+    }
+
+    createGroup(data: Group): Observable<any> {
+        return from(this.firebase.collection('group').add(data));
+    }
+
+    modifyGroup(data: Group, id: string): Observable<any> {
+        return from(this.firebase.collection('group').doc(id).update(data));
     }
 
     getUserName(uid: string): Observable<any> {

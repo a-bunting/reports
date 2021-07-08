@@ -5,7 +5,7 @@
     </h4>
     <div class="component-intro__buttons">
         <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="create-group/">Create New Group</div>
-        <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="classes/">Edit Groups</div>
+        <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="/classes/" [routerLinkActiveOptions]="{ exact: true }">Edit Groups</div>
     </div>
 </div>
 

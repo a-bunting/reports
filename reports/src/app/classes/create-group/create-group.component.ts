@@ -1,4 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { DocumentReference } from '@angular/fire/firestore';
+import { DatabaseService } from 'src/app/services/database.service';
+import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
+import { User } from 'src/app/utilities/authentication/user.model';
+
+export interface Group {
+    name: string, managers: string[], students: Student[]
+}
+
+export interface Student {
+}
 
 @Component({
   selector: 'app-create-group',
@@ -9,14 +20,77 @@ export class CreateGroupComponent implements OnInit {
 
     headerRow: boolean = true;
     keys: string[];
-    userData;
+    userData: Student[];
+    user: User;
+    groupname: string;
+    userDataGenerated: boolean = false;
+    dataSubmitting: boolean = false;
+    dataUpdating: boolean = false; // data is currently being updated...
+    dataUpdated: boolean = false; // data has been saved since updating (databe is up to dtae)
+    dataChanged: boolean = false;
+    groupId: string; // if the class has been created this will be populated with the database id.
 
-    constructor() { }
+    constructor(private database: DatabaseService, private auth:AuthenticationService) { 
+        auth.user.subscribe((user: User) => {
+            this.user = user;
+        })
+    }
 
     ngOnInit(): void {
     }
 
+    createGroup(): void {
+        this.dataSubmitting = true;
+        let group: Group = { name: this.groupname, managers: [], students: []};
+        let managers: string[] = [this.user.id];
+        let students: Student[] = [];
+
+        this.userData.forEach((student: Student) => {
+            students.push(student);
+        })
+
+        group.managers = managers;
+        group.students = students;
+
+        this.database.createGroup(group).subscribe((returnData: DocumentReference) => {
+            console.log(`Success: ID ${returnData.id}`);
+            this.groupId = returnData.id;
+        }, (error) => {
+            console.log(`Error: ${error.message}`);
+        }, () => {
+            this.dataSubmitting = false;
+        })
+    }
+
+    updateGroup(): void {
+        this.dataSubmitting = true;
+        this.dataUpdating = true;
+        let group: Group = { name: this.groupname, managers: [], students: []};
+        let managers: string[] = [this.user.id];
+        let students: Student[] = [];
+
+        this.userData.forEach((student: Student) => {
+            students.push(student);
+        })
+
+        group.managers = managers;
+        group.students = students;
+
+        this.database.modifyGroup(group, this.groupId).subscribe(() => {
+            console.log(`Successfully modified data`);
+            this.dataUpdated = true;
+        }, (error) => {
+            console.log(`Error: ${error.message}`);
+        }, () => {
+            this.dataSubmitting = false;
+            this.dataUpdating = false;
+            this.dataChanged = false;
+        })
+    }
+
     generateUserData() {
+        this.userDataGenerated = true;
+        this.groupId = undefined;
         let data: string[];
 
         // for now use testdata if none exists in the textbox
@@ -44,7 +118,6 @@ export class CreateGroupComponent implements OnInit {
 
         // set keys globally to be accessed in the dom
         this.keys = keys;
-        
         // iterate over the data and build a new array
         let newData = [];
         
@@ -75,6 +148,8 @@ export class CreateGroupComponent implements OnInit {
         const reference: HTMLElement = <HTMLElement>input.target;
         const newValue = reference.innerText.split("\n");
         this.userData[index][key] = newValue[0];
+        this.dataUpdated = false;
+        this.dataChanged = true;
     }
 
     /**
@@ -83,6 +158,8 @@ export class CreateGroupComponent implements OnInit {
      */
     removeUser(index: number): void {
         this.userData.splice(index, 1);
+        this.dataUpdated = false;
+        this.dataChanged = true;
     }
 
     /**
@@ -115,6 +192,8 @@ export class CreateGroupComponent implements OnInit {
 
         this.keys = newKeyArray;
         this.userData = newData;
+        this.dataUpdated = false;
+        this.dataChanged = true;
     }
 
     /**
@@ -134,6 +213,8 @@ export class CreateGroupComponent implements OnInit {
         });
 
         this.userData = newData;
+        this.dataUpdated = false;
+        this.dataChanged = true;
     }
 
     /**
@@ -150,6 +231,8 @@ export class CreateGroupComponent implements OnInit {
         });
 
         this.keys.splice(index, 1);
+        this.dataUpdated = false;
+        this.dataChanged = true;
     }
 
     /**
