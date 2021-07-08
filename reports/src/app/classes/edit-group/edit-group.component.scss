@@ -1,0 +1,42 @@
+.groups {
+    position: relative;
+    min-height: 10rem;
+}
+
+.group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    background-color: var(--color-style-dark);
+    overflow: none;
+
+    &:first-of-type { border-radius: 1rem 0 0 1rem; }
+    &:last-of-type { border-radius: 0 1rem 1rem 0; }
+
+    &__name {
+        font-weight: bold;
+    }
+
+    &__buttons {
+        display: flex;
+        align-items: baseline;
+    }
+
+    &__student-count {
+        margin-right: 4rem;
+    }
+
+    &__dropdown-button {
+        padding: 1rem;
+        margin: -1rem -2rem;
+        background-color: var(--color-style-main);
+        transition: all .2s;
+
+        &:hover {
+            background-color: var(--color-style-juxtapose);
+            cursor: pointer;
+        }
+    }
+}

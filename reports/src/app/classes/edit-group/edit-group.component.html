@@ -1,0 +1,14 @@
+<div class="groups">
+
+    <div class="loading" *ngIf="isLoading">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <div class="group" *ngFor="let group of groups; let i = index">
+        <div class="group__name">{{ group.name }}</div>
+        <div class="group__buttons">
+            <div class="group__student-count">{{ group.students.length }} students</div>
+            <div class="group__dropdown-button">DOWN</div>
+        </div>
+    </div>
+</div>

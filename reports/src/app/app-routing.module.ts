@@ -15,6 +15,7 @@ import { AdminGuard } from './utilities/authentication/admin.guard';
 import { AdminUsersComponent } from './admin/users/admin-users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { SentencesComponent } from './sentences/sentences.component';
+import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 
 const routes: Routes = [
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard]},
@@ -24,7 +25,8 @@ const routes: Routes = [
         {path: 'edit-template', component: EditTemplateComponent}
     ]},
     {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard], children: [
-        {path: 'create-group', component: CreateGroupComponent}
+        {path: 'create-group', component: CreateGroupComponent},
+        {path: '', component: EditGroupComponent}
     ]},
     {path: 'auth', component: AuthComponent},
     {path: 'sentences', component: SentencesComponent},
