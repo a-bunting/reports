@@ -4,33 +4,32 @@
 }
 
 .group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr max-content 2rem;
+
     padding: 1rem 2rem;
     font-size: 1.5rem;
     background-color: var(--color-style-dark);
     overflow: none;
 
-    &:first-of-type { border-radius: 1rem 0 0 1rem; }
-    &:last-of-type { border-radius: 0 1rem 1rem 0; }
-
+    &:first-of-type { border-radius: 1rem 1rem 0 0; }
+    &:last-of-type { border-radius: 0 0 1rem 1rem; }
+    
     &__name {
+        grid-column: 1 / 2;
         font-weight: bold;
     }
-
-    &__buttons {
-        display: flex;
-        align-items: baseline;
-    }
-
+    
     &__student-count {
+        grid-column: 2 / 3;
         margin-right: 4rem;
     }
-
+    
     &__dropdown-button {
+        grid-column: 3 / 4;
         padding: 1rem;
         margin: -1rem -2rem;
+        text-align: center;
         background-color: var(--color-style-main);
         transition: all .2s;
 
@@ -39,4 +38,26 @@
             cursor: pointer;
         }
     }
+
+    input {
+        display: none;
+    }
+
+    input:checked ~ .group__data {
+        visibility: visible;
+        opacity: 1;
+        display: flex;
+    }
+
+    &__data {
+        grid-column: 1 / -1;
+        visibility: hidden;
+        opacity: 0;
+        display: none;
+
+        flex-direction: column;
+        margin-top: 2rem;
+    }
+
+
 }

@@ -5,10 +5,41 @@
     </div>
 
     <div class="group" *ngFor="let group of groups; let i = index">
+
         <div class="group__name">{{ group.name }}</div>
-        <div class="group__buttons">
-            <div class="group__student-count">{{ group.students.length }} students</div>
-            <div class="group__dropdown-button">DOWN</div>
+        <div class="group__student-count">{{ group.students.length }} students</div>
+        <input type="checkbox" name="chk{{i}}" id="chk{{i}}">
+        <label class="group__dropdown-button" for="chk{{i}}">&#8681;</label>
+        <div class="group__data">
+            <!-- <div class="group__student">
+                <div class="group__student--key" *ngFor="let key of group.students[0] | keyvalue">{{ key.key }}</div>
+            </div>
+            <div class="group__student" *ngFor="let student of group.students">{{ student.Forename }}</div> -->
+
+            <table class="group__data--table">
+                <thead>
+                    <tr class="group__data--row group__data--header">
+                        <td class="group__data--cell" *ngFor="let key of keys; let i = index">
+                            <div class="group__data--cell--header">
+                                <div (keyup.enter)="columnValueChange(i, $event)" (blur)="columnValueChange(i, $event)" contenteditable="true">{{ key }}</div>
+                                <div class="group__data--buttons group__data--buttons-remove tooltipped" (click)="deleteColumn(i)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></div>
+                            </div>
+                        </td> 
+                        <td class="group__data--cell">
+                            <div class="group__data--buttons group__data--buttons-addcol tooltipped" (click)="addColumn()">&#10010; <div class="tooltip">Add a new column</div></div>
+                        </td>
+                    </tr>                
+                </thead>
+                <tbody>
+                    <tr class="group__data--row group__data--data" *ngFor="let row of userData; let i = index">
+                        <td class="group__data--cell" *ngFor="let user of row | keyvalue : returnZero" (blur)="userValueChange(i, user.key, $event)" (keyup.enter)="userValueChange(i, user.key, $event)" contenteditable="true">{{ user.value }}</td>
+                        <td class="group__data--cell">
+                            <div class="group__data--buttons group__data--buttons-remove tooltipped" (click)="removeUser(i)">&#10006; <div class="tooltip">Delete this user</div></div>
+                        </td> 
+                    </tr>              
+                </tbody>
+            </table>
+
         </div>
     </div>
 </div>
