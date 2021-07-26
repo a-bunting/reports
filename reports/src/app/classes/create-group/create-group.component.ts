@@ -5,7 +5,7 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { User } from 'src/app/utilities/authentication/user.model';
 
 export interface Group {
-    name: string, managers: string[], students: Student[]
+    name: string, keys: string[]; managers: string[], students: Student[]
 }
 
 export interface Student {
@@ -41,7 +41,7 @@ export class CreateGroupComponent implements OnInit {
 
     createGroup(): void {
         this.dataSubmitting = true;
-        let group: Group = { name: this.groupname, managers: [], students: []};
+        let group: Group = { name: this.groupname, keys: [], managers: [], students: []};
         let managers: string[] = [this.user.id];
         let students: Student[] = [];
 
@@ -51,6 +51,7 @@ export class CreateGroupComponent implements OnInit {
 
         group.managers = managers;
         group.students = students;
+        group.keys = this.keys;
 
         this.database.createGroup(group).subscribe((returnData: DocumentReference) => {
             console.log(`Success: ID ${returnData.id}`);
@@ -65,7 +66,7 @@ export class CreateGroupComponent implements OnInit {
     updateGroup(): void {
         this.dataSubmitting = true;
         this.dataUpdating = true;
-        let group: Group = { name: this.groupname, managers: [], students: []};
+        let group: Group = { name: this.groupname, keys: [], managers: [], students: []};
         let managers: string[] = [this.user.id];
         let students: Student[] = [];
 
@@ -75,6 +76,7 @@ export class CreateGroupComponent implements OnInit {
 
         group.managers = managers;
         group.students = students;
+        group.keys = this.keys;
 
         this.database.modifyGroup(group, this.groupId).subscribe(() => {
             console.log(`Successfully modified data`);

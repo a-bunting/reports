@@ -1,6 +1,23 @@
 .groups {
     position: relative;
-    min-height: 10rem;
+    background-color: rgba(255, 255, 255, .6);
+    border-radius: 1rem;
+    min-height: 8rem;
+
+    &__load-failure {
+        padding: 2rem;
+        text-align: center;
+        width: 100%;
+        font-size: 1.6rem;
+        color: red;
+        transition: all .2s;
+
+        &:hover {
+            cursor: pointer;
+            letter-spacing: 0.1rem;
+            font-weight: bold;
+        }
+    }
 }
 
 .group {
@@ -36,6 +53,108 @@
         &:hover {
             background-color: var(--color-style-juxtapose);
             cursor: pointer;
+        }
+    }
+
+    &__data {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        font-size: 1.4rem;
+        border-top: 2px dashed rgba($color: #000000, $alpha: 0.2);
+
+        &--table {
+            width: 100%;
+            border-collapse: collapse;
+
+            tr {
+                opacity: 0;
+                animation: fadeIn .3s ease-in 0s 1 forwards;
+            }
+
+            tbody tr, thead tr {
+                td {
+                    &:nth-of-type(odd) {
+                        background-color: rgba(white, .2);
+                    }
+                }
+            }
+        }
+
+        &--edited {
+            font-weight: bold;
+            background-color: red;
+            animation: glow 2s linear 0 1 normal;
+        }
+        
+        &--row {
+            transition: all .2s;
+            
+            &:hover {
+                background-color: var(--color-style-juxtapose);
+            }
+        }
+        
+        &--header {
+            font-weight: bold;
+            background-color: green;
+            background-color: var(--color-style-dark);
+            color: white;     
+        }
+        
+        &--data {
+            background-color: var(--color-style-main);            
+
+        }
+
+        &--cell {
+            padding: .5rem 1rem;
+            transition: all .2s;
+
+            &--header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            &:last-of-type {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            &:focus {
+                background-color: rgba(white, .5);
+                font-weight: bold;
+                animation: glow 2s ease-in-out 0 infinite;
+            }
+
+            &:visited { 
+                background-color: red;
+            }
+        }
+        
+        &--buttons {
+
+            padding: .1rem .5rem;
+            font-size: 1.6rem;
+            transition: all .2s;
+            border: .2rem solid transparent;
+            width: 3rem;
+            text-align: center;
+            border-radius: 1rem;
+
+            &:hover {
+                cursor: pointer;
+                border: .2rem solid white;
+                filter: brightness(130%);
+            }
+
+            &-remove {
+                background-color: red;
+            }
+
+            &-addcol {
+                background-color: green;
+            }
         }
     }
 
