@@ -22,12 +22,15 @@
     <!-- // structural elements go here... -->
     
     <div class="create-template__builder">
-        <div class="create-template__element">
-            <select name="test" id="test" class="create-template__element--select">
-                <option value="test">Test Value</option>
+        <div class="create-template__element" *ngFor="let templateSegment of templateRoutes; let t = index">
+
+            <select name="test" id="test" class="create-template__element--select" *ngFor="let sentenceStem of viewData[t]; let s = index" (change)="updateElementRoute(t, s, $event.target.value)">
+                <option value=""></option>
+                <option value="test" *ngFor="let sentence of sentenceStem; let p = index" value="{{ sentence.id }}" [selected]="sentence.id === templateSegment[s+1]">{{ sentence.name }}</option>
             </select>
+
         </div>
-        <div class="create-template__new">Add new section to report</div>
+        <div class="create-template__new" (click)="addElement()">Add new section to report</div>
     </div>
     
 </div>

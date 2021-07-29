@@ -10,29 +10,43 @@
 
     <div class="group" *ngFor="let group of groups; let i = index">
 
-        <div class="group__name">{{ group.name }}</div>
-        <div class="group__student-count">{{ group.students.length }} students</div>
+        <div class="group__name">
+            <div class="group__name--name" id="grpId{{i}}" (keyup)="checkNameChange(i, $event)" (keyup.enter)="commitNameChange(i)" contenteditable="true">{{ group.name }}</div>
+            <div *ngIf="deletionConfirm !== i">
+                <button class="group__button--button group__button--enabled group__button--hidden" id="nameButton{{i}}" (click)="commitNameChange(i)">Save Name Change</button>
+                <button class="group__button--button group__button--enabled" (click)="addUser(i)">Add Student</button>
+                <button class="group__button--button group__button--update" [class.group__button--enabled]="updatedData[i]" [class.group__button--updated]="updatingData[i]" (click)="updateGroup(i)" [disabled]="!updatedData[i]">{{ !updatingData[i] ? "Update Group" : "Updating Data..." }}</button>
+            </div>
+        </div>
+        <div class="group__student-count" *ngIf="deletionConfirm !== i">{{ group.students.length }} students</div>
+        <div class="group__delete">
+            <div class="group__data--buttons group__data--buttons-remove tooltipped" (click)="deleteGroup(i)" *ngIf="deletionConfirm !== i">&#10006; <div class="tooltip">Delete this group</div></div>
+            <div class="group__data--buttons group__data--buttons-delete tooltipped" (click)="deleteGroupConfirm(i)" *ngIf="deletionConfirm === i" [class.group__data--buttons--disabled]="deletingCurrent">{{ deletingCurrent ? "Deleting..." : "Confirm deletion (irreversible)" }}</div>
+            <div class="group__data--buttons group__data--buttons-delete tooltipped" (click)="deleteGroupClear()" *ngIf="deletionConfirm === i" [class.group__data--buttons--disabled]="deletingCurrent">Do not delete</div>
+        </div>
         <input type="checkbox" name="chk{{i}}" id="chk{{i}}">
-        <label class="group__dropdown-button" for="chk{{i}}">&#8681;</label>
+        <label class="group__dropdown-button" for="chk{{i}}">
+            <div>
+                &#8681;
+            </div>
+        </label>
 
         <div class="group__data">
-            <!-- <div class="group__student">
-                <div class="group__student--key" *ngFor="let key of group.students[0] | keyvalue">{{ key.key }}</div>
-            </div>
-            <div class="group__student" *ngFor="let student of group.students">{{ student.Forename }}</div> -->
-
             <table class="group__data--table">
                 <thead>
+
+                    <!-- problem, stickinesson th goes under rest of table -->
+
                     <tr class="group__data--row group__data--header">
-                        <td class="group__data--cell" *ngFor="let key of group.keys; let t = index">
+                        <th class="group__data--cell" *ngFor="let key of group.keys; let t = index">
                             <div class="group__data--cell--header">
                                 <div (keyup.enter)="columnValueChange(i, t, $event)" (blur)="columnValueChange(i, t, $event)" contenteditable="true">{{ key }}</div>
                                 <div class="group__data--buttons group__data--buttons-remove tooltipped" (click)="deleteColumn(i, t)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></div>
                             </div>
-                        </td> 
-                        <td class="group__data--cell">
+                        </th> 
+                        <th class="group__data--cell">
                             <div class="group__data--buttons group__data--buttons-addcol tooltipped" (click)="addColumn(i)">&#10010; <div class="tooltip">Add a new column</div></div>
-                        </td>
+                        </th>
                     </tr>                
                 </thead>
                 <tbody>

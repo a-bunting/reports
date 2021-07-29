@@ -90,7 +90,7 @@ export class SentencesService {
      * @param singleStream  whether or not to go down the route only or butterfly out
      * @param data a list of key values to return (i.e. name, sentence etc)
      */
-     getSentenceData(route: string[], singleStream: boolean, data?: string[]): [sentence[]] {
+     getSentenceData(route: string[], singleStream: boolean, data?: string[], infinite?: boolean): [sentence[]] {
         // route must always start with a 0
         route[0] = this.sentenceData[0].id;
 
@@ -112,8 +112,13 @@ export class SentencesService {
                     if(Array.isArray(sntncData[i].subcategories)) {
                         subData = sntncData[i].subcategories;
                     } else {
-                        sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
-                        subData = sntncData[i].subcategories;
+                        if(infinite || infinite === undefined) {
+                            sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
+                            subData = sntncData[i].subcategories;
+                        } else {
+                            // add subctegories...
+                            break;
+                        }
                     }
                     
                     // check to see if there is subdata, and if not just use the sentence stem

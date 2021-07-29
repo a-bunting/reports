@@ -5,7 +5,7 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { User } from 'src/app/utilities/authentication/user.model';
 
 export interface Group {
-    name: string, keys: string[]; managers: string[], students: Student[]
+    name: string, id? : string, keys: string[]; managers: string[], students: Student[]
 }
 
 export interface Student {

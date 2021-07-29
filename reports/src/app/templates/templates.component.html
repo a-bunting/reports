@@ -12,20 +12,12 @@
     <!-- the list of premade templates retirveed from the database -->
     <div class="templates__list">
         <!-- for each template that is retrieved from the database have an indivdual row -->
-        <div class="templates__template-selector">
+        <div class="templates__template-selector" *ngFor="let template of templates; let i = index">
             <div class="templates__template-selector--icon">
                 &#x268F;
             </div>
             <div class="templates__template-selector--text">
-                Template Name
-            </div>
-        </div>
-        <div class="templates__template-selector">
-            <div class="templates__template-selector--icon">
-                &#x268F;
-            </div>
-            <div class="templates__template-selector--text">
-                Template Name 2 (test...
+                {{ template.name }}
             </div>
         </div>
         

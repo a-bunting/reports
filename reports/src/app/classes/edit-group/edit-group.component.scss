@@ -22,33 +22,68 @@
 
 .group {
     display: grid;
-    grid-template-columns: 1fr max-content 2rem;
+    grid-template-columns: 1fr max-content max-content 2rem;
+    align-items: baseline;
 
-    padding: 1rem 2rem;
+    padding: .5rem 2rem;
     font-size: 1.5rem;
-    background-color: var(--color-style-dark);
+    background-image: linear-gradient(to right, 
+                                            var(--color-style-main) 0%, 
+                                            var(--color-style-dark) 30%);
     overflow: none;
 
-    &:first-of-type { border-radius: 1rem 1rem 0 0; }
-    &:last-of-type { border-radius: 0 0 1rem 1rem; }
+    &:first-of-type { 
+        border-radius: 1rem 1rem 0 0; 
+        
+        .group__dropdown-button {
+            border-radius: 0 1rem 0 0;
+        }
+    }
+    &:last-of-type { 
+        border-radius: 0 0 1rem 1rem; 
+        
+        .group__dropdown-button {
+            border-radius: 0 0 1rem 0;
+        }
+    }
     
     &__name {
         grid-column: 1 / 2;
         font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+
+        &--name {
+            padding-right: 1rem;
+        }
     }
     
     &__student-count {
         grid-column: 2 / 3;
-        margin-right: 4rem;
+        margin: 0 1.5rem;
+        font-size: 1.4rem;
+    }
+
+    &__delete {
+        grid-column: 3 / 4;
+        margin-right: 3rem;
+        display: flex;
     }
     
     &__dropdown-button {
-        grid-column: 3 / 4;
+        grid-column: 4 / 5;
         padding: 1rem;
-        margin: -1rem -2rem;
+        margin: -.5rem -2rem;
         text-align: center;
+        background-image: linear-gradient(to right, var(--color-style-dark) 10%, transparent 50%);
         background-color: var(--color-style-main);
         transition: all .2s;
+        align-self: stretch;
+
+        div {
+            transform: translateX(.5rem);
+        }
 
         &:hover {
             background-color: var(--color-style-juxtapose);
@@ -57,26 +92,30 @@
     }
 
     &__data {
-        margin-top: 1rem;
-        padding-top: 1rem;
+        margin-top: 0;
+        padding-top: .5rem;
         font-size: 1.4rem;
-        border-top: 2px dashed rgba($color: #000000, $alpha: 0.2);
 
         &--table {
             width: 100%;
             border-collapse: collapse;
+            position: relative;
 
             tr {
-                opacity: 0;
                 animation: fadeIn .3s ease-in 0s 1 forwards;
             }
 
             tbody tr, thead tr {
-                td {
+                td, th {
                     &:nth-of-type(odd) {
                         background-color: rgba(white, .2);
                     }
                 }
+            }
+
+            th {
+                position: sticky;
+                top: 0;
             }
         }
 
@@ -138,7 +177,6 @@
             font-size: 1.6rem;
             transition: all .2s;
             border: .2rem solid transparent;
-            width: 3rem;
             text-align: center;
             border-radius: 1rem;
 
@@ -147,14 +185,73 @@
                 border: .2rem solid white;
                 filter: brightness(130%);
             }
-
+            
             &-remove {
+                width: 3rem;
                 background-color: red;
+            }
+
+            &-delete {
+                width: auto;
+                font-size: 1.4rem;
+                background-color: red;
+                padding: .5rem 1rem;
+
+                &:not(:last-of-type) {
+                    margin-right: .5rem;
+                }
+            }
+
+            &--disabled {
+                background-color: rgba(red, .4);
+
+                &:hover {
+                    cursor: default;
+                    border: .2rem solid transparent;
+                    filter: brightness(100%);
+                }
             }
 
             &-addcol {
                 background-color: green;
             }
+        }
+    }
+
+    &__buttons {
+        padding-top: 1rem;
+
+        &--left { text-align: left; }
+        &--right { text-align: right; }
+    }
+
+    &__button {
+
+        &--button {
+            font-size: 1.4rem;
+            width: auto;
+            padding: .5rem 1rem;
+            border-radius: 1rem;
+            transition: all .2s;
+            border: .2rem solid transparent;
+            margin-right: .5rem;
+        }
+
+        &--hidden { display: none; }
+        &--update { width: 14rem; }
+
+        &--enabled {
+            &:hover {
+                cursor: pointer;
+                background-color: var(--color-style-juxtapose);
+                color: white;
+                border: .2rem solid white;
+                box-shadow: 0 .3rem .6rem rgba(black, .3);
+            }
+        }
+
+        &--updated {
+            background-color: rgba(green, .5);
         }
     }
 
@@ -166,6 +263,10 @@
         visibility: visible;
         opacity: 1;
         display: flex;
+    }
+
+    input:checked ~ .group__dropdown-button {
+        border-bottom-right-radius: 0;
     }
 
     &__data {

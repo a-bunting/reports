@@ -46,6 +46,10 @@ export class DatabaseService {
         return from(this.firebase.collection('group').doc(id).update(data));
     }
 
+    deleteGroup(id: string): Observable<any> {
+        return from(this.firebase.collection('group').doc(id).delete());
+    }
+
     getUserName(uid: string): Observable<any> {
         // return this.firebase.collection('users').doc(uid).get().pipe(take(1), map((data: DocumentSnapshot<any>) => {
         //     return {name: data.data().name, email: data.data().email, id: uid};
@@ -53,21 +57,8 @@ export class DatabaseService {
         return this.firebase.collection('users').doc(uid).get();
     }
 
-    // getTemplate(): blockTemplate {
-    //     let returnTemplate: blockTemplate;
-    //     // get the requested template
-
-    //     return returnTemplate;
-    // }
-
-    // storeNewTemplate(template: blockTemplate) {
-    //     this.http.post(
-    //         'https://reports-be41b-default-rtdb.europe-west1.firebasedatabase.app/templates.json', 
-    //         template
-    //     )
-    //     .subscribe(posts => {
-            
-    //     });
-    // }
+    getTemplates(): Observable<any> {
+        return this.firebase.collection('templates', template => template.where('manager', '==', this.user.id) || template.where('open','==', true)).get();
+    }
 
 }
