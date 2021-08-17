@@ -118,10 +118,10 @@
     <div class="sentence-stems__title">
         Below are the potential sentences from the sentence structure:
         <div class="sentence-stems__title--structure">
-            <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined (at 'Base' level)" }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
+            <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined (at 'Base' level). Select a route above using green arrows to generate sentences." }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
         </div>
     </div>
-    <div class="sentence-stems__row sentence-stems__header">
+    <div class="sentence-stems__row sentence-stems__header" *ngIf="possibilities">
         <div class="sentence-stems__number">#</div>
         <div class="sentence-stems__characters">Characters</div>
         <div class="sentence-stems__sentence">Sentence</div>

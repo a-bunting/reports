@@ -1,16 +1,16 @@
 <div class="create-template__form">
 
     <div class="create-template__label">Name</div>
-    <input class="create-template__input create-template__input--name" id="templateName">
+    <input class="create-template__input create-template__input--name" id="templateName" [(ngModel)]="templateName">
 
-    <div class="create-template__label">Paragraph Count</div>
+    <!-- <div class="create-template__label">Paragraph Count</div>
     <input type="text" class="create-template__input create-template__input--number" id="paragraphCount" value="1">
-    
-    <div class="create-template__label create-template__label--right">Character Limit</div>
+     -->
+    <div class="create-template__label">Character Limit</div>
     <div class="create-template__characters">
-        <input type="number" class="create-template__input create-template__input--number" id="charMin" placeholder="from">
+        <input type="number" class="create-template__input create-template__input--number" id="charMin" [(ngModel)]="templateCharacters.min" placeholder="from">
         <span>to</span>
-        <input type="number" class="create-template__input create-template__input--number" id="charMax" placeholder="to">
+        <input type="number" class="create-template__input create-template__input--number" id="charMax" [(ngModel)]="templateCharacters.max" placeholder="to">
     </div>    
 </div>
 
@@ -23,17 +23,38 @@
     
     <div class="create-template__builder">
         <div class="create-template__element" *ngFor="let templateSegment of templateRoutes; let t = index">
+            <div *ngIf="templateSegment[0] === 'newParagraph'">
+                <div class="create-template__element--paragraph">Paragraph</div>
+            </div>
 
-            <select name="test" id="test" class="create-template__element--select" *ngFor="let sentenceStem of viewData[t]; let s = index" (change)="updateElementRoute(t, s, $event.target.value)">
-                <option value=""></option>
-                <option value="test" *ngFor="let sentence of sentenceStem; let p = index" value="{{ sentence.id }}" [selected]="sentence.id === templateSegment[s+1]">{{ sentence.name }}</option>
-            </select>
+            <div *ngIf="templateSegment[0] !== 'newParagraph'">
+                <select name="test" id="test" class="create-template__element--select" *ngFor="let sentenceStem of viewData[t]; let s = index" (change)="updateElementRoute(t, s, $event.target.value)">
+                    <option value=""> {{ s === 0 ? "" : "** End **" }}</option>
+                    <option value="test" *ngFor="let sentence of sentenceStem; let p = index" value="{{ sentence.id }}" [selected]="sentence.id === templateSegment[s+1]">{{ sentence.name }}</option>
+                </select>
+            </div>
 
+            <div class="create-template__element--delete" (click)="deleteElement(t)">
+                &#10006;
+            </div>
         </div>
-        <div class="create-template__new" (click)="addElement()">Add new section to report</div>
+
+        <div class="create-template__buttons">
+            Add: 
+            <div class="create-template__new" (click)="addElement()">Sentence</div>
+            <div class="create-template__new" (click)="addParagraph()">P</div>
+        </div>
     </div>
     
 </div>
+
+<div class="divider-line divider-line__thin u__margin-bottom--medium u__margin-top--medium"></div>
+    
+<div class="create-template__button-create">
+    <button class="create-template__button-create--button" (click)="createTemplate()" *ngIf="!templateSaved" [disabled]="canCreate()">{{ addingToDb ? "Creating Template..." : "Create Template" }}</button>
+    <button class="create-template__button-create--button" (click)="updateTemplate()" *ngIf="templateSaved" [disabled]="!templateUpdated || !templateSaved">{{ updatingDb ? "Updating Template..." : "Update Template" }}</button>
+</div>
+
 
 <div class="divider-line divider-line__thin u__margin-bottom--medium u__margin-top--medium"></div>
 
@@ -41,13 +62,8 @@
 
     <div class="create-template__label">Example</div>
     <div class="create-template__example--description">
-        This is an example report that would be created from this template for a student who:
-        <ul>
-            <li>Is Called Jimmy (Jim) Higgins</li>
-            <li>Has had a good semester, earning a B-, up from a C in the last semester.</li>
-        </ul>
+        <p>This is an example report that would be created from this template.</p>
+        <p>There are {{ exampleSentence.options }} potential report combinations for this template.</p>
     </div>
-    <div class="create-template__example-text">
-        
-    </div>
+    <div class="create-template__example-text" [innerHTML]="exampleSentence.report"></div>
 </div>

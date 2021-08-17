@@ -29,7 +29,7 @@ const routes: Routes = [
         {path: '', component: EditGroupComponent}
     ]},
     {path: 'auth', component: AuthComponent},
-    {path: 'sentences', component: SentencesComponent},
+    {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
         {path: 'sentences', component: AdminSentencesComponent},
         {path: 'users', component: AdminUsersComponent}

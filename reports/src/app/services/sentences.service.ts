@@ -112,6 +112,10 @@ export class SentencesService {
                     if(Array.isArray(sntncData[i].subcategories)) {
                         subData = sntncData[i].subcategories;
                     } else {
+                        // these two commented out lines were all that was here before infinite
+                        // use if this breaks the function.
+                        // sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
+                        // subData = sntncData[i].subcategories;
                         if(infinite || infinite === undefined) {
                             sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
                             subData = sntncData[i].subcategories;
@@ -176,80 +180,112 @@ export class SentencesService {
      * @param route 
      */
     //  generateSentenceOptions(route: string[]): void {
-     generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
-         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
-         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
- 
-         // iterate over each level of the sentence builder...
-         data.forEach((stem: sentence[], depth: number) => {
-             // iterate overall options within a level
-             const oldSentences = [...sentences];
- 
-             stem.forEach((newStem: sentence) => {
-                 
-                 if(newStem.sentence) {
-                     newStem.sentence.forEach((sentenceStem: string) => {
-                         
-                         const sentence = sentenceStem;
-                         const starter = newStem.starter ? newStem.starter : false;
-         
-                         if(sentence) {
-                             oldSentences.forEach((previousSentence, idx) => {
-                                 let newSentence: string = previousSentence.sentence + sentence;
-         
-                                 // only if the new sentence is deeper than the old sentence can it be added.
-                                 // peers do not add (sentences with the same depth)
-                                 if(previousSentence.depth < (depth + 1)) {
-                                     if(starter) {
-                                         // if this is a starting sentence it should both add to previous elements
-                                         // and have its own element.
-                                         // ADD TO PREVIOUS SENTENCE
-                                         sentences.push({sentence: newSentence, depth: depth, delete: false});
-                                         sentences[idx].delete = true;
-                                         // ADD NEW ELEMENT WITH THIS AS THE STARTER
-                                         sentences.push({sentence: sentence, depth: depth, delete: false});
-                                     } else {
-                                         // if this is NOT a starting element it should add to previous elements
-                                         // but NOT be added as its own element. Previous elements cannot happen without this
-                                         // so the previous element should be flagged for deletion.
-                                         // ADD TO PREVIOUS SENTENCE
-                                         sentences.push({sentence: newSentence, depth: depth, delete: false});
-                                         // DELETE THE PREVIOUS SENTENCE
-                                         sentences[idx].delete = true;
-                                     }
-                                 }
-                             })
-                         }
-                     });
-                 }
-             })
- 
-             // after the first iteration remove the blank first entry
-             if(depth === 0) { sentences.splice(0, 1); }
- 
-             // iterate over the sentences and delete all that need to be deleted.
-             for(let i = sentences.length - 1 ; i >= 0 ; i--) {
-                 if(sentences[i].delete === true) {
-                     sentences.splice(i, 1);
-                 }
-             }
-             return sentences;
-         })
- 
-         // for some reason there are repeat sentences, delete them simply for now...
-         let unfiltered: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
-         unfiltered.shift(); // this is so hax :/
+    generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
+        const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
+        let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
 
-         sentences.forEach(a => {
-             let i = unfiltered.findIndex(b => a.sentence === b.sentence);
-             i === -1 ? unfiltered.push(a) : null;
-         })
+        // iterate over each level of the sentence builder...
+        data.forEach((stem: sentence[], depth: number) => {
+            // iterate overall options within a level
+            const oldSentences = [...sentences];
+
+            stem.forEach((newStem: sentence) => {
+                 
+                if(newStem.sentence) {
+                    newStem.sentence.forEach((sentenceStem: string) => {
+                // if (options) {
+                    // options.forEach((sentenceStem: string) => {
+
+                        const sentence = sentenceStem;
+                        const starter = newStem.starter ? newStem.starter : false;
+        
+                        if(sentence) {
+                            oldSentences.forEach((previousSentence, idx) => {
+                                let newSentence: string = previousSentence.sentence + sentence;
+        
+                                // only if the new sentence is deeper than the old sentence can it be added.
+                                // peers do not add (sentences with the same depth)
+                                if(previousSentence.depth < (depth + 1)) {
+                                    if(starter) {
+                                        // if this is a starting sentence it should both add to previous elements
+                                        // and have its own element.
+                                        // ADD TO PREVIOUS SENTENCE
+                                        sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                        sentences[idx].delete = true;
+                                        // ADD NEW ELEMENT WITH THIS AS THE STARTER
+                                        sentences.push({sentence: sentence, depth: depth, delete: false});
+                                    } else {
+                                        // if this is NOT a starting element it should add to previous elements
+                                        // but NOT be added as its own element. Previous elements cannot happen without this
+                                        // so the previous element should be flagged for deletion.
+                                        // ADD TO PREVIOUS SENTENCE
+                                        sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                        // DELETE THE PREVIOUS SENTENCE
+                                        sentences[idx].delete = true;
+                                    }
+                                }
+                            })
+                        }
+                    });
+                }
+            })
+
+            // after the first iteration remove the blank first entry
+            if(depth === 0) { sentences.splice(0, 1); }
+
+            // iterate over the sentences and delete all that need to be deleted.
+            for(let i = sentences.length - 1 ; i >= 0 ; i--) {
+                if(sentences[i].delete === true) {
+                    sentences.splice(i, 1);
+                }
+            }
+            return sentences;
+        })
+
+        // for some reason there are repeat sentences, delete them simply for now...
+        let unfiltered: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
+        unfiltered.shift(); // this is so hax :/
+
+        sentences.forEach(a => {
+            let i = unfiltered.findIndex(b => a.sentence === b.sentence);
+            i === -1 ? unfiltered.push(a) : null;
+        })
 
         // sort by length
         unfiltered.sort((a: {sentence: string, depth: number, delete: boolean}, b: {sentence: string, depth: number, delete: boolean}) => { return a.sentence.length - b.sentence.length });
         
         return unfiltered;
-     }
+    }
+
+    /**
+     * Generates an example sentence and gives the quantity of potential reports for this template
+     * @param routeArray 
+     * @returns 
+     */
+    generateExampleReport(routeArray: [string[]]): {report: string, options: number} {
+        let report: string = "";
+        let quantity: number = 1;
+
+        routeArray.forEach((route: string[], i: number) => {
+            // check if its a new paragraph...
+            if(route[0] === "newParagraph") {
+                report += "</p><p>";
+            } else {
+                // starting paragraph tag
+                if(i === 0) { report += "<p>"; }
+
+                // generate sentence option 1
+                const str = this.generateSentenceOptions(route);
+                quantity = quantity * str.length;
+                report += str[0].sentence;
+
+                // close paragraph tag
+                if (i === routeArray.length - 1) { report += "</p>"; }
+            }
+        })
+
+        return {report: report, options: quantity};
+    }
 
     /**
      * The function used to modify the array - called with a callback from a separate function

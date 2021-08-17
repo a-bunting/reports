@@ -7,13 +7,13 @@ import { User } from '../utilities/authentication/user.model';
 
 export interface TemplateDB {
     manager: string; public: boolean; 
-    name: string; characters: {min: number, max: number}; paragraphs: number;
+    name: string; characters: {min: number, max: number};
     template: string[]
 }
 
 export interface Template {
     id: string; public: boolean; 
-    name: string; characters: {min: number, max: number}; paragraphs: number;
+    name: string; characters: {min: number, max: number};
     template: [string[]]
 }
 
@@ -26,6 +26,7 @@ export class TemplatesComponent implements OnInit {
 
     templates: Template[] = [];
     user: User;
+    isLoading: boolean = false;
 
     constructor(private db: DatabaseService, private auth: AuthenticationService) { 
         auth.user.subscribe((user: User) => {
@@ -34,6 +35,7 @@ export class TemplatesComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.isLoading = true;
         this.db.getTemplates().pipe(take(1)).subscribe((templates: QuerySnapshot<any>) => {
             templates.forEach((template: DocumentSnapshot<TemplateDB>) => {
                 let temp = template.data();
@@ -51,7 +53,6 @@ export class TemplatesComponent implements OnInit {
                     name: temp.name,
                     public: temp.public,
                     characters: { min: temp.characters.min, max: temp.characters.max }, 
-                    paragraphs: temp.paragraphs,
                     template: routes
                 }
 
@@ -60,6 +61,8 @@ export class TemplatesComponent implements OnInit {
             })
         }, error => {
             console.log(`Error: ${error.message}`);
+        }, () => {
+            this.isLoading = false;
         })
     }
 

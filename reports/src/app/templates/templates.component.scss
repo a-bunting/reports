@@ -4,6 +4,9 @@
     margin-top: 1rem;
 
     &__list {
+        position: relative;
+        min-height: 10rem;
+
         flex: 0 1 30rem;
 
         display: flex;

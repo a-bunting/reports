@@ -3,6 +3,12 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
+import { Template, TemplateDB } from '../templates.component';
+import { DocumentReference } from '@angular/fire/firestore';
+import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
+import { take } from 'rxjs/operators';
+import { generate } from 'rxjs';
+
 
 @Component({
   selector: 'app-create-template',
@@ -18,6 +24,8 @@ export class CreateTemplateComponent implements OnInit {
     initialData: sentence[];
 
     templateRoutes: [string[]];
+    templateName: string = "";
+    templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
     constructor(private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
         auth.user.subscribe((user: User) => {
@@ -41,6 +49,77 @@ export class CreateTemplateComponent implements OnInit {
         })
     }
 
+    templateUpdated: boolean = false;
+    templateSaved: boolean = false;
+    savedTemplate: TemplateDB;
+
+    generateTemplate(): TemplateDB {
+        // parse the template first
+        let parsedTemplate: string[] = [];
+        // iterate and put it in databaseformat.
+        this.templateRoutes.forEach((template: string[]) => {
+            let newTemplate: string = "";
+            // concatenate the routes...
+            template.forEach((temp: string, i: number) => {
+                if(i !== 0) {
+                    newTemplate += "|";
+                }
+                newTemplate += temp;
+            })
+            parsedTemplate.push(newTemplate);
+        })
+
+        return {
+            name: this.templateName, 
+            characters: {   min: this.templateCharacters.min, 
+                            max: this.templateCharacters.max
+                        },
+            manager: this.user.id, 
+            public: false, 
+            template: parsedTemplate
+        }
+    }
+
+    createTemplate(): void {
+        
+        let newTemplate: TemplateDB = this.generateTemplate();
+        this.addingToDb = true;
+
+        this.db.addTemplate(newTemplate).pipe(take(1)).subscribe((ret: DocumentReference) => {
+            // success
+            this.templateId = ret.id;
+        }, error => {
+            console.log(`Error: ${error.message}`);
+        }, () => {
+            this.addingToDb = false;
+            this.savedTemplate = newTemplate;
+            this.templateSaved = true;
+            this.templateUpdated = false;
+        })
+    }
+
+    updatingDb: boolean = false;
+
+    updateTemplate(): void {
+
+        let newTemplate: TemplateDB = this.generateTemplate();
+        this.updatingDb = true;
+
+        this.db.updateTemplate(newTemplate, this.templateId).pipe(take(1)).subscribe(() => {
+            // success
+            
+        }, error => {
+            console.log(`Error: ${error.message}`);
+        }, () => {
+            this.updatingDb = false;
+            this.savedTemplate = newTemplate;
+        })
+
+    }
+
+    addingToDb: boolean = false;
+    templateId: string;
+
     addElement(): void {
         if(this.templateRoutes !== undefined) {
             this.templateRoutes.push([""]);
@@ -60,20 +139,62 @@ export class CreateTemplateComponent implements OnInit {
                     ['name']
                 );
         }
-        // set the view data
 
-        console.log(this.viewData[this.viewData.length-1]);
+        this.checkForUpdates();
+        this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+    }
+
+    exampleSentence: {report: string; options: number} = {report: "", options: 0};
+
+    deleteElement(elementId: number): void {
+        this.templateRoutes.splice(elementId, 1);
+        this.viewData.splice(elementId, 1);
+        this.checkForUpdates();
+    }
+
+    addParagraph(): void {
+        if(this.templateRoutes !== undefined) {
+            this.templateRoutes.push(["newParagraph"]);
+            this.viewData.push(null);
+        } else {
+            this.templateRoutes = [["newParagraph"]];
+            this.viewData[0] = null;
+        }
+        this.checkForUpdates();
     }
 
     updateElementRoute(elementId: number, index: number, id: string): void {
-        console.log(elementId, index, id);
-        console.log(this.templateRoutes[elementId]);
         this.templateRoutes[elementId][index+1] = id;
-        console.log(this.templateRoutes[elementId]);
         this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name'], false);
-        console.log(this.viewData[elementId]);
+        this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
     }
 
+    checkForUpdates(): boolean {
+        let currentTemplate: string = JSON.stringify(this.generateTemplate());
+        let oldTemplate: string = JSON.stringify(this.savedTemplate);
 
+        if(currentTemplate === oldTemplate) {
+            this.templateUpdated = false;
+            return false;
+        } else {
+            this.templateUpdated = true;
+            return true;
+        }
+    }
+
+    canCreate(): boolean {
+        if(this.templateSaved === false) {
+            if(this.templateName !== "" && this.templateCharacters.min && this.templateCharacters.max) {
+                if(this.templateCharacters.min < this.templateCharacters.max) {
+                    if(this.templateRoutes) {
+                        if(this.templateRoutes.length > 0) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
 }
