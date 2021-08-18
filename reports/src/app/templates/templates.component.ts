@@ -28,14 +28,27 @@ export class TemplatesComponent implements OnInit {
     user: User;
     isLoading: boolean = false;
 
-    constructor(private db: DatabaseService, private auth: AuthenticationService) { 
-        auth.user.subscribe((user: User) => {
+    constructor(private db: DatabaseService, private auth: AuthenticationService) {
+        this.isLoading = true;
+    
+        this.auth.user.subscribe((user: User) => {
             this.user = user;
+            // once the user is loaded then data can be retrived
+            this.getTemplates();
+            this.isLoading = false;
+        }, error => {
+            console.log(`Error: ${error.message}`);
+            this.isLoading = false;
         })
     }
 
     ngOnInit(): void {
-        this.isLoading = true;
+    }
+
+    /**
+     * Get the templates already made by the user.
+     */
+    private getTemplates() {
         this.db.getTemplates().pipe(take(1)).subscribe((templates: QuerySnapshot<any>) => {
             templates.forEach((template: DocumentSnapshot<TemplateDB>) => {
                 let temp = template.data();
@@ -45,25 +58,22 @@ export class TemplatesComponent implements OnInit {
                 temp.template.forEach((route: string) => {
                     const routeIds: string[] = route.split("|");
                     routes.push(routeIds);
-                })
+                });
 
                 // build the new template data to use in the app
                 let newTemplate: Template = {
-                    id: template.id, 
+                    id: template.id,
                     name: temp.name,
                     public: temp.public,
-                    characters: { min: temp.characters.min, max: temp.characters.max }, 
+                    characters: { min: temp.characters.min, max: temp.characters.max },
                     template: routes
-                }
+                };
 
                 // and add to the templayte object
-                this.templates.push(newTemplate);                
-            })
+                this.templates.push(newTemplate);
+            });
         }, error => {
             console.log(`Error: ${error.message}`);
-        }, () => {
-            this.isLoading = false;
         })
     }
-
 }

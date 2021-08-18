@@ -8,6 +8,7 @@ import { DocumentReference } from '@angular/fire/firestore';
 import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
 import { generate } from 'rxjs';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 
 @Component({
@@ -27,16 +28,24 @@ export class CreateTemplateComponent implements OnInit {
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
-    constructor(private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
-        auth.user.subscribe((user: User) => {
+    constructor(private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService, private santizier: DomSanitizer) { 
+        this.isLoading = true;
+
+        this.auth.user.subscribe((user: User) => {
             this.user = user;
+            // once the user data is loaded...
+            // get the sentence data from the database...
+            this.getSentencesDatabase();
         })
     }
 
-    ngOnInit(): void {
-        this.isLoading = true;
+    ngOnInit(): void {}
 
-        // get the sentence data from the database...
+    templateUpdated: boolean = false;
+    templateSaved: boolean = false;
+    savedTemplate: TemplateDB;
+
+    private getSentencesDatabase() {
         this.sentenceService.getSentencesDatabase(this.user.id).subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
@@ -46,12 +55,8 @@ export class CreateTemplateComponent implements OnInit {
             console.log(`Error gathering the database: ${error.message}`);
         }, () => {
             this.isLoading = false;
-        })
+        });
     }
-
-    templateUpdated: boolean = false;
-    templateSaved: boolean = false;
-    savedTemplate: TemplateDB;
 
     generateTemplate(): TemplateDB {
         // parse the template first
