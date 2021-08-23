@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DatabaseService } from 'src/app/services/database.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
@@ -7,8 +7,9 @@ import { Template, TemplateDB } from '../templates.component';
 import { DocumentReference } from '@angular/fire/firestore';
 import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
-import { generate } from 'rxjs';
+import { generate, Observable, Subscription } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ActivatedRoute, Params, RouterLink, RouterLinkActive } from '@angular/router';
 
 
 @Component({
@@ -16,7 +17,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   templateUrl: './create-template.component.html',
   styleUrls: ['./create-template.component.scss']
 })
-export class CreateTemplateComponent implements OnInit {
+export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     user: User;
     isLoading: boolean = false;
@@ -24,11 +25,13 @@ export class CreateTemplateComponent implements OnInit {
     viewData: [[sentence[]]] = [[[]]];
     initialData: sentence[];
 
+    id: string;
+
     templateRoutes: [string[]];
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
-    constructor(private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService, private santizier: DomSanitizer) { 
+    constructor(private router: ActivatedRoute, private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
         this.isLoading = true;
 
         this.auth.user.subscribe((user: User) => {
@@ -37,9 +40,54 @@ export class CreateTemplateComponent implements OnInit {
             // get the sentence data from the database...
             this.getSentencesDatabase();
         })
+
+        
     }
 
-    ngOnInit(): void {}
+    paramObservable: Subscription;
+
+    ngOnInit(): void {
+        // subscribe to the parameter and if it changes then reload the information.
+        this.paramObservable = this.router.params.subscribe((params: Params) => {
+            this.id = params.id;
+            console.log(`trigger: ${this.id}`);
+            this.loadTemplate(this.id);
+        });
+    }
+
+    ngOnDestroy(): void {
+        // unsubscribe fromt he parameters observable.
+        this.paramObservable.unsubscribe();
+    }
+
+    /**
+     * Load the template 
+     * @param id 
+     */
+    loadTemplate(id: string | undefined): void {
+        if(id !== undefined) {
+            // this isnt a new template so its a database one, search for it...
+            this.db.getTemplate(id).pipe(take(1)).subscribe((template: DocumentSnapshot<TemplateDB>) => {
+                // and use the data to populate the template...
+                const templateData = template.data();
+                this.templateCharacters.min = templateData.characters.min;
+                this.templateCharacters.max = templateData.characters.max;
+                this.templateName = templateData.name;
+
+                // split the routes up intot heir paragraphs...
+                let newRoute: [string[]] = [[]];
+
+                templateData.template.forEach((route: string, index: number) => {
+                    let split = route.split("|");
+                    newRoute[index] = split;
+                })
+
+                this.templateRoutes = newRoute;
+
+                // AND THEN UPDATE THE ROUTES ETC
+            })
+        }
+    }
 
     templateUpdated: boolean = false;
     templateSaved: boolean = false;

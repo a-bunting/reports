@@ -22,7 +22,7 @@ const routes: Routes = [
     {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
     {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard, DemoGuard], children: [
         {path: 'create-template', component: CreateTemplateComponent},
-        {path: 'edit-template', component: EditTemplateComponent}
+        {path: 'create-template/:id', component: CreateTemplateComponent}
     ]},
     {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard], children: [
         {path: 'create-group', component: CreateGroupComponent},

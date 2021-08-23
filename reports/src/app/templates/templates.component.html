@@ -17,7 +17,7 @@
         </div>
 
         <!-- for each template that is retrieved from the database have an indivdual row -->
-        <div class="templates__template-selector" *ngFor="let template of templates; let i = index">
+        <div class="templates__template-selector" *ngFor="let template of templates; let i = index" routerLink="create-template/{{template.id}}">
             <div class="templates__template-selector--icon">
                 &#x268F;
             </div>

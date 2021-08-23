@@ -81,6 +81,12 @@ export class DatabaseService {
         return this.firebase.collection('templates', template => template.where('manager', '==', this.user.id) || template.where('open','==', true)).get();
     }
 
+    
+    getTemplate(id: string): Observable<any> {
+        this.readOperation();
+        return this.firebase.collection('templates').doc(id).get();
+    }
+
     addTemplate(data: TemplateDB): Observable<any> {
         this.writeOperation();
         return from(this.firebase.collection('templates').add(data))
