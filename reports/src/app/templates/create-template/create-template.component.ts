@@ -74,17 +74,25 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                 this.templateCharacters.max = templateData.characters.max;
                 this.templateName = templateData.name;
 
-                // split the routes up intot heir paragraphs...
-                let newRoute: [string[]] = [[]];
+                // split the routes up into their paragraphs...
+                this.viewData = [[[]]];
+                this.templateRoutes = undefined;
 
-                templateData.template.forEach((route: string, index: number) => {
+                templateData.template.forEach((route: string, elementId: number) => {
                     let split = route.split("|");
-                    newRoute[index] = split;
+
+                    if(split[0] === "newParagraph") {
+                        // add a new paragraph.
+                        this.addParagraph();
+                    } else {
+                        // add a new element and add all the routes to it.
+                        this.addElement();
+                        // add routes.
+                        split.forEach((routeCode: string, index: number) => {
+                            this.updateElementRoute(elementId, index - 1, routeCode);
+                        })
+                    }
                 })
-
-                this.templateRoutes = newRoute;
-
-                // AND THEN UPDATE THE ROUTES ETC
             })
         }
     }
