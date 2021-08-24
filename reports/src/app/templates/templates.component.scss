@@ -17,10 +17,11 @@
     &__template-selector {
         display: flex;
         font-size: 1.6rem;
-        padding: .5rem 1rem;
+        padding: .1rem .8rem;
         background-color: var(--color-style-dark);
         color: var(--color-style-light);
         border-radius: .5rem;
+        border: solid transparent .2rem;
 
         transition: all .2s;
 
@@ -41,6 +42,12 @@
         &--text {
             margin-left: 1rem;
             align-self: center;
+        }
+
+        &--selected {
+            background-color: var(--color-style-juxtapose);
+            color: var(--color-style-verydark);
+            border: solid white .2rem;
         }
     }
 

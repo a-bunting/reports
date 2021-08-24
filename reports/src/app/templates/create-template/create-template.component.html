@@ -1,16 +1,13 @@
 <div class="create-template__form">
 
     <div class="create-template__label">Name</div>
-    <input class="create-template__input create-template__input--name" id="templateName" [(ngModel)]="templateName">
+    <input class="create-template__input create-template__input--name" (keyup)="checkForUpdates()" id="templateName" [(ngModel)]="templateName">
 
-    <!-- <div class="create-template__label">Paragraph Count</div>
-    <input type="text" class="create-template__input create-template__input--number" id="paragraphCount" value="1">
-     -->
     <div class="create-template__label">Character Limit</div>
     <div class="create-template__characters">
-        <input type="number" class="create-template__input create-template__input--number" id="charMin" [(ngModel)]="templateCharacters.min" placeholder="from">
+        <input type="number" class="create-template__input create-template__input--number" (keyup)="checkForUpdates()" id="charMin" [(ngModel)]="templateCharacters.min" placeholder="from">
         <span>to</span>
-        <input type="number" class="create-template__input create-template__input--number" id="charMax" [(ngModel)]="templateCharacters.max" placeholder="to">
+        <input type="number" class="create-template__input create-template__input--number" (keyup)="checkForUpdates()" id="charMax" [(ngModel)]="templateCharacters.max" placeholder="to">
     </div>    
 </div>
 
@@ -51,8 +48,9 @@
 <div class="divider-line divider-line__thin u__margin-bottom--medium u__margin-top--medium"></div>
     
 <div class="create-template__button-create">
-    <button class="create-template__button-create--button" (click)="createTemplate()" *ngIf="!templateSaved" [disabled]="canCreate()">{{ addingToDb ? "Creating Template..." : "Create Template" }}</button>
-    <button class="create-template__button-create--button" (click)="updateTemplate()" *ngIf="templateSaved" [disabled]="!templateUpdated || !templateSaved">{{ updatingDb ? "Updating Template..." : "Update Template" }}</button>
+    <button class="create-template__button-create--button" (click)="createTemplate()" *ngIf="!templateSaved && !templateId" [disabled]="canCreate()">{{ addingToDb ? "Creating Template..." : "Create Template" }}</button>
+    <button class="create-template__button-create--button" (click)="updateTemplate()" *ngIf="templateSaved || templateId" [disabled]="!templateUpdated || !templateSaved">{{ updatingDb ? "Updating Template..." : "Update Template" }}</button>
+    <button class="create-template__button-create--button" (click)="deleteTemplate()" *ngIf="templateSaved || templateId" [disabled]="deletingTemplate">{{ deletingTemplate ? "Deleting Template..." : "Delete Template" }}</button>
 </div>
 
 

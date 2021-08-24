@@ -25,8 +25,6 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     viewData: [[sentence[]]] = [[[]]];
     initialData: sentence[];
 
-    id: string;
-
     templateRoutes: [string[]];
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
@@ -49,9 +47,8 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // subscribe to the parameter and if it changes then reload the information.
         this.paramObservable = this.router.params.subscribe((params: Params) => {
-            this.id = params.id;
-            console.log(`trigger: ${this.id}`);
-            this.loadTemplate(this.id);
+            this.templateId = params.id;
+            this.loadTemplate(this.templateId);
         });
     }
 
@@ -89,10 +86,19 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                         this.addElement();
                         // add routes.
                         split.forEach((routeCode: string, index: number) => {
-                            this.updateElementRoute(elementId, index - 1, routeCode);
+                            try {
+                                this.updateElementRoute(elementId, index - 1, routeCode);
+                            } catch (error) {
+                                console.log(`Error: ${error}`);
+                                this.deleteElement(this.templateRoutes.length - 1);
+                            }
                         })
                     }
                 })
+
+                this.savedTemplate = this.generateTemplate();
+                this.templateUpdated = false;
+                this.templateSaved = true;
             })
         }
     }
@@ -256,6 +262,19 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             }
         }
         return true;
+    }
+
+    deletingTemplate: boolean = false;
+
+    deleteTemplate(): void {
+        this.deletingTemplate = true;
+        this.db.deleteTemplate(this.templateId).subscribe(() => {
+            // success... reload?
+            this.deletingTemplate = false;
+        }, error => {
+            console.log(`Error deleting template: ${error}`);
+            this.deletingTemplate = false;
+        })
     }
 
 }

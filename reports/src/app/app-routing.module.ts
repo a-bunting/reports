@@ -5,7 +5,6 @@ import { AdminSentencesComponent } from './admin/sentences/admin-sentences.compo
 import { ClassesComponent } from './classes/classes.component';
 import { ReportsComponent } from './reports/reports.component';
 import { CreateTemplateComponent } from './templates/create-template/create-template.component';
-import { EditTemplateComponent } from './templates/edit-template/edit-template.component';
 import { TemplatesComponent } from './templates/templates.component';
 import { AuthComponent } from './utilities/auth/auth.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
