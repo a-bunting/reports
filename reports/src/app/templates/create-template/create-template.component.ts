@@ -51,6 +51,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                 this.changeEmitter(false, false, this.savedTemplate.name);
             }
             this.templateId = params.id;
+
             this.loadTemplate(this.templateId);
         });
     }
@@ -103,6 +104,8 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                 this.templateUpdated = false;
                 this.templateSaved = true;
             })
+
+            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
         }
     }
 
