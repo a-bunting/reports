@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DatabaseService } from 'src/app/services/database.service';
+import { TemplatesService } from 'src/app//services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { Template, TemplateDB } from '../templates.component';
+import { TemplateDB } from '../templates.component';
 import { DocumentReference } from '@angular/fire/firestore';
 import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
-import { generate, Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute, Params, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
-    constructor(private router: ActivatedRoute, private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
+    constructor(private router: ActivatedRoute, private navigation: Router, private templateService: TemplatesService, private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
         this.isLoading = true;
 
         this.auth.user.subscribe((user: User) => {
@@ -38,8 +39,6 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             // get the sentence data from the database...
             this.getSentencesDatabase();
         })
-
-        
     }
 
     paramObservable: Subscription;
@@ -47,6 +46,10 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // subscribe to the parameter and if it changes then reload the information.
         this.paramObservable = this.router.params.subscribe((params: Params) => {
+            // if no changes were saved for previous template then send the data back to the templates.ts
+            if(this.templateUpdated) {
+                this.changeEmitter(false, false, this.savedTemplate.name);
+            }
             this.templateId = params.id;
             this.loadTemplate(this.templateId);
         });
@@ -155,13 +158,14 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.db.addTemplate(newTemplate).pipe(take(1)).subscribe((ret: DocumentReference) => {
             // success
             this.templateId = ret.id;
-        }, error => {
-            console.log(`Error: ${error.message}`);
-        }, () => {
             this.addingToDb = false;
             this.savedTemplate = newTemplate;
             this.templateSaved = true;
             this.templateUpdated = false;
+            this.changeEmitter(false, true, this.templateName);
+            this.navigation.navigate(['templates/create-template/' + this.templateId]);
+        }, error => {
+            console.log(`Error: ${error.message}`);
         })
     }
 
@@ -174,14 +178,12 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
         this.db.updateTemplate(newTemplate, this.templateId).pipe(take(1)).subscribe(() => {
             // success
-            
-        }, error => {
-            console.log(`Error: ${error.message}`);
-        }, () => {
             this.updatingDb = false;
             this.savedTemplate = newTemplate;
+            this.templateUpdated = false;
+        }, error => {
+            console.log(`Error: ${error.message}`);
         })
-
     }
 
     addingToDb: boolean = false;
@@ -237,16 +239,19 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     }
 
     checkForUpdates(): boolean {
-        let currentTemplate: string = JSON.stringify(this.generateTemplate());
-        let oldTemplate: string = JSON.stringify(this.savedTemplate);
-
-        if(currentTemplate === oldTemplate) {
-            this.templateUpdated = false;
-            return false;
-        } else {
-            this.templateUpdated = true;
-            return true;
+        if(this.savedTemplate) {
+            let currentTemplate: string = JSON.stringify(this.generateTemplate());
+            let oldTemplate: string = JSON.stringify(this.savedTemplate);
+    
+            if(currentTemplate === oldTemplate) {
+                this.templateUpdated = false;
+                return false;
+            } else {
+                this.templateUpdated = true;
+                return true;
+            }
         }
+        return undefined;
     }
 
     canCreate(): boolean {
@@ -271,10 +276,25 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.db.deleteTemplate(this.templateId).subscribe(() => {
             // success... reload?
             this.deletingTemplate = false;
+            // remove from the list
+            this.changeEmitter(true);
+            // reload this page to a blank version...
+            this.navigation.navigate(['templates/create-template']);
         }, error => {
             console.log(`Error deleting template: ${error}`);
             this.deletingTemplate = false;
         })
+    }
+
+    changeEmitter(deleted: boolean = false, created: boolean = false, name: string = this.templateName): void {
+        // only smit if the template is saved already...
+        if(this.templateSaved) {
+            const del: boolean = deleted ? deleted : false;
+            const cre: boolean = created ? created : false;
+            const emit: {id: string, name: string, deleted: boolean, created: boolean} = {id: this.templateId, name: name, deleted: del, created: cre};
+            // and emit...
+            this.templateService.dataChange(emit);
+        }
     }
 
 }

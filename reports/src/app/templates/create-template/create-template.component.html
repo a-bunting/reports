@@ -1,7 +1,7 @@
 <div class="create-template__form">
 
     <div class="create-template__label">Name</div>
-    <input class="create-template__input create-template__input--name" (keyup)="checkForUpdates()" id="templateName" [(ngModel)]="templateName">
+    <input class="create-template__input create-template__input--name" (keyup)="checkForUpdates()" (keyup)="changeEmitter()" id="templateName" [(ngModel)]="templateName">
 
     <div class="create-template__label">Character Limit</div>
     <div class="create-template__characters">
@@ -56,7 +56,7 @@
 
 <div class="divider-line divider-line__thin u__margin-bottom--medium u__margin-top--medium"></div>
 
-<div class="create-template__example">
+<div class="create-template__example" *ngIf="exampleSentence.report">
 
     <div class="create-template__label">Example</div>
     <div class="create-template__example--description">

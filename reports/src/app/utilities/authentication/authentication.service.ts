@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { auth } from 'firebase/firebase-auth';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { UserCredential, IdTokenResult } from '@firebase/auth-types';
 import { AngularFirestore, AngularFirestoreDocument, DocumentSnapshot } from '@angular/fire/firestore';
@@ -74,6 +75,16 @@ export class AuthenticationService {
         });
 
         return from(signUp);
+    }
+
+    /** GOOGLE SIGN IN OPTIONS UNFINISHED */
+    signUpWithGoogle(): void {
+        const provider = new auth.signUpWithGoogle();
+    }
+    
+    signInWithGoogle(): void {
+        const provider = new auth.signInWithGoogle();
+        const credential = this.fAuth.signInWithPopup(provider);
     }
 
     /**
