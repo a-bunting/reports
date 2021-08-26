@@ -266,9 +266,6 @@ export class SentencesService {
         let report: string = "";
         let quantity: number = 1;
 
-        // sometimes this is undefined... why?
-        console.log(routeArray);
-
         routeArray.forEach((route: string[], i: number) => {
             // check if its a new paragraph...
             if(route[0] === "newParagraph") {

@@ -1,1 +1,86 @@
-<h1 class="component-title">Reports</h1>
+<div class="component-intro">
+    <h1 class="component-intro__title">Reports</h1>
+    <h4 class="component-intro__description">
+        This is where you generate your reports. Ensure before you attempt to create any reports that you have set up your classes and templates.
+    </h4>
+    <div class="reports__controls-top">
+        <div class="reports__load-dropdown">
+            <div class="reports__load-dropdown--element">Load Report Set</div>
+            <div class="reports__load-dropdown--element">
+                <select name="loadreports" id="loadreports" class="reports__input reports__input--select">
+                    <option value="" selected></option>
+                    <option value="test">Test 1 with a real long name</option>
+                </select>
+            </div>
+        </div>
+        <div class="reports__header-buttons">
+            <div class="reports__header-buttons reports__button">New</div>
+            <div class="reports__header-buttons reports__button">Duplicate</div>
+        </div>
+    </div>
+</div>
+
+<div class="divider-line divider-line__thin u__margin-top--medium"></div>
+
+<div class="reports__options">
+    <div class="reports__settings">
+
+        <div class="reports__settings--flex">
+            <div class="reports__settings--setting">
+                <div class="reports__settings--text">Reports Name</div>
+                <div class="reports__settings--input">
+                    <input type="text" name="reportsname" id="reportsname" class="reports__input reports__input--text">
+                </div>
+            </div>
+            <div class="reports__settings--setting">
+                <div class="reports__settings--text">Class</div>
+                <div class="reports__settings--input">
+                    <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select">
+                        <option value="tesxt1">Test Class 1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="reports__settings--setting">
+                <div class="reports__settings--text">Template</div>
+                <div class="reports__settings--input">
+                    <select name="reportstemplate" id="reportstemplate" class="reports__input reports__input--select">
+                        <option value="tesxt1">Test Template 1</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="reports__database-buttons">
+            <div class="reports__button">Save</div>
+            <div class="reports__button">Update</div>
+        </div>
+    </div>
+</div>
+
+<div class="reports__data">
+    <table class="reports__data--table">
+        <thead>
+            <tr class="reports__data--row reports__data--header">
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="reports__data--row reports__data--data">
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+            </tr>
+            <tr class="reports__data--row reports__data--data">
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+                <td class="reports__data--cell">this</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+    

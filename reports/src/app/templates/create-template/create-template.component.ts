@@ -8,7 +8,7 @@ import { TemplateDB } from '../templates.component';
 import { DocumentReference } from '@angular/fire/firestore';
 import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -31,29 +31,42 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
     constructor(private router: ActivatedRoute, private navigation: Router, private templateService: TemplatesService, private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
-        this.isLoading = true;
-
-        this.auth.user.subscribe((user: User) => {
-            this.user = user;
-            // once the user data is loaded...
-            // get the sentence data from the database...
-            this.getSentencesDatabase();
-        })
     }
 
     paramObservable: Subscription;
 
     ngOnInit(): void {
-        // subscribe to the parameter and if it changes then reload the information.
-        this.paramObservable = this.router.params.subscribe((params: Params) => {
-            // if no changes were saved for previous template then send the data back to the templates.ts
-            if(this.templateUpdated) {
-                this.changeEmitter(false, false, this.savedTemplate.name);
-            }
-            this.templateId = params.id;
+        this.isLoading = true;
 
-            this.loadTemplate(this.templateId);
+        // get the user data...
+        this.auth.user.subscribe((user: User) => {
+            // set the user
+            this.user = user;
+
+            // get the sentence database...
+            this.sentenceService.getSentencesDatabase(user.id).pipe(take(1)).subscribe((data: sentence) => {
+                const sentenceData: sentence[] = [data];
+                // set the data on the display
+                this.initialData = JSON.parse(JSON.stringify(sentenceData));
+                this.sentenceData = JSON.parse(JSON.stringify(sentenceData));
+                this.isLoading = false;
+    
+                // set an observable...
+                // subscribe to the parameter and if it changes then reload the information.
+                this.paramObservable = this.router.params.subscribe((params: Params) => {
+                    // if no changes were saved for previous template then send the data back to the templates.ts
+                    if(this.templateUpdated) {
+                        this.changeEmitter(false, false, this.savedTemplate.name);
+                    }
+                    // set the id and load the template
+                    this.templateId = params.id;
+                    this.loadTemplate(this.templateId);
+                });
+            }, (error) => { console.log(`Error gathering the database: ${error.message}`); });
+
         });
+
+        
     }
 
     ngOnDestroy(): void {
@@ -103,9 +116,9 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                 this.savedTemplate = this.generateTemplate();
                 this.templateUpdated = false;
                 this.templateSaved = true;
+                this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
             })
 
-            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
         }
     }
 
@@ -113,7 +126,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     templateSaved: boolean = false;
     savedTemplate: TemplateDB;
 
-    private getSentencesDatabase() {
+    private getSentencesDatabase(): void {
         this.sentenceService.getSentencesDatabase(this.user.id).subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
