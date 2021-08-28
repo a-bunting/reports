@@ -36,7 +36,7 @@
                 <div class="reports__settings--text">Class</div>
                 <div class="reports__settings--input">
                     <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select">
-                        <option value="tesxt1">Test Class 1</option>
+                        <option value="grp.id" *ngFor="let grp of groups; let i = index">{{grp.name}}</option>
                     </select>
                 </div>
             </div>

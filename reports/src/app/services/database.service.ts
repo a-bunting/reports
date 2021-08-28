@@ -48,7 +48,7 @@ export class DatabaseService {
      * Get all the groups this user is a part of
      * @returns Observable<QuerySnapshot<any>> to subscribe to...
      */
-    getGroups(): Observable<QuerySnapshot<any>> {
+    getGroups(): Observable<any> {
         this.readOperation();
         return this.firebase.collection('group', grp => grp.where('managers', 'array-contains', this.user.id)).get();
     }

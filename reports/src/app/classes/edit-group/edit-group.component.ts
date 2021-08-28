@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
+import { GroupsService } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { DatabaseService } from '../../services/database.service';
@@ -19,7 +20,7 @@ export class EditGroupComponent implements OnInit {
     loadingFailure: boolean = false;
     user: User;
 
-    constructor(private db: DatabaseService, private auth: AuthenticationService) { 
+    constructor(private db: DatabaseService, private auth: AuthenticationService, private groupService: GroupsService) { 
         // get the user info...
         auth.user.subscribe((user: User) => {
             this.user = user;
@@ -30,48 +31,25 @@ export class EditGroupComponent implements OnInit {
         this.loadGroups();
     }
 
-    // TO DO
-    // IN CREATE GROUP ADD THE KEYS TO THE DATABASE IN THE ORDER THEY ARE DISPLAYED
-    // THEN USE THEM AS THE ORDER IN THIS WHEN DISPLAYING...
-
+    /**
+     * load the groups database...
+     */
     loadGroups(): void {
         this.isLoading = true;
-        this.db.getGroups().pipe(take(1)).subscribe((groups: QuerySnapshot<any>) => {
-            // Iterate through the groups to see up the group data.
-            groups.forEach((grp: DocumentSnapshot<Group>) => {
-                let newData = grp.data();
-                let orderedStudents: Student[] = [];
-                newData['id'] = grp.id;
-
-                // rearrange the student data to have the same order of keys as the newData.keys array
-                newData.students.forEach((student: Student) => {
-                    let newStudent: Student = {};
-                    // arrange the keys by the keys array
-                    newData.keys.forEach((key: string) => {
-                        if(student[key]) {
-                            newStudent[key] = student[key];
-                        } else {
-                            newStudent[key] = "";
-                        }
-                    })
-                    // add the new student to the array
-                    orderedStudents.push(newStudent);
-                })
-                // push to the group data
-                newData.students = orderedStudents;
-                // changes data...
+        // subscribe to the load even in the group service which returns exactly one set of results.
+        this.groupService.getGroups().subscribe((groups: Group[]) => {
+            this.groups = groups;
+            // set the updated fields to false;
+            for(let i = 0 ; i < groups.length ; i++) {
                 this.updatedData.push(false);
                 this.updatingData.push(false);
-                this.groups.push(newData);
-            })
-            
-
+            }
+            // set it to loaded...
+            this.loadingFailure = false;
+            this.isLoading = false;
         }, (error) => {
             console.log(`Error loading groups: ${error.message}`);
             this.loadingFailure = true;
-            this.isLoading = false;
-        }, () => {
-            this.loadingFailure = false;
             this.isLoading = false;
         });
     }

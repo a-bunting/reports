@@ -38,7 +38,7 @@ export class TemplatesComponent implements OnInit {
         this.auth.user.subscribe((user: User) => {
             this.user = user;
             // once the user is loaded then data can be retrived
-            this.getTemplates();
+            this.getTemplatesNew();
             // subscribe tot he templates service in case this is changed...
             this.templateService.menuData.subscribe((newData: {id: string, name: string, deleted: boolean, created: boolean}) => {
                 const newId: any = this.templates.findIndex(element => element.id === newData.id);
@@ -51,6 +51,15 @@ export class TemplatesComponent implements OnInit {
             })
         }, error => {
             console.log(`Error: ${error.message}`);
+            this.isLoading = false;
+        })
+    }
+
+    // ADDED TO TEST AND NOT FULLY CONVERTED FROM OLD FUNCTION BELOW
+    // DO THIS NOW ALEX :D
+    getTemplatesNew(): void {
+        this.templateService.getTemplates().subscribe(templates => {
+            this.templates = templates;
             this.isLoading = false;
         })
     }
