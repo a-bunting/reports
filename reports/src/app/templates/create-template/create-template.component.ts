@@ -4,7 +4,7 @@ import { TemplatesService } from 'src/app//services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { TemplateDB } from '../templates.component';
+import { Template, TemplateDB } from '../templates.component';
 import { DocumentReference } from '@angular/fire/firestore';
 import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
@@ -139,21 +139,13 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         });
     }
 
+    /**
+     * From the enetred data generates a TemplateDB object
+     * @returns TemplateDB
+     */
     generateTemplate(): TemplateDB {
         // parse the template first
-        let parsedTemplate: string[] = [];
-        // iterate and put it in databaseformat.
-        this.templateRoutes.forEach((template: string[]) => {
-            let newTemplate: string = "";
-            // concatenate the routes...
-            template.forEach((temp: string, i: number) => {
-                if(i !== 0) {
-                    newTemplate += "|";
-                }
-                newTemplate += temp;
-            })
-            parsedTemplate.push(newTemplate);
-        })
+        let parsedTemplate: string[] = this.templateService.parseTemplate(this.templateRoutes);
 
         return {
             name: this.templateName, 
@@ -164,6 +156,15 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             public: false, 
             template: parsedTemplate
         }
+    }
+
+    createTemplateNew(): void {
+        // template
+        let newTemplate: Template = {
+            
+        }
+        this.templateService.addNewTemplate(this.template)
+
     }
 
     createTemplate(): void {
@@ -187,18 +188,35 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     updatingDb: boolean = false;
 
-    updateTemplate(): void {
 
-        let newTemplate: TemplateDB = this.generateTemplate();
+
+    /**
+     * Update the template in the database and in local storage...
+     */
+    updateTemplate(): void {
+        // generate a new template
+        let newTemplate: Template = {
+            id: this.templateId,
+            name: this.templateName, 
+            characters: {   min: this.templateCharacters.min, 
+                            max: this.templateCharacters.max
+                        },
+            public: false, 
+            template: this.templateRoutes
+        };
+        // set it as updating the db.
         this.updatingDb = true;
 
-        this.db.updateTemplate(newTemplate, this.templateId).pipe(take(1)).subscribe(() => {
+        // subscribe tot he templates service and update as apprpriate...
+        this.templateService.updateTemplate(newTemplate).subscribe(() => {
             // success
+            const newSavedTemplate: TemplateDB = this.generateTemplate();
+            // and set flags.
             this.updatingDb = false;
-            this.savedTemplate = newTemplate;
+            this.savedTemplate = newSavedTemplate;
             this.templateUpdated = false;
         }, error => {
-            console.log(`Error: ${error.message}`);
+            console.log(`Error updating database (local storage unaffected): ${error}`);
         })
     }
 

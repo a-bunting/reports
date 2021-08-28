@@ -44,7 +44,7 @@
                 <div class="reports__settings--text">Template</div>
                 <div class="reports__settings--input">
                     <select name="reportstemplate" id="reportstemplate" class="reports__input reports__input--select">
-                        <option value="tesxt1">Test Template 1</option>
+                        <option value="temp.id" *ngFor="let temp of templates; let i = index">{{temp.name}}</option>
                     </select>
                 </div>
             </div>

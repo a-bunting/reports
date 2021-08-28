@@ -55,43 +55,12 @@ export class TemplatesComponent implements OnInit {
         })
     }
 
-    // ADDED TO TEST AND NOT FULLY CONVERTED FROM OLD FUNCTION BELOW
-    // DO THIS NOW ALEX :D
+    /**
+     * Get the templates from the database...
+     */
     getTemplatesNew(): void {
         this.templateService.getTemplates().subscribe(templates => {
             this.templates = templates;
-            this.isLoading = false;
-        })
-    }
-
-    /**
-     * Get the templates already made by the user.
-     */
-    private getTemplates() {
-        this.db.getTemplates().pipe(take(1)).subscribe((templates: QuerySnapshot<any>) => {
-            templates.forEach((template: DocumentSnapshot<TemplateDB>) => {
-                let temp = template.data();
-                let routes: [string[]] = [[]];
-
-                // split the routes up(entered into db as 123456|abcdef etc)
-                temp.template.forEach((route: string) => {
-                    const routeIds: string[] = route.split("|");
-                    routes.push(routeIds);
-                });
-
-                // build the new template data to use in the app
-                let newTemplate: Template = {
-                    id: template.id,
-                    name: temp.name,
-                    public: temp.public,
-                    characters: { min: temp.characters.min, max: temp.characters.max },
-                    template: routes
-                };
-
-                // and add to the templayte object
-                this.templates.push(newTemplate);
-            });
-
             this.isLoading = false;
         }, error => {
             console.log(`Error: ${error.message}`);

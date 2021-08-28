@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DocumentData, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
-import { from, Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 import { Group, Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from './database.service';
 
@@ -11,7 +11,9 @@ import { DatabaseService } from './database.service';
 
 export class GroupsService {
 
-  constructor(private db: DatabaseService) { }
+    groups: Group[] = [];
+
+    constructor(private db: DatabaseService) { }
 
   /**
     * Get the best version of the groups and return it
@@ -19,11 +21,15 @@ export class GroupsService {
     * @returns 
    */
   getGroups(): Observable<Group[]> {
-        let groups: Group[] = [];
-
         // check if there is an instance of the groups database in localstorage...
         if(localStorage.getItem('groups-data') !== null) {
-        
+            // retrieve the data from local storage and parse it into the templates data...
+            this.groups = JSON.parse(localStorage.getItem('groups-data'));               
+            // set the data on the display
+            return of(this.groups).pipe(take(1), tap(returnData => {
+                // return the data array...
+                return returnData;
+            }));      
         } else {
             // need to retrive the data from the database...
             return this.db.getGroups().pipe(take(1), map((returnData: QuerySnapshot<any>) => {
@@ -49,12 +55,17 @@ export class GroupsService {
                     })
                     // push to the group data
                     newData.students = orderedStudents;
-                    groups.push(newData);
+                    this.groups.push(newData);
                 })
-    
-                return groups;
+                // set the data into local storage to make it quicker ot retrieve next time...
+                localStorage.setItem('groups-data', JSON.stringify(this.groups))
+
+                return this.groups;
             }))
         }
+  }
 
-  } 
+  addGroup(newGroup: Group): void {
+    this.groups.push(newGroup);
+  }
 }

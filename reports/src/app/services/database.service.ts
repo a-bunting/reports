@@ -16,7 +16,6 @@ export class DatabaseService {
 
     private user: User;
 
-    
     constructor(private auth: AuthenticationService, private http: HttpClient, private firebase: AngularFirestore) { 
         // subscribe to the user details;
         auth.user.subscribe((user: User) => {
