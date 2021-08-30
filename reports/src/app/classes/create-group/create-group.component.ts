@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
 import { DatabaseService } from 'src/app/services/database.service';
+import { GroupsService } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
 
@@ -30,7 +31,7 @@ export class CreateGroupComponent implements OnInit {
     dataChanged: boolean = false;
     groupId: string; // if the class has been created this will be populated with the database id.
 
-    constructor(private database: DatabaseService, private auth:AuthenticationService) { 
+    constructor(private groupService: GroupsService, private auth: AuthenticationService) { 
         auth.user.subscribe((user: User) => {
             this.user = user;
         })
@@ -53,7 +54,7 @@ export class CreateGroupComponent implements OnInit {
         group.students = students;
         group.keys = this.keys;
 
-        this.database.createGroup(group).subscribe((returnData: DocumentReference) => {
+        this.groupService.addGroup(group).subscribe((returnData: DocumentReference) => {
             console.log(`Success: ID ${returnData.id}`);
             this.groupId = returnData.id;
         }, (error) => {
@@ -78,7 +79,7 @@ export class CreateGroupComponent implements OnInit {
         group.students = students;
         group.keys = this.keys;
 
-        this.database.modifyGroup(group, this.groupId).subscribe(() => {
+        this.groupService.updateGroup(group, this.groupId).subscribe(() => {
             console.log(`Successfully modified data`);
             this.dataUpdated = true;
         }, (error) => {

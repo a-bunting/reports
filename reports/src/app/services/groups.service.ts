@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DocumentData, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
+import { DocumentData, DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of, Subject } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { Group, Student } from '../classes/create-group/create-group.component';
@@ -15,12 +15,12 @@ export class GroupsService {
 
     constructor(private db: DatabaseService) { }
 
-  /**
+    /**
     * Get the best version of the groups and return it
     * (either from local storage or the database...)
     * @returns 
    */
-  getGroups(): Observable<Group[]> {
+    getGroups(): Observable<Group[]> {
         // check if there is an instance of the groups database in localstorage...
         if(localStorage.getItem('groups-data') !== null) {
             // retrieve the data from local storage and parse it into the templates data...
@@ -63,9 +63,88 @@ export class GroupsService {
                 return this.groups;
             }))
         }
-  }
+    }
 
-  addGroup(newGroup: Group): void {
-    this.groups.push(newGroup);
-  }
+    /**
+     * Adds a new group to the database.
+     * @param newGroup 
+     */
+    addGroup(newGroup: Group): Observable<any> {
+        // call the database...
+        return this.db.createGroup(newGroup).pipe(take(1), tap((res: DocumentReference) => {
+            // add the id of the document to the group 
+            newGroup.id = res.id;
+            // add the new group to the groups array..
+            this.groups.push(newGroup);
+            // update the local storage
+            this.updateLocalStorage(this.groups);
+        }, error => {
+            console.log(`Error: ${error}`);
+        }))
+    }
+
+    /**
+     * updates the data in a group...
+     * @param group 
+     * @param id 
+     */
+    updateGroup(group: Group, id: string): Observable<any> {
+        // call the db
+        return this.db.modifyGroup(group, id).pipe(take(1), tap((res) => {
+            // success...
+            let index = this.groups.findIndex((grp: Group) => grp.id === id);
+            // if found then update local storage
+            if(index !== -1) {
+                this.groups[index] = group;
+                this.updateLocalStorage(this.groups);
+            }
+        }, error => {
+            console.log(`Error: ${error}`);
+        }))
+    }
+
+    /**
+     * removes a group from the database...
+     * @param id 
+     */
+    deleteGroup(id: string): Observable<any> {
+        // call the db
+        return this.db.deleteGroup(id).pipe(take(1), tap((res) => {
+            // success
+            let index = this.groups.findIndex((grp: Group) => grp.id === id);
+            // if found then update local storage
+            if(index !== -1) {
+                this.groups.splice(index, 1);
+                this.updateLocalStorage(this.groups);
+            }
+        }, error => {
+            console.log(`Error: ${error}`);
+        }))
+    }
+
+    /**
+     * Updates the storage on the local machine - used to speed up the whole application
+     * but essentially mirrors the database.
+     * @param templates 
+     */
+    updateLocalStorage(groups: Group[]): void {
+        localStorage.setItem('groups-data', JSON.stringify(groups));
+    }
+
+    /**
+     * Update the database with new information.
+     * @param template 
+     * @param id 
+     * @returns 
+     */
+     updateDatabase(group: Group, id: string): Observable<any> {
+        // update the database.
+        return this.db.modifyGroup(group, id).pipe(take(1), tap((result) => {
+            // success...
+            return true;
+        }, error => {
+            console.log(`Error updating database: ${error}`);
+            return false;
+        }))
+    }
 }

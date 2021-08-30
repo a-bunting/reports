@@ -20,7 +20,7 @@ export class EditGroupComponent implements OnInit {
     loadingFailure: boolean = false;
     user: User;
 
-    constructor(private db: DatabaseService, private auth: AuthenticationService, private groupService: GroupsService) { 
+    constructor(private groupsService: GroupsService, private auth: AuthenticationService, private groupService: GroupsService) { 
         // get the user info...
         auth.user.subscribe((user: User) => {
             this.user = user;
@@ -75,7 +75,7 @@ export class EditGroupComponent implements OnInit {
         
         group.students = students;
         
-        this.db.modifyGroup(group, this.groups[groupId].id).subscribe(() => {
+        this.groupsService.updateGroup(group, this.groups[groupId].id).subscribe(() => {
             console.log(`Successfully modified data`);
             this.updatedData[groupId] = false;
         }, (error) => {
@@ -215,7 +215,7 @@ export class EditGroupComponent implements OnInit {
     deleteGroupConfirm(groupId: number): void {
         this.deletingCurrent = true;
 
-        this.db.deleteGroup(this.groups[groupId].id).subscribe(() => {
+        this.groupsService.deleteGroup(this.groups[groupId].id).subscribe(() => {
             console.log("deletion complete");
             this.groups.splice(groupId, 1);
         }, error => {
