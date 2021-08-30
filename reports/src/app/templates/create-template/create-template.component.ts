@@ -6,9 +6,9 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { User } from 'src/app/utilities/authentication/user.model';
 import { Template, TemplateDB } from '../templates.component';
 import { DocumentReference } from '@angular/fire/firestore';
-import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
+import { DocumentSnapshot } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -158,21 +158,16 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         }
     }
 
-    createTemplateNew(): void {
-        // template
-        let newTemplate: Template = {
-            
-        }
-        this.templateService.addNewTemplate(this.template)
-
-    }
-
+    /**
+     * called from the html, creates the template then navigates to the edit page
+     * upon success...
+     */
     createTemplate(): void {
-        
+        // generate a new database format template
         let newTemplate: TemplateDB = this.generateTemplate();
         this.addingToDb = true;
-
-        this.db.addTemplate(newTemplate).pipe(take(1)).subscribe((ret: DocumentReference) => {
+        // add to the database...
+        this.templateService.addNewTemplate(newTemplate, this.templateRoutes).subscribe((ret: DocumentReference) => {
             // success
             this.templateId = ret.id;
             this.addingToDb = false;
@@ -182,13 +177,12 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.changeEmitter(false, true, this.templateName);
             this.navigation.navigate(['templates/create-template/' + this.templateId]);
         }, error => {
-            console.log(`Error: ${error.message}`);
+            console.log(`Error: ${error}`);
         })
+
     }
 
     updatingDb: boolean = false;
-
-
 
     /**
      * Update the template in the database and in local storage...

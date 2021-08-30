@@ -87,33 +87,27 @@ export class TemplatesService {
     /**
      * Adds a new template to the templates.
      * 
-     * FINISH THIS NEXT
-     * BASICALLY TEMPLATEDB IS GIVEN BECAUSE NO ID IS KNOWN
-     * BUT A TEMPLATE IS REQUIRED TO BE STORE IN THIS
-     * DO THIS NEXT
-     * 
-     * 
      * @param newTemplate 
      */
-    addNewTemplate(newTemplate: TemplateDB): Observable<DocumentReference> {
+    addNewTemplate(newTemplate: TemplateDB, rawRoutes: [string[]]): Observable<DocumentReference> {
         // generate a new templatedb for the database...
         let tempDb: TemplateDB = {
             ...newTemplate, 
             manager: this.user.id, 
-            template: this.parseTemplate(newTemplate.template)
+            template: this.parseTemplate(rawRoutes)
         }
 
-        // update local storage - always happens...
-        this.updateLocalStorage(this.templates);
         // return the databse update object
         return this.db.addTemplate(tempDb).pipe(take(1), tap((result: DocumentReference) => {
             let temp: Template = {
                 ...newTemplate, 
                 id: result.id, 
-                template: this.parseTemplate(newTemplate.template)
+                template: rawRoutes
             }
             // add to the local array
-            this.templates.push(newTemplate);
+            this.templates.push(temp);
+             // update local storage - always happens...
+            this.updateLocalStorage(this.templates);
         }));
 
     }
