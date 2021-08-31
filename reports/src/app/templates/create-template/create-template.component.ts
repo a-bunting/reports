@@ -30,7 +30,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
-    constructor(private router: ActivatedRoute, private navigation: Router, private templateService: TemplatesService, private sentenceService: SentencesService, private db: DatabaseService, private auth: AuthenticationService) { 
+    constructor(private router: ActivatedRoute, private navigation: Router, private templateService: TemplatesService, private sentenceService: SentencesService, private auth: AuthenticationService) { 
     }
 
     paramObservable: Subscription;
@@ -81,44 +81,80 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     loadTemplate(id: string | undefined): void {
         if(id !== undefined) {
             // this isnt a new template so its a database one, search for it...
-            this.db.getTemplate(id).pipe(take(1)).subscribe((template: DocumentSnapshot<TemplateDB>) => {
-                // and use the data to populate the template...
-                const templateData = template.data();
-                this.templateCharacters.min = templateData.characters.min;
-                this.templateCharacters.max = templateData.characters.max;
-                this.templateName = templateData.name;
+            // this.templateService.getTemplate(id).subscribe((template: Template) => {
+            //     // and use the data to populate the template...
+            //     const templateData = template.data();
+            //     this.templateCharacters.min = templateData.characters.min;
+            //     this.templateCharacters.max = templateData.characters.max;
+            //     this.templateName = templateData.name;
 
-                // split the routes up into their paragraphs...
-                this.viewData = [[[]]];
-                this.templateRoutes = undefined;
+            //     // split the routes up into their paragraphs...
+            //     this.viewData = [[[]]];
+            //     this.templateRoutes = undefined;
 
-                templateData.template.forEach((route: string, elementId: number) => {
-                    let split = route.split("|");
+            //     templateData.template.forEach((route: string, elementId: number) => {
+            //         let split = route.split("|");
 
-                    if(split[0] === "newParagraph") {
-                        // add a new paragraph.
-                        this.addParagraph();
-                    } else {
-                        // add a new element and add all the routes to it.
-                        this.addElement();
-                        // add routes.
-                        split.forEach((routeCode: string, index: number) => {
-                            try {
-                                this.updateElementRoute(elementId, index - 1, routeCode);
-                            } catch (error) {
-                                console.log(`Error: ${error}`);
-                                this.deleteElement(this.templateRoutes.length - 1);
-                            }
-                        })
-                    }
-                })
+            //         if(split[0] === "newParagraph") {
+            //             // add a new paragraph.
+            //             this.addParagraph();
+            //         } else {
+            //             // add a new element and add all the routes to it.
+            //             this.addElement();
+            //             // add routes.
+            //             split.forEach((routeCode: string, index: number) => {
+            //                 try {
+            //                     this.updateElementRoute(elementId, index - 1, routeCode);
+            //                 } catch (error) {
+            //                     console.log(`Error: ${error}`);
+            //                     this.deleteElement(this.templateRoutes.length - 1);
+            //                 }
+            //             })
+            //         }
+            //     })
 
-                this.savedTemplate = this.generateTemplate();
-                this.templateUpdated = false;
-                this.templateSaved = true;
-                this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            //     this.savedTemplate = this.generateTemplate();
+            //     this.templateUpdated = false;
+            //     this.templateSaved = true;
+            //     this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            // })
+
+
+            const templateData: Template = this.templateService.getTemplate(id);
+            // and use the data to populate the template...
+            this.templateCharacters.min = templateData.characters.min;
+            this.templateCharacters.max = templateData.characters.max;
+            this.templateName = templateData.name;
+
+            // split the routes up into their paragraphs...
+            this.viewData = [[[]]];
+            this.templateRoutes = undefined;
+
+            templateData.template.forEach((route: string[], elementId: number) => {
+
+                if(route[0] === "newParagraph") {
+                    // add a new paragraph.
+                    this.addParagraph();
+                } else {
+                    // add a new element and add all the routes to it.
+                    this.addElement();
+                    // add routes.
+                    route.forEach((routeCode: string, index: number) => {
+                        try {
+                            this.updateElementRoute(elementId, index - 1, routeCode);
+                        } catch (error) {
+                            console.log(`Error: ${error}`);
+                            this.deleteElement(this.templateRoutes.length - 1);
+                        }
+                    })
+                }
+                
             })
 
+            this.savedTemplate = this.generateTemplate();
+            this.templateUpdated = false;
+            this.templateSaved = true;
+            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
         }
     }
 
@@ -301,7 +337,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     deleteTemplate(): void {
         this.deletingTemplate = true;
-        this.db.deleteTemplate(this.templateId).subscribe(() => {
+        this.templateService.deleteTemplate(this.templateId).subscribe((success: boolean) => {
             // success... reload?
             this.deletingTemplate = false;
             // remove from the list

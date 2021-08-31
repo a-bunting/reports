@@ -57,32 +57,32 @@ export class EditGroupComponent implements OnInit {
     updatedData: boolean[] = [];
     updatingData: boolean[] = [];
 
-    updateGroup(groupId: number): void {
+    updateGroup(groupIndex: number): void {
         let group: Group = { 
-            name: this.groups[groupId].name, 
-            keys: this.groups[groupId].keys, 
-            managers: this.groups[groupId].managers, 
+            name: this.groups[groupIndex].name, 
+            keys: this.groups[groupIndex].keys, 
+            managers: this.groups[groupIndex].managers, 
             students: []
         };
         let students: Student[] = [];
 
-        this.updatingData[groupId] = true;
-        this.updatedData[groupId] = false;
+        this.updatingData[groupIndex] = true;
+        this.updatedData[groupIndex] = false;
         
-        this.groups[groupId].students.forEach((student: Student) => {
+        this.groups[groupIndex].students.forEach((student: Student) => {
             students.push(student);
         })
         
         group.students = students;
         
-        this.groupsService.updateGroup(group, this.groups[groupId].id).subscribe(() => {
+        this.groupsService.updateGroup(group, this.groups[groupIndex].id).subscribe(() => {
             console.log(`Successfully modified data`);
-            this.updatedData[groupId] = false;
+            this.updatedData[groupIndex] = false;
         }, (error) => {
             console.log(`Error: ${error.message}`);
-            this.updatedData[groupId] = true; // data not updated...
+            this.updatedData[groupIndex] = true; // data not updated...
         }, () => {
-            this.updatingData[groupId] = false;
+            this.updatingData[groupIndex] = false;
         })
     }
 
@@ -92,37 +92,37 @@ export class EditGroupComponent implements OnInit {
      * @param key 
      * @param input 
      */
-     userValueChange(groupId: number, index: number, key: string, input: FocusEvent | KeyboardEvent) {
+     userValueChange(groupIndex: number, index: number, key: string, input: FocusEvent | KeyboardEvent) {
         const reference: HTMLElement = <HTMLElement>input.target;
         const newValue = reference.innerText.split("\n");
-        this.updatedData[groupId] = true;
-        this.groups[groupId].students[index][key] = newValue[0];
+        this.updatedData[groupIndex] = true;
+        this.groups[groupIndex].students[index][key] = newValue[0];
     }
 
     /**
      * Add a user
-     * @param groupId 
+     * @param groupIndex 
      */
-    addUser(groupId: number): void {
+    addUser(groupIndex: number): void {
         // new user template
         let newUserTemplate: Student = {};
-        this.updatedData[groupId] = true;
+        this.updatedData[groupIndex] = true;
 
         // add the keys to the new user in the right order...
-        this.groups[groupId].keys.forEach((key: string) => {
+        this.groups[groupIndex].keys.forEach((key: string) => {
             newUserTemplate[key] = "";
         })
 
-        this.groups[groupId].students.push(newUserTemplate);
+        this.groups[groupIndex].students.push(newUserTemplate);
     }
 
     /**
      * Remove a user
      * @param index 
      */
-    removeUser(groupId: number, index: number): void {
-        this.updatedData[groupId] = true;
-        this.groups[groupId].students.splice(index, 1);
+    removeUser(groupIndex: number, index: number): void {
+        this.updatedData[groupIndex] = true;
+        this.groups[groupIndex].students.splice(index, 1);
     }
 
     /**
@@ -131,21 +131,21 @@ export class EditGroupComponent implements OnInit {
      * @param index 
      * @param input 
      */
-    columnValueChange(groupId: number, index: number, input: FocusEvent | KeyboardEvent) {
+    columnValueChange(groupIndex: number, index: number, input: FocusEvent | KeyboardEvent) {
         const reference: HTMLElement = <HTMLElement>input.target;
-        const newKeyArray = [...this.groups[groupId].keys];
+        const newKeyArray = [...this.groups[groupIndex].keys];
         const newValue = reference.innerText.split("\n");
 
         newKeyArray[index] = newValue[0];
         
         let newData = [];
-        this.updatedData[groupId] = true;
+        this.updatedData[groupIndex] = true;
         
         // iterate over the data and build a new array
-        this.groups[groupId].students.forEach((row) => {
+        this.groups[groupIndex].students.forEach((row) => {
             let newDataUser = {};
             // go through the array line by line changing the key values...
-            this.groups[groupId].keys.forEach((key: string, i: number) => {
+            this.groups[groupIndex].keys.forEach((key: string, i: number) => {
                 const newKey = { [newKeyArray[`${i}`]] : row[`${key}`] }
                 newDataUser = {...newDataUser, ...newKey};
             })
@@ -154,24 +154,24 @@ export class EditGroupComponent implements OnInit {
             newData.push(newDataUser);
         })
 
-        this.groups[groupId].keys = newKeyArray;
-        this.groups[groupId].students = newData;
+        this.groups[groupIndex].keys = newKeyArray;
+        this.groups[groupIndex].students = newData;
     }
 
     /**
      * Adds a new column to the data - will name it col length...
      */
-    addColumn(groupId: number): void {
+    addColumn(groupIndex: number): void {
         // add to the keys...
-        const colName = `Column ${this.groups[groupId].keys.length + 1}`;
-        this.groups[groupId].keys.push(colName);
-        this.updatedData[groupId] = true;
+        const colName = `Column ${this.groups[groupIndex].keys.length + 1}`;
+        this.groups[groupIndex].keys.push(colName);
+        this.updatedData[groupIndex] = true;
 
         // new data
         let newData = [...this.groups];
 
         // iterate over and add to each of the userdata...
-        newData[groupId].students.forEach((row) => {
+        newData[groupIndex].students.forEach((row) => {
             row[colName] = "";
         });
 
@@ -184,24 +184,24 @@ export class EditGroupComponent implements OnInit {
      * removes a column
      * @param index 
      */
-    deleteColumn(groupId: number, index: number): void {
+    deleteColumn(groupIndex: number, index: number): void {
         // strip from the keys array
-        const colName: string = this.groups[groupId].keys[index];
-        this.updatedData[groupId] = true;
+        const colName: string = this.groups[groupIndex].keys[index];
+        this.updatedData[groupIndex] = true;
         
         // and remove from each of the user data array
-        this.groups[groupId].students.forEach(row => {
+        this.groups[groupIndex].students.forEach(row => {
             delete row[colName];
         });
         
-        this.groups[groupId].keys.splice(index, 1);
+        this.groups[groupIndex].keys.splice(index, 1);
     }
 
     deletionConfirm: number = -1;
     deletingCurrent: boolean = false;
 
-    deleteGroup(groupId: number): void {
-        this.deletionConfirm = groupId;
+    deleteGroup(groupIndex: number): void {
+        this.deletionConfirm = groupIndex;
     }
 
     deleteGroupClear(): void {
@@ -210,14 +210,14 @@ export class EditGroupComponent implements OnInit {
 
     /**
      * Deletes an entire group...
-     * @param groupId 
+     * @param groupIndex 
      */
-    deleteGroupConfirm(groupId: number): void {
+    deleteGroupConfirm(groupIndex: number): void {
         this.deletingCurrent = true;
 
-        this.groupsService.deleteGroup(this.groups[groupId].id).subscribe(() => {
+        this.groupsService.deleteGroup(this.groups[groupIndex].id).subscribe(() => {
             console.log("deletion complete");
-            this.groups.splice(groupId, 1);
+            this.groups.splice(groupIndex, 1);
         }, error => {
             console.log(`Error: ${error.message}`);
         }, () => {
@@ -229,32 +229,32 @@ export class EditGroupComponent implements OnInit {
     /**
      * Checks to see if the name of the group hasbeen changed and adjusts the visiblity
      * of the button accoridnly.
-     * @param groupId 
+     * @param groupIndex 
      * @param input 
      */
-    checkNameChange(groupId: number, input: KeyboardEvent): void {
+    checkNameChange(groupIndex: number, input: KeyboardEvent): void {
         const reference: HTMLElement = <HTMLElement>input.target;
         const newValue = reference.innerText.split("\n");
         
-        if(this.groups[groupId].name !== newValue[0]) {
-            document.getElementById('nameButton' + groupId).style.display = "inline-block";
+        if(this.groups[groupIndex].name !== newValue[0]) {
+            document.getElementById('nameButton' + groupIndex).style.display = "inline-block";
         } else {
-            document.getElementById('nameButton' + groupId).style.display = "none";
+            document.getElementById('nameButton' + groupIndex).style.display = "none";
         }
     }
     
     /**
      * Commits the name change to the group. Doesnt update the database...
-     * @param groupId 
+     * @param groupIndex 
      */
-    commitNameChange(groupId: number): void {
+    commitNameChange(groupIndex: number): void {
         // get the vaue and commit
-        const newValue: string[] = document.getElementById('grpId' + groupId).innerText.split("\n");
-        this.groups[groupId].name = newValue[0];
+        const newValue: string[] = document.getElementById('grpId' + groupIndex).innerText.split("\n");
+        this.groups[groupIndex].name = newValue[0];
         // flag for db update
-        this.updatedData[groupId] = true;
+        this.updatedData[groupIndex] = true;
         // hide the save button
-        document.getElementById('nameButton' + groupId).style.display = "none";
+        document.getElementById('nameButton' + groupIndex).style.display = "none";
     }
 
     /**

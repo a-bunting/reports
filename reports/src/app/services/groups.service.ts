@@ -21,6 +21,7 @@ export class GroupsService {
     * @returns 
    */
     getGroups(): Observable<Group[]> {
+        this.groups = [];
         // check if there is an instance of the groups database in localstorage...
         if(localStorage.getItem('groups-data') !== null) {
             // retrieve the data from local storage and parse it into the templates data...
@@ -90,6 +91,7 @@ export class GroupsService {
      */
     updateGroup(group: Group, id: string): Observable<any> {
         // call the db
+        console.log(id, group);
         return this.db.modifyGroup(group, id).pipe(take(1), tap((res) => {
             // success...
             let index = this.groups.findIndex((grp: Group) => grp.id === id);

@@ -28,9 +28,9 @@ export class TemplatesService {
      * (either from local storage or the database...)
      * @returns 
      */
-    getTemplates(): Observable<Template[]> {
-        
-
+    getTemplates(): Observable<Template[]> {    
+        this.templates = [];
+        // check local sotrage first...
         if(localStorage.getItem('templates-data') !== null) {
             // retrieve the data from local storage and parse it into the templates data...
             this.templates = JSON.parse(localStorage.getItem('templates-data'));               
@@ -71,7 +71,16 @@ export class TemplatesService {
                 return this.templates;
             }))
         }
+    }
 
+    /**
+     * send a single template
+     * @param id 
+     * @returns 
+     */
+    getTemplate(id: string): Template {
+        let index: number = this.templates.findIndex((temp: Template) => temp.id === id);
+        return this.templates[index];
     }
 
     /**
@@ -129,6 +138,26 @@ export class TemplatesService {
             // update the template database and return as an async thing ...
             return this.updateDatabase(template, template.id).pipe(take(1));
         }
+    }
+
+    /**
+     * deletes a template from the database...
+     * @param id 
+     * @returns 
+     */
+    deleteTemplate(id: string): Observable<boolean> {
+        return this.db.deleteTemplate(id).pipe(take(1), tap(() => {
+            // success, find and remove from array
+            let tempIndex = this.templates.findIndex((temp: Template) => temp.id === id);
+            this.templates.splice(tempIndex, 1);
+            // update local storage
+            this.updateLocalStorage(this.templates);
+            // return true to show its been deleted.
+            return true;
+        }, error => {
+            console.log(`Error: ${error}`);
+            return false;
+        }))
     }
 
     /**

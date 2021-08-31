@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
-import { take } from 'rxjs/operators';
-import { DatabaseService } from '../services/database.service';
 import { TemplatesService } from '../services/templates.service';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
@@ -29,36 +26,41 @@ export class TemplatesComponent implements OnInit {
     user: User;
     isLoading: boolean = false;
 
-    constructor(private db: DatabaseService, private templateService: TemplatesService, private auth: AuthenticationService) {
-    }
+    constructor(private templateService: TemplatesService, private auth: AuthenticationService) {}
 
     ngOnInit(): void {
         this.isLoading = true;
     
+        // get the user details and then the templates when this has loaded...
         this.auth.user.subscribe((user: User) => {
             this.user = user;
             // once the user is loaded then data can be retrived
-            this.getTemplatesNew();
-            // subscribe tot he templates service in case this is changed...
-            this.templateService.menuData.subscribe((newData: {id: string, name: string, deleted: boolean, created: boolean}) => {
-                const newId: any = this.templates.findIndex(element => element.id === newData.id);
-                // if its new add it, if it was found then 
-                if(newId !== -1) {
-                    this.templateChanged(newData, newId);
-                } else {
-                    this.templateAdded(newData);
-                }
-            })
+            this.getTemplates();
         }, error => {
             console.log(`Error: ${error.message}`);
             this.isLoading = false;
         })
+        
+        // subscribe to the templates service in case this is changed...    
+        this.templateService.menuData.subscribe((newData: {id: string, name: string, deleted: boolean, created: boolean}) => {
+            const newId: number = this.templates.findIndex((element: Template) => element.id === newData.id);
+
+            // if its new add it, if it was found then 
+            if(newId !== -1) {
+                this.templateChanged(newData, newId);
+            } else {
+                this.templateAdded(newData);
+            }
+        }, error => {
+            console.log(`Error: ${error.message}`);
+        })
+
     }
 
     /**
      * Get the templates from the database...
      */
-    getTemplatesNew(): void {
+    getTemplates(): void {
         this.templateService.getTemplates().subscribe(templates => {
             this.templates = templates;
             this.isLoading = false;
@@ -69,7 +71,7 @@ export class TemplatesComponent implements OnInit {
     }
 
     templateChanged(data: {id: string, name: string, deleted: boolean, created: boolean}, index: number): void {
-        // this.templates.forEach((template: Template, index: number) => {
+        /** this.templates.forEach((template: Template, index: number) => {
         //     if(template.id === data.id) {
         //         // chnage the name...
         //         template.name = data.name;
@@ -78,8 +80,8 @@ export class TemplatesComponent implements OnInit {
         //             this.templates.splice(index, 1);
         //         }
         //     }
-        // })
-
+        // }) 
+        */
         this.templates[index].name = data.name;
 
         if(data.deleted) {
