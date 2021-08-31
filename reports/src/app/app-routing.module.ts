@@ -15,9 +15,13 @@ import { AdminUsersComponent } from './admin/users/admin-users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
+import { EditReportComponent } from './reports/edit-report/edit-report.component';
 
 const routes: Routes = [
-    {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard]},
+    {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], children: [
+        {path: 'edit-report', component: EditReportComponent},
+        {path: 'edit-report/:id', component: EditReportComponent}
+    ]},
     {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
     {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard, DemoGuard], children: [
         {path: 'create-template', component: CreateTemplateComponent},

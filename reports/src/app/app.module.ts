@@ -24,6 +24,7 @@ import { CreateGroupComponent } from './classes/create-group/create-group.compon
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
+import { EditReportComponent } from './reports/edit-report/edit-report.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { EditGroupComponent } from './classes/edit-group/edit-group.component';
     AdminUsersComponent,
     CreateGroupComponent,
     SentencesComponent,
-    EditGroupComponent
+    EditGroupComponent,
+    EditReportComponent
   ],
   imports: [
     BrowserModule,

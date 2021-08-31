@@ -12,6 +12,8 @@ import { Template } from '../templates/templates.component';
 export class ReportsComponent implements OnInit {
 
     groups: Group[] = [];
+    loadedGroup: Group;
+
     templates: Template[] = [];
 
     constructor(private groupService: GroupsService, private templatesService: TemplatesService) { }
@@ -21,11 +23,22 @@ export class ReportsComponent implements OnInit {
         this.loadTemplates();
     }
 
+    // GROUPS FUNCTIONS
     loadGroups(): void {
         // get the groups database...
         this.groupService.getGroups().subscribe((result: Group[]) => {
             this.groups = result;
         })
+    }
+
+    loadGroup(groupId: string): void {
+        console.log(groupId);
+        // get the index
+        let index: number = this.groups.findIndex((temp: Group) => temp.id === groupId);
+        // and load...
+        if(index !== -1) {
+            this.loadedGroup = this.groups[index];
+        }
     }
 
     loadTemplates(): void {
