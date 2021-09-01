@@ -1,1 +1,53 @@
-<p>edit-report works!</p>
+<div class="reports__options">
+    <div class="reports__settings">
+
+        <div class="reports__settings--flex">
+            <div class="reports__settings--setting">
+                <div class="reports__settings--text">Reports Name</div>
+                <div class="reports__settings--input">
+                    <input type="text" name="reportsname" id="reportsname" class="reports__input reports__input--text">
+                </div>
+            </div>
+            <div class="reports__settings--setting">
+                <div class="reports__settings--text">Class</div>
+                <div class="reports__settings--input">
+                    <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select"  (change)="loadGroup($event.target.value)">
+                        <option value="" disabled selected></option>
+                        <option value="{{ grp.id }}" *ngFor="let grp of groups; let i = index">{{grp.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="reports__settings--setting">
+                <div class="reports__settings--text">Template</div>
+                <div class="reports__settings--input">
+                    <select name="reportstemplate" id="reportstemplate" class="reports__input reports__input--select">
+                        <option value="" disabled selected></option>
+                        <option value="temp.id" *ngFor="let temp of templates; let i = index">{{temp.name}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="reports__database-buttons">
+            <div class="reports__button">Save</div>
+            <div class="reports__button">Update</div>
+            <div class="reports__button">Duplicate</div>
+
+        </div>
+    </div>
+</div>
+
+<div class="reports__data">
+    <table class="reports__data--table" *ngIf="loadedGroup !== undefined">
+        <thead>
+            <tr class="reports__data--row reports__data--header">
+                <td class="reports__data--cell" *ngFor="let key of loadedGroup.keys; let i = index">{{ key }}</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="reports__data--row reports__data--data" *ngFor="let user of loadedGroup.students; let i = index">
+                <td class="reports__data--cell" *ngFor="let key of loadedGroup.keys; let i = index">{{ user[key] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
