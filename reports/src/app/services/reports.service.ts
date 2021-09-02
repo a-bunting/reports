@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from '../services/database.service';
@@ -40,18 +40,33 @@ export class ReportsService {
         this.reports = [];
         // get from the DB
         return this.db.getReports().pipe(take(1), map((queryResults: QuerySnapshot<ReportTemplate>) => {
+            let reportsNew: ReportTemplate[] = [];
             // build the rpeorts...
             queryResults.forEach((report: DocumentSnapshot<ReportTemplate>) => {
                 let newReport: ReportTemplate = report.data();
                 // add the id...
                 newReport.id = report.id;
                 // and push tot he main array
-                this.reports.push(newReport);
+                reportsNew.push(newReport);
             })
-            return this.reports;
+            // set the variable
+            this.reports = reportsNew;
+            // set the local sotrage
+            this.setlocalStorage(this.reports);
+            // return
+            return reportsNew;
         }, error => {
             console.log(`Error: ${error}`);
         }))
+    }
+
+    /**
+     * stores the data in the local storage
+     * 
+     * @param reports 
+     */
+    setlocalStorage(reports: ReportTemplate[]): void {
+        localStorage.setItem('reports-data', JSON.stringify(reports));
     }
 
     /**
@@ -59,22 +74,22 @@ export class ReportsService {
      * @param id 
      * @returns 
      */
-    getReport(id: string): ReportTemplate {
+    getReport(id: string): Observable<ReportTemplate> {
         if(this.reports.length === 0) {
             // load the reports into the menu
-            this.getReports().subscribe((data: ReportTemplate[]) => {
+            return this.getReports().pipe(take(1), map((data: ReportTemplate[]) => {
                 this.reports = data;
                 // return the correct report.
                 return this.returnReport(id);
             }, error => {
                 console.log(`Error: ${error}`);
-            })
+            }))
         } else {
-            return this.returnReport(id);
+            return of(this.returnReport(id));
         }
     }
 
-    /**
+    /** 
      * Returns a single report from the database...
      * @param id 
      * @returns 
