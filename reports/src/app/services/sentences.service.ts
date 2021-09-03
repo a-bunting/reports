@@ -181,7 +181,6 @@ export class SentencesService {
      */
     //  generateSentenceOptions(route: string[]): void {
     generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
-        this.getSentencesDatabase();
         
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];

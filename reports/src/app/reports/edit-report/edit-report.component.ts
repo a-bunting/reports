@@ -150,7 +150,7 @@ export class EditReportComponent implements OnInit {
      */
     parseReport(group: Group, template: Template): void {
         // set the individual components - not needed verbose but for clarity in design phase
-        let globals: GlobalValues[] = this.generateGlobals(template);
+        let globals: GlobalValues[] = this.generateVariables(template);
         let individualReports: Report[] = [];
         let reportsName: string = this.reportName;
         let manager: string = this.user.id;
@@ -179,10 +179,11 @@ export class EditReportComponent implements OnInit {
 
     }
 
-    generateGlobals(template: Template): GlobalValues[] {
+    generateVariables(template: Template): GlobalValues[] {
         let globals: GlobalValues[] = [];
         let stringExample: string = "";
-        let splitRegex: RegExp = new RegExp('\\$\\$(.*?)\\$\\$', 'g');
+        let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
+        let values: string[] = [];
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
@@ -190,10 +191,18 @@ export class EditReportComponent implements OnInit {
                 // need to generate UP TO THIS
                 // POINT TO TEST SO CURRENT IS IT WORKING?
                 // I DO NOT KNOW SO TEST IT
-                let splits = option.sentence.split(splitRegex);
-                console.log(splits);
+                let matches: RegExpExecArray;
+                // get the values form the sentence that are between ${brackets}$ and put them in values
+                while(matches = splitRegex.exec(option.sentence)) { 
+                    let exists = values.findIndex((temp: string) => temp === matches[1]);
+                    // test if its already been identified and if not, push onto the array
+                    if(exists === -1) {
+                        values.push(matches[1]);
+                    }
+                }
             })
         })
+        console.log(values);
 
         return globals;
     }
