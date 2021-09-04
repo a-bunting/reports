@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Group, Student } from 'src/app/classes/create-group/create-group.component';
 import { GroupsService } from 'src/app/services/groups.service';
 import { TemplatesService } from 'src/app/services/templates.service';
-import { GlobalValues, Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
+import { GlobalValues, Report, ReportsService, ReportTemplate, VariableValues } from 'src/app/services/reports.service';
 import { Template } from 'src/app/templates/templates.component';
 import { observable, Observable, Subject, Subscription, zip } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -151,6 +151,7 @@ export class EditReportComponent implements OnInit {
     parseReport(group: Group, template: Template): void {
         // set the individual components - not needed verbose but for clarity in design phase
         let globals: GlobalValues[] = this.generateVariables(template);
+        let variables: VariableValues[];
         let individualReports: Report[] = [];
         let reportsName: string = this.reportName;
         let manager: string = this.user.id;
@@ -173,6 +174,7 @@ export class EditReportComponent implements OnInit {
             id: reportId, 
             name: reportsName, 
             manager: manager, 
+            variables: variables,
             globals: globals,
             reports: individualReports
         };
@@ -181,23 +183,35 @@ export class EditReportComponent implements OnInit {
 
     generateVariables(template: Template): GlobalValues[] {
         let globals: GlobalValues[] = [];
-        let stringExample: string = "";
+        let variables: VariableValues[] = [];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let values: string[] = [];
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
             this.sentenceService.generateSentenceOptions(section).forEach((option: {sentence: string, depth: number, delete: boolean}) => {
-                // need to generate UP TO THIS
-                // POINT TO TEST SO CURRENT IS IT WORKING?
-                // I DO NOT KNOW SO TEST IT
                 let matches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
                 while(matches = splitRegex.exec(option.sentence)) { 
                     let exists = values.findIndex((temp: string) => temp === matches[1]);
                     // test if its already been identified and if not, push onto the array
                     if(exists === -1) {
+                        // values array used to ensure no doubles...
                         values.push(matches[1]);
+                        // find if its a global or variable and deal accordingly.
+                        let data: string[] = matches[1].split('|');
+
+                        // what other information is present in the sentence data?
+                        // []? {}? options? hmmmm, more standardisation??
+                        if(data[0] === 'g') {
+                            // this is a global values
+                            let newVariable: GlobalValues = { identifier: data[1], value: "" };
+                            globals.push(newVariable);
+                        } else if(data[1] === 'v') {
+                            // this is a variable value (assume no |, or should I add v|??)
+                            let newVariable: VariableValues = { identifier: data[0], key: "",options: [] };
+                            variables.push(newVariable);
+                        }
                     }
                 }
             })

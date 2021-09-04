@@ -8,7 +8,8 @@ import { Template } from '../templates/templates.component';
 
 export interface ReportTemplate {
     id: string; name: string; manager: string;
-    globals: GlobalValues[]; reports: Report[];
+    variables: VariableValues[]; globals: GlobalValues[]; 
+    reports: Report[];
 }
 
 export interface Report {
@@ -16,7 +17,11 @@ export interface Report {
 }
 
 export interface GlobalValues {
-    identifier: string; value: string;
+    identifier: string; value: string | number; options: string[]
+}
+
+export interface VariableValues {
+    identifier: string, key: string, options: string[]
 }
 
 @Injectable({
