@@ -37,6 +37,22 @@
     </div>
 </div>
 
+<div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="report !== undefined"></div>
+
+<div class="reports__global-variables">
+    <div class="reports__global-variable" *ngFor="let variable of report.globals; let i = index">
+        {{ variable.identifier }}
+
+        <input type="text" *ngIf="variable.options.length === 0">
+        <select *ngIf="variable.options.length > 0">
+            <option value="index" *ngFor="let option of variable.options; let index = index">{{ option }}</option>
+        </select>
+    </div>
+</div>
+
+<div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="report !== undefined"></div>
+
+
 <div class="reports__data">
     <table class="reports__data--table" *ngIf="loadedGroup !== undefined">
         <thead>

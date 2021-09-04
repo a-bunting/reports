@@ -10,6 +10,7 @@ import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
+import { Variable } from '@angular/compiler/src/render3/r3_ast';
 
 @Component({
   selector: 'app-edit-report',
@@ -139,7 +140,7 @@ export class EditReportComponent implements OnInit {
      */
     parseCheck(): void {
         if((this.loadedGroup !== undefined) && (this.loadedTemplate !== undefined)) {
-            this.parseReport(this.loadedGroup, this.loadedTemplate);
+            this.report = this.parseReport(this.loadedGroup, this.loadedTemplate);
         }
     }
 
@@ -147,11 +148,11 @@ export class EditReportComponent implements OnInit {
      * Takes a group and a template and parses it into a reports template.
      * @param group 
      * @param template 
+     * @returns ReportTemplate
      */
-    parseReport(group: Group, template: Template): void {
+    parseReport(group: Group, template: Template): ReportTemplate {
         // set the individual components - not needed verbose but for clarity in design phase
-        let globals: GlobalValues[] = this.generateVariables(template);
-        let variables: VariableValues[];
+        let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
         let individualReports: Report[] = [];
         let reportsName: string = this.reportName;
         let manager: string = this.user.id;
@@ -174,51 +175,69 @@ export class EditReportComponent implements OnInit {
             id: reportId, 
             name: reportsName, 
             manager: manager, 
-            variables: variables,
-            globals: globals,
+            globals: variables[0],
+            variables: variables[1],
             reports: individualReports
         };
 
+        return report;
+
     }
 
-    generateVariables(template: Template): GlobalValues[] {
+    generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
         let variables: VariableValues[] = [];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
-        let values: string[] = [];
+        let duplicates: string[] = [];
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
             this.sentenceService.generateSentenceOptions(section).forEach((option: {sentence: string, depth: number, delete: boolean}) => {
-                let matches: RegExpExecArray;
+                
+                let typeMatches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
-                while(matches = splitRegex.exec(option.sentence)) { 
-                    let exists = values.findIndex((temp: string) => temp === matches[1]);
+                while(typeMatches = splitRegex.exec(option.sentence)) { 
+                    let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
                     // test if its already been identified and if not, push onto the array
                     if(exists === -1) {
-                        // values array used to ensure no doubles...
-                        values.push(matches[1]);
-                        // find if its a global or variable and deal accordingly.
-                        let data: string[] = matches[1].split('|');
+                        // duplicates array used to ensure no doubles...
+                        duplicates.push(typeMatches[1]);
 
-                        // what other information is present in the sentence data?
-                        // []? {}? options? hmmmm, more standardisation??
-                        if(data[0] === 'g') {
-                            // this is a global values
-                            let newVariable: GlobalValues = { identifier: data[1], value: "" };
-                            globals.push(newVariable);
-                        } else if(data[1] === 'v') {
-                            // this is a variable value (assume no |, or should I add v|??)
-                            let newVariable: VariableValues = { identifier: data[0], key: "",options: [] };
-                            variables.push(newVariable);
+                        // find if its a global or variable
+                        let data: string[] = typeMatches[1].split('|');
+
+                        // get any options options (surrounded by [ ] separated by ,)
+                        let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
+                        let optionsMatches: RegExpExecArray;
+                        let options: string[] = [];
+
+                        // and get the options, if any...
+                        while(optionsMatches = optionsRegex.exec(data[1])) {
+                            options = optionsMatches[1].split(',');
+                        }
+
+                        // finally build the variable to put into the reports array
+                        let newVariable: GlobalValues | VariableValues;
+                        let identifier: string = data[1].split('[')[0];
+
+                        switch(data[0]) {
+                            case 'g':
+                                // this is a global values
+                                newVariable = { identifier: identifier, value: "", options: options};
+                                globals.push(newVariable);
+                                break;
+                            case 'v':
+                                // this is a variable value (assume no |, or should I add v|??)
+                                newVariable = { identifier: identifier, key: "",options: options};
+                                variables.push(newVariable);
+                                break;
                         }
                     }
                 }
             })
         })
-        console.log(values);
-
-        return globals;
+        // return both arrays...
+        return [globals, variables];
     }
 
 
