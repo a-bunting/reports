@@ -1,4 +1,4 @@
-<div class="reports__options">
+<div class="reports__options sticky">
     <div class="reports__settings">
 
         <div class="reports__settings--flex">
@@ -40,12 +40,38 @@
 <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="report !== undefined"></div>
 
 <div class="reports__global-variables">
+    <div class="reports__global-variables--text">
+        Global Variables 
+    </div>
+
     <div class="reports__global-variable" *ngFor="let variable of report.globals; let i = index">
+        <div class="reports__global-variable--text">
+            {{ variable.identifier }}
+        </div>
+
+        <div class="reports__global-variable--input">
+            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0">
+            <select class="reports__input reports__input--select" *ngIf="variable.options.length > 0">
+                <option value="" selected disabled></option>
+                <option value="newOption">* Add new option *</option>
+                <option value="{{ index }}" *ngFor="let option of variable.options; let index = index">{{ option }}</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="reports__variables">
+    <div class="reports__variables--text">
+        Variables
+    </div>
+
+    <div class="reports__variable draggable" *ngFor="let variable of report.variables; let i = index">
         {{ variable.identifier }}
 
-        <input type="text" *ngIf="variable.options.length === 0">
-        <select *ngIf="variable.options.length > 0">
-            <option value="index" *ngFor="let option of variable.options; let index = index">{{ option }}</option>
+        <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value)">
+            <option value="" selected disabled></option>
+            <option value="{{ variable.identifier }}">* Add column *</option>
+            <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
         </select>
     </div>
 </div>
@@ -57,7 +83,19 @@
     <table class="reports__data--table" *ngIf="loadedGroup !== undefined">
         <thead>
             <tr class="reports__data--row reports__data--header">
-                <td class="reports__data--cell" *ngFor="let key of loadedGroup.keys; let i = index">{{ key }}</td>
+                <td class="reports__data--cell" *ngFor="let key of report.keys; let i = index">
+                    <div class="reports__data--cell-header draggable__enter">
+                        {{ key }}
+    
+                        <div class="reports__key-variable-link--flexbox">
+                            <div class="reports__key-variable-link" *ngFor="let variable of report.variables">
+                                <div class="reports__key-variable-link--link" *ngIf="variable.key === key">
+                                    {{ variable.identifier }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
             </tr>
         </thead>
         <tbody>
