@@ -8,7 +8,7 @@ import { observable, Observable, Subject, Subscription, zip } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
-import { SentencesService } from 'src/app/services/sentences.service';
+import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
 
@@ -32,6 +32,9 @@ export class EditReportComponent implements OnInit {
     // user object
     user: User;
 
+    // design things
+    sticky: IntersectionObserver;
+
     constructor(
         private auth: AuthenticationService, 
         private router: ActivatedRoute, 
@@ -49,7 +52,7 @@ export class EditReportComponent implements OnInit {
 
             // load all data first - this is important to be done first so when the parameters fire
             // the data is all there and able to be accessed.
-            this.loadData().subscribe(([groups, templates]) => {
+            this.loadData().subscribe(([groups, templates, sentences]) => {
                 this.groups = groups;
                 this.templates = templates;
                 
@@ -67,7 +70,12 @@ export class EditReportComponent implements OnInit {
             }, error => { console.log(`Error: ${error}`); })
         })
 
-        // watch the template and group data...
+        // toggle different styloes for when things get stuck.
+        this.sticky = new IntersectionObserver(([e]) => {
+            e.target.toggleAttribute('stuck', e.intersectionRatio < 1)
+        }, { threshold: [1] });
+
+        this.sticky.observe(document.getElementsByClassName('sticky').item(0));
 
     }
 
@@ -75,12 +83,13 @@ export class EditReportComponent implements OnInit {
      * Load all required data, including groups and templates data...
      * @returns 
      */
-    loadData(): Observable<[Group[], Template[]]> {
+    loadData(): Observable<[Group[], Template[], sentence]> {
         // load groups and templates concurrently then act
         let loadGroups = this.groupService.getGroups().pipe(take(1), map((result: Group[]) => { return result; }));
         let loadTemplate = this.templatesService.getTemplates().pipe(take(1), map((result: Template[]) => { return result; }));
+        let loadSentence = this.sentenceService.getSentencesDatabase().pipe(take(1), map((result: sentence) => { return result; }));
         // and return them at the same time...
-        return zip(loadGroups, loadTemplate);
+        return zip(loadGroups, loadTemplate, loadSentence);
     }
 
     /**
@@ -140,104 +149,35 @@ export class EditReportComponent implements OnInit {
      */
     parseCheck(): void {
         if((this.loadedGroup !== undefined) && (this.loadedTemplate !== undefined)) {
-            this.report = this.parseReport(this.loadedGroup, this.loadedTemplate);
+            this.report = this.reportsService.parseReport(this.loadedGroup, this.loadedTemplate, this.reportName, this.reportId, this.user);
         }
     }
 
-    /**
-     * Takes a group and a template and parses it into a reports template.
-     * @param group 
-     * @param template 
-     * @returns ReportTemplate
-     */
-    parseReport(group: Group, template: Template): ReportTemplate {
-        // set the individual components - not needed verbose but for clarity in design phase
-        let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
-        let individualReports: Report[] = [];
-        let reportsName: string = this.reportName;
-        let manager: string = this.user.id;
-        let reportId: string = this.reportId;
+    //DEALING WITH VARIABLES
+    assignVariableColumn(identifier: string) : void {
+        console.log(identifier);
+        let findIndex: number;
 
-        // parse each of the users into a new report for themselves - this lets us individualise each student
-        group.students.forEach((student: Student) => {
-            let newReport: Report = {
-                user: student, 
-                template: template,
-                report: "",
-                generated: Date.now()
-            }
-            // and push to the main reports
-            individualReports.push(newReport);
-        })
-
-        // and build the report itself...
-        let report: ReportTemplate = {
-            id: reportId, 
-            name: reportsName, 
-            manager: manager, 
-            globals: variables[0],
-            variables: variables[1],
-            reports: individualReports
-        };
-
-        return report;
-
-    }
-
-    generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
-        let globals: GlobalValues[] = [];
-        let variables: VariableValues[] = [];
-        let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
-        let duplicates: string[] = [];
-
-        // look through the template for any globals that might be needed...
-        template.template.forEach((section: string[]) => {
-            this.sentenceService.generateSentenceOptions(section).forEach((option: {sentence: string, depth: number, delete: boolean}) => {
-                
-                let typeMatches: RegExpExecArray;
-                // get the values form the sentence that are between ${brackets}$ and put them in values
-                while(typeMatches = splitRegex.exec(option.sentence)) { 
-                    let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
-                    // test if its already been identified and if not, push onto the array
-                    if(exists === -1) {
-                        // duplicates array used to ensure no doubles...
-                        duplicates.push(typeMatches[1]);
-
-                        // find if its a global or variable
-                        let data: string[] = typeMatches[1].split('|');
-
-                        // get any options options (surrounded by [ ] separated by ,)
-                        let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
-                        let optionsMatches: RegExpExecArray;
-                        let options: string[] = [];
-
-                        // and get the options, if any...
-                        while(optionsMatches = optionsRegex.exec(data[1])) {
-                            options = optionsMatches[1].split(',');
-                        }
-
-                        // finally build the variable to put into the reports array
-                        let newVariable: GlobalValues | VariableValues;
-                        let identifier: string = data[1].split('[')[0];
-
-                        switch(data[0]) {
-                            case 'g':
-                                // this is a global values
-                                newVariable = { identifier: identifier, value: "", options: options};
-                                globals.push(newVariable);
-                                break;
-                            case 'v':
-                                // this is a variable value (assume no |, or should I add v|??)
-                                newVariable = { identifier: identifier, key: "",options: options};
-                                variables.push(newVariable);
-                                break;
-                        }
-                    }
-                }
+        // if it doesnt exist then create a column for it...
+        while((findIndex = this.report.keys.findIndex((temp: string) => temp === identifier)) === -1) {
+            this.report.reports.forEach((user: Report) => {
+                user.user[identifier] = "";
             })
-        })
-        // return both arrays...
-        return [globals, variables];
+            this.report.keys.push(identifier);
+        }
+
+        // now assign tot he new column...
+        let varIndex: number = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === identifier.toLowerCase());
+        // if found assign it...
+        if(varIndex !== -1) {
+            this.report.variables[varIndex].key = identifier;
+        } else {
+            // it went wrong, who knows what to do?
+            // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
+            console.log("Failed to assign to variable");
+        }
+
+        console.log(this.report);
     }
 
 
