@@ -74,7 +74,6 @@ export class EditReportComponent implements OnInit {
         this.sticky = new IntersectionObserver(([e]) => {
             e.target.toggleAttribute('stuck', e.intersectionRatio < 1)
         }, { threshold: [1] });
-
         this.sticky.observe(document.getElementsByClassName('sticky').item(0));
 
     }
@@ -154,23 +153,71 @@ export class EditReportComponent implements OnInit {
     }
 
     //DEALING WITH VARIABLES
-    assignVariableColumn(identifier: string) : void {
-        console.log(identifier);
+
+    assignGlobalValue(identifier: string, value: string): void {
+        console.log(identifier, value);
+        // find the global int he report structure.
+        const gloIndex = this.report.globals.findIndex((temp: GlobalValues) => temp.identifier === identifier);
+        // when found set the value of the variable
+        if(gloIndex !== -1) {
+            if (value === "newOption") {
+                // force the text box to appear back for this variable...
+                this.report.globals[gloIndex].options.push("");
+            } else {
+                // default behaviour is to select the option
+                this.report.globals[gloIndex].value = value;
+            }
+            console.log(this.report);
+        }
+    }
+
+    /**
+     * Add an option to a predefined list of options...
+     * @param identifier 
+     * @param value 
+     */
+    addGlobalOption(identifier: string, value: string): void {
+        // find the global int he report structure.
+        const gloIndex = this.report.globals.findIndex((temp: GlobalValues) => temp.identifier === identifier);
+        // set the last option as equal to the value...
+        // this is the only instance in which this function should fire...
+        if(gloIndex !== -1) {
+            const optionLength = this.report.globals[gloIndex].options.length;
+            const optionValue = this.report.globals[gloIndex].options[optionLength - 1];
+
+            if(optionValue === "") {
+                this.report.globals[gloIndex].options[optionLength - 1] = value;
+                this.assignGlobalValue(identifier, value);
+            } else {
+                // something set up wrong...
+            }
+        }
+
+    }
+
+    /**
+     * Assings a variable to a column of data...
+     * @param toIdentifier 
+     * @param assignIdentifier 
+     */
+    assignVariableColumn(toIdentifier: string, assignIdentifier: string) : void {
+        // toIdentifier is the column to assign this to...
+        // assighnIdentifier is the variable to assign
         let findIndex: number;
 
         // if it doesnt exist then create a column for it...
-        while((findIndex = this.report.keys.findIndex((temp: string) => temp === identifier)) === -1) {
+        while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
             this.report.reports.forEach((user: Report) => {
-                user.user[identifier] = "";
+                user.user[toIdentifier] = "";
             })
-            this.report.keys.push(identifier);
+            this.report.keys.push(toIdentifier);
         }
 
         // now assign tot he new column...
-        let varIndex: number = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === identifier.toLowerCase());
+        let varIndex: number = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === assignIdentifier.toLowerCase());
         // if found assign it...
         if(varIndex !== -1) {
-            this.report.variables[varIndex].key = identifier;
+            this.report.variables[varIndex].key = toIdentifier;
         } else {
             // it went wrong, who knows what to do?
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
@@ -178,6 +225,51 @@ export class EditReportComponent implements OnInit {
         }
 
         console.log(this.report);
+    }
+
+    /**
+     * Remove the assignment of a variable
+     * @param varIdentifier 
+     */
+    removeVariableAssignment(varIdentifier: string): void {
+        // get the index
+        const varIndex: number = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === varIdentifier.toLowerCase());
+        // and remove the key from it...
+        if(varIndex !== -1) {
+            this.report.variables[varIndex].key = "";
+        }
+    }
+
+    checkVariableAssignment(identifier: string): boolean {
+        // find the variable index...
+        const index = this.report.variables.findIndex((temp: VariableValues) => temp.identifier === identifier);
+        // if it exists...
+        if(index !== -1) {
+            if(this.report.variables[index].key !== "") {
+                // this has been assigned
+                return true;
+            } else {
+                // not been assigned
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set a value on the data table...
+     * Adds it to the report array...
+     * This does NOT change the class list...
+     * @param reportId 
+     * @param key 
+     * @param input 
+     */
+    valueChange(reportId: number, key: string, input: FocusEvent | KeyboardEvent): void {
+        const reference: HTMLElement = <HTMLElement>input.target;
+        const newValue = reference.innerText.split("\n");
+        input.preventDefault();
+
+        this.report.reports[reportId].user[key] = newValue[0];
     }
 
 

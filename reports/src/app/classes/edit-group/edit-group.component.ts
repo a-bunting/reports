@@ -88,6 +88,7 @@ export class EditGroupComponent implements OnInit {
 
     /**
      * Chnage a value for one of the users.
+     * This does not impact any users already in a report...
      * @param index 
      * @param key 
      * @param input 

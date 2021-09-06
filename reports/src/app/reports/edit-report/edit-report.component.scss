@@ -16,7 +16,7 @@
         align-items: baseline;
         justify-content: space-between;
         font-size: 1.4rem;
-        padding: 1rem 2rem;
+        padding: .5rem 2rem;
 
         &--flex {
             display: flex;
@@ -187,12 +187,13 @@
     &__global-variables {
         display: flex;
         align-items: baseline;
-        margin-top: 1rem;
+        margin: .5rem 2rem;
+        font-size: 1.4rem;
 
         &--text {
-            font-size: 1.6rem;
             font-weight: bold;
             margin-right: 2rem;
+            width: 12rem;
         }
     }
 
@@ -203,7 +204,6 @@
         padding: .5rem 1rem;
         background-color: var(--color-style-juxtapose);
         border-radius: 1rem;
-        font-size: 1.6rem;
 
         &--text {
             margin-right: 1rem;
@@ -212,17 +212,24 @@
         &:not(:first-of-type) {
             margin-left: 1rem;
         }
+
+        select {
+            border-radius: .5rem;
+            padding: .5rem 1rem;
+            margin-left: 1rem;
+        }
     }
 
     &__variables {
         display: flex;
         align-items: baseline;
-        margin-top: 1rem;
+        margin: .5rem 2rem;
+        font-size: 1.4rem;
 
         &--text {
-            font-size: 1.6rem;
             font-weight: bold;
             margin-right: 2rem;
+            width: 12rem;
         }
     }
 
@@ -233,7 +240,6 @@
         padding: .5rem 1rem;
         background-color: var(--color-style-main);
         border-radius: 1rem;
-        font-size: 1.6rem;
         border: 2px solid transparent;
         transition: all .2s;
 
@@ -303,4 +309,10 @@
         }
     }
 
+}
+
+.input__test {
+    padding: .5rem 1rem; 
+    margin: -.5rem -1rem; 
+    width: 100%;
 }
