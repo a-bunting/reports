@@ -6,7 +6,7 @@ import { AngularFirestore, DocumentSnapshot, QuerySnapshot } from '@angular/fire
 import { User } from '../utilities/authentication/user.model';
 import { sentence } from './sentences.service';
 import { Group, Student } from '../classes/create-group/create-group.component';
-import { TemplateDB } from '../templates/templates.component';
+import { TemplateDB } from '../services/templates.service';
 import { ReportTemplate } from './reports.service';
 
 @Injectable({

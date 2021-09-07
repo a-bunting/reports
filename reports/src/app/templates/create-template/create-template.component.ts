@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DatabaseService } from 'src/app/services/database.service';
-import { TemplatesService } from 'src/app//services/templates.service';
+import { Template, TemplateDB, TemplatesService } from 'src/app//services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { Template, TemplateDB } from '../templates.component';
 import { DocumentReference } from '@angular/fire/firestore';
 import { DocumentSnapshot } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
@@ -298,7 +297,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     updateElementRoute(elementId: number, index: number, id: string): void {
         this.templateRoutes[elementId][index+1] = id;
-        this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name'], false);
+        this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
         this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
     }
 

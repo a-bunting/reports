@@ -4,9 +4,9 @@ import { from, Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { Group, Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from '../services/database.service';
-import { Template } from '../templates/templates.component';
 import { User } from '../utilities/authentication/user.model';
 import { SentencesService } from './sentences.service';
+import { Template } from './templates.service';
 
 export interface ReportTemplate {
     id: string; name: string; manager: string;
@@ -150,8 +150,6 @@ export class ReportsService {
             keys: keys,
             reports: individualReports
         };
-
-        console.log("report: ", report);
 
         return report;
 

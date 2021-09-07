@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export interface Test {
-    name: string; function: Function
+    name: string; variables: string[] | number[]; function: Function
 }
 
 @Injectable({
@@ -12,12 +12,14 @@ export class TestsService {
     public testsList: Test[] = [
         {
             name: 'gradeChange', 
+            variables: ['oldGrade', 'newGrade'],
             function: (oldGrade: number, recentGrade: number): number => {
                 return recentGrade - oldGrade;
             }
         }, 
         {
             name: 'improvement', 
+            variables: ['improvement'],
             function: (value: number): number => {
                 return value;
             }

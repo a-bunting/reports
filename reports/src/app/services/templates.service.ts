@@ -2,10 +2,21 @@ import { Injectable } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of, Subject } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
-import { Template, TemplateDB } from '../templates/templates.component';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
 import { DatabaseService } from './database.service';
+
+export interface TemplateDB {
+    manager: string; public: boolean; 
+    name: string; characters: {min: number, max: number};
+    template: string[]
+}
+
+export interface Template {
+    id: string; public: boolean; 
+    name: string; characters: {min: number, max: number};
+    template: [string[]]
+}
 
 @Injectable({
   providedIn: 'root'

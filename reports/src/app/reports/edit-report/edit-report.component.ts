@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Group, Student } from 'src/app/classes/create-group/create-group.component';
 import { GroupsService } from 'src/app/services/groups.service';
-import { TemplatesService } from 'src/app/services/templates.service';
+import { TemplatesService, Template } from 'src/app/services/templates.service';
 import { GlobalValues, Report, ReportsService, ReportTemplate, VariableValues } from 'src/app/services/reports.service';
-import { Template } from 'src/app/templates/templates.component';
 import { observable, Observable, Subject, Subscription, zip } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 import { User } from 'src/app/utilities/authentication/user.model';
@@ -11,6 +10,7 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
+import { Test } from 'src/app/services/tests.service';
 
 @Component({
   selector: 'app-edit-report',
@@ -106,13 +106,37 @@ export class EditReportComponent implements OnInit {
     }
 
     loadedTemplate: Template;
+    relatedTests: Test[] = [];
 
+    // not quite working yet, doesnt seem to push onto the array
     loadTemplate(templateId: string): void {
         // get the index
         let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
         // and load
         if(index !== -1) {
             this.loadedTemplate = this.templates[index];
+            // Get all related tests from the sentence service
+            let testData: [sentence[]] = this.sentenceService.getSentenceData(this.templatesService.parseTemplate(this.loadedTemplate.template), true, ['tests']);
+            console.log(`testdata: ${testData}`);
+            // anditerate
+            testData.forEach((temp: sentence[]) => {
+                // iterate over the results...                
+                temp.forEach((templateInfo: sentence) => {
+                    // if tests exist...
+                    if(templateInfo.tests) {
+                        templateInfo.tests.forEach((test: Test) => {
+                            // check if this test is already added
+                            const testIndex = this.relatedTests.findIndex((t: Test) => test.name === t.name);
+                            // if not there, add it...
+                            if(testIndex === -1) {
+                                this.relatedTests.push(test);
+                            } // else already added
+                        })
+                    }
+                })
+            })
+            console.log(this.relatedTests);
+            // check if we can make the report yet...
             this.parseCheck();
         }
     }
@@ -271,6 +295,5 @@ export class EditReportComponent implements OnInit {
 
         this.report.reports[reportId].user[key] = newValue[0];
     }
-
 
 }

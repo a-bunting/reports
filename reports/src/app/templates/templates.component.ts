@@ -1,19 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { TemplatesService } from '../services/templates.service';
+import { Template, TemplatesService } from '../services/templates.service';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
-
-export interface TemplateDB {
-    manager: string; public: boolean; 
-    name: string; characters: {min: number, max: number};
-    template: string[]
-}
-
-export interface Template {
-    id: string; public: boolean; 
-    name: string; characters: {min: number, max: number};
-    template: [string[]]
-}
 
 @Component({
   selector: 'app-templates',
