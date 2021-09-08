@@ -115,26 +115,36 @@ export class EditReportComponent implements OnInit {
         // and load
         if(index !== -1) {
             this.loadedTemplate = this.templates[index];
+
+            // console.log(`template bare:`, this.loadedTemplate.template);
+            // console.log(`template parsed:`, this.templatesService.parseTemplate(this.loadedTemplate.template));
+
             // Get all related tests from the sentence service
-            let testData: [sentence[]] = this.sentenceService.getSentenceData(this.templatesService.parseTemplate(this.loadedTemplate.template), true, ['tests']);
-            console.log(`testdata: ${testData}`);
-            // anditerate
-            testData.forEach((temp: sentence[]) => {
-                // iterate over the results...                
-                temp.forEach((templateInfo: sentence) => {
-                    // if tests exist...
-                    if(templateInfo.tests) {
-                        templateInfo.tests.forEach((test: Test) => {
-                            // check if this test is already added
-                            const testIndex = this.relatedTests.findIndex((t: Test) => test.name === t.name);
-                            // if not there, add it...
-                            if(testIndex === -1) {
-                                this.relatedTests.push(test);
-                            } // else already added
-                        })
-                    }
+            
+            
+            this.loadedTemplate.template.forEach((template: string[]) => {
+                // get the sentence data
+                let testData: [sentence[]] = this.sentenceService.getSentenceData(template, true, ['tests']);
+
+                // anditerate
+                testData.forEach((temp: sentence[]) => {
+                    // iterate over the results...                
+                    temp.forEach((templateInfo: sentence) => {
+                        // if tests exist...
+                        if(templateInfo.tests) {
+                            templateInfo.tests.forEach((test: Test) => {
+                                // check if this test is already added
+                                const testIndex = this.relatedTests.findIndex((t: Test) => test.name === t.name);
+                                // if not there, add it...
+                                if(testIndex === -1) {
+                                    this.relatedTests.push(test);
+                                } // else already added
+                            })
+                        }
+                    })
                 })
             })
+
             console.log(this.relatedTests);
             // check if we can make the report yet...
             this.parseCheck();
