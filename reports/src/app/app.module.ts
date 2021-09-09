@@ -25,6 +25,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
+import { GenerateTemplateComponent } from './admin/temp/generate-template/generate-template.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { EditReportComponent } from './reports/edit-report/edit-report.component
     CreateGroupComponent,
     SentencesComponent,
     EditGroupComponent,
-    EditReportComponent
+    EditReportComponent,
+    GenerateTemplateComponent
   ],
   imports: [
     BrowserModule,

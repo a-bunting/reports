@@ -16,6 +16,7 @@ import { CreateGroupComponent } from './classes/create-group/create-group.compon
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
+import { GenerateTemplateComponent } from './admin/temp/generate-template/generate-template.component';
 
 const routes: Routes = [
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], children: [
@@ -33,6 +34,7 @@ const routes: Routes = [
     ]},
     {path: 'auth', component: AuthComponent},
     {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
+    {path: 'temp', component: GenerateTemplateComponent, canActivate: [AuthGuard, AdminGuard]},
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
         {path: 'sentences', component: AdminSentencesComponent},
         {path: 'users', component: AdminUsersComponent}
