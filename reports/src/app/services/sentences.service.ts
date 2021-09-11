@@ -370,29 +370,31 @@ export class SentencesService {
                 }
 
                 // then add to each sentence:
-                if(sentencesAlreadyMade) {
-                    value.subcategories[subPosition]['sentence'].forEach((tmp: sentenceString) => {
-                        const testsMade: boolean = tmp.tests ? true : false;
-                        let nextTest: {testname: string, value: number | string} =  {testname: newTest.name, value: ""};
+                // deprecated
+                //
+                // if(sentencesAlreadyMade) {
+                //     value.subcategories[subPosition]['sentence'].forEach((tmp: sentenceString) => {
+                //         const testsMade: boolean = tmp.tests ? true : false;
+                //         let nextTest: {testname: string, value: number | string} =  {testname: newTest.name, value: ""};
 
-                        if(testsMade) {
-                            // check if this test isnt already added, only one test per type per sentence
-                            const testIndex: number = tmp.tests.findIndex((tmp: { testname: string, value: number | string}) => tmp.testname === newTest.name);
+                //         if(testsMade) {
+                //             // check if this test isnt already added, only one test per type per sentence
+                //             const testIndex: number = tmp.tests.findIndex((tmp: { testname: string, value: number | string}) => tmp.testname === newTest.name);
 
-                            if(testIndex === -1) {
-                                // not found so add
-                                tmp.tests.push({testname: newTest.name, value: ""});
-                            } else {
-                                // not found, so??? error somehow
-                            }
-                        } else {
-                            // this is the first so just add it...
-                            tmp.tests = [nextTest];
-                        }
-                    });
-                } else {
-                    value.subcategories[subPosition]['tests'] = [newTest];
-                }
+                //             if(testIndex === -1) {
+                //                 // not found so add
+                //                 tmp.tests.push({testname: newTest.name, value: ""});
+                //             } else {
+                //                 // not found, so??? error somehow
+                //             }
+                //         } else {
+                //             // this is the first so just add it...
+                //             tmp.tests = [nextTest];
+                //         }
+                //     });
+                // } else {
+                //     value.subcategories[subPosition]['tests'] = [newTest];
+                // }
 
                 return true;
             } catch(e) {
@@ -415,16 +417,18 @@ export class SentencesService {
                 let testNameToDelete: string = value.subcategories[subPosition].tests[testNumber].name;
                 value.subcategories[subPosition].tests.splice(testNumber, 1);
                 // and remove from the sentences array also...
-                value.subcategories[subPosition].sentence.forEach((temp: sentenceString) => {
-                    let testIndex: number = temp.tests.findIndex((test) => test.testname === testNameToDelete);
+                // deprecated
+                //
+                // value.subcategories[subPosition].sentence.forEach((temp: sentenceString) => {
+                //     let testIndex: number = temp.tests.findIndex((test) => test.testname === testNameToDelete);
                     
-                    if(testIndex !== -1) {
-                        // if found, splice it.
-                        temp.tests.splice(testIndex, 1);
-                    } else {
-                        // not found, doesnt exist??? error??
-                    }
-                })
+                //     if(testIndex !== -1) {
+                //         // if found, splice it.
+                //         temp.tests.splice(testIndex, 1);
+                //     } else {
+                //         // not found, doesnt exist??? error??
+                //     }
+                // })
 
                 return true;
             } catch (e) {
