@@ -354,7 +354,6 @@ export class SentencesService {
                 } else {
                     value.subcategories[subPosition]['tests'] = [newTest];
                 }
-<<<<<<< HEAD
 
                 // then add to each sentence:
                 // deprecated
@@ -383,8 +382,6 @@ export class SentencesService {
                 //     value.subcategories[subPosition]['tests'] = [newTest];
                 // }
 
-=======
->>>>>>> parent of 7101724 (update tests)
                 return true;
             } catch(e) {
                 return false;
@@ -404,7 +401,6 @@ export class SentencesService {
         const callback: Function = (value: sentence) => {
             try {
                 value.subcategories[subPosition].tests.splice(testNumber, 1);
-<<<<<<< HEAD
                 // and remove from the sentences array also...
                 // deprecated
                 //
@@ -419,8 +415,6 @@ export class SentencesService {
                 //     }
                 // })
 
-=======
->>>>>>> parent of 7101724 (update tests)
                 return true;
             } catch (e) {
                 return false;
