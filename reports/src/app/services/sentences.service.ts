@@ -90,9 +90,9 @@ export class SentencesService {
      * @param singleStream  whether or not to go down the route only or butterfly out
      * @param data a list of key values to return (i.e. name, sentence etc)
      */
-     getSentenceData(route: string[], singleStream: boolean, data?: string[], infinite?: boolean): [sentence[]] {
+     getSentenceData(route: [string[]], singleStream: boolean, data?: string[], infinite?: boolean): [sentence[]] {
         // route must always start with a 0
-        route[0] = this.sentenceData[0].id;
+        route[0][0] = this.sentenceData[0].id;
 
         // id must always be included for id purposed...
         data.indexOf("id") === -1 ? data.push("id") : "";
@@ -101,53 +101,57 @@ export class SentencesService {
         let sntncData: sentence[] = this.sentenceData;
 
         // iterate over the route...
-        route.forEach((value: string, routePosition: number) => {                
+        // old and new options
+
+        // route.forEach((value: string[], routePosition: number) => {                
+        route.forEach((tmp: string[], i: number) => {                
             let subData: sentence[];
             let newReturnData: [{}] = [{}];
             
-            for(let i = 0 ; i < sntncData.length ; i++) {
-                if(sntncData[i].id === value) {
-                    // this is the route we need...
-                    // check to see if any subroutes exist, and if not create one..
-                    if(Array.isArray(sntncData[i].subcategories)) {
-                        subData = sntncData[i].subcategories;
-                    } else {
-                        // these two commented out lines were all that was here before infinite
-                        // use if this breaks the function.
-                        // sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
-                        // subData = sntncData[i].subcategories;
-                        if(infinite || infinite === undefined) {
-                            sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
+            tmp.forEach((value: string, routePosition: number) => {
+                for(let i = 0 ; i < sntncData.length ; i++) {
+                    if(sntncData[i].id === value) {
+                        // this is the route we need...
+                        // check to see if any subroutes exist, and if not create one..
+                        if(Array.isArray(sntncData[i].subcategories)) {
                             subData = sntncData[i].subcategories;
                         } else {
-                            // add subctegories...
-                            break;
+                            // these two commented out lines were all that was here before infinite
+                            // use if this breaks the function.
+                            if(infinite || infinite === undefined) {
+                                sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
+                                subData = sntncData[i].subcategories;
+                            } else {
+                                // add subctegories...
+                                break;
+                            }
                         }
+                        
+                        // check to see if there is subdata, and if not just use the sentence stem
+                        subData.forEach((dataStem: sentence, index: number) => {
+                            // if a single stream is needed only select the appropriate routes...
+                            if(!singleStream || (route[i][routePosition+1] === dataStem.id) || ((routePosition + 1) === route.length)) {
+                                data.forEach((key: string) => {
+                                    // get the value for the key value pair
+                                    const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
+                                    // if it exists add it to the array
+                                    if(val !== undefined) {
+                                        const add = { [key]: val };
+                                        newReturnData[index] = { ...newReturnData[index], ...add};
+                                    }
+                                })
+                                const editParameters = { order: routePosition, index: index };
+                                newReturnData[index] = { ...newReturnData[index], ...editParameters};
+                            }
+                        })
+                        // add the data to the return variable with no empty objects
+                        ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
+                        // set the data stream as the subcategories of the first branch...
+                        sntncData = sntncData[i].subcategories;
                     }
-                    
-                    // check to see if there is subdata, and if not just use the sentence stem
-                    subData.forEach((dataStem: sentence, index: number) => {
-                        // if a single stream is needed only select the appropriate routes...
-                        if(!singleStream || (route[routePosition+1] === dataStem.id) || ((routePosition + 1) === route.length)) {
-                            data.forEach((key: string) => {
-                                // get the value for the key value pair
-                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
-                                // if it exists add it to the array
-                                if(val !== undefined) {
-                                    const add = { [key]: val };
-                                    newReturnData[index] = { ...newReturnData[index], ...add};
-                                }
-                            })
-                            const editParameters = { order: routePosition, index: index };
-                            newReturnData[index] = { ...newReturnData[index], ...editParameters};
-                        }
-                    })
-                    // add the data to the return variable with no empty objects
-                    ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
-                    // set the data stream as the subcategories of the first branch...
-                    sntncData = sntncData[i].subcategories;
                 }
-            }
+            })
+
         })
         return ret;
     }
@@ -180,7 +184,7 @@ export class SentencesService {
      * @param route 
      */
     //  generateSentenceOptions(route: string[]): void {
-    generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
+    generateSentenceOptions(route: [string[]]): {sentence: string, depth: number, delete: boolean}[] {
         
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
@@ -276,9 +280,12 @@ export class SentencesService {
                 if(i === 0) { report += "<p>"; }
 
                 // generate sentence option 1
-                const str = this.generateSentenceOptions(route);
-                quantity = quantity * str.length;
-                report += str[0].sentence;
+                const str = this.generateSentenceOptions([route]);
+
+                if(str.length > 0) {
+                    quantity = quantity * str.length;
+                    report += str[0].sentence;
+                }
 
                 // close paragraph tag
                 if (i === routeArray.length - 1) { report += "</p>"; }
