@@ -63,6 +63,7 @@
                 </div>
             </div>
             <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngFor="let text of sentence.sentence; let s = index">
+<<<<<<< HEAD
                 <div style="font-weight: bold">Option {{ s+1 }} </div>
                  <!-- {{ text.tests ? "("+text.tests.length+")" : "" }}:</div> individual test count, deprecated.... -->
                 <div    class="admin-sentences__stem-phrase--sentence--input" 
@@ -71,6 +72,15 @@
                 data-placeholder="No sentences defined..." 
                 contenteditable="true">
                     {{ text.text ? text.text : null }}
+=======
+                <div style="font-weight: bold">Option {{ s+1 }}:</div> 
+                    <div    class="admin-sentences__stem-phrase--sentence--input" 
+                    (keyup.enter)="modifySentence(sentence.order, sentence.index, s, $event)" 
+                    (blur)="modifySentence(sentence.order, sentence.index, s, $event)" 
+                    data-placeholder="No sentences defined..." 
+                    contenteditable="true">
+                    {{ text ? text : null }}
+>>>>>>> parent of 7101724 (update tests)
                 </div>
                 <div class="admin-sentences__stem-phrase--sentence--delete" (click)="deleteSentence(sentence.order, sentence.index, s)">&times;</div>
             </div>
