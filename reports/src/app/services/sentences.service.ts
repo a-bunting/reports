@@ -7,22 +7,10 @@ import { TestsService } from './tests.service';
 export interface sentence {
     id: string;
     endpoint?: boolean, starter?: boolean, 
-    name?: string, sentence?: sentenceString[]
+    name?: string, sentence?: string[], meta?: string | number
     subcategories?: [sentence], tests?: {name: string}[], 
     index?: number; order?: number
 }
-
-export interface sentenceString {
-    text: string; tests?: {testname: string; value: number | string}[]
-}
-
-// export interface sentence {
-//     id: string;
-//     endpoint?: boolean, starter?: boolean, 
-//     name?: string, sentence?: string[], meta?: string | number
-//     subcategories?: [sentence], tests?: {name: string}[], 
-//     index?: number; order?: number
-// }
 
 @Injectable({
   providedIn: 'root'
@@ -205,11 +193,11 @@ export class SentencesService {
             stem.forEach((newStem: sentence) => {
                  
                 if(newStem.sentence) {
-                    newStem.sentence.forEach((sentenceStem: sentenceString) => {
+                    newStem.sentence.forEach((sentenceStem: string) => {
                 // if (options) {
                     // options.forEach((sentenceStem: string) => {
 
-                        const sentence = sentenceStem.text;
+                        const sentence = sentenceStem;
                         const starter = newStem.starter ? newStem.starter : false;
         
                         if(sentence) {
@@ -359,41 +347,13 @@ export class SentencesService {
         const callback: Function = (value: sentence) => {
             try {
                 const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
-                const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
                 const newTest: {name: string} = {name: (<HTMLInputElement>document.getElementById('newTest')).value };
     
-                // first add the test
                 if(testsAlreadyMade) {
                     value.subcategories[subPosition]['tests'].push(newTest);
                 } else {
                     value.subcategories[subPosition]['tests'] = [newTest];
                 }
-
-                // then add to each sentence:
-                if(sentencesAlreadyMade) {
-                    value.subcategories[subPosition]['sentence'].forEach((tmp: sentenceString) => {
-                        const testsMade: boolean = tmp.tests ? true : false;
-                        let nextTest: {testname: string, value: number | string} =  {testname: newTest.name, value: ""};
-
-                        if(testsMade) {
-                            // check if this test isnt already added, only one test per type per sentence
-                            const testIndex: number = tmp.tests.findIndex((tmp: { testname: string, value: number | string}) => tmp.testname === newTest.name);
-
-                            if(testIndex === -1) {
-                                // not found so add
-                                tmp.tests.push({testname: newTest.name, value: ""});
-                            } else {
-                                // not found, so??? error somehow
-                            }
-                        } else {
-                            // this is the first so just add it...
-                            tmp.tests = [nextTest];
-                        }
-                    });
-                } else {
-                    value.subcategories[subPosition]['tests'] = [newTest];
-                }
-
                 return true;
             } catch(e) {
                 return false;
@@ -412,20 +372,7 @@ export class SentencesService {
       removeTest(position: number, subPosition: number, testNumber: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
             try {
-                let testNameToDelete: string = value.subcategories[subPosition].tests[testNumber].name;
                 value.subcategories[subPosition].tests.splice(testNumber, 1);
-                // and remove from the sentences array also...
-                value.subcategories[subPosition].sentence.forEach((temp: sentenceString) => {
-                    let testIndex: number = temp.tests.findIndex((test) => test.testname === testNameToDelete);
-                    
-                    if(testIndex !== -1) {
-                        // if found, splice it.
-                        temp.tests.splice(testIndex, 1);
-                    } else {
-                        // not found, doesnt exist??? error??
-                    }
-                })
-
                 return true;
             } catch (e) {
                 return false;
@@ -481,7 +428,7 @@ export class SentencesService {
      modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
             try {
-                value.subcategories[subPosition]['sentence'][sentenceIndex] = {text: newComment.target.innerText};
+                value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
                 return true;
             } catch (e) {
                 console.log(`Error: ${e.message}`);
@@ -503,9 +450,9 @@ export class SentencesService {
             
             try {
                 if(sentencesAlreadyMade) {
-                    value.subcategories[subPosition]['sentence'].push({text: ""});
+                    value.subcategories[subPosition]['sentence'].push("");
                 } else {
-                    value.subcategories[subPosition]['sentence'] = [{text: ""}];
+                    value.subcategories[subPosition]['sentence'] = [""];
                 }
                 return true;
             } catch(e) {
@@ -671,4 +618,4 @@ export class SentencesService {
 }
 
 // backup db
-// [{"id":"FFnsi","subcategories":[{"tests":[],"sentence":[{"text": ""}],"starter":false,"subcategories":[{"starter":true,"sentence":[{"text": "${v|forename}$ ${v|surname}$ has earned themselves [1] ${v|grade}$ grade in ${g|Subject Name}$ this ${g|Time Period[semester,term]}$."}],"id":"7B4IX","subcategories":[{"name":"Short","sentence":[{"text": ""}],"subcategories":[{"name":"1","sentence":[{"text": "."}],"subcategories":[{"name":"New","id":"gcj3p"}],"id":"X5Up6"}],"id":"xkvmt"},{"sentence":[],"name":"Medium","tests":[],"id":"hYLfU","subcategories":[{"tests":[{"name":"gradeChange"}],"sentence":[{"text": "not achieving quite as well as (LAST GRADE PERIOD)."}],"name":"1","id":"ucK6b"},{"name":"2","tests":[{"name":"gradeChange"}],"sentence":[{"text": "achieving just as well as (LAST GRADE PERIOD)."}],"id":"7wrSS"},{"name":"3","tests":[{"name":"gradeChange"}],"id":"I9i0H","sentence":[{"text": "achieving better than (LAST GRADE PERIOD)."}]},{"sentence":[{"text": "achieving far better than (GENDER) did in (LAST GRADE PERIOD)."}],"id":"PHEla","tests":[{"name":"gradeChange"}],"name":"4"}]},{"id":"zaAkK","subcategories":[{"sentence":[{"text": "where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."}],"name":"1","id":"neFow"}],"name":"Long","sentence":[]}],"name":"Grade"},{"starter":true,"name":"Learning","id":"nn4gC","subcategories":[],"sentence":[{"text": "${v|forename}$ ${v|surname}$ has this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$  learned about ${g|Topics Learned}$."},{"text": "${v|forename}$ ${v|surname}$ has learned about ${g|Topics Learned}$ this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"}]},{"id":"Jq1gA","name":"Basic (Jq1gA)","subcategories":[{"id":"sE9xO","name":"New"}],"sentence":[{"text":"This is a report of ${v|forename}$ ${v|surname}$'s progress throughout the last ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"}]}],"name":"Intro","id":"7hYZS"},{"subcategories":[{"id":"wO91f","name":"1"}],"name":"What they did well","id":"7ZAK2","sentence":[{"text": ""}]}]}]
+//[{"id":"FFnsi","subcategories":[{"subcategories":[{"name":"Grade","endpoint":true,"subcategories":[{"subcategories":[{"sentence":["."],"id":"X5Up6","endpoint":true}],"sentence":[""],"id":"xkvmt","name":"Short"},{"sentence":[""],"id":"hYLfU","subcategories":[{"endpoint":true,"sentence":["not achieving quite as well as (LAST GRADE PERIOD)."],"tests":[{"name":"gradeChange"}],"id":"ucK6b","meta":-2,"name":"1"},{"sentence":["achieving just as well as (LAST GRADE PERIOD)."],"meta":0,"endpoint":true,"name":"2","id":"7wrSS"},{"endpoint":true,"name":"3","meta":2,"sentence":["achieving better than (LAST GRADE PERIOD)."],"id":"I9i0H"},{"id":"PHEla","name":"4","meta":20,"sentence":["achieving far better than (GENDER) did in (LAST GRADE PERIOD)."],"endpoint":true}],"name":"Medium","tests":[]},{"id":"zaAkK","subcategories":[{"id":"neFow","sentence":["where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."],"endpoint":true}],"name":"Long","sentence":[""]}],"id":"7B4IX","sentence":["earning (*GENDER NOUN)self an (LETTER) throughout the period"]},{"name":"Learning","id":"nn4gC","subcategories":[{"endpoint":true,"name":"1","sentence":["where (GENDER}NAME) learned about (TOPICS)."],"id":"dnc5u"},{"name":"2","endpoint":true,"starter":true,"sentence":["During this (PERIOD) (NAME}GENDER) learned about (TOPICS)"],"id":"mpfzM"}]}],"sentence":["This is the starter sentence"],"tests":[],"id":"7hYZS","name":"Introductions","starter":true},{"subcategories":[],"name":"What they did well","sentence":["Not written - Test","New value to test for changes..."],"id":"7ZAK2","endpoint":true}]}]
