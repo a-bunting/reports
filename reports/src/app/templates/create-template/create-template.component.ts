@@ -25,7 +25,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     viewData: [[sentence[]]] = [[[]]];
     initialData: sentence[];
 
-    templateRoutes: [[string[]]];
+    templateRoutes: [string[]];
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
@@ -79,6 +79,45 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
      */
     loadTemplate(id: string | undefined): void {
         if(id !== undefined) {
+            // this isnt a new template so its a database one, search for it...
+            // this.templateService.getTemplate(id).subscribe((template: Template) => {
+            //     // and use the data to populate the template...
+            //     const templateData = template.data();
+            //     this.templateCharacters.min = templateData.characters.min;
+            //     this.templateCharacters.max = templateData.characters.max;
+            //     this.templateName = templateData.name;
+
+            //     // split the routes up into their paragraphs...
+            //     this.viewData = [[[]]];
+            //     this.templateRoutes = undefined;
+
+            //     templateData.template.forEach((route: string, elementId: number) => {
+            //         let split = route.split("|");
+
+            //         if(split[0] === "newParagraph") {
+            //             // add a new paragraph.
+            //             this.addParagraph();
+            //         } else {
+            //             // add a new element and add all the routes to it.
+            //             this.addElement();
+            //             // add routes.
+            //             split.forEach((routeCode: string, index: number) => {
+            //                 try {
+            //                     this.updateElementRoute(elementId, index - 1, routeCode);
+            //                 } catch (error) {
+            //                     console.log(`Error: ${error}`);
+            //                     this.deleteElement(this.templateRoutes.length - 1);
+            //                 }
+            //             })
+            //         }
+            //     })
+
+            //     this.savedTemplate = this.generateTemplate();
+            //     this.templateUpdated = false;
+            //     this.templateSaved = true;
+            //     this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            // })
+
 
             const templateData: Template = this.templateService.getTemplate(id);
             // and use the data to populate the template...
@@ -90,39 +129,24 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.viewData = [[[]]];
             this.templateRoutes = undefined;
 
-            templateData.template.forEach((temp: [string[]], elementId: number) => {
+            templateData.template.forEach((route: string[], elementId: number) => {
 
-                temp.forEach((route: string[], position: number) => {
-                    // if its a single at the first = newparagraph then say that...
-                    if(route[0] === "newParagraph") {
-                        // add a new paragraph.
-                        this.addParagraph();
-                    } else {
-                        // add a new element and add all the routes to it.
-                        this.addElement();
-
+                if(route[0] === "newParagraph") {
+                    // add a new paragraph.
+                    this.addParagraph();
+                } else {
+                    // add a new element and add all the routes to it.
+                    this.addElement();
+                    // add routes.
+                    route.forEach((routeCode: string, index: number) => {
                         try {
-                            console.log(route);
-                            this.updateElementRoute(elementId, position - 1, route);
+                            this.updateElementRoute(elementId, index - 1, routeCode);
                         } catch (error) {
                             console.log(`Error: ${error}`);
                             this.deleteElement(this.templateRoutes.length - 1);
                         }
-                        // add routes...
-                        // route.forEach((routeCode: string, index: number) => {  
-                        //     // this gives us each one of the routes...                          
-                        //     try {
-                        //         this.updateElementRoute(elementId, index - 1, routeCode);
-                        //     } catch (error) {
-                        //         console.log(`Error: ${error}`);
-                        //         this.deleteElement(this.templateRoutes.length - 1);
-                        //     }
-                        // })
-                    }
-
-                })
-
-
+                    })
+                }
                 
             })
 
@@ -156,7 +180,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
      */
     generateTemplate(): TemplateDB {
         // parse the template first
-        let parsedTemplate: string[] = this.templateService.parseRoutesToDatabaseFormat(this.templateRoutes);
+        let parsedTemplate: string[] = this.templateService.parseTemplate(this.templateRoutes);
 
         return {
             name: this.templateName, 
@@ -271,23 +295,9 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.checkForUpdates();
     }
 
-    updateElementRoute(elementId: number, index: number, id: string[]): void {
-        // if(id === "allOptInclusive") {
-            // ADD BACK IN WHEN TEMPLATES ARE SORTED
-        //     // any of the top row may be selected...
-        //     let allOptionsIds: string[] = [];
-        //     // push all ids onto the array
-        //     this.viewData[elementId][index].forEach((temp: sentence) => {
-        //         allOptionsIds.push(temp.id);
-        //     })
-        //     // now add it onto the main array (Oh gawd, this is a complete overhaul of sentences!)
-        //     this.templateRoutes[elementId][index+1] = allOptionsIds;
-        // } else {
-            this.templateRoutes[elementId][index+1] = id;
-            // only update viewdata if the view changes...
-            this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
-        // }
-        // example sentence should be generated irrespective
+    updateElementRoute(elementId: number, index: number, id: string): void {
+        this.templateRoutes[elementId][index+1] = id;
+        this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
         this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
     }
 
