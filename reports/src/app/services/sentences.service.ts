@@ -7,14 +7,14 @@ import { TestsService } from './tests.service';
 export interface sentence {
     id: string;
     endpoint?: boolean, starter?: boolean, 
-    name?: string, sentence?: sentenceString[]
+    name?: string, sentence?: string[]
     subcategories?: [sentence], tests?: {name: string}[], 
     index?: number; order?: number
 }
 
-export interface sentenceString {
-    text: string; tests?: {testname: string; value: number | string}[]
-}
+// export interface sentenceString {
+//     text: string; tests?: {testname: string; value: number | string}[]
+// }
 
 // export interface sentence {
 //     id: string;
@@ -205,11 +205,11 @@ export class SentencesService {
             stem.forEach((newStem: sentence) => {
                  
                 if(newStem.sentence) {
-                    newStem.sentence.forEach((sentenceStem: sentenceString) => {
+                    newStem.sentence.forEach((sentenceStem: string) => {
                 // if (options) {
                     // options.forEach((sentenceStem: string) => {
 
-                        const sentence = sentenceStem.text;
+                        const sentence = sentenceStem;
                         const starter = newStem.starter ? newStem.starter : false;
         
                         if(sentence) {
@@ -369,33 +369,6 @@ export class SentencesService {
                     value.subcategories[subPosition]['tests'] = [newTest];
                 }
 
-                // then add to each sentence:
-                // deprecated
-                //
-                // if(sentencesAlreadyMade) {
-                //     value.subcategories[subPosition]['sentence'].forEach((tmp: sentenceString) => {
-                //         const testsMade: boolean = tmp.tests ? true : false;
-                //         let nextTest: {testname: string, value: number | string} =  {testname: newTest.name, value: ""};
-
-                //         if(testsMade) {
-                //             // check if this test isnt already added, only one test per type per sentence
-                //             const testIndex: number = tmp.tests.findIndex((tmp: { testname: string, value: number | string}) => tmp.testname === newTest.name);
-
-                //             if(testIndex === -1) {
-                //                 // not found so add
-                //                 tmp.tests.push({testname: newTest.name, value: ""});
-                //             } else {
-                //                 // not found, so??? error somehow
-                //             }
-                //         } else {
-                //             // this is the first so just add it...
-                //             tmp.tests = [nextTest];
-                //         }
-                //     });
-                // } else {
-                //     value.subcategories[subPosition]['tests'] = [newTest];
-                // }
-
                 return true;
             } catch(e) {
                 return false;
@@ -485,7 +458,7 @@ export class SentencesService {
      modifySentenceData(position: number, subPosition: number, sentenceIndex: number, newComment, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
             try {
-                value.subcategories[subPosition]['sentence'][sentenceIndex] = {text: newComment.target.innerText};
+                value.subcategories[subPosition]['sentence'][sentenceIndex] = newComment.target.innerText;
                 return true;
             } catch (e) {
                 console.log(`Error: ${e.message}`);
@@ -507,9 +480,9 @@ export class SentencesService {
             
             try {
                 if(sentencesAlreadyMade) {
-                    value.subcategories[subPosition]['sentence'].push({text: ""});
+                    value.subcategories[subPosition]['sentence'].push("");
                 } else {
-                    value.subcategories[subPosition]['sentence'] = [{text: ""}];
+                    value.subcategories[subPosition]['sentence'] = [""];
                 }
                 return true;
             } catch(e) {

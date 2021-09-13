@@ -60,7 +60,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         this.isLoading = true;
 
         // get the sentence data from the database...
-        this.sentenceService.getSentencesDatabase('Temporary').subscribe((data: sentence) => {
+        this.sentenceService.getSentencesDatabase('template').subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
             this.initialData = JSON.parse(JSON.stringify(sentenceData));
@@ -91,7 +91,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
             this.databaseMismatch = false; // disable the changes button and reenable if failure.
     
             // const doc = docName ? docName : 'template';
-            const doc = docName ? docName : 'Temporary';
+            const doc = docName ? docName : 'template';
             // this.databaseService.uploadSentences(doc, this.sentenceData[0]).subscribe(returnData => {
             this.databaseService.uploadSentences(doc, this.sentenceService.getCurrentSentenceData()[0]).subscribe(returnData => {
                 // changes comitted

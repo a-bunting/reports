@@ -64,13 +64,12 @@
             </div>
             <div class="admin-sentences__stem-phrase--sentence" [class.admin-sentences__stem-phrase--editable]="sentence.sentence" *ngFor="let text of sentence.sentence; let s = index">
                 <div style="font-weight: bold">Option {{ s+1 }} </div>
-                 <!-- {{ text.tests ? "("+text.tests.length+")" : "" }}:</div> individual test count, deprecated.... -->
                 <div    class="admin-sentences__stem-phrase--sentence--input" 
                 (keyup.enter)="modifySentence(sentence.order, sentence.index, s, $event)" 
                 (blur)="modifySentence(sentence.order, sentence.index, s, $event)" 
                 data-placeholder="No sentences defined..." 
                 contenteditable="true">
-                    {{ text.text ? text.text : null }}
+                    {{ text ? text : null }}
                 </div>
                 <div class="admin-sentences__stem-phrase--sentence--delete" (click)="deleteSentence(sentence.order, sentence.index, s)">&times;</div>
             </div>
