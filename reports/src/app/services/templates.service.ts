@@ -15,7 +15,7 @@ export interface TemplateDB {
 export interface Template {
     id: string; public: boolean; 
     name: string; characters: {min: number, max: number};
-    template: [string[]]
+    template: [[string[]]]
 }
 
 @Injectable({
@@ -55,14 +55,14 @@ export class TemplatesService {
             return this.db.getTemplates().pipe(take(1), map((resultsArray: QuerySnapshot<any>) => {
                 resultsArray.forEach((template: DocumentSnapshot<TemplateDB>) => {
                     let temp: TemplateDB = template.data();
-                    let routes: [string[]] = [[]];
+                    let routes: [[string[]]] = this.parseRoutesToTemplateFormat(temp.template);
                     let id: string = template.id;
     
                     // split the routes up(entered into db as 123456|abcdef etc)
-                    temp.template.forEach((route: string) => {
-                        const routeIds: string[] = route.split("|");
-                        routes.push(routeIds);
-                    });
+                    // temp.template.forEach((route: string) => {
+                    //     const routeIds: string[] = route.split("|");
+                    //     routes.push(routeIds);
+                    // });
     
                     // build the new template data to use in the app
                     let newTemplate: Template = {
@@ -109,12 +109,12 @@ export class TemplatesService {
      * 
      * @param newTemplate 
      */
-    addNewTemplate(newTemplate: TemplateDB, rawRoutes: [string[]]): Observable<DocumentReference> {
+    addNewTemplate(newTemplate: TemplateDB, rawRoutes: [[string[]]]): Observable<DocumentReference> {
         // generate a new templatedb for the database...
         let tempDb: TemplateDB = {
             ...newTemplate, 
             manager: this.user.id, 
-            template: this.parseTemplate(rawRoutes)
+            template: this.parseRoutesToDatabaseFormat(rawRoutes)
         }
 
         // return the databse update object
@@ -192,7 +192,7 @@ export class TemplatesService {
             name: template.name,
             public: template.public,
             characters: { min: template.characters.min, max: template.characters.max },
-            template: this.parseTemplate(template.template),
+            template: this.parseRoutesToDatabaseFormat(template.template),
             manager: this.user.id
         }
 
@@ -208,23 +208,53 @@ export class TemplatesService {
 
     /**
      * Takes a template from Template format (for use on the site) to TemplateDB format (for storage)
+     * Parses a route from Template format [[[ID1, ID2, ID3],[ID4]], [ID5]] to TemplateDB format [ID1/ID2/ID3|ID4,ID5]
      * @param routes 
      * @returns 
      */
-    parseTemplate(routes: [string[]]): string[] {
+    parseRoutesToDatabaseFormat(routes: [[string[]]]): string[] {
         // parse the template first
         let parsedTemplate: string[] = [];
         // iterate and put it in databaseformat.
-        routes.forEach((template: string[]) => {
+        routes.forEach((template: [string[]]) => {
             let newTemplate: string = "";
             // concatenate the routes...
-            template.forEach((temp: string, i: number) => {
-                if(i !== 0) {
-                    newTemplate += "|";
-                }
-                newTemplate += temp;
+            template.forEach((str: string[], s: number) => {
+                str.forEach((temp: string, i: number) => {
+                    // if this isnt the first entry, add / to imply multiple options
+                    if(i !== 0) {  newTemplate += "/"; }
+                    // and add
+                    newTemplate += temp;
+                })
+                // if this isnt the first option, add a line | to imply next in the chain...
+                if(s !== 0) {  newTemplate += "|"; }
             })
             parsedTemplate.push(newTemplate);
+        })
+        return parsedTemplate;
+    }
+
+    /**
+     * Parses a route from TemplateDB format [ID1/ID2/ID3|ID4,ID5] to Template format [[[ID1, ID2, ID3],[ID4]], [ID5]]
+     * @param routes 
+     * @returns 
+     */
+    parseRoutesToTemplateFormat(routes: string[]): [[string[]]] {
+        let parsedTemplate: [[string[]]];
+        // iterate through the routes array
+        routes.forEach((temp: string) => {
+            // split by | first...
+            let stem: [string[]];
+            let sentenceStems: string[] = temp.split('|');
+            // iterate...
+            sentenceStems.forEach((str: string) => {
+                // split into options...
+                let options: string[] = str.split('/');
+                // push onto parsed Template
+                stem === undefined ? stem = [options] : stem.push(options);
+            })
+            // and push onto the final object...
+            parsedTemplate === undefined ? parsedTemplate = [stem] : parsedTemplate.push(stem);
         })
         return parsedTemplate;
     }

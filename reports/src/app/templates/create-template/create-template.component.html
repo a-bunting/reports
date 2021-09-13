@@ -27,7 +27,7 @@
             <div *ngIf="templateSegment[0] !== 'newParagraph'">
                 <select name="test" id="test" class="create-template__element--select" *ngFor="let sentenceStem of viewData[t]; let s = index" (change)="updateElementRoute(t, s, $event.target.value)">
                     <option value=""> {{ s === 0 ? "" : "** End **" }}</option>
-                    <option value="${inclusive}$">** All options inclusive **</option>
+                    <option value="allOptInclusive">** All options inclusive **</option>
                     <option value="test" *ngFor="let sentence of sentenceStem; let p = index" value="{{ sentence.id }}" [selected]="sentence.id === templateSegment[s+1]">
                         {{ sentence.name }} 
                         <span *ngFor="let test of sentence.tests; let testIndex = index">

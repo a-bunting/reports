@@ -102,9 +102,9 @@ export class SentencesService {
      * @param singleStream  whether or not to go down the route only or butterfly out
      * @param data a list of key values to return (i.e. name, sentence etc)
      */
-     getSentenceData(route: string[], singleStream: boolean, data?: string[], infinite?: boolean): [sentence[]] {
+     getSentenceData(route: [string[]], singleStream: boolean, data?: string[], infinite?: boolean): [sentence[]] {
         // route must always start with a 0
-        route[0] = this.sentenceData[0].id;
+        route[0][0] = this.sentenceData[0].id;
 
         // id must always be included for id purposed...
         data.indexOf("id") === -1 ? data.push("id") : "";
@@ -113,53 +113,57 @@ export class SentencesService {
         let sntncData: sentence[] = this.sentenceData;
 
         // iterate over the route...
-        route.forEach((value: string, routePosition: number) => {                
+        // old and new options
+
+        // route.forEach((value: string[], routePosition: number) => {                
+        route.forEach((tmp: string[], i: number) => {                
             let subData: sentence[];
             let newReturnData: [{}] = [{}];
             
-            for(let i = 0 ; i < sntncData.length ; i++) {
-                if(sntncData[i].id === value) {
-                    // this is the route we need...
-                    // check to see if any subroutes exist, and if not create one..
-                    if(Array.isArray(sntncData[i].subcategories)) {
-                        subData = sntncData[i].subcategories;
-                    } else {
-                        // these two commented out lines were all that was here before infinite
-                        // use if this breaks the function.
-                        // sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
-                        // subData = sntncData[i].subcategories;
-                        if(infinite || infinite === undefined) {
-                            sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
+            tmp.forEach((value: string, routePosition: number) => {
+                for(let i = 0 ; i < sntncData.length ; i++) {
+                    if(sntncData[i].id === value) {
+                        // this is the route we need...
+                        // check to see if any subroutes exist, and if not create one..
+                        if(Array.isArray(sntncData[i].subcategories)) {
                             subData = sntncData[i].subcategories;
                         } else {
-                            // add subctegories...
-                            break;
+                            // these two commented out lines were all that was here before infinite
+                            // use if this breaks the function.
+                            if(infinite || infinite === undefined) {
+                                sntncData[i].subcategories = [{name: "New", id: this.generateId()}];
+                                subData = sntncData[i].subcategories;
+                            } else {
+                                // add subctegories...
+                                break;
+                            }
                         }
+                        
+                        // check to see if there is subdata, and if not just use the sentence stem
+                        subData.forEach((dataStem: sentence, index: number) => {
+                            // if a single stream is needed only select the appropriate routes...
+                            if(!singleStream || (route[i][routePosition+1] === dataStem.id) || ((routePosition + 1) === route.length)) {
+                                data.forEach((key: string) => {
+                                    // get the value for the key value pair
+                                    const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
+                                    // if it exists add it to the array
+                                    if(val !== undefined) {
+                                        const add = { [key]: val };
+                                        newReturnData[index] = { ...newReturnData[index], ...add};
+                                    }
+                                })
+                                const editParameters = { order: routePosition, index: index };
+                                newReturnData[index] = { ...newReturnData[index], ...editParameters};
+                            }
+                        })
+                        // add the data to the return variable with no empty objects
+                        ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
+                        // set the data stream as the subcategories of the first branch...
+                        sntncData = sntncData[i].subcategories;
                     }
-                    
-                    // check to see if there is subdata, and if not just use the sentence stem
-                    subData.forEach((dataStem: sentence, index: number) => {
-                        // if a single stream is needed only select the appropriate routes...
-                        if(!singleStream || (route[routePosition+1] === dataStem.id) || ((routePosition + 1) === route.length)) {
-                            data.forEach((key: string) => {
-                                // get the value for the key value pair
-                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
-                                // if it exists add it to the array
-                                if(val !== undefined) {
-                                    const add = { [key]: val };
-                                    newReturnData[index] = { ...newReturnData[index], ...add};
-                                }
-                            })
-                            const editParameters = { order: routePosition, index: index };
-                            newReturnData[index] = { ...newReturnData[index], ...editParameters};
-                        }
-                    })
-                    // add the data to the return variable with no empty objects
-                    ret[routePosition] = newReturnData.filter(stem => Object.keys(stem).length !== 0);
-                    // set the data stream as the subcategories of the first branch...
-                    sntncData = sntncData[i].subcategories;
                 }
-            }
+            })
+
         })
         return ret;
     }
@@ -192,7 +196,7 @@ export class SentencesService {
      * @param route 
      */
     //  generateSentenceOptions(route: string[]): void {
-    generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
+    generateSentenceOptions(route: [string[]]): {sentence: string, depth: number, delete: boolean}[] {
         
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
@@ -288,9 +292,12 @@ export class SentencesService {
                 if(i === 0) { report += "<p>"; }
 
                 // generate sentence option 1
-                const str = this.generateSentenceOptions(route);
-                quantity = quantity * str.length;
-                report += str[0].sentence;
+                const str = this.generateSentenceOptions([route]);
+
+                if(str.length > 0) {
+                    quantity = quantity * str.length;
+                    report += str[0].sentence;
+                }
 
                 // close paragraph tag
                 if (i === routeArray.length - 1) { report += "</p>"; }
@@ -359,10 +366,8 @@ export class SentencesService {
         const callback: Function = (value: sentence) => {
             try {
                 const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
-                const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
                 const newTest: {name: string} = {name: (<HTMLInputElement>document.getElementById('newTest')).value };
     
-                // first add the test
                 if(testsAlreadyMade) {
                     value.subcategories[subPosition]['tests'].push(newTest);
                 } else {
@@ -387,7 +392,6 @@ export class SentencesService {
       removeTest(position: number, subPosition: number, testNumber: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
             try {
-                let testNameToDelete: string = value.subcategories[subPosition].tests[testNumber].name;
                 value.subcategories[subPosition].tests.splice(testNumber, 1);
                 // and remove from the sentences array also...
                 // deprecated
@@ -648,4 +652,4 @@ export class SentencesService {
 }
 
 // backup db
-// [{"id":"FFnsi","subcategories":[{"tests":[],"sentence":[{"text": ""}],"starter":false,"subcategories":[{"starter":true,"sentence":[{"text": "${v|forename}$ ${v|surname}$ has earned themselves [1] ${v|grade}$ grade in ${g|Subject Name}$ this ${g|Time Period[semester,term]}$."}],"id":"7B4IX","subcategories":[{"name":"Short","sentence":[{"text": ""}],"subcategories":[{"name":"1","sentence":[{"text": "."}],"subcategories":[{"name":"New","id":"gcj3p"}],"id":"X5Up6"}],"id":"xkvmt"},{"sentence":[],"name":"Medium","tests":[],"id":"hYLfU","subcategories":[{"tests":[{"name":"gradeChange"}],"sentence":[{"text": "not achieving quite as well as (LAST GRADE PERIOD)."}],"name":"1","id":"ucK6b"},{"name":"2","tests":[{"name":"gradeChange"}],"sentence":[{"text": "achieving just as well as (LAST GRADE PERIOD)."}],"id":"7wrSS"},{"name":"3","tests":[{"name":"gradeChange"}],"id":"I9i0H","sentence":[{"text": "achieving better than (LAST GRADE PERIOD)."}]},{"sentence":[{"text": "achieving far better than (GENDER) did in (LAST GRADE PERIOD)."}],"id":"PHEla","tests":[{"name":"gradeChange"}],"name":"4"}]},{"id":"zaAkK","subcategories":[{"sentence":[{"text": "where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."}],"name":"1","id":"neFow"}],"name":"Long","sentence":[]}],"name":"Grade"},{"starter":true,"name":"Learning","id":"nn4gC","subcategories":[],"sentence":[{"text": "${v|forename}$ ${v|surname}$ has this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$  learned about ${g|Topics Learned}$."},{"text": "${v|forename}$ ${v|surname}$ has learned about ${g|Topics Learned}$ this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"}]},{"id":"Jq1gA","name":"Basic (Jq1gA)","subcategories":[{"id":"sE9xO","name":"New"}],"sentence":[{"text":"This is a report of ${v|forename}$ ${v|surname}$'s progress throughout the last ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"}]}],"name":"Intro","id":"7hYZS"},{"subcategories":[{"id":"wO91f","name":"1"}],"name":"What they did well","id":"7ZAK2","sentence":[{"text": ""}]}]}]
+//[{"id":"FFnsi","subcategories":[{"subcategories":[{"name":"Grade","endpoint":true,"subcategories":[{"subcategories":[{"sentence":["."],"id":"X5Up6","endpoint":true}],"sentence":[""],"id":"xkvmt","name":"Short"},{"sentence":[""],"id":"hYLfU","subcategories":[{"endpoint":true,"sentence":["not achieving quite as well as (LAST GRADE PERIOD)."],"tests":[{"name":"gradeChange"}],"id":"ucK6b","meta":-2,"name":"1"},{"sentence":["achieving just as well as (LAST GRADE PERIOD)."],"meta":0,"endpoint":true,"name":"2","id":"7wrSS"},{"endpoint":true,"name":"3","meta":2,"sentence":["achieving better than (LAST GRADE PERIOD)."],"id":"I9i0H"},{"id":"PHEla","name":"4","meta":20,"sentence":["achieving far better than (GENDER) did in (LAST GRADE PERIOD)."],"endpoint":true}],"name":"Medium","tests":[]},{"id":"zaAkK","subcategories":[{"id":"neFow","sentence":["where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."],"endpoint":true}],"name":"Long","sentence":[""]}],"id":"7B4IX","sentence":["earning (*GENDER NOUN)self an (LETTER) throughout the period"]},{"name":"Learning","id":"nn4gC","subcategories":[{"endpoint":true,"name":"1","sentence":["where (GENDER}NAME) learned about (TOPICS)."],"id":"dnc5u"},{"name":"2","endpoint":true,"starter":true,"sentence":["During this (PERIOD) (NAME}GENDER) learned about (TOPICS)"],"id":"mpfzM"}]}],"sentence":["This is the starter sentence"],"tests":[],"id":"7hYZS","name":"Introductions","starter":true},{"subcategories":[],"name":"What they did well","sentence":["Not written - Test","New value to test for changes..."],"id":"7ZAK2","endpoint":true}]}]
