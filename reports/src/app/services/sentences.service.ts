@@ -300,6 +300,13 @@ export class SentencesService {
         return {report: report, options: quantity};
     }
 
+    generateCompoundReport(routeArray: [string[]]): {report: string, options: number} {
+        // this function takes a route with options such as id1/id2/id3 etc and translates it into a report.
+
+        
+    }
+
+    
     /**
      * The function used to modify the array - called with a callback from a separate function
      * DONE

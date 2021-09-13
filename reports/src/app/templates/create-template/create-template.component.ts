@@ -296,9 +296,28 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     }
 
     updateElementRoute(elementId: number, index: number, id: string): void {
-        this.templateRoutes[elementId][index+1] = id;
-        this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
-        this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+        if(id === "") {
+            // end button clicked after som ething else...
+        } else if (id === "allOptInclusive") {
+            // this means all options below this can contribute sentences...
+            const data = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id'], false);
+            let allLastIds: string = "";
+            // iterate over the data to extract the next level of ids.
+            data[data.length - 1].forEach((temp: {id: string, order: number, index: number}, index: number) => {
+                // divide the ids by a /
+                index !== 0 ? allLastIds += "/" : null;
+                // add the id to the string
+                allLastIds += temp.id;
+            })
+            // works up to here, all ids printed in the form id1/id2/id3 etc...
+            console.log(allLastIds);
+
+        } else {
+            // normal, an id has been passed...
+            this.templateRoutes[elementId][index+1] = id;
+            this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
+            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+        }
     }
 
     checkForUpdates(): boolean {
