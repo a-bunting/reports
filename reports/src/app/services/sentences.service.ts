@@ -341,6 +341,7 @@ export class SentencesService {
 
 
         })
+        return null;
     }
 
 
