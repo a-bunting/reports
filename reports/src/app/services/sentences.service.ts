@@ -324,71 +324,8 @@ export class SentencesService {
      */
     generateCompoundReport(routeArray: [string[]]): {report: string, options: number} {
         // this function takes a route with options such as id1/id2/id3 etc and translates it into a report.
-        routeArray.forEach(function iterate(sentenceStem: string[], index: number) {
-
-
-
-            // first generate all the potential options available with this stem and put them all in an options array
-            let options: string[] = [];
-
-            sentenceStem.forEach(function iter(idOptions: string, optionIndex: number) {
-                let splitOption: string[] = idOptions.split('/');
-
-                splitOption.forEach(iter);
-            })
-
-
-
-
-        })
         return null;
     }
-
-
-    multipleStyle(test) {
-  
-        let outputArray: [string[]] = [[]];
-        let count: number = 1;
-        
-         test.forEach((str: string) => {
-           let opt: string[] = str.split('/');
-           count *= opt.length;   
-        })
-        
-        outputArray.length = count;
-        
-        // initialise all arrays...
-        for(let i = 0 ; i < count ; i++) {
-            let newArr = [];
-            newArr.length = test.length;
-            outputArray[i] = newArr;
-        }
-        
-          
-        // now the array is the right size...
-        test.forEach((str, testIndex) => {
-            let opt = str.split('/');
-            let quantityPer = count / opt.length;
-            let increment = Math.pow(2, testIndex);
-                        
-            opt.forEach((id) => {
-                     
-                //for(let i = index*quantityPer ; i < index*quantityPer + quantityPer ; i++) {
-                for(let i = 0 ; i < quantityPer ; i += increment) {
-                     outputArray[i][testIndex] = id;
-                }
-            
-            })
-          
-        })
-        console.log(outputArray);
-      }
-
-
-
-
-
-
 
 
     singleOptionStemGenerator(route: string[]): [string[]] {
