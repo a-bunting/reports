@@ -91,13 +91,21 @@
         <thead>
             <tr class="reports__data--row reports__data--header">
                 <td class="reports__data--cell" *ngFor="let key of report.keys; let i = index">
-                    <div class="reports__data--cell-header draggable__enter">
-                        {{ key }}
-                        <!-- what does this column relate to in the rpeort -->
-                        <div class="reports__key-variable-link--flexbox">
-                            <div class="reports__key-variable-link" *ngFor="let variable of report.variables">
-                                <div class="reports__key-variable-link--link" *ngIf="variable.key === key" (click)="removeVariableAssignment(variable.identifier)">
-                                    {{ variable.identifier }}
+                    <div class="reports__data--cell-header">
+                        <div class="reports__data--cell-header-buttons">
+                            <div class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)">X</div>
+                            <div class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)">&#8687;</div>
+                        </div>
+                        <div class="reports__data--cell-header-key">
+                            {{ key }}
+                        </div>
+                        <div class="reports__data--cell-header-variables">
+                            <!-- what does this column relate to in the rpeort -->
+                            <div class="reports__key-variable-link--flexbox">
+                                <div class="reports__key-variable-link" *ngFor="let variable of report.variables">
+                                    <div class="reports__key-variable-link--link" *ngIf="variable.key === key" (click)="removeVariableAssignment(variable.identifier)">
+                                        {{ variable.identifier }}
+                                    </div>
                                 </div>
                             </div>
                         </div>

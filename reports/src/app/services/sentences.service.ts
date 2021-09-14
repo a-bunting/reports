@@ -272,6 +272,14 @@ export class SentencesService {
 
     /**
      * Generates an example sentence and gives the quantity of potential reports for this template
+     * 
+     * Takes something of the form:
+     * [
+     *  [id1, id2, id3], 
+     *  [newparagraph],
+     *  [id4,id5,id6]... etc
+     * ]
+     * 
      * @param routeArray 
      * @returns 
      */
@@ -300,10 +308,105 @@ export class SentencesService {
         return {report: report, options: quantity};
     }
 
+    /**
+     * Like generateExampleSentence but can handle compound statements (makes generateexample report defunct but easier to add a new function right.)
+     * 
+     * Takes something of the form:
+     * [
+     *  [id1, id2, id3/id4/id5/id6], 
+     *  [newparagraph],
+     *  [id7,id8/id9,id10]... etc
+     * ]
+     * 
+     * witht he / to indicate options being the differentiator.
+     * 
+     * @param routeArray 
+     */
     generateCompoundReport(routeArray: [string[]]): {report: string, options: number} {
         // this function takes a route with options such as id1/id2/id3 etc and translates it into a report.
+        routeArray.forEach(function iterate(sentenceStem: string[], index: number) {
 
+
+
+            // first generate all the potential options available with this stem and put them all in an options array
+            let options: string[] = [];
+
+            sentenceStem.forEach(function iter(idOptions: string, optionIndex: number) {
+                let splitOption: string[] = idOptions.split('/');
+
+                splitOption.forEach(iter);
+            })
+
+
+
+
+        })
+    }
+
+
+    multipleStyle(test) {
+  
+        let outputArray: [string[]] = [[]];
+        let count: number = 1;
         
+         test.forEach((str: string) => {
+           let opt: string[] = str.split('/');
+           count *= opt.length;   
+        })
+        
+        outputArray.length = count;
+        
+        // initialise all arrays...
+        for(let i = 0 ; i < count ; i++) {
+            let newArr = [];
+            newArr.length = test.length;
+            outputArray[i] = newArr;
+        }
+        
+          
+        // now the array is the right size...
+        test.forEach((str, testIndex) => {
+            let opt = str.split('/');
+            let quantityPer = count / opt.length;
+            let increment = Math.pow(2, testIndex);
+                        
+            opt.forEach((id) => {
+                     
+                //for(let i = index*quantityPer ; i < index*quantityPer + quantityPer ; i++) {
+                for(let i = 0 ; i < quantityPer ; i += increment) {
+                     outputArray[i][testIndex] = id;
+                }
+            
+            })
+          
+        })
+        console.log(outputArray);
+      }
+
+
+
+
+
+
+
+
+    singleOptionStemGenerator(route: string[]): [string[]] {
+
+        let returnArray: [string[]];
+
+        route.forEach((options: string) => {
+            // split into the various options
+            let splitOption: string[] = options.split('/');
+
+            splitOption.forEach((str: string) => {
+                if(route.length > 1) {
+                    this.singleOptionStemGenerator(route.splice(0, 1));
+                } else {
+                    return str;
+                }
+            })
+        });
+        return returnArray;
     }
 
     

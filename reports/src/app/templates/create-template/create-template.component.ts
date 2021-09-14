@@ -310,7 +310,9 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                 allLastIds += temp.id;
             })
             // works up to here, all ids printed in the form id1/id2/id3 etc...
-            console.log(allLastIds);
+            // console.log(allLastIds);
+            this.templateRoutes[elementId][index+1] = allLastIds;
+            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
 
         } else {
             // normal, an id has been passed...

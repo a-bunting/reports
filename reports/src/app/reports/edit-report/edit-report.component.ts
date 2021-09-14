@@ -306,4 +306,22 @@ export class EditReportComponent implements OnInit {
         this.report.reports[reportId].user[key] = newValue[0];
     }
 
+    /**
+     * Hides a column with the given key name...
+     * @param key 
+     */
+    hideReport(key: string): void {
+
+    }
+
+    /**
+     * Deletes a column that has been created in the reports section.
+     * Cannot delete columns of data which ahs been pre entered.
+     * 
+     * @param key 
+     */
+    deleteColumn(key: string): void {
+
+    }
+
 }
