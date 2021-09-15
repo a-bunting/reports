@@ -115,7 +115,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             //     this.savedTemplate = this.generateTemplate();
             //     this.templateUpdated = false;
             //     this.templateSaved = true;
-            //     this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            //     this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes)[0];
             // })
 
 
@@ -153,7 +153,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.savedTemplate = this.generateTemplate();
             this.templateUpdated = false;
             this.templateSaved = true;
-            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
         }
     }
 
@@ -273,10 +273,10 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         }
 
         this.checkForUpdates();
-        this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+        this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
     }
 
-    exampleSentence: {report: string; options: number} = {report: "", options: 0};
+    exampleSentence: {report: string[]; options: number} = {report: [""], options: 0};
 
     deleteElement(elementId: number): void {
         this.templateRoutes.splice(elementId, 1);
@@ -312,13 +312,15 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             // works up to here, all ids printed in the form id1/id2/id3 etc...
             // console.log(allLastIds);
             this.templateRoutes[elementId][index+1] = allLastIds;
-            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
+
+            // STILL NEED TO ENSURE THE VIEW IS WORKING HERE...
 
         } else {
             // normal, an id has been passed...
             this.templateRoutes[elementId][index+1] = id;
             this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
-            this.exampleSentence = this.sentenceService.generateExampleReport(this.templateRoutes);
+            this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
         }
     }
 

@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { of, Observable } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { flatMap, map, take, tap } from 'rxjs/operators';
+import { ConsoleService } from '../admin/services/console.service';
 import { DatabaseService } from '../services/database.service';
+import { Report } from './reports.service';
 import { TestsService } from './tests.service';
 
 export interface sentence {
@@ -309,8 +311,6 @@ export class SentencesService {
     }
 
     /**
-     * Like generateExampleSentence but can handle compound statements (makes generateexample report defunct but easier to add a new function right.)
-     * 
      * Takes something of the form:
      * [
      *  [id1, id2, id3/id4/id5/id6], 
@@ -318,13 +318,87 @@ export class SentencesService {
      *  [id7,id8/id9,id10]... etc
      * ]
      * 
-     * witht he / to indicate options being the differentiator.
+     * with the / to indicate options being the differentiator.
+     * 
+     * RETURNS a single report with the number of possible reports... 
      * 
      * @param routeArray 
      */
-    generateCompoundReport(routeArray: [string[]]): {report: string, options: number} {
+    generateCompoundReport(routeArray: [string[]], select: number = 1): {report: string[], options: number} {
         // this function takes a route with options such as id1/id2/id3 etc and translates it into a report.
-        return null;
+        let sentenceOptions: {report: string[], options: number} = {report: [""], options: 1};
+        let optionCalculator: number = 1;
+        
+        // iterate over each sentence stem
+        routeArray.forEach((route: string[]) => {
+            // first get all postenital combinations
+            let routeOptions = this.cartesianProduct(route.map(x => x.split('/')));
+            // get an array of random numbers relating to sentences in the database. If select is -1 all sentence selected...
+            let selections: number[] = [...Array(select).keys()].map(x => select === -1 ? x : Math.floor(Math.random() * (routeOptions.length - 1)));
+            // remove any repeats
+            selections = [... new Set(selections)];
+
+            // iterate over each of the route options
+            // this can definately be slicker in terms of efficiency but for nowMEH
+            routeOptions.forEach((routePossibility: string[], index: number) => {
+                let exampleReports: {report: string, options: number} = this.generateExampleReport([routePossibility]);
+                // get the options calculation
+                optionCalculator *= exampleReports.options;
+                // select the random value for the report
+                if(selections.includes(index)) {
+                    sentenceOptions.report.push(exampleReports.report);
+                }
+            })
+        })
+        // set the otpions
+        sentenceOptions.options = optionCalculator;
+        // return
+        return sentenceOptions;
+    }
+
+    // test1: [number[]] = [[4, 5, 4, 5]];
+    // test2: number[][] = [[4, 5],[4, 5]];
+    
+    route = ['id1/id2', 'id3/id4', 'id5/id6'];
+    routePreSplit: string[][] = [['id1', 'id2'], ['id3','id4'], ['id5','id6']];
+    
+    // dont this way to make sure I am happy with the map function which I havent used before!
+    output: string[][] = this.cartesianProduct(this.routePreSplit);
+
+    // function is more my style :)
+    /**
+     * Cartesian product function... may be useful for the sentence generation also...
+     * @param route 
+     * @returns 
+     */
+    cartesianProduct(route: string[][]): string[][] {
+        // check if the length of the route is equal to 0, and if it is just return a blank array        
+        if (route.length === 0) {
+            return [];
+        }
+        
+        // create two new arrays, one with the first entries, and one with the rest of the entries.
+        const first: string[] = route[0]; // set first to the first entry in the route, which for the first iteration is ['id1','id2'] 
+        const rest: string[][] = route.slice(1); // remove this first entry from the rest of the array
+    
+        // if the rest of the entries has no length then we do not want to carry on, so we return
+        // the first entry with each individual entry set as an array.
+        // in the case of the first iteration (assumeing it was a single array) this would return [['id1'],['id2']]
+        if (rest.length == 0) {
+            return first.map(x => [x]);
+        }
+        
+        // if this was not the last entry we first need to iterate forward towards it, so simply recurse on this
+        // function with the reamining entries, in this case [['id3','id4'], ['id5','id6']]]
+        const cartesianEnd = this.cartesianProduct(rest);
+    
+        // finally caretesianEnd has the return values of all the recursive data
+        // first is entered as ['id1','id2']
+        // id is started as id1
+        // the return values of all progressive data is then mapped as ['id1', ... then the rest of the subsequent id combinations]
+        // in successive iterations this looks differently, for example when caretesianProduct triggers the first time then 
+        // the 'first' variable has id as 'id3' and rest as 'id4'
+        return first.flatMap(id => cartesianEnd.map(restOfIds => [id, ...restOfIds]))
     }
 
 
