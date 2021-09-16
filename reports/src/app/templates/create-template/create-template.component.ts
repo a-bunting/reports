@@ -295,33 +295,46 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.checkForUpdates();
     }
 
+    /**
+     * Updates the view and route data for the selected route templates.
+     * @param elementId 
+     * @param index 
+     * @param id 
+     */
     updateElementRoute(elementId: number, index: number, id: string): void {
-        if(id === "") {
-            // end button clicked after som ething else...
-        } else if (id === "allOptInclusive") {
+        let idCopy: string = id;
+        // first set the route data
+        // NOTE here that nothing id done is ** end ** is clicked.
+        if (id === "allOptInclusive") {
             // this means all options below this can contribute sentences...
             const data = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id'], false);
             let allLastIds: string = "";
+
             // iterate over the data to extract the next level of ids.
-            data[data.length - 1].forEach((temp: {id: string, order: number, index: number}, index: number) => {
+            data[index].forEach((temp: {id: string, order: number, index: number}, index: number) => {
                 // divide the ids by a /
                 index !== 0 ? allLastIds += "/" : null;
                 // add the id to the string
                 allLastIds += temp.id;
             })
-            // works up to here, all ids printed in the form id1/id2/id3 etc...
-            // console.log(allLastIds);
-            this.templateRoutes[elementId][index+1] = allLastIds;
-            this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
-
-            // STILL NEED TO ENSURE THE VIEW IS WORKING HERE...
-
-        } else {
-            // normal, an id has been passed...
-            this.templateRoutes[elementId][index+1] = id;
-            this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
-            this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
+            // set id to all the ids combined..
+            id = allLastIds;
         }
+
+        // up to here, all ids printed in the form id1/id2/id3 etc...
+        this.templateRoutes[elementId][index+1] = id;
+        this.templateRoutes[elementId].length = index + 2;
+        // generate an example sentence            
+        this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
+
+        // finally set the viewdata
+        if(idCopy === ("" || "allOptInclusive")) {
+            this.viewData[elementId].splice(index + 1);
+        } else {
+            this.viewData[elementId] = this.sentenceService.getSentenceData(this.templateRoutes[elementId], false, ['id','name','tests'], false);
+        }
+
+        this.checkForUpdates();
     }
 
     checkForUpdates(): boolean {
@@ -381,6 +394,20 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             // and emit...
             this.templateService.dataChange(emit);
         }
+    }
+
+    /**
+     * Check if a string is a route combination
+     * @param route 
+     * @returns 
+     */
+    allInclusivityChecker(route: string | undefined): boolean {
+        if(route !== undefined) {
+            if(route.split('/').length > 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

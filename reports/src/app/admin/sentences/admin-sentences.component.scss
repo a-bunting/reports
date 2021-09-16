@@ -409,6 +409,7 @@
     
             &--buttons {
                 display: flex;
+                margin-left: .3rem;
 
                 & > * {
                     padding: .3rem .6rem;
@@ -422,12 +423,37 @@
                 }
             }
 
+            &--button {
+                &:not(:last-of-type) {
+                    margin-right: .2rem;
+                }
+            }
+
             &--delete { background-color: orangered; }
+            &--help { background-color: rgb(81, 199, 81); }
             &--accept { background-color: green; }
 
             select {
                 padding: .3rem .6rem;
                 border-radius: .8rem;
+            }
+        }
+
+        &--test-inputs {
+
+            margin-left: auto;
+
+            input {
+                width: 6rem;
+                border-radius: .4rem;
+                padding: .2rem .4rem;
+                letter-spacing: .1rem;
+            }
+
+            select {
+                width: 6rem;
+                border-radius: .4rem;
+                padding: .2rem .4rem;
             }
         }
     }

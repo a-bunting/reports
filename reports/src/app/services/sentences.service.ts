@@ -4,13 +4,13 @@ import { flatMap, map, take, tap } from 'rxjs/operators';
 import { ConsoleService } from '../admin/services/console.service';
 import { DatabaseService } from '../services/database.service';
 import { Report } from './reports.service';
-import { TestsService } from './tests.service';
+import { TemplateTest, Test, TestsService } from './tests.service';
 
 export interface sentence {
     id: string;
     endpoint?: boolean, starter?: boolean, 
     name?: string, sentence?: string[]
-    subcategories?: [sentence], tests?: {name: string}[], 
+    subcategories?: [sentence], tests?: TemplateTest[], 
     index?: number; order?: number
 }
 
@@ -301,7 +301,7 @@ export class SentencesService {
                 const str = this.generateSentenceOptions(route);
                 quantity = quantity * str.length;
                 report += str[0].sentence;
-
+                
                 // close paragraph tag
                 if (i === routeArray.length - 1) { report += "</p>"; }
             }
@@ -482,13 +482,19 @@ export class SentencesService {
             try {
                 const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
                 const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
-                const newTest: {name: string} = {name: (<HTMLInputElement>document.getElementById('newTest')).value };
-    
-                // first add the test
-                if(testsAlreadyMade) {
-                    value.subcategories[subPosition]['tests'].push(newTest);
-                } else {
-                    value.subcategories[subPosition]['tests'] = [newTest];
+                const testName: string = (<HTMLInputElement>document.getElementById('newTest')).value;
+                const test: Test = this.testsService.testsList.find((temp: Test) => temp.name === testName);
+
+                if(test !== undefined) {
+                    // if the test was found add it...
+                    const options: string[] | number[] = (test.test.options ? test.test.options : undefined);
+                    const newTest: TemplateTest = {name: testName, values: {name: test.test.name, value: "", options: options}};
+                    // first add the test
+                    if(testsAlreadyMade) {
+                        value.subcategories[subPosition]['tests'].push(newTest);
+                    } else {
+                        value.subcategories[subPosition]['tests'] = [newTest];
+                    }
                 }
 
                 return true;
@@ -509,22 +515,19 @@ export class SentencesService {
       removeTest(position: number, subPosition: number, testNumber: number, route: string[]): boolean {
         const callback: Function = (value: sentence) => {
             try {
-                let testNameToDelete: string = value.subcategories[subPosition].tests[testNumber].name;
                 value.subcategories[subPosition].tests.splice(testNumber, 1);
-                // and remove from the sentences array also...
-                // deprecated
-                //
-                // value.subcategories[subPosition].sentence.forEach((temp: sentenceString) => {
-                //     let testIndex: number = temp.tests.findIndex((test) => test.testname === testNameToDelete);
-                    
-                //     if(testIndex !== -1) {
-                //         // if found, splice it.
-                //         temp.tests.splice(testIndex, 1);
-                //     } else {
-                //         // not found, doesnt exist??? error??
-                //     }
-                // })
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        return this.modifyData(position, callback, route);
+    }
 
+    modifyTestValue(position: number, index: number, testIndex: number, route: string[], modifiedValue: string | number) {
+        const callback: Function = (value: sentence) => {
+            try {
+                value.subcategories[index].tests[testIndex].values.value = modifiedValue;
                 return true;
             } catch (e) {
                 return false;

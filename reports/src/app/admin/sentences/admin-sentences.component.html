@@ -76,10 +76,21 @@
             </div>
             
             <div class="admin-sentences__stem-phrase--tests" *ngIf="(sentence.tests && sentence.tests.length > 0) || addTest.order === sentence.order && addTest.index === sentence.index">
+                    <!-- tests -->
                     <div class="admin-sentences__stem-phrase--test" *ngFor="let test of sentence.tests; let t = index">
                         <div class="admin-sentences__stem-phrase--test--name">{{ test.name }}</div>
+                        <!-- test inputs -->
+                        <div class="admin-sentences__stem-phrase--test-inputs">
+                            <!-- text if its open -->
+                            <input type="text" *ngIf="!test.values.options" (keyup.enter)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value)" (blur)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value)" value="{{ test.values.value }}">
+                            <!-- select if its an option -->
+                            <select *ngIf="test.values.options" (change)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value)">
+                                <option value="{{opt}}" *ngFor="let opt of test.values.options; let i = index" [selected]="test.values.value == opt">{{ opt }}</option>
+                            </select>
+                        </div>
                         <div class="admin-sentences__stem-phrase--test--buttons">
-                            <div class="admin-sentences__stem-phrase--test--delete" (click)="removeTest(sentence.order, sentence.index, t)">&times;</div>
+                            <div class="admin-sentences__stem-phrase--test--help admin-sentences__stem-phrase--test--button tooltipped">&#63; <div class="tooltip">{{ getTestDescription(test.name) }}</div></div>
+                            <div class="admin-sentences__stem-phrase--test--delete admin-sentences__stem-phrase--test--button" (click)="removeTest(sentence.order, sentence.index, t)">&times;</div>
                         </div>
                     </div>
                     <div class="admin-sentences__stem-phrase--test" *ngIf="addTest.order === sentence.order && addTest.index === sentence.index">
@@ -90,6 +101,7 @@
                             <div class="admin-sentences__stem-phrase--test--accept" (click)="addNewTest(sentence.order, sentence.index)">&#10004;</div>
                         </div>
                     </div>
+
                 </div>
                 
                 <div class="admin-sentences__buttons-bottom">

@@ -320,6 +320,18 @@ export class SentencesComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Changes the value of a test option...
+     * @param position 
+     * @param index 
+     * @param testIndex 
+     * @param value 
+     */
+     changeTestOptionValue(position: number, index: number, testIndex: number, value: string) {
+        const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, value);
+        modified ? this.modifySuccess() : this.errorText = "Modification of test failed...";
+    }
+
     // COPY AND PASTE FUNCTION - FULL DETIAL IN SENTENCE SERVICE  for PASTE
     copiedItem: sentence;
 
@@ -375,5 +387,20 @@ export class SentencesComponent implements OnInit, OnDestroy {
     // Some getters to make the HTML a little easier
     getRouteNames(): string[] {
         return this.sentenceService.getRouteNames(this.route);
+    }
+    
+    /**
+     * Retrives the description for a test value to inform the user.
+     * @param testName 
+     * @returns 
+     */
+     getTestDescription(testName: string): string {
+        let test: Test = this.testsService.testsList.find((temp: Test) => temp.name === testName);
+        // if the test was found in the list return the description.
+        if(test !== undefined) {
+            return test.test.description;
+        } else {
+            return "Test description not found...";
+        }
     }
 }

@@ -180,11 +180,6 @@
                 align-items: center;
             }
 
-            &:last-of-type {
-                display: flex;
-                justify-content: flex-end;
-            }
-
             &:focus {
                 background-color: rgba(white, .5);
                 font-weight: bold;
@@ -242,7 +237,7 @@
         padding: .5rem 1rem;
         background-color: var(--color-style-juxtapose);
         border-radius: 1rem;
-
+        
         &--text {
             margin-right: 1rem;
         }
