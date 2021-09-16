@@ -10,7 +10,7 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
-import { Test } from 'src/app/services/tests.service';
+import { TemplateTest, Test } from 'src/app/services/tests.service';
 
 @Component({
   selector: 'app-edit-report',
@@ -245,6 +245,7 @@ export class EditReportComponent implements OnInit {
                 user.user[toIdentifier] = "";
             })
             this.report.keys.push(toIdentifier);
+            this.addedColumns.push(toIdentifier);
         }
 
         // now assign tot he new column...
@@ -306,12 +307,41 @@ export class EditReportComponent implements OnInit {
         this.report.reports[reportId].user[key] = newValue[0];
     }
 
+    hiddenColumns: string[] = [];
+    addedColumns: string[] = [];
+
     /**
      * Hides a column with the given key name...
      * @param key 
      */
-    hideReport(key: string): void {
+    hideColumn(key: string): void {
+        this.hiddenColumns.push(key);
+    }
 
+    /**
+     * Shows a hidden column
+     * @param key 
+     */
+    showColumn(key: string): void {
+        let index: number = this.hiddenColumns.findIndex((str: string) => str === key);
+        // if it was found in the array, then remove it.
+        if(index !== -1) {
+            this.hiddenColumns.splice(index, 1);
+        }
+    }
+
+    // checks if a column is hidden or not. Is this the most efficient way given its called on every cell multiple times?
+    isColumnHidden(key: string): boolean {
+        return this.hiddenColumns.findIndex((str: string) => str === key) === -1 ? false : true;
+    }
+
+    /**
+     * Tests if a column was added, or whether it was part of the class data.
+     * @param colName 
+     * @returns 
+     */
+    wasColumnAdded(colName: string): boolean {
+        return this.addedColumns.findIndex((str: string) => str === colName) === -1 ? false : true;
     }
 
     /**
@@ -321,7 +351,24 @@ export class EditReportComponent implements OnInit {
      * @param key 
      */
     deleteColumn(key: string): void {
-
+        let findIndex: number = this.report.keys.findIndex((keys: string) => keys === key);
+        // and if found, remove it...
+        if(findIndex !== -1) {
+            this.report.keys.splice(findIndex, 1);
+            // remove from the users as well...
+            this.report.reports.forEach((user: Report) => {
+                delete user.user[key];
+            })
+            // AND remove any variables which are added to it...
+            this.report.variables.every((temp: VariableValues) => {
+                if(temp.key === key) {
+                    temp.key = "";
+                    return false;
+                }
+                return true;
+            })
+        }
+        console.log(this.report);
     }
 
 }

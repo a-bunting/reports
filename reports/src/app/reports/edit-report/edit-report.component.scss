@@ -107,13 +107,16 @@
             padding: .25rem .7rem;
         }
         
-        &--hide {
+        &--hide, &--show {
             background-color: green;
-            transform: rotate(-90deg);
+            
             font-size: 1.2rem;
             padding: .25rem .7rem;
             font-weight: lighter;
         }
+
+        &--hide { transform: rotate(-90deg); }
+        &--show { transform: rotate(90deg); }
     }
 
     &__data {
@@ -172,7 +175,7 @@
         &--cell {
             padding: .5rem 1rem;
             transition: all .2s;
-
+            text-align: center;
 
             &--header {
                 display: flex;
@@ -188,6 +191,11 @@
 
             &:visited { 
                 background-color: red;
+            }
+
+            &--hidden {
+                font-size: 1.2rem;
+                width: 6rem;
             }
         }
         
@@ -339,6 +347,7 @@
 
         &--flexbox {
             display: flex;
+            align-items: baseline;
         }
     }
 
