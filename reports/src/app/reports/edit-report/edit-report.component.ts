@@ -2,15 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { Group, Student } from 'src/app/classes/create-group/create-group.component';
 import { GroupsService } from 'src/app/services/groups.service';
 import { TemplatesService, Template } from 'src/app/services/templates.service';
-import { GlobalValues, Report, ReportsService, ReportTemplate, VariableValues } from 'src/app/services/reports.service';
-import { observable, Observable, Subject, Subscription, zip } from 'rxjs';
+import { GlobalValues, Report, ReportsService, ReportTemplate, TestIndividualValue, TestValues, VariableValues } from 'src/app/services/reports.service';
+import { from, observable, Observable, Subject, Subscription, zip } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
-import { TemplateTest, Test } from 'src/app/services/tests.service';
+import { TemplateTest, Test, TestsService } from 'src/app/services/tests.service';
 
 @Component({
   selector: 'app-edit-report',
@@ -41,7 +41,8 @@ export class EditReportComponent implements OnInit {
         private reportsService: ReportsService, 
         private groupService: GroupsService, 
         private templatesService: TemplatesService, 
-        private sentenceService: SentencesService
+        private sentenceService: SentencesService, 
+        private testsService: TestsService
     ) { }
 
     ngOnInit(): void {
@@ -106,7 +107,7 @@ export class EditReportComponent implements OnInit {
     }
 
     loadedTemplate: Template;
-    relatedTests: Test[] = [];
+    relatedTests: TemplateTest[] = [];
 
     // not quite working yet, doesnt seem to push onto the array
     loadTemplate(templateId: string): void {
@@ -116,39 +117,62 @@ export class EditReportComponent implements OnInit {
         if(index !== -1) {
             this.loadedTemplate = this.templates[index];
 
-            // console.log(`template bare:`, this.loadedTemplate.template);
-            // console.log(`template parsed:`, this.templatesService.parseTemplate(this.loadedTemplate.template));
 
             // Get all related tests from the sentence service
-            
-            
-            this.loadedTemplate.template.forEach((template: string[]) => {
-                // get the sentence data
-                let testData: [sentence[]] = this.sentenceService.getSentenceData(template, true, ['tests']);
+            // this.loadedTemplate.template.forEach((template: string[]) => {
+            //     // get the sentence data
+            //     let testData: [sentence[]][] = this.sentenceService.getCompoundSentenceData(template, true, ['tests']);
+            //     // let testData: [sentence[]] = this.sentenceService.getSentenceData(template, true, ['tests']);
 
-                // anditerate
-                testData.forEach((temp: sentence[]) => {
-                    // iterate over the results...                
-                    temp.forEach((templateInfo: sentence) => {
-                        // if tests exist...
-                        if(templateInfo.tests) {
-                            templateInfo.tests.forEach((test: Test) => {
-                                // check if this test is already added
-                                const testIndex = this.relatedTests.findIndex((t: Test) => test.name === t.name);
-                                // if not there, add it...
-                                if(testIndex === -1) {
-                                    this.relatedTests.push(test);
-                                } // else already added
-                            })
-                        }
-                    })
-                })
-            })
+            //     testData.forEach((individualOption: [sentence[]]) => {
+            //         // anditerate
+            //         individualOption.forEach((temp: sentence[]) => {
+            //             // iterate over the results...                
+            //             temp.forEach((templateInfo: sentence) => {
+            //                 // if tests exist...
+            //                 if(templateInfo.tests) {
+    
+            //                     templateInfo.tests.forEach((test: TemplateTest) => {
+            //                         // check if this test is already added
+            //                         const testIndex = this.relatedTests.findIndex((t: TemplateTest) => test.name === t.name);
+            //                         // if not there, add it...
+            //                         if(testIndex === -1) {
+            //                             this.relatedTests.push(test);
+            //                             this.addTestVariables(test.name);
+            //                         } // else already added
+            //                     })
+            //                 }
+            //             })
+            //         })
+            //     })
+            // })
 
-            console.log(this.relatedTests);
             // check if we can make the report yet...
             this.parseCheck();
         }
+    }
+
+    /**
+     * Gets all relevant tests and produces a list of required variables...
+     * @returns 
+     */
+     addTestVariables(testName: string): void {
+        // get the related variables and add them to the testvariables
+        let test: Test = this.testsService.getTest(testName);
+
+        test.variables.forEach((varName: string) => {
+
+            let newVariable: VariableValues = {
+                identifier: test.name,
+                key: varName + "",
+                value: "",
+                options: []
+            }
+
+            console.log(newVariable);
+
+            this.report.variables.push(newVariable);
+        })
     }
 
     /**
@@ -239,6 +263,8 @@ export class EditReportComponent implements OnInit {
         // assighnIdentifier is the variable to assign
         let findIndex: number;
 
+        console.log(toIdentifier, assignIdentifier);
+
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
             this.report.reports.forEach((user: Report) => {
@@ -262,6 +288,43 @@ export class EditReportComponent implements OnInit {
         console.log(this.report);
     }
 
+     /**
+     * Assings a variable to a column of data for a test variable
+     * SAME AS ABOVE FUNCTION BUT FOR TESTS...
+     * @param toIdentifier 
+     * @param assignIdentifier 
+     */
+      assignTestVariableColumn(toIdentifier: string, assignIdentifier: string, testName: string) : void {
+        // toIdentifier is the column to assign this to...
+        // assighnIdentifier is the variable to assign
+        let findIndex: number;
+
+        console.log("1", toIdentifier, "2", assignIdentifier, "3", testName);
+
+        // if it doesnt exist then create a column for it...
+        while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
+            this.report.reports.forEach((user: Report) => {
+                user.user[toIdentifier] = "";
+            })
+            this.report.keys.push(toIdentifier);
+            this.addedColumns.push(toIdentifier);
+        }
+
+        // now assign tot he new column...
+        let varIndex: number = this.report.tests.findIndex((temp: TestValues) => temp.identifier.toLowerCase() === testName.toLowerCase());
+        // if found assign it...
+        if(varIndex !== -1) {
+            let valIndex: number = this.report.tests[varIndex].values.findIndex((temp: TestIndividualValue) => temp.identifier.toLowerCase() === assignIdentifier.toLowerCase());
+            this.report.tests[varIndex].values[valIndex].key = toIdentifier;
+        } else {
+            // it went wrong, who knows what to do?
+            // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
+            console.log("Failed to assign to variable");
+        }
+
+        console.log(this.report);
+    }
+
     /**
      * Remove the assignment of a variable
      * @param varIdentifier 
@@ -275,18 +338,40 @@ export class EditReportComponent implements OnInit {
         }
     }
 
+    /**
+     * Remove the assignment of a test variable
+     * @param varIdentifier 
+     */
+    removeTestVariableAssignment(varIdentifier: string, testName: string): void {
+        // get the index
+        const varIndex: number = this.report.tests.findIndex((temp: TestValues) => temp.identifier.toLowerCase() === testName.toLowerCase());
+        // and remove the key from it...
+        if(varIndex !== -1) {
+            const valueIndex: number = this.report.tests[varIndex].values.findIndex((temp: TestIndividualValue) => temp.identifier.toLowerCase() === varIdentifier.toLowerCase());
+            // and set the value back to ""
+            if(valueIndex !== -1) {
+                this.report.tests[varIndex].values[valueIndex].key = "";
+            }
+        }
+    }
+
     checkVariableAssignment(identifier: string): boolean {
         // find the variable index...
         const index = this.report.variables.findIndex((temp: VariableValues) => temp.identifier === identifier);
         // if it exists...
         if(index !== -1) {
-            if(this.report.variables[index].key !== "") {
-                // this has been assigned
-                return true;
-            } else {
-                // not been assigned
-                return false;
-            }
+            this.report.variables[index].key === "" ? false : true;
+        }
+        return false;
+    }
+
+    checkTestVariableAssignment(identifier: string, testName: string): boolean {
+        // find the variable index...
+        const index = this.report.tests.findIndex((temp: TestValues) => temp.identifier === testName);
+        // if it exists...
+        if(index !== -1) {
+            const valIndex = this.report.tests[index].values.findIndex((temp: TestIndividualValue) => temp.identifier.toLowerCase() === identifier.toLowerCase());
+            return this.report.tests[index].values[valIndex].key === "" ? false : true;
         }
         return false;
     }
