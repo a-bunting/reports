@@ -241,13 +241,16 @@
     &__global-variable {
         
         display: flex;
+        flex-direction: column;
         align-items: baseline;
         padding: .5rem 1rem;
         background-color: var(--color-style-juxtapose);
         border-radius: 1rem;
         
         &--text {
-            margin-right: 1rem;
+            margin-bottom: .5rem;
+            margin-left: .5rem;
+            font-weight: bold;
         }
 
         &:not(:first-of-type) {
@@ -257,11 +260,23 @@
         select {
             border-radius: .5rem;
             padding: .5rem 1rem;
-            margin-left: 1rem;
         }
     }
 
     &__variables {
+        display: flex;
+        align-items: baseline;
+        margin: .5rem 2rem;
+        font-size: 1.4rem;
+
+        &--text {
+            font-weight: bold;
+            margin-right: 2rem;
+            width: 12rem;
+        }
+    }
+    
+    &__test-variables {
         display: flex;
         align-items: baseline;
         margin: .5rem 2rem;
@@ -321,23 +336,62 @@
         }
     }
 
+    &__sub-variable {
+        display: flex;
+        flex-direction: column;
+        justify-content: baseline;
+
+        &:first-of-type {
+            margin-left: 2rem;
+        }
+
+        &:not(:last-of-type) {
+            margin-right: .5rem;
+        }
+
+        &--text {
+            margin-bottom: .5rem;
+            font-weight: bold;
+        }
+
+        select {
+            margin-left: 0rem;
+        }
+    }
+
     &__key-variable-link {
 
         display: flex;
         align-items: baseline;
 
-        &--link {
+        &--link-variable, &--link-test {
             border-radius: .5rem;
             padding: .2rem .5rem;
-            background-color: var(--color-style-juxtapose);
             transition: all .2s;
             border: 1px solid transparent;
 
             &:hover {
-                background-color: var(--color-style-main);
                 border: 1px solid black;
                 cursor: not-allowed;
+            }
+        }
+
+        &--link-variable { 
+            background-color: var(--color-style-juxtapose); 
+        
+            &:hover {
+                background-color: var(--color-style-main);
                 color: var(--color-style-juxtapose);
+            }
+        }
+
+        &--link-test { 
+            background-color: var(--color-style-main); 
+            color: var(--color-style-juxtapose);
+
+            &:hover {
+                background-color: var(--color-style-juxtapose);
+                color: var(--color-style-main);
             }
         }
 
@@ -348,7 +402,13 @@
         &--flexbox {
             display: flex;
             align-items: baseline;
+            justify-content: flex-end;
+
+            &:first-child {
+                margin-bottom: .2rem;
+            }
         }
+
     }
 
 }

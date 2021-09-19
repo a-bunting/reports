@@ -5,12 +5,13 @@ import { map, take, tap } from 'rxjs/operators';
 import { Group, Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from '../services/database.service';
 import { User } from '../utilities/authentication/user.model';
-import { SentencesService } from './sentences.service';
+import { sentence, SentencesService } from './sentences.service';
 import { Template } from './templates.service';
+import { TemplateTest, Test, TestsService } from './tests.service';
 
 export interface ReportTemplate {
     id: string; name: string; manager: string;
-    variables: VariableValues[]; globals: GlobalValues[]; 
+    variables: VariableValues[]; globals: GlobalValues[]; tests: TestValues[];
     keys: string[];
     reports: Report[];
 }
@@ -20,11 +21,19 @@ export interface Report {
 }
 
 export interface GlobalValues {
-    identifier: string; value: string | number; options: string[]
+    identifier: string; value: string ; options: string[]
 }
 
 export interface VariableValues {
     identifier: string, key: string, value: string, options: string[]
+}
+
+export interface TestValues {
+    identifier: string, values: TestIndividualValue[]
+}
+
+export interface TestIndividualValue {
+    identifier: string; key: string; value: string, options: string[]
 }
 
 @Injectable({
@@ -37,7 +46,8 @@ export class ReportsService {
 
     constructor(
         private db: DatabaseService,
-        private sentenceService: SentencesService       
+        private sentenceService: SentencesService,
+        private testsService: TestsService  
     ) { }
 
     /**
@@ -122,6 +132,7 @@ export class ReportsService {
      parseReport(group: Group, template: Template, reportName: string, repotId: string, user: User): ReportTemplate {
         // set the individual components - not needed verbose but for clarity in design phase
         let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
+        let tests: TestValues[] = this.generateTests(template);
         let individualReports: Report[] = [];
         let reportsName: string = reportName;
         let manager: string = user.id;
@@ -147,9 +158,12 @@ export class ReportsService {
             manager: manager, 
             globals: variables[0],
             variables: variables[1],
+            tests: tests,
             keys: keys,
             reports: individualReports
         };
+
+        console.log(report);
 
         return report;
 
@@ -209,5 +223,53 @@ export class ReportsService {
         })
         // return both arrays...
         return [globals, variables];
+    }
+
+    generateTests(template: Template): TestValues[] {
+        let testVals: TestValues[] = [];
+
+        template.template.forEach((template: string[]) => {
+            // get the sentence data
+            let testData: [sentence[]][] = this.sentenceService.getCompoundSentenceData(template, true, ['tests']);
+            // loops over all options (need data for it all!)
+            testData.forEach((individualOption: [sentence[]]) => {
+                // and iterate
+                individualOption.forEach((temp: sentence[]) => {
+                    // iterate over the results... again!!               
+                    temp.forEach((templateInfo: sentence) => {
+                        // if tests exist...
+                        if(templateInfo.tests) {
+
+                            templateInfo.tests.forEach((test: TemplateTest) => {
+                                // check if this test is already added
+                                const testIndex = testVals.findIndex((t: TestValues) => test.name === t.identifier);
+                                // if not there, add it...
+                                if(testIndex === -1) {
+                                    // get the test we are intersted in...
+                                    let newTest: Test = this.testsService.getTest(test.name);
+                                    // make an array to return...
+                                    let testValues: TestValues = {identifier: test.name, values: []};
+                                    // iterate over the variables imn the test...
+                                    newTest.variables.forEach((test: string) => {
+                                        // add the new test to the testvalues array...
+                                        testValues.values.push(
+                                            {
+                                                identifier: test,
+                                                key: "", 
+                                                value: "", 
+                                                options: newTest.test.options
+                                            }
+                                        )
+                                    })
+                                    testVals.push(testValues);
+                                } // else already added
+                            })
+                        }
+                    })
+                })
+            })
+        })
+        // and return lol :(
+        return testVals;
     }
 }

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 
 export interface Test {
     name: string; 
-    variables: string[] | number[];
-    test: {name: string, description: string, type: "string" | "number", options?: string[] | number[]}; 
+    variables: string[];
+    test: {name: string, description: string, type: string, options?: string[]}; 
     function: Function
 }
 // what does a template need for a test?
@@ -33,7 +33,7 @@ export class TestsService {
         {
             name: 'improvement', 
             variables: ['improvement'],
-            test: {name: "improvementFactor", description: "On a scale of 1 to 4 how much have their improved (4 is a lot, 1 is not at all)", type: "number", options: [1, 2, 3, 4]},
+            test: {name: "improvementFactor", description: "On a scale of 1 to 4 how much have their improved (4 is a lot, 1 is not at all)", type: "number", options: ["1", "2", "3", "4"]},
             function: (value: number): number => {
                 return value;
             }
@@ -41,5 +41,30 @@ export class TestsService {
     ]
 
     constructor() { }
+
+    /**
+     * Get a test based upon the name...
+     * @param testName 
+     * @returns 
+     */
+    getTest(testName: string): Test {
+        //get the index
+        let testIndex: number = this.testsList.findIndex((test: Test) => test.name === testName);
+        // and return the variables...
+        return testIndex === -1 ? null : this.testsList[testIndex];
+    }
+
+
+    /**
+     * Returns the variables required for a test
+     * @param testName 
+     * @returns 
+     */
+    getTestVariables(testName: string): string[] | number[] {
+        //get the index
+        let testIndex: number = this.testsList.findIndex((test: Test) => test.name === testName);
+        // and return the variables...
+        return testIndex === -1 ? [] : this.testsList[testIndex].variables;
+    }
 
 }

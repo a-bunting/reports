@@ -167,6 +167,25 @@ export class SentencesService {
     }
 
     /**
+     * Updated form of getsentencedata which takes multiple options into account...
+     * @param route 
+     * @param singleStream 
+     * @param data 
+     * @returns 
+     */
+    getCompoundSentenceData(route: string[], singleStream: boolean = true, data: string[] = ['id']): [sentence[]][] {
+        let returnSentences: [sentence[]][] = [];
+        let routeOptions: string[][] = this.cartesianProduct(route.map(x => x.split('/')));
+        // foreach route found in the caresian product, ierate looking for the specified data.
+        routeOptions.forEach((sentenceOption: string[]) => {
+            let newOption: [sentence[]] = this.getSentenceData(sentenceOption, singleStream, data);
+            returnSentences.push(newOption);
+        })
+        // return and will need to iterate over the results...
+        return returnSentences;
+    }
+
+    /**
      * Get the names on the path for the given routes
      * @param route 
      * @returns string of names
@@ -332,7 +351,7 @@ export class SentencesService {
         // iterate over each sentence stem
         routeArray.forEach((route: string[]) => {
             // first get all postenital combinations
-            let routeOptions = this.cartesianProduct(route.map(x => x.split('/')));
+            let routeOptions: string[][] = this.cartesianProduct(route.map(x => x.split('/')));
             // get an array of random numbers relating to sentences in the database. If select is -1 all sentence selected...
             let selections: number[] = [...Array(select).keys()].map(x => select === -1 ? x : Math.floor(Math.random() * (routeOptions.length - 1)));
             // remove any repeats
