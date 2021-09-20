@@ -4,19 +4,24 @@
         This is where you generate your reports. Ensure before you attempt to create any reports that you have set up your classes and templates.
     </h4>
     <div class="reports__controls-top">
-        <div class="reports__load-dropdown">
-            <div class="reports__load-dropdown--element">Load Report Set</div>
+
+        <div class="loading" *ngIf="isLoading">
+            <app-loading-spinner></app-loading-spinner>
+        </div>
+
+        <div class="reports__load-dropdown" *ngIf="!isLoading">
+            <div class="reports__load-dropdown--element">Load Report</div>
             <div class="reports__load-dropdown--element">
                 <select name="loadreports" id="loadreports" class="reports__input reports__input--select" (change)="loadReport($event.target.value)">
                     <option value="" selected disabled></option>
-                    <option value="{{ report.id }}" *ngFor="let report of reports; let i = index">
+                    <option value="{{ report.id }}" *ngFor="let report of reports; let i = index" [selected]="report.id === reportId">
                         {{ report.name }}
                     </option>
                 </select>
             </div>
         </div>
-        <div class="reports__header-buttons">
-            <div class="reports__header-buttons reports__button" routerLink="/reports/edit-report">New</div>
+        <div class="reports__header-buttons" *ngIf="!isLoading">
+            <button class="reports__header-buttons reports__button" routerLink="/reports/edit-report">New</button>
         </div>
     </div>
 </div>

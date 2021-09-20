@@ -1,10 +1,14 @@
 .reports {
 
     &__controls-top {
+        position: relative;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        margin-left: 3rem;
+        margin-left: 1rem;
+        padding: 1rem 2rem;
+        width: 34rem;
+        min-height: 9.4rem;
     }
 
     &__load-dropdown {
@@ -30,6 +34,7 @@
 
         &--select {
             align-items: center;
+            max-width: 17rem;
         }
 
         &--text {

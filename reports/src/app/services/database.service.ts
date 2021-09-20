@@ -114,7 +114,7 @@ export class DatabaseService {
         return this.firebase.collection('reports').doc(id).get();
     }
 
-    updateReport(data: ReportTemplate, id: string): Observable<any> {
+    updateReport(data: {}, id: string): Observable<any> {
         this.writeOperation();
         return from(this.firebase.collection('reports').doc(id).update(data));
     }
@@ -130,3 +130,5 @@ export class DatabaseService {
     }
 
 }
+
+

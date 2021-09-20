@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ReportsService, ReportTemplate } from '../services/reports.service';
 
 @Component({
@@ -10,14 +11,25 @@ import { ReportsService, ReportTemplate } from '../services/reports.service';
 export class ReportsComponent implements OnInit {
 
     reports: ReportTemplate[] = [];
+    isLoading: boolean = true;
+    reportId: string;
 
-    constructor(private reportsService: ReportsService, private router: Router) { }
+    // parameters and loading individual report sets
+    paramObservable: Subscription;
+
+    constructor(
+        private reportsService: ReportsService, 
+        private activeRouter: ActivatedRoute, 
+        private router: Router
+    ) { }
 
     ngOnInit(): void {
         // load the reports into the menu
         this.reportsService.getReports().subscribe((data: ReportTemplate[]) => {
             this.reports = data;
+            this.isLoading = false;
         }, error => {
+            this.isLoading = false;
             console.log(`Error: ${error}`);
         })
     }

@@ -11,6 +11,9 @@ import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
 import { TemplateTest, Test, TestsService } from 'src/app/services/tests.service';
+import { JsonpClientBackend } from '@angular/common/http';
+import { DocumentReference } from '@angular/fire/firestore';
+import { group } from '@angular/animations';
 
 @Component({
   selector: 'app-edit-report',
@@ -35,6 +38,9 @@ export class EditReportComponent implements OnInit {
     // design things
     sticky: IntersectionObserver;
 
+    // view booleans
+    isLoading: boolean = false;
+
     constructor(
         private auth: AuthenticationService, 
         private router: ActivatedRoute, 
@@ -46,9 +52,11 @@ export class EditReportComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        this.isLoading = true;
         // get the user info...
         this.auth.user.subscribe((user: User) => {
             // set the user id
+            this.isLoading = false;
             this.user = user;
 
             // load all data first - this is important to be done first so when the parameters fire
@@ -59,12 +67,15 @@ export class EditReportComponent implements OnInit {
                 
                 // monitor the parameter id in the URL and if it changes reload the data...
                 this.paramObservable = this.router.params.subscribe((params: Params) => {
+                    let reportId: string = params.id;
                     // set the id and load the template
-                    this.reportId = params.id;
+                    this.isLoading = true;
                     // and load as appropriate...
-                    if(this.reportId !== undefined) {
-                        this.loadReport(this.reportId);
+                    if(reportId !== undefined) {
+                        this.reportSaved = true;
+                        this.loadReport(reportId);
                     } else {
+                        this.reportSaved = false;
                         this.newReport();
                     }
                 }, error => { console.log(`Error: ${error}`); });
@@ -76,7 +87,50 @@ export class EditReportComponent implements OnInit {
             e.target.toggleAttribute('stuck', e.intersectionRatio < 1)
         }, { threshold: [1] });
         this.sticky.observe(document.getElementsByClassName('sticky').item(0));
+    }
 
+    isUpdating: boolean = false;
+    isSaving: boolean = false;
+    errorMessage: string;
+
+    /**
+     * Updates a current report in the database...
+     */
+    updateReport(): void {
+        this.isUpdating = true;
+        // call the update function in the report service.
+        this.reportsService.updateReport(this.report, this.report.id).subscribe((result: boolean) => {
+            if(result === true) {
+                // success!
+                this.isUpdating = false;
+                this.reportSaved = true;
+                this.unsavedChanges = false;
+            }
+            this.isUpdating = false;
+        }, error => {
+            this.errorMessage = "Update failed: " + error;
+            this.isUpdating = false;
+        })
+    }
+
+    /**
+     * Saves a new report to the database.
+     */
+    saveToDatabase(): void {
+        this.isSaving = true;
+        // call the save function in the report service...
+        this.reportsService.createReport(this.report).subscribe((result: DocumentReference) => {
+            // success, set the new id...
+            this.report.id = result.id;
+            // set the flags to control button visibility.
+            this.unsavedChanges = false;
+            this.reportSaved = true;
+            this.isSaving = false;
+        }, error => {
+            console.log(`Unable to save: ${error}`);
+            this.reportSaved = false;
+            this.isSaving = false;
+        })
     }
 
     /**
@@ -93,7 +147,7 @@ export class EditReportComponent implements OnInit {
     }
 
     /**
-     * Load an individual groups data
+     * Load an individual groups data, why not source this through the group service?
      * @param groupId 
      */
     loadGroup(groupId: string): void {
@@ -101,89 +155,45 @@ export class EditReportComponent implements OnInit {
         let index: number = this.groups.findIndex((temp: Group) => temp.id === groupId);
         // and load...
         if(index !== -1) {
+            this.report.groupId = this.groups[index].id;
             this.loadedGroup = this.groups[index];
             this.parseCheck();
         }
+        this.checkForChanges();
     }
 
     loadedTemplate: Template;
     relatedTests: TemplateTest[] = [];
 
-    // not quite working yet, doesnt seem to push onto the array
     loadTemplate(templateId: string): void {
         // get the index
         let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
         // and load
         if(index !== -1) {
+            // set the report id
+            this.report.templateId = this.templates[index].id;
             this.loadedTemplate = this.templates[index];
-
-
-            // Get all related tests from the sentence service
-            // this.loadedTemplate.template.forEach((template: string[]) => {
-            //     // get the sentence data
-            //     let testData: [sentence[]][] = this.sentenceService.getCompoundSentenceData(template, true, ['tests']);
-            //     // let testData: [sentence[]] = this.sentenceService.getSentenceData(template, true, ['tests']);
-
-            //     testData.forEach((individualOption: [sentence[]]) => {
-            //         // anditerate
-            //         individualOption.forEach((temp: sentence[]) => {
-            //             // iterate over the results...                
-            //             temp.forEach((templateInfo: sentence) => {
-            //                 // if tests exist...
-            //                 if(templateInfo.tests) {
-    
-            //                     templateInfo.tests.forEach((test: TemplateTest) => {
-            //                         // check if this test is already added
-            //                         const testIndex = this.relatedTests.findIndex((t: TemplateTest) => test.name === t.name);
-            //                         // if not there, add it...
-            //                         if(testIndex === -1) {
-            //                             this.relatedTests.push(test);
-            //                             this.addTestVariables(test.name);
-            //                         } // else already added
-            //                     })
-            //                 }
-            //             })
-            //         })
-            //     })
-            // })
-
             // check if we can make the report yet...
             this.parseCheck();
         }
+        this.checkForChanges();
     }
 
-    /**
-     * Gets all relevant tests and produces a list of required variables...
-     * @returns 
-     */
-     addTestVariables(testName: string): void {
-        // get the related variables and add them to the testvariables
-        let test: Test = this.testsService.getTest(testName);
-
-        test.variables.forEach((varName: string) => {
-
-            let newVariable: VariableValues = {
-                identifier: test.name,
-                key: varName + "",
-                value: "",
-                options: []
-            }
-
-            console.log(newVariable);
-
-            this.report.variables.push(newVariable);
-        })
-    }
+    loadedReport: ReportTemplate; // the saved version of the report to check for changes against
 
     /**
      * Load an individual report.
      * @param id 
      */
     loadReport(id: string): void {
+        // get the report.
         this.reportsService.getReport(id).subscribe((report: ReportTemplate) => {
             this.report = report;
-            // set the name etc...
-            this.reportName = this.report.name;
+            // set to not loading...
+            this.isLoading = false;
+        }, error => {
+            this.isLoading = false;
+            console.log(`Error loading report with ID ${id}: ${error}`);
         });
     }
 
@@ -191,29 +201,32 @@ export class EditReportComponent implements OnInit {
      * A new report is being created...
      */
     newReport(): void {
-        this.report = undefined;
-        this.reportName = "";
-        this.reportId = undefined;
+        this.isLoading = false;
+        this.report = {id: "", groupId: "", templateId: "", name: "", manager: this.user.id, variables: [], globals: [], tests: [], keys: [], reports: []};
         this.loadedGroup = undefined;
     }
 
-    report: ReportTemplate;
+    report: ReportTemplate = <ReportTemplate>{};
     reportId: string;
-    reportName: string = "";
 
     /**
      * Check if all data is available to parse the group into a report
      */
     parseCheck(): void {
         if((this.loadedGroup !== undefined) && (this.loadedTemplate !== undefined)) {
-            this.report = this.reportsService.parseReport(this.loadedGroup, this.loadedTemplate, this.reportName, this.reportId, this.user);
+            this.report = this.reportsService.parseReport(this.loadedGroup, this.loadedTemplate, this.report.name, this.report.id, this.user);
+            this.loadedReport = JSON.parse(JSON.stringify(this.report)); // not pretty but acceptable for now...
         }
     }
 
     //DEALING WITH VARIABLES
 
+    /**
+     * Assigns a value toa global variable - i.e. something that is the same for each student.
+     * @param identifier 
+     * @param value 
+     */
     assignGlobalValue(identifier: string, value: string): void {
-        console.log(identifier, value);
         // find the global int he report structure.
         const gloIndex = this.report.globals.findIndex((temp: GlobalValues) => temp.identifier === identifier);
         // when found set the value of the variable
@@ -225,8 +238,8 @@ export class EditReportComponent implements OnInit {
                 // default behaviour is to select the option
                 this.report.globals[gloIndex].value = value;
             }
-            console.log(this.report);
         }
+        this.checkForChanges();
     }
 
     /**
@@ -250,7 +263,7 @@ export class EditReportComponent implements OnInit {
                 // something set up wrong...
             }
         }
-
+        this.checkForChanges();
     }
 
     /**
@@ -262,8 +275,6 @@ export class EditReportComponent implements OnInit {
         // toIdentifier is the column to assign this to...
         // assighnIdentifier is the variable to assign
         let findIndex: number;
-
-        console.log(toIdentifier, assignIdentifier);
 
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
@@ -284,8 +295,7 @@ export class EditReportComponent implements OnInit {
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
         }
-
-        console.log(this.report);
+        this.checkForChanges();
     }
 
      /**
@@ -294,12 +304,10 @@ export class EditReportComponent implements OnInit {
      * @param toIdentifier 
      * @param assignIdentifier 
      */
-      assignTestVariableColumn(toIdentifier: string, assignIdentifier: string, testName: string) : void {
+    assignTestVariableColumn(toIdentifier: string, assignIdentifier: string, testName: string) : void {
         // toIdentifier is the column to assign this to...
         // assighnIdentifier is the variable to assign
         let findIndex: number;
-
-        console.log("1", toIdentifier, "2", assignIdentifier, "3", testName);
 
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
@@ -321,8 +329,7 @@ export class EditReportComponent implements OnInit {
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
         }
-
-        console.log(this.report);
+        this.checkForChanges();        
     }
 
     /**
@@ -336,6 +343,7 @@ export class EditReportComponent implements OnInit {
         if(varIndex !== -1) {
             this.report.variables[varIndex].key = "";
         }
+        this.checkForChanges();
     }
 
     /**
@@ -353,8 +361,14 @@ export class EditReportComponent implements OnInit {
                 this.report.tests[varIndex].values[valueIndex].key = "";
             }
         }
+        this.checkForChanges();
     }
 
+    /**
+     * Checks to see if a variable has been assigned to a column yet.
+     * @param identifier 
+     * @returns 
+     */
     checkVariableAssignment(identifier: string): boolean {
         // find the variable index...
         const index = this.report.variables.findIndex((temp: VariableValues) => temp.identifier === identifier);
@@ -365,6 +379,12 @@ export class EditReportComponent implements OnInit {
         return false;
     }
 
+    /**
+     * Checks to see if a test variable has been assigned to a column yet.
+     * @param identifier 
+     * @param testName 
+     * @returns 
+     */
     checkTestVariableAssignment(identifier: string, testName: string): boolean {
         // find the variable index...
         const index = this.report.tests.findIndex((temp: TestValues) => temp.identifier === testName);
@@ -390,6 +410,7 @@ export class EditReportComponent implements OnInit {
         input.preventDefault();
 
         this.report.reports[reportId].user[key] = newValue[0];
+        this.checkForChanges();
     }
 
     hiddenColumns: string[] = [];
@@ -452,8 +473,30 @@ export class EditReportComponent implements OnInit {
                 }
                 return true;
             })
+            // and same for tests ?(easier way for this?)
+            this.report.tests.forEach((temp: TestValues) => {
+                temp.values.every((tmpVal: TestIndividualValue) => {
+                    if(tmpVal.key === key) {
+                        tmpVal.key = "";
+                        return false;
+                    }
+                    return true;
+                })
+            })
         }
-        console.log(this.report);
+        this.checkForChanges();
     }
+
+    unsavedChanges: boolean = false; // are there changes made to the report that have not been comitted to the persistent report?
+    reportSaved: boolean = false; // has the report ever been comitted tot he database? false if it hasnt...
+
+    checkForChanges(): void {
+        this.unsavedChanges = JSON.stringify(this.loadedReport) !== JSON.stringify(this.report) ? true : false;
+    }
+
+    // functions to show the various sections or not...
+    showTests(): boolean { return this.report ? this.report.tests ? this.report.tests.length > 0 ? true : false : false : false; }
+    showVariables(): boolean { return this.report ? this.report.variables ? this.report.variables.length > 0 ? true : false : false : false; }
+    showGlobals(): boolean { return this.report ? this.report.globals ? this.report.globals.length > 0 ? true : false : false : false; }
 
 }
