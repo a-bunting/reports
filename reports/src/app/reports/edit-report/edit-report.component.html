@@ -56,11 +56,11 @@
         </div>
 
         <div class="reports__global-variable--input">
-            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)">
+            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
             <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
                 <option value="" selected disabled></option>
                 <option value="newOption">* Add new option *</option>
-                <option value="{{ option }}" *ngFor="let option of variable.options; let index = index">{{ option }}</option>
+                <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
             </select>
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
         </div>
@@ -79,7 +79,7 @@
         <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
             <option value="" selected disabled></option>
             <option value="{{ variable.identifier }}">* Add column *</option>
-            <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option">{{ option }}</option>
+            <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
         </select>
     </div>
 </div>

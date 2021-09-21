@@ -371,10 +371,10 @@ export class EditReportComponent implements OnInit {
      */
     checkVariableAssignment(identifier: string): boolean {
         // find the variable index...
-        const index = this.report.variables.findIndex((temp: VariableValues) => temp.identifier === identifier);
+        const index = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === identifier.toLowerCase());
         // if it exists...
         if(index !== -1) {
-            this.report.variables[index].key === "" ? false : true;
+            return this.report.variables[index].key === "" ? false : true;
         }
         return false;
     }
@@ -387,7 +387,7 @@ export class EditReportComponent implements OnInit {
      */
     checkTestVariableAssignment(identifier: string, testName: string): boolean {
         // find the variable index...
-        const index = this.report.tests.findIndex((temp: TestValues) => temp.identifier === testName);
+        const index = this.report.tests.findIndex((temp: TestValues) => temp.identifier.toLowerCase() === testName.toLowerCase());
         // if it exists...
         if(index !== -1) {
             const valIndex = this.report.tests[index].values.findIndex((temp: TestIndividualValue) => temp.identifier.toLowerCase() === identifier.toLowerCase());
