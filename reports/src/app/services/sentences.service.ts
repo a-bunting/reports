@@ -789,6 +789,10 @@ export class SentencesService {
         }
         return newId;
     }
+
+    testValueValidation(value: string, test: Test): boolean {
+        return test.test.validityFunction(value);
+    }
 }
 
 // backup db

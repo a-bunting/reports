@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
 
 export interface Test {
-    name: string; 
-    variables: string[];
-    test: {name: string, description: string, type: string, options?: string[]}; 
-    function: Function
-}
-
-
-export interface NewTest {
     name: string; description: string; // explanation of the test
     settings?:  {   // settings are optional and let you select an option set as opposed to specifying one set of options for all situations. 
                     name: string;   // the name of the setting
@@ -16,11 +8,25 @@ export interface NewTest {
                     options: TestOptions[]  // the options, which include a set of options you assign to the variables
                 };
     function: Function; // the function used to calculate the value
-    variables:  {   name: string,   // the plain english name displayed to the user... 
-                    identifier: string,  // the identifier for use in the code.
-                    description: string,  // a description for the user...
-                    options?: TestOptions[] // optional options if you want to override the settings, or do not HAVE nay settings.
-                }[]
+    test: { // the thing used in the sentences database that users can select.
+        // all tests are expressions, i.e. "> 3", "= 5", "<-2, >2"
+        name: string; // the name of the test
+        description: string; // expalantion of the test and the values to be enetered...
+        validityFunction: Function; // a function to check the input value is of the correct format
+        options?: string[]; // if there are predertermined values they go in here...
+    }
+    variables:  TestVariable[]
+}
+
+export interface TestVariable {
+    name: string,   // the plain english name displayed to the user... 
+    identifier: string,  // the identifier for use in the code.
+    description: string,  // a description for the user...
+    options?: TestOptions[] // optional options if you want to override the settings, or do not HAVE nay settings.
+}
+
+export interface TestOptions {
+    name: string, options: { [key: number]: string }
 }
 
 // what does a template need for a test?
@@ -33,9 +39,7 @@ export interface TemplateTest {
     }
 }
 
-export interface TestOptions {
-    name: string, options: { [key: number]: string }
-}
+
 
 @Injectable({
   providedIn: 'root'
@@ -52,11 +56,41 @@ export class TestsService {
     APGradeSystem: TestOptions =        { name: "AP", options: { 0: "1", 1: "2", 2: "3", 3: "4", 4: "5"}}
     standardsGradeSystem: TestOptions = { name: "Standards Based", options: { 0: "No Evidence", 1: "Limited Proficiency", 2: "Approaching Proficiency", 3: "Proficient", 4: "Mastery"}}
 
-    public newTests: NewTest[] = [
+    public testsList: Test[] = [
         {
             name: "Grade Change", 
             settings: { name: "Grade System", description: "The grade system you work within", options: [this.abcdefgGradeSystem, this.americanGradeSystem, this.ibGradeSystem, this.gcseGradeSystem, this.alevelGradeSystem, this.APGradeSystem] },
             description: "Calculates a value taken from two grades at different points in time and returns the difference in sublevels. For example if a student moved from a B- to an A- (American grade system) this would return 3.",
+            test: {
+                name: "Expression", 
+                description: "The conditions by which this test is met, i.e. '>3' means that if they have gained over 3 subgrades this test will pass. You can do multiple tests splitting them with a comma, i.e. '>3,<8' will be true for 4, 5, 6 and 7 but false otherwise.", 
+                validityFunction: function(expression: string): boolean {
+                    // split the expression into all its individual tests
+                    let multipleExpression: string[] = expression.split(',');
+                    let returnValue: boolean;
+                    // iterate over each of the values...
+                    multipleExpression.forEach((splitExpression: string) => {
+                        let regEx: RegExp = new RegExp('([><=]{1,2})', 'ig');
+                        let exp: string[] = splitExpression.split(regEx);
+                        exp.shift(); // remove the first entry which is always 0
+                        // check it makes sense..
+                        if(exp.length > 1 && (exp[0] === "<" || ">" || "=" || "<=" || ">=")) {
+                            // and if its a string then only = should be used...
+                            if(isNaN(parseInt(exp[1]))) {
+                                // its a string...
+                                exp[0] === "=" ? (returnValue !== false ? returnValue = true : returnValue = false) : returnValue = false;
+                            } else {
+                                returnValue !== false ? returnValue = true : returnValue = false;
+                            }
+                        } else {
+                            // either no number, string or expression is given, or its an inccorect format...
+                            returnValue = false;
+                        }
+                    })
+                    // if it got to this point all passed and so is true...
+                    return returnValue;
+                }
+            },
             variables: [
                 { name: "Current Grade", identifier: "curGrade", description: "The students grade at the time you write the report."},
                 { name: "Previous Grade", identifier: "oldGrade", description: "The students grade at the time you want to compare the current grade to (for example, the last time you reported)."}
@@ -71,25 +105,6 @@ export class TestsService {
                 // the difference in indices is simply the difference in grade
                 // bigger values means better grade gains
                 return newValue - oldValue;
-            }
-        }
-    ]
-
-    public testsList: Test[] = [
-        {
-            name: 'gradeChange', 
-            variables: ['oldGrade', 'newGrade'],
-            test: {name: "grdDiff", description: "The difference between their old grade and their new grade in sublevels (A to A+ is +1, A to A- is -1). Can use > or < or = to qualify.", type: "string"},
-            function: (oldGrade: number, recentGrade: number): number => {
-                return recentGrade - oldGrade;
-            }
-        }, 
-        {
-            name: 'improvement', 
-            variables: ['improvement'],
-            test: {name: "improvementFactor", description: "On a scale of 1 to 4 how much have their improved (4 is a lot, 1 is not at all)", type: "number", options: ["1", "2", "3", "4"]},
-            function: (value: number): number => {
-                return value;
             }
         }
     ]
@@ -114,7 +129,7 @@ export class TestsService {
      * @param testName 
      * @returns 
      */
-    getTestVariables(testName: string): string[] | number[] {
+    getTestVariables(testName: string): TestVariable[] {
         //get the index
         let testIndex: number = this.testsList.findIndex((test: Test) => test.name === testName);
         // and return the variables...
@@ -122,3 +137,35 @@ export class TestsService {
     }
 
 }
+
+
+
+
+
+
+    // old tests list - too basic...
+    // public testsList: Test[] = [
+    //     {
+    //         name: 'gradeChange', 
+    //         variables: ['oldGrade', 'newGrade'],
+    //         test: {name: "grdDiff", description: "The difference between their old grade and their new grade in sublevels (A to A+ is +1, A to A- is -1). Can use > or < or = to qualify.", type: "string"},
+    //         function: (oldGrade: number, recentGrade: number): number => {
+    //             return recentGrade - oldGrade;
+    //         }
+    //     }, 
+    //     {
+    //         name: 'improvement', 
+    //         variables: ['improvement'],
+    //         test: {name: "improvementFactor", description: "On a scale of 1 to 4 how much have their improved (4 is a lot, 1 is not at all)", type: "number", options: ["1", "2", "3", "4"]},
+    //         function: (value: number): number => {
+    //             return value;
+    //         }
+    //     }
+    // ]
+
+    // export interface OldDeprecatedTest {
+    //     name: string; 
+    //     variables: string[];
+    //     test: {name: string, description: string, type: string, options?: string[]}; 
+    //     function: Function
+    // }
