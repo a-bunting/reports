@@ -35,6 +35,7 @@
 
         <div class="reports__database-buttons">
             <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving">{{ isSaving ? "Saving..." : "Save" }}</button>
+            <button class="reports__button" (click)="deleteFromDatabase()" *ngIf="reportSaved">Delete Report</button>
             <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
             <!-- <div class="reports__button">Duplicate</div> -->
 
@@ -91,11 +92,21 @@
     </div>
 
     <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
-        {{ test.identifier }}
+        <div class="reports__variable-properties">
+            <div class="reports__variable-properties--name">
+                {{ test.identifier }}
+            </div>
+            <div class="reports__variable-properties--options" *ngIf="test.settings">
+                <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)">
+                    <option value="" disabled="true" selected>Select a {{ test.settings.name }}</option>
+                    <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index">{{ opt.name }}</option>
+                </select>
+            </div>
+        </div>
 
         <div class="reports__sub-variable" *ngFor="let subTestVariable of test.values; let s = index">
             <div class="reports__sub-variable--text">
-                {{ subTestVariable.identifier }}
+                {{ subTestVariable.name }}
 
             </div>
             <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
@@ -153,7 +164,28 @@
         <tbody>
             <!-- user data -->
             <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
-                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index" contenteditable="true" (keyup.enter)="valueChange(reportId, key, $event)" (blur)="valueChange(reportId, key, $event)">{{ !isColumnHidden(key) ? individual.user[key] : ". . ." }}</td>
+                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index" contenteditable="true" (keyup.enter)="valueChange(reportId, key, $event)" (blur)="valueChange(reportId, key, $event)">
+                    <div *ngIf="!isColumnHidden(key)">
+                        {{ individual.user[key] }}
+
+
+                        <div *ngFor="let test of report.tests">
+                            <div *ngFor="let value of test.values">
+
+                                <div *ngIf="value.key === key">
+                                    <select>
+                                        <option value="optionIndex" *ngFor="let option of value.options.slice().reverse(); let optionIndex = index">{{ option }}</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div *ngIf="isColumnHidden(key)">
+                        . . .
+                    </div>
+                </td>
                 <!-- <td class="reports__data--cell" *ngFor="let key of report.keys; let i = index">
                     <input type="text" class="input__test" (keyup.enter)="valueChange(reportId, key, $event)" (blur)="valueChange(reportId, key, $event)" value="{{individual.user[key]}}">
                 </td> -->

@@ -4,13 +4,13 @@ import { GroupsService } from 'src/app/services/groups.service';
 import { TemplatesService, Template } from 'src/app/services/templates.service';
 import { GlobalValues, Report, ReportsService, ReportTemplate, TestIndividualValue, TestValues, VariableValues } from 'src/app/services/reports.service';
 import { from, observable, Observable, Subject, Subscription, zip } from 'rxjs';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
-import { TemplateTest, Test, TestsService } from 'src/app/services/tests.service';
+import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from 'src/app/services/tests.service';
 import { JsonpClientBackend } from '@angular/common/http';
 import { DocumentReference } from '@angular/fire/firestore';
 import { group } from '@angular/animations';
@@ -43,7 +43,8 @@ export class EditReportComponent implements OnInit {
 
     constructor(
         private auth: AuthenticationService, 
-        private router: ActivatedRoute, 
+        private activeRouter: ActivatedRoute, 
+        private router: Router, 
         private reportsService: ReportsService, 
         private groupService: GroupsService, 
         private templatesService: TemplatesService, 
@@ -66,7 +67,7 @@ export class EditReportComponent implements OnInit {
                 this.templates = templates;
                 
                 // monitor the parameter id in the URL and if it changes reload the data...
-                this.paramObservable = this.router.params.subscribe((params: Params) => {
+                this.paramObservable = this.activeRouter.params.subscribe((params: Params) => {
                     let reportId: string = params.id;
                     // set the id and load the template
                     this.isLoading = true;
@@ -130,6 +131,19 @@ export class EditReportComponent implements OnInit {
             console.log(`Unable to save: ${error}`);
             this.reportSaved = false;
             this.isSaving = false;
+        })
+    }
+
+    /**
+     * Deletes this report from the database...
+     */
+    deleteFromDatabase(): void {
+
+        this.reportsService.deleteReport(this.report.id).subscribe((result: boolean) => {
+            if(result) {
+                // i think getting here has implied success?
+                this.router.navigate(['/reports']);
+            }
         })
     }
 
@@ -485,6 +499,27 @@ export class EditReportComponent implements OnInit {
             })
         }
         this.checkForChanges();
+    }
+
+    /**
+     * 
+     * If you change the settings on a test variable this function will modify all relevant values...
+     * 
+     * @param testName 
+     * @param value 
+     */
+    testSettingsChange(testName: string, value: string): void {
+        let test: Test = this.testsService.getTest(testName);
+        let optionIndex: number = test.settings.options.findIndex((temp: TestOptions) => temp.name === value)
+        let options: { [key: number]: string } = test.settings.options[optionIndex].options;
+
+        this.report.tests.forEach((temp: TestValues) => {
+            temp.values.forEach((val: TestIndividualValue) => {
+                val.options = Object.values(options);
+            })
+        })
+
+        console.log(this.report);
     }
 
     unsavedChanges: boolean = false; // are there changes made to the report that have not been comitted to the persistent report?

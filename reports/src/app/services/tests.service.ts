@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 
 export interface Test {
-    name: string; description: string; // explanation of the test
+    name: string; description: string; // explanation of the test - name preceded by 'Select a '...
     settings?:  {   // settings are optional and let you select an option set as opposed to specifying one set of options for all situations. 
                     name: string;   // the name of the setting
                     description: string;    // descirption of the seeting
                     options: TestOptions[]  // the options, which include a set of options you assign to the variables
                 };
-    function: Function; // the function used to calculate the value
+    calculateValueFunction: Function; // the function used to calculate the value
+    testFunction: Function; // returns a boolean which says if the value passed the test or not.
     test: { // the thing used in the sentences database that users can select.
         // all tests are expressions, i.e. "> 3", "= 5", "<-2, >2"
         name: string; // the name of the test
@@ -76,12 +77,11 @@ export class TestsService {
                         // check it makes sense..
                         if(exp.length > 1 && (exp[0] === "<" || ">" || "=" || "<=" || ">=")) {
                             // and if its a string then only = should be used...
-                            if(isNaN(parseInt(exp[1]))) {
+                            if(isNaN(Number(exp[1]))) {  
                                 // its a string...
                                 exp[0] === "=" ? (returnValue !== false ? returnValue = true : returnValue = false) : returnValue = false;
-                            } else {
-                                returnValue !== false ? returnValue = true : returnValue = false;
-                            }
+                            } else returnValue !== false ? returnValue = true : returnValue = false;
+                            
                         } else {
                             // either no number, string or expression is given, or its an inccorect format...
                             returnValue = false;
@@ -95,7 +95,7 @@ export class TestsService {
                 { name: "Current Grade", identifier: "curGrade", description: "The students grade at the time you write the report."},
                 { name: "Previous Grade", identifier: "oldGrade", description: "The students grade at the time you want to compare the current grade to (for example, the last time you reported)."}
             ], 
-            function: function(oldGrade: string, newGrade: string, gradingSystem: TestOptions) {
+            calculateValueFunction: function(oldGrade: string, newGrade: string, gradingSystem: TestOptions) {
                 // this is untested...
                 let newGradeValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => ({ [key]: gradingSystem.options[key] }));
                 let oldwGradeValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => ({ [key]: gradingSystem.options[key] }));
@@ -105,9 +105,51 @@ export class TestsService {
                 // the difference in indices is simply the difference in grade
                 // bigger values means better grade gains
                 return newValue - oldValue;
+            },
+            testFunction: function(valueToTest: number|string, testPattern: string): boolean {
+                let validPattern: boolean = this.test.validityFunction(testPattern);
+                
+                if(validPattern) {
+                    // split the expression into all its individual tests
+                    let multipleExpression: string[] = testPattern.split(',');
+                    let currentPassStatus: boolean;
+                    // problem with foreach is it will run through it all even if a false is returned...
+                    multipleExpression.forEach((splitExpression: string) => {
+                        if(currentPassStatus !== false) {
+                            // split into expression and value...
+                            let regEx: RegExp = new RegExp('([><=]{1,2})', 'ig');
+                            let exp: string[] = splitExpression.split(regEx);
+                            exp.shift(); // remove the first entry which is always 0
+    
+                            // check if its a string or not in order to test it...
+                            if(isNaN(Number(exp[1]))) {
+                                // its a string...
+                                let valueToTestAgainst: string = exp[1];
+                                valueToTestAgainst === valueToTest ? currentPassStatus = true : currentPassStatus = false;
+                            } else {
+                                let valueToTestAgainst: number = Number(exp[1]);
+                                // run through the options - looks nicer in a switch :)
+                                switch(exp[0]) {
+                                    case "<": valueToTest < valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case ">": valueToTest > valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case "=": valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case "==": valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case ">=": valueToTest >= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break; 
+                                    case "<=": valueToTest <= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    default: currentPassStatus = false;
+                                }
+                            }
+                        }
+                    });
+                    return currentPassStatus;
+                } else {
+                    console.log(`Pattern error in test machine...`);
+                    return false;
+                };
             }
         }
     ]
+
 
     constructor() { }
 

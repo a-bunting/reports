@@ -7,7 +7,7 @@ import { DatabaseService } from '../services/database.service';
 import { User } from '../utilities/authentication/user.model';
 import { sentence, SentencesService } from './sentences.service';
 import { Template } from './templates.service';
-import { TemplateTest, Test, TestsService } from './tests.service';
+import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './tests.service';
 
 export interface ReportTemplate {
     id: string; name: string; manager: string; templateId: string; groupId: string;
@@ -37,12 +37,12 @@ export interface VariableValues {
     identifier: string, key: string, value: string, options: string[]
 }
 
-// note the firebae alternatives are because firebase does not support multidimensional arrays
 export interface TestValues { 
-    identifier: string, values: TestIndividualValue[]
+    identifier: string, settings?: { name: string; value: TestOptions; options: TestOptions[] }, values: TestIndividualValue[]
 }
+
 export interface TestIndividualValue { 
-    identifier: string; key: string; value: string, options: string[] 
+    identifier: string; name: string; key: string; value: string, options: string[] 
 }
 
 @Injectable({
@@ -277,23 +277,47 @@ export class ReportsService {
                                 const testIndex = testVals.findIndex((t: TestValues) => test.name === t.identifier);
                                 // if not there, add it...
                                 if(testIndex === -1) {
+                                    
                                     // get the test we are intersted in...
                                     let newTest: Test = this.testsService.getTest(test.name);
-                                    let testOptions: string[] = newTest.test.options;
-                                    // make an array to return...
+                                    console.log(test.name, newTest);
                                     let testValues: TestValues = {identifier: test.name, values: []};
+
+                                    // if default settings are required then set those up here...
+                                    if("settings" in newTest) {
+                                        let settings: { name: string; value: TestOptions; options: TestOptions[] } = 
+                                        {
+                                            name: newTest.settings.name,
+                                            value: { name: "", options: {}}, 
+                                            options: newTest.settings.options
+                                        }
+                                        // default options apply...
+                                        testValues.settings = settings;
+                                    }
+
+                                    let testOptions: string[];
+
+                                    if(newTest.settings.options.length === 1) {
+                                        testOptions = Object.values(newTest.settings.options[0].options);
+                                    } else {
+                                        testOptions = newTest.test.options;
+                                    }
+
+                                    // make an array to return...
                                     // iterate over the variables imn the test...
-                                    newTest.variables.forEach((test: string) => {
+                                    newTest.variables.forEach((test: TestVariable) => {
                                         // add the new test to the testvalues array...
                                         testValues.values.push(
                                             {
-                                                identifier: test,
+                                                identifier: test.identifier,
+                                                name: test.name,
                                                 key: "", 
                                                 value: "", 
                                                 options: testOptions ? testOptions : []
                                             }
                                         )
                                     })
+
                                     testVals.push(testValues);
                                 } // else already added
                             })
@@ -351,6 +375,21 @@ export class ReportsService {
             return false;
         }));
 
+    }
+
+    /**
+     * Deletes a report from the database...
+     * @param id 
+     * @returns 
+     */
+    deleteReport(id: string): Observable<boolean> {
+
+        return this.db.deleteReport(id).pipe(take(1), tap(() => {
+            return true;
+        }, error => {
+            console.log(`Error: ${error}`);
+            return false;
+        }));
     }
 
     /**

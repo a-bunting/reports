@@ -326,10 +326,18 @@ export class SentencesComponent implements OnInit, OnDestroy {
      * @param index 
      * @param testIndex 
      * @param value 
+     * @param testName
      */
-     changeTestOptionValue(position: number, index: number, testIndex: number, value: string) {
-        const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, value);
-        modified ? this.modifySuccess() : this.errorText = "Modification of test failed...";
+     changeTestOptionValue(position: number, index: number, testIndex: number, value: string, testName: string) {
+        let testCheck: Test = this.testsService.getTest(testName);
+        let testResult: boolean = this.sentenceService.testValueValidation(value, testCheck);
+
+        if(testResult) {
+            const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, value);
+            modified ? this.modifySuccess() : this.errorText = "Modification of test failed...";
+        } else {
+            console.log("Incorrect Test Value");
+        }
     }
 
     // COPY AND PASTE FUNCTION - FULL DETIAL IN SENTENCE SERVICE  for PASTE

@@ -301,6 +301,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * @param index 
      * @param testIndex 
      * @param value 
+     * @param testName
      */
      changeTestOptionValue(position: number, index: number, testIndex: number, value: string, testName: string) {
         let testCheck: Test = this.testsService.getTest(testName);

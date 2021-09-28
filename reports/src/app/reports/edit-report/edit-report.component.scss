@@ -340,6 +340,27 @@
                 color: black;
             }
         }
+
+        &-properties {
+            display: flex;
+            flex-direction: column;
+
+            margin-right: .5rem;
+            border-right: 1px dashed rgba(150, 150, 150, 0.7);
+            padding-right: .5rem;
+
+            &--name {
+                font-weight: bold;
+            }
+
+            &--options {
+                margin-top: .5rem;
+
+                select {
+                    margin-left: 0;
+                }
+            }
+        }
     }
 
     &__sub-variable {
@@ -358,6 +379,7 @@
         &--text {
             margin-bottom: .5rem;
             font-weight: bold;
+            text-align: center;
         }
 
         select {
