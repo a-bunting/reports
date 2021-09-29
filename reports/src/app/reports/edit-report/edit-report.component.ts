@@ -171,6 +171,8 @@ export class EditReportComponent implements OnInit {
         if(index !== -1) {
             this.report.groupId = this.groups[index].id;
             this.loadedGroup = this.groups[index];
+            this.groupKeys = [];
+            this.populateIndex = undefined;
             this.parseCheck();
         }
         this.checkForChanges();
@@ -425,6 +427,13 @@ export class EditReportComponent implements OnInit {
 
         this.report.reports[reportId].user[key] = newValue[0];
         this.checkForChanges();
+
+        console.log(`value change: ${newValue}`);
+    }
+
+    valueChange2(reportId: number, key: string, input: string): void {
+        this.report.reports[reportId].user[key] = input;
+        this.checkForChanges();
     }
 
     hiddenColumns: string[] = [];
@@ -457,6 +466,9 @@ export class EditReportComponent implements OnInit {
 
     /**
      * Tests if a column was added, or whether it was part of the class data.
+     * Kind of deprecated as persistence is hard and maybe not all class data is relevant.
+     * Maybe an option to add data back in?
+     * 
      * @param colName 
      * @returns 
      */
@@ -504,22 +516,74 @@ export class EditReportComponent implements OnInit {
     /**
      * 
      * If you change the settings on a test variable this function will modify all relevant values...
+     * This will need a warning as it will delete data...
      * 
      * @param testName 
      * @param value 
      */
     testSettingsChange(testName: string, value: string): void {
         let test: Test = this.testsService.getTest(testName);
+        let testIndex: number = this.report.tests.findIndex((temp: TestValues) => temp.identifier === testName);
         let optionIndex: number = test.settings.options.findIndex((temp: TestOptions) => temp.name === value)
         let options: { [key: number]: string } = test.settings.options[optionIndex].options;
 
-        this.report.tests.forEach((temp: TestValues) => {
-            temp.values.forEach((val: TestIndividualValue) => {
-                val.options = Object.values(options);
+        // set all the options...
+        this.report.tests[testIndex].values.forEach((val: TestIndividualValue) => {
+            val.options = Object.values(options);
+        })
+
+        this.report.tests[testIndex].settings.value.name = value;
+
+        // test all the values that were set for this, and if they are not in the new scheme, remove them...
+        // this should come with a varning :D
+        this.report.reports.forEach((report: Student) => {
+            this.report.tests[testIndex].values.forEach((temp: TestIndividualValue) => {
+                // change to blank...
+                report['user'][temp.identifier] = "";
             })
         })
 
         console.log(this.report);
+    }
+
+    /**
+     * Checks whether a column has specific values it can take...
+     * @param key 
+     * @returns 
+     */
+    testOptionsExist(key: string): boolean {
+        let returnValue: boolean = false; // return -1 if there is no set of test options associated with this.
+        // iterate over the tests
+        this.report.tests.forEach((test: TestValues, testIndex: number) => {
+            // iterate over the values and find the key associated with it if applicable
+            test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
+                // if the key is identical to the column key then return the index.
+                if(temp.key === key) { 
+                    returnValue = true; 
+                }
+            })
+        })
+        return returnValue;
+    }
+
+    /**
+     * Returns the options for a particular test...
+     * @param key 
+     * @returns 
+     */
+    getTestOptions(key: string): string[] {
+        let returnValue: string[] = []; // return -1 if there is no set of test options associated with this.
+        // iterate over the tests
+        this.report.tests.forEach((test: TestValues, testIndex: number) => {
+            // iterate over the values and find the key associated with it if applicable
+            test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
+                // if the key is identical to the column key then return the index.
+                if(temp.key === key) { 
+                    returnValue = temp.options.slice().reverse(); 
+                }
+            })
+        })
+        return returnValue;
     }
 
     unsavedChanges: boolean = false; // are there changes made to the report that have not been comitted to the persistent report?
@@ -533,5 +597,46 @@ export class EditReportComponent implements OnInit {
     showTests(): boolean { return this.report ? this.report.tests ? this.report.tests.length > 0 ? true : false : false : false; }
     showVariables(): boolean { return this.report ? this.report.variables ? this.report.variables.length > 0 ? true : false : false : false; }
     showGlobals(): boolean { return this.report ? this.report.globals ? this.report.globals.length > 0 ? true : false : false : false; }
+
+    populateIndex: string; // index of the column to populate with data
+    groupKeys: string[] = [];
+
+    /**
+     * toggle populate index...
+     * @param key 
+     */
+    populateSelect(key: string): void {
+        this.populateIndex ? (this.populateIndex === key ? this.populateIndex = undefined : this.populateIndex = key) : this.populateIndex = key;
+        // load the group data for this bunch...
+        this.getGroupData();
+    }
+
+    getGroupData(): void {
+        // get the columns/ data fields for this group...
+        this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
+            let groupData: Group = grp;
+            this.groupKeys = groupData.keys;
+        })
+    }
+
+    populateDataFromKey(colName: string, key: string): void {
+
+        console.log(colName,key);
+
+        // get the columns/ data fields for this group...
+        this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
+            let groupData: Group = grp;
+            // set the values in the report
+            // need unique id on students else reordering will break this
+            // poor man solution for now.
+            this.report.reports.forEach((student: Student, index: number) => {
+                student['user'][colName] = groupData.students[index][key]; 
+            })
+            // add the key back into the keys database...
+        })
+
+        console.log(this.report);
+
+    }
 
 }

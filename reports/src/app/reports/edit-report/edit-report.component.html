@@ -59,7 +59,7 @@
         <div class="reports__global-variable--input">
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
             <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
-                <option value="" selected disabled></option>
+                <option value="" [selected]="variable.value === ''" disabled></option>
                 <option value="newOption">* Add new option *</option>
                 <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
             </select>
@@ -78,7 +78,7 @@
         {{ variable.identifier }}
 
         <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
-            <option value="" selected disabled></option>
+            <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
             <option value="{{ variable.identifier }}">* Add column *</option>
             <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
         </select>
@@ -98,8 +98,8 @@
             </div>
             <div class="reports__variable-properties--options" *ngIf="test.settings">
                 <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)">
-                    <option value="" disabled="true" selected>Select a {{ test.settings.name }}</option>
-                    <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index">{{ opt.name }}</option>
+                    <option value="" disabled selected>Select a {{ test.settings.name }}</option>
+                    <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
                 </select>
             </div>
         </div>
@@ -130,10 +130,18 @@
                         
                         <!-- the make up of the table headers -->
                         <div class="reports__data--cell-header-buttons">
-                            <div class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="wasColumnAdded(key)">X</div>
+                            <div class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)">X</div>
                             <div class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)">&#8687;</div>
+                            <div class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)">&#10010;</div>
                             <div class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)">&#8687; <div class="tooltip">{{ key }}</div></div>
+                            
+                            <div *ngIf="populateIndex === key">
+                                <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)">
+                                    <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
+                                </select>
+                            </div>
                         </div>
+
 
                         <div class="reports__data--cell-header-key" *ngIf="!isColumnHidden(key)"> {{ key }} </div>
                         <!-- <div class="reports__data--cell-header-key" *ngIf="isColumnHidden(key)"></div> -->
@@ -159,36 +167,32 @@
                         </div>
                     </div>
                 </td>
+                <td class="report__data--cell">Report</td>
             </tr>
         </thead>
         <tbody>
             <!-- user data -->
             <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
-                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index" contenteditable="true" (keyup.enter)="valueChange(reportId, key, $event)" (blur)="valueChange(reportId, key, $event)">
+                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index"><!-- contenteditable="true" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">-->
                     <div *ngIf="!isColumnHidden(key)">
-                        {{ individual.user[key] }}
-
-
-                        <div *ngFor="let test of report.tests">
-                            <div *ngFor="let value of test.values">
-
-                                <div *ngIf="value.key === key">
-                                    <select>
-                                        <option value="optionIndex" *ngFor="let option of value.options.slice().reverse(); let optionIndex = index">{{ option }}</option>
-                                    </select>
-                                </div>
-
-                            </div>
-                        </div>
-
+                        <!-- if this is a section with options, display only the options  -->
+                        <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
+                        <ng-template #optionsBlock>
+                                <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)">
+                                    <option disabled [selected]="individual.user[key] === '' || individual.user[key] === undefined"></option>
+                                    <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user[key]">{{ option }}</option>
+                                </select>
+                        </ng-template>
+                        <ng-template #typeBlock>
+                            <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user[key] }}">
+                            <!-- {{ individual.user[key] }} -->
+                        </ng-template>
                     </div>
                     <div *ngIf="isColumnHidden(key)">
                         . . .
                     </div>
                 </td>
-                <!-- <td class="reports__data--cell" *ngFor="let key of report.keys; let i = index">
-                    <input type="text" class="input__test" (keyup.enter)="valueChange(reportId, key, $event)" (blur)="valueChange(reportId, key, $event)" value="{{individual.user[key]}}">
-                </td> -->
+                <td class="report__data--cell">Report</td>
             </tr>
         </tbody>
     </table>

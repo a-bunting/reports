@@ -55,9 +55,15 @@
         &--select {
             align-items: center;
         }
-
+        
         &--text {
             letter-spacing: .3rem;
+        }
+        
+        &--table {
+            width: 100%;
+            padding: .3rem 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
         }
     }
 
@@ -109,6 +115,12 @@
             padding: .25rem .7rem;
         }
         
+        &--populate {
+            background-color: orange;
+            font-size: 1.2rem;
+            padding: .25rem .7rem;
+        }
+
         &--hide, &--show {
             background-color: green;
             

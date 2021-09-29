@@ -582,4 +582,14 @@ export class ReportsService {
         })
         return returnObject;
     }
+
+    /**
+     * REPORT GENERATION
+     */
+
+    generateReports(reportDocument: ReportTemplate): ReportTemplate {
+        // this is where the magic happens :-)
+
+        return reportDocument;
+    }
 }

@@ -67,6 +67,21 @@ export class GroupsService {
     }
 
     /**
+     * Get an individual group
+     * 
+     * @param id 
+     * @returns 
+     */
+    getGroup(id: string): Observable<Group> {
+        return this.getGroups().pipe(take(1), map((groups: Group[]) => {
+            this.groups = groups;
+            // and then find the required file...
+            let groupIndex: number = groups.findIndex((grp: Group) => grp.id === id);
+            return this.groups[groupIndex];
+        }));
+    }
+
+    /**
      * Adds a new group to the database.
      * @param newGroup 
      */
