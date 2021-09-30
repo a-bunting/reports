@@ -24,7 +24,7 @@ export class EditReportComponent implements OnInit {
 
     // group data
     groups: Group[] = [];
-    loadedGroup: Group;
+    loadedGroup: string;
 
     // templates data
     templates: Template[] = [];
@@ -127,6 +127,7 @@ export class EditReportComponent implements OnInit {
             this.unsavedChanges = false;
             this.reportSaved = true;
             this.isSaving = false;
+            this.router.navigate(['/reports/edit-report/', this.report.id]);
         }, error => {
             console.log(`Unable to save: ${error}`);
             this.reportSaved = false;
@@ -170,7 +171,7 @@ export class EditReportComponent implements OnInit {
         // and load...
         if(index !== -1) {
             this.report.groupId = this.groups[index].id;
-            this.loadedGroup = this.groups[index];
+            this.loadedGroup = this.groups[index].id;
             this.groupKeys = [];
             this.populateIndex = undefined;
             this.parseCheck();
@@ -178,7 +179,7 @@ export class EditReportComponent implements OnInit {
         this.checkForChanges();
     }
 
-    loadedTemplate: Template;
+    loadedTemplate: string;
     relatedTests: TemplateTest[] = [];
 
     loadTemplate(templateId: string): void {
@@ -188,7 +189,7 @@ export class EditReportComponent implements OnInit {
         if(index !== -1) {
             // set the report id
             this.report.templateId = this.templates[index].id;
-            this.loadedTemplate = this.templates[index];
+            this.loadedTemplate = this.templates[index].id;
             // check if we can make the report yet...
             this.parseCheck();
         }
@@ -207,6 +208,9 @@ export class EditReportComponent implements OnInit {
             this.report = report;
             // set to not loading...
             this.isLoading = false;
+            // check if we can make the report yet...
+            this.loadedGroup = this.report.groupId;
+            this.loadedTemplate = this.report.templateId;
         }, error => {
             this.isLoading = false;
             console.log(`Error loading report with ID ${id}: ${error}`);
@@ -236,7 +240,6 @@ export class EditReportComponent implements OnInit {
     }
 
     //DEALING WITH VARIABLES
-
     /**
      * Assigns a value toa global variable - i.e. something that is the same for each student.
      * @param identifier 
@@ -427,8 +430,6 @@ export class EditReportComponent implements OnInit {
 
         this.report.reports[reportId].user[key] = newValue[0];
         this.checkForChanges();
-
-        console.log(`value change: ${newValue}`);
     }
 
     valueChange2(reportId: number, key: string, input: string): void {
@@ -542,8 +543,6 @@ export class EditReportComponent implements OnInit {
                 report['user'][temp.identifier] = "";
             })
         })
-
-        console.log(this.report);
     }
 
     /**
@@ -620,9 +619,6 @@ export class EditReportComponent implements OnInit {
     }
 
     populateDataFromKey(colName: string, key: string): void {
-
-        console.log(colName,key);
-
         // get the columns/ data fields for this group...
         this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
             let groupData: Group = grp;
@@ -634,9 +630,6 @@ export class EditReportComponent implements OnInit {
             })
             // add the key back into the keys database...
         })
-
-        console.log(this.report);
-
     }
 
 }

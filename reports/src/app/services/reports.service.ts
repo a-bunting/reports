@@ -5,8 +5,9 @@ import { map, take, tap } from 'rxjs/operators';
 import { Group, Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from '../services/database.service';
 import { User } from '../utilities/authentication/user.model';
+import { GroupsService } from './groups.service';
 import { sentence, SentencesService } from './sentences.service';
-import { Template } from './templates.service';
+import { Template, TemplatesService } from './templates.service';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './tests.service';
 
 export interface ReportTemplate {
@@ -56,53 +57,50 @@ export class ReportsService {
     constructor(
         private db: DatabaseService,
         private sentenceService: SentencesService,
-        private testsService: TestsService  
+        private testsService: TestsService,
+        private groupsService: GroupsService, 
+        private templateService: TemplatesService
     ) { }
 
     /**
      * Retrieves all user reports from the database...
-     * 
      * todo: add local storage;
-     * 
      * @returns 
      */
     getReports(): Observable<ReportTemplate[]> {
         this.reports = [];
-        // get from the DB
-        return this.db.getReports().pipe(take(1), map((queryResults: QuerySnapshot<ReportTemplate>) => {
-            let reportsNew: ReportTemplate[] = [];
-            // build the rpeorts...
-            queryResults.forEach((report: DocumentSnapshot<ReportTemplate>) => {
-                let newReport: ReportTemplate = this.convertBackToArrays(report.data());
-                // add the id...
-                newReport.id = report.id;
-                // rebuild the arrays :(
-                let rebuilt: ReportTemplate = this.convertBackToArrays(newReport);
-                
-                // and push tot he main array
-                // reportsNew.push(newReport);
-                reportsNew.push(rebuilt);
-            })
 
-            // // this is a test function below to retrieve only the stringified object.
-            // queryResults.forEach((report: DocumentSnapshot<any>) => {
-            //     let newReport = report.data();
-            //     console.log(`new`, newReport);
-            //     // let repNew = JSON.parse(newReport);
-            //     // add the id...
-            //     newReport.id = report.id;
-            //     // and push tot he main array
-            //     reportsNew.push(newReport);
-            // })
-            // set the variable
-            this.reports = reportsNew;
-            // set the local sotrage
-            this.setlocalStorage(this.reports);
-            // return
-            return reportsNew;
-        }, error => {
-            console.log(`Error: ${error}`);
-        }))
+        // if the data exists locally, grab it!
+        if(localStorage.getItem('reports-data') !== null) {
+            // retrieve the data from local storage and parse it into the templates data...
+            this.reports = JSON.parse(localStorage.getItem('reports-data'));               
+            // set the data on the display
+            // and return the data array...
+            return of(this.reports).pipe(take(1), tap(returnData => { return returnData; }));
+        } else {
+            // get from the DB
+            return this.db.getReports().pipe(take(1), map((queryResults: QuerySnapshot<ReportTemplate>) => {
+                let reportsNew: ReportTemplate[] = [];
+                // build the rpeorts...
+                queryResults.forEach((report: DocumentSnapshot<ReportTemplate>) => {
+                    let newReport: ReportTemplate = this.convertBackToArrays(report.data());
+                    // add the id...
+                    newReport.id = report.id;
+                    // rebuild the arrays :(
+                    let rebuilt: ReportTemplate = this.convertBackToArrays(newReport);
+                    // and push tot he main array
+                    // reportsNew.push(newReport);
+                    reportsNew.push(rebuilt);
+                })
+                // set the variable
+                this.reports = reportsNew;
+                // set the local sotrage
+                this.setlocalStorage(this.reports);
+                return reportsNew;
+            }, error => {
+                console.log(`Error: ${error}`);
+            }))
+        }
     }
 
     /**
@@ -153,14 +151,19 @@ export class ReportsService {
      * @param template 
      * @returns ReportTemplate
      */
-     parseReport(group: Group, template: Template, reportName: string, repotId: string, user: User): ReportTemplate {
+     parseReport(groupId: string, templateId: string, reportName: string, repotId: string, user: User): ReportTemplate {
         // set the individual components - not needed verbose but for clarity in design phase
+        let template: Template = this.templateService.getTemplate(templateId);
         let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
         let tests: TestValues[] = this.generateTests(template);
         let individualReports: Report[] = [];
         let reportsName: string = reportName;
         let manager: string = user.id;
         let reportId: string = repotId;
+        
+        let group: Group;
+        this.groupsService.getGroup(groupId).subscribe((grp: Group) => { group = grp; });
+
         let keys: string[] = group.keys;
 
         // parse each of the users into a new report for themselves - this lets us individualise each student
@@ -188,11 +191,7 @@ export class ReportsService {
             keys: keys,
             reports: individualReports
         };
-
-        console.log(report);
-
         return report;
-
     }
 
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
@@ -280,7 +279,6 @@ export class ReportsService {
                                     
                                     // get the test we are intersted in...
                                     let newTest: Test = this.testsService.getTest(test.name);
-                                    console.log(test.name, newTest);
                                     let testValues: TestValues = {identifier: test.name, values: []};
 
                                     // if default settings are required then set those up here...

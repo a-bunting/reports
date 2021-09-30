@@ -1,15 +1,15 @@
 .reports {
 
-    &__options {
-        position: sticky;
-        top: -2px;    
-    }
+    // &__options {
+    //     position: sticky;
+    //     top: -2px;    
+    // }
 
-    &__options[stuck] {
-        transition: all 1s;
-        background-color: var(--color-style-juxtapose);
-        border-radius: 0 0 1rem 1rem;
-    }
+    // &__options[stuck] {
+    //     transition: all 1s;
+    //     background-color: var(--color-style-juxtapose);
+    //     border-radius: 0 0 1rem 1rem;
+    // }
 
     &__settings {
         display: flex;
@@ -145,6 +145,12 @@
         &--table {
             width: 100%;
             border-collapse: collapse;
+            position: relative;
+
+            thead {
+                position: sticky;
+                top: 0;
+            }
 
             tr {
                 // opacity: 0;

@@ -32,6 +32,10 @@ export class ReportsComponent implements OnInit {
             this.isLoading = false;
             console.log(`Error: ${error}`);
         })
+
+        this.activeRouter.firstChild.params.subscribe((param: Params) => {
+            this.reportId = param.id;
+        })
     }
 
     /**

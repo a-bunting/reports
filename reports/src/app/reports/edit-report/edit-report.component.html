@@ -16,7 +16,7 @@
             <div class="reports__settings--setting">
                 <div class="reports__settings--text">Class</div>
                 <div class="reports__settings--input">
-                    <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select"  (change)="loadGroup($event.target.value)">
+                    <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select"  (change)="loadGroup($event.target.value)" [disabled]="report.groupId !== ''">
                         <option value="" disabled selected></option>
                         <option value="{{ grp.id }}" *ngFor="let grp of groups; let i = index" [selected]="report.groupId === grp.id">{{grp.name}}</option>
                     </select>
