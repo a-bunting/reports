@@ -584,10 +584,82 @@ export class ReportsService {
     /**
      * REPORT GENERATION
      */
+    testExecutability(reportdocument: ReportTemplate): boolean {
+        let execute: { global: boolean, variables: boolean, tests: boolean} = { global: true, variables: true, tests: true};
+        // check global values have been set
+        reportdocument.globals.every((global: GlobalValues) => {
+            execute.global = (global.value === "" ? false : true);
+            return (execute.global === true) ? true : false;
+        })
+        // check variables have a key assigned to them
+        reportdocument.variables.every((variable: VariableValues) => {
+            execute.variables = (variable.key === "" ? false : true);
+            return (execute.variables === true) ? true : false;
+        })
+        reportdocument.tests.forEach((test: TestValues) => {
+            // each variable one ach TEST needs a key
+            test.values.every((test: TestIndividualValue) => {
+                execute.tests = (test.key === "" ? false : true);
+                return (execute.tests === true ?  true : false);
+            })
+        })
+        console.log(execute);
 
-    generateReports(reportDocument: ReportTemplate): ReportTemplate {
+        // if any are false this will return false;
+        return (execute.global && execute.variables && execute.tests);
+    }
+
+    /**
+     * Takes a report documnet and converts all reports into readable progress reports.
+     * @param reportDocument 
+     * @returns 
+     */
+    generateBatchReports(reportDocument: ReportTemplate): ReportTemplate {
         // this is where the magic happens :-)
+        let globalVariables: GlobalValues[] = reportDocument.globals;
+        let variableVariables: VariableValues[] = reportDocument.variables;
+        let testVariables: TestValues[] = reportDocument.tests;
 
+        // ITERATE Over all reports...
+        reportDocument.reports.forEach((individualReport: Report) => {
+            // generate a report for this user...
+            individualReport.report = this.generateIndividualReports(individualReport, globalVariables, variableVariables, testVariables);
+        })
+
+        // return the original modified reportdocument.
         return reportDocument;
+    }
+
+
+
+    /**
+     * Takes a single report interface object and uses data from the template to generate a report...
+     * @param report 
+     * @param reportDocument 
+     * @returns 
+     */
+    generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
+        let generatedReport: string;
+
+        // first we need a sentence structure generated for this template.
+        let template: Template = report.template;
+        let minCharacters: number = template.characters.min;
+        let maxCharacters: number = template.characters.max;
+        let sentenceOptionsTested: string[] = this.sentenceService.newTestSentenceOptionCreator(template.template, report.user, tests);
+
+        // now substitute in values...
+        // TO DO
+        //console.log(sentenceOptionsTested);
+
+        // trim down to the sentences which match the character range...
+        sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
+
+        // select a random value to pick at random a sentence from the options avaikable
+        let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
+        
+
+        // return selected sentence
+        return null;
+        // return generatedReport[randomValueForSelect];
     }
 }

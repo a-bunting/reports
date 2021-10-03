@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { flatMap, map, take, tap } from 'rxjs/operators';
 import { ConsoleService } from '../admin/services/console.service';
+import { Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from '../services/database.service';
-import { Report } from './reports.service';
-import { TemplateTest, Test, TestsService } from './tests.service';
+import { Report, TestValues } from './reports.service';
+import { TemplateTest, Test, TestsService, TestVariable } from './tests.service';
 
 export interface sentence {
     id: string;
@@ -290,6 +291,167 @@ export class SentencesService {
         
         return unfiltered;
     }
+
+
+
+
+
+    generateTestedSentenceOptions(route: [string[]], userData: Student, tests: TestValues[]): string[] {
+
+        let report: string[] = [""];
+
+        route.forEach((route: string[], i: number) => {
+            // check if its a new paragraph...
+            if(route[0] === "newParagraph") {
+                report.map((temp: string) => temp += "</p><p>");
+            } else {
+                // starting paragraph tag
+                if(i === 0) { report.map((temp: string) => temp += "<p>") }
+
+                // generate sentence option 1
+                const str = this.generateTestedSentence(route, userData, tests);
+
+                report.map((temp: string) => { temp += str; })
+                // add all sentences to the final report array
+                str.forEach((temp: string) => { 
+                    report.push(temp); 
+                })
+                
+                // close paragraph tag
+                if (i === route.length - 1) { report.map((temp: string) => temp += "</p>") }
+            }
+        })
+
+        return report;
+    }
+
+
+    generateTestedSentence(route: string[], userData: Student, tests: TestValues[]): string[] {
+
+        let options: string[] = [];
+        const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
+        let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
+    
+        // iterate over each level of the sentence builder...
+        data.forEach((stem: sentence[], depth: number) => {
+            // iterate overall options within a level
+            const oldSentences = [...sentences];
+    
+            stem.forEach((newStem: sentence) => {
+                 
+                if(newStem.sentence) {
+    
+                    newStem.sentence.forEach((sentenceStem: string) => {
+    
+                        const sentence = sentenceStem;
+                        const starter = newStem.starter ? newStem.starter : false;
+        
+                        if(sentence) {
+                            oldSentences.forEach((previousSentence, idx) => {
+                                let newSentence: string = previousSentence.sentence + sentence;
+        
+                                // only if the new sentence is deeper than the old sentence can it be added.
+                                // peers do not add (sentences with the same depth)
+                                if(previousSentence.depth < (depth + 1)) {
+                                    if(starter) {
+                                        // if this is a starting sentence it should both add to previous elements
+                                        // and have its own element.
+                                        // ADD TO PREVIOUS SENTENCE
+                                        sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                        sentences[idx].delete = true;
+                                        // ADD NEW ELEMENT WITH THIS AS THE STARTER
+                                        sentences.push({sentence: sentence, depth: depth, delete: false});
+                                    } else {
+                                        // if this is NOT a starting element it should add to previous elements
+                                        // but NOT be added as its own element. Previous elements cannot happen without this
+                                        // so the previous element should be flagged for deletion.
+                                        // ADD TO PREVIOUS SENTENCE
+                                        sentences.push({sentence: newSentence, depth: depth, delete: false});
+                                        // DELETE THE PREVIOUS SENTENCE
+                                        sentences[idx].delete = true;
+                                    }
+                                }
+                            })
+                        }
+                    });
+                }
+            })
+    
+            // after the first iteration remove the blank first entry
+            if(depth === 0) { sentences.splice(0, 1); }
+    
+            // iterate over the sentences and delete all that need to be deleted.
+            for(let i = sentences.length - 1 ; i >= 0 ; i--) {
+                if(sentences[i].delete === true) {
+                    sentences.splice(i, 1);
+                }
+            }
+            return sentences;
+        })
+    
+        // for some reason there are repeat sentences, delete them simply for now...
+        let unfiltered: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
+        unfiltered.shift(); // this is so hax :/
+    
+        sentences.forEach(a => {
+            let i = unfiltered.findIndex(b => a.sentence === b.sentence);
+            i === -1 ? unfiltered.push(a) : null;
+        })
+
+        unfiltered.forEach(opt => {
+            options.push(opt.sentence);
+        })
+
+        return options;
+    }
+
+
+
+
+
+
+
+
+    newTestSentenceOptionCreator(route: [string[]], userData?: Student, tests?: TestValues[]): string[] {
+
+        let textArrays: string[][] = [];
+        let data: sentence[] = this.sentenceData;
+
+        // iterate over each part of the route...
+        // 0 just for testing...
+        route[0].forEach((routeId: string) => {
+            // iterate on the data
+            let sentenceValues: string[] = this.iterateSentenceFunction(data, routeId);
+            
+            // push to the main array
+            sentenceValues.length > 0 ? textArrays.push(sentenceValues) : null;
+
+            // find the index of the category just found and  make the data variables the subcategories...
+            let subIndex: number =  data.findIndex((temp: sentence) => temp.id === routeId);
+            data = data[subIndex].subcategories;
+
+        })
+
+
+        console.log(`Arrays`, textArrays);
+
+        return null;
+    }
+
+    iterateSentenceFunction(data: sentence[], routeId: string): string[] {
+       // get the relevant sentence
+       let sentenceIndex: number =  data.findIndex((temp: sentence) => temp.id === routeId);
+       // get the sentence text array...
+       let sentences: string[] = this.sentenceData[sentenceIndex].sentence;
+       
+       return sentences;
+    }
+
+
+
+
+
+
 
     /**
      * Generates an example sentence and gives the quantity of potential reports for this template

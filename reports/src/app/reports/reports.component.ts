@@ -33,10 +33,11 @@ export class ReportsComponent implements OnInit {
             console.log(`Error: ${error}`);
         })
 
-        this.activeRouter.firstChild.params.subscribe((param: Params) => {
-            this.reportId = param.id;
-        })
+        if(this.activeRouter.children.length > 0) {
+            this.activeRouter.firstChild.params.subscribe((param: Params) => { this.reportId = param.id; })
+        }
     }
+
 
     /**
      * Load an individual report navigating to the edit page.

@@ -587,9 +587,15 @@ export class EditReportComponent implements OnInit {
 
     unsavedChanges: boolean = false; // are there changes made to the report that have not been comitted to the persistent report?
     reportSaved: boolean = false; // has the report ever been comitted tot he database? false if it hasnt...
+    reportGenerationReady: boolean = false; // is there suffient data to generate reports?
 
     checkForChanges(): void {
         this.unsavedChanges = JSON.stringify(this.loadedReport) !== JSON.stringify(this.report) ? true : false;
+        this.reportGenerationReady = this.reportsService.testExecutability(this.report);
+    }
+
+    generateReports(): void {
+        this.reportsService.generateBatchReports(this.report);
     }
 
     // functions to show the various sections or not...

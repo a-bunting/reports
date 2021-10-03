@@ -37,6 +37,7 @@
             <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving">{{ isSaving ? "Saving..." : "Save" }}</button>
             <button class="reports__button" (click)="deleteFromDatabase()" *ngIf="reportSaved">Delete Report</button>
             <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
+            <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady">{{ reportGenerationReady ? "Generate Reports" : "Need all data to generate reports"}}</button>
             <!-- <div class="reports__button">Duplicate</div> -->
 
         </div>
