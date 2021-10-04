@@ -222,6 +222,12 @@
                 width: 6rem;
             }
         }
+
+        &--report {
+            text-align: justify;
+            flex: 1;
+            cursor: copy;
+        }
         
         &--buttons {
 

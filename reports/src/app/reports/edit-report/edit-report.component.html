@@ -75,6 +75,16 @@
         Variables
     </div>
 
+    <div class="reports__variable">
+        Gender
+
+        <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')">
+            <option value="" disabled></option>
+            <option value="Gender">* Add column *</option>
+            <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
+        </select>
+    </div>
+
     <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
         {{ variable.identifier }}
 
@@ -168,7 +178,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="report__data--cell">Report</td>
+                <td class="reports__data--cell">Report</td>
             </tr>
         </thead>
         <tbody>
@@ -193,7 +203,7 @@
                         . . .
                     </div>
                 </td>
-                <td class="report__data--cell">Report</td>
+                <td class="reports__data--cell reports__data--report tooltipped" (click)="copyReportText(reportId)">{{individual.report}} <div class="tooltip">Click to copy to clipboard</div></td>
             </tr>
         </tbody>
     </table>

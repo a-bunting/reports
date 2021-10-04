@@ -603,7 +603,6 @@ export class ReportsService {
                 return (execute.tests === true ?  true : false);
             })
         })
-        console.log(execute);
 
         // if any are false this will return false;
         return (execute.global && execute.variables && execute.tests);
@@ -634,6 +633,7 @@ export class ReportsService {
 
     /**
      * Takes a single report interface object and uses data from the template to generate a report...
+     * gender defaults to they/them/their if no gender is submitted.
      * @param report 
      * @param reportDocument 
      * @returns 
@@ -641,25 +641,108 @@ export class ReportsService {
     generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
         let generatedReport: string;
 
+        // get the gender if it exists...
+        let genderIndex: number = variables.findIndex((test: TestIndividualValue) => test.identifier === "Gender");
+        let gender: "m"|"f"|"p" = "p";
+        // if it exists then reassign else leave it as p (plural!)
+        if(genderIndex !== -1) {
+            gender = report.user[variables[genderIndex].key];
+        }
+
         // first we need a sentence structure generated for this template.
         let template: Template = report.template;
         let minCharacters: number = template.characters.min;
         let maxCharacters: number = template.characters.max;
         let sentenceOptionsTested: string[] = this.sentenceService.newTestSentenceOptionCreator(template.template, report.user, tests);
 
-        // now substitute in values...
-        // TO DO
-        //console.log(sentenceOptionsTested);
-
         // trim down to the sentences which match the character range...
         sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
-
         // select a random value to pick at random a sentence from the options avaikable
         let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
-        
+        let reportUnSubstituted: string = sentenceOptionsTested[randomValueForSelect];
+
+        // now sub in values
+        globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
+        variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user[variable.key]); })
+
+        // gender transform...
+        reportUnSubstituted = this.genderConversion(reportUnSubstituted, gender);
+
+        // perform a grammar check
+        reportUnSubstituted = this.grammarCheck(reportUnSubstituted);
 
         // return selected sentence
-        return null;
-        // return generatedReport[randomValueForSelect];
+        return reportUnSubstituted;
+    }
+
+    /**
+     * Substitutes variables into the text...
+     * @param report 
+     * @param substitution 
+     * @param value 
+     * @returns 
+     */
+    valuesSubstitute(report: string, substitution: string, value: string): string {
+        let strReplace = new RegExp('\\$\\{('+substitution+')+(\\[.*?])?\\}\\$', 'gi');
+        let subbed = report.replace(strReplace, value);
+        return subbed;
+    }
+
+    /**
+     * Dea with gender values...
+     * @param report 
+     * @param gender 
+     * @returns 
+     */
+    genderConversion(report: string, gender: "m"|"f"|"p"): string {
+        let genderUnique: string = gender.toLowerCase();
+        let genderIndex: number = (genderUnique === "m" ? 0 : genderUnique === "f" ? 1 : 2);
+        let strReplace = new RegExp('\\$\\{(gd\\|\\[(.*?)/(.*?)/(.*?)\\])+(\\[.*?])?\\}\\$', 'gi');
+
+        // wil;l this only work once??????? :S
+        let regexData: string[] = strReplace.exec(report);
+        let subbed: string = report;
+        // if any gender info is found, substitute it...
+        if(regexData) {  subbed = report.replace(regexData[0], regexData[2+genderIndex]); }
+        // return
+        return subbed;
+    }
+
+    grammarCheck(report: string): string {
+        report = this.anOrA(report);
+        report = this.sentenceCase(report);
+        return report;
+    }
+
+    /**
+     * Is it an AN or an A.
+     * RULES: If the next word is a CONSONANT then its A, if its a VOWEL then its AN 
+     * @param report 
+     * @returns 
+     */
+    anOrA(report: string): string {
+        return report;
+    }
+
+    /**
+     * Tidies up any sentence case issues.
+     * - Put a . at the end if there isnt one. 
+     * - Put a space after a . and capitalise the first letter
+     * - Capitalise the first letter of the whoole thing.
+     * 
+     * @param report 
+     * @returns 
+     */
+    sentenceCase(report: string): string {
+        return report;
+    }
+
+    /**
+     * Removes whitespace at the start and end of the text, and strips any double whitespaces.
+     * @param report 
+     * @returns 
+     */
+    removeWhiteSpace(report: string): string {
+        return report;
     }
 }

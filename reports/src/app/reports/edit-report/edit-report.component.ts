@@ -313,6 +313,9 @@ export class EditReportComponent implements OnInit {
             // it went wrong, who knows what to do?
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
+            
+            let newVar: VariableValues = { identifier: assignIdentifier, key: toIdentifier, value: "", options: ['m','f','p'] };
+            this.report.variables.push(newVar);
         }
         this.checkForChanges();
     }
@@ -595,7 +598,7 @@ export class EditReportComponent implements OnInit {
     }
 
     generateReports(): void {
-        this.reportsService.generateBatchReports(this.report);
+        this.report = this.reportsService.generateBatchReports(this.report);
     }
 
     // functions to show the various sections or not...
@@ -636,6 +639,15 @@ export class EditReportComponent implements OnInit {
             })
             // add the key back into the keys database...
         })
+    }
+
+    /**
+     * Copies the report text into the clipboard
+     * @param reportId 
+     */
+    copyReportText(reportId: number): void {
+        let text: string = this.report.reports[reportId].report;
+        navigator.clipboard.writeText(text);
     }
 
 }
