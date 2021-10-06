@@ -7,6 +7,7 @@ export class User {
         public admin: boolean,
         public manager: boolean,
         public member: boolean,
+        public autoUpdateDb: boolean,
         private _token: string, 
         private _tokenExpirationDate: Date
     ) {}

@@ -39,10 +39,10 @@ export class TemplatesService {
      * (either from local storage or the database...)
      * @returns 
      */
-    getTemplates(): Observable<Template[]> {    
+    getTemplates(forcedFromDatabase: boolean = false): Observable<Template[]> {    
         this.templates = [];
         // check local sotrage first...
-        if(localStorage.getItem('templates-data') !== null) {
+        if(localStorage.getItem('templates-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the templates data...
             this.templates = JSON.parse(localStorage.getItem('templates-data'));               
             // set the data on the display

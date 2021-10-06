@@ -20,10 +20,10 @@ export class GroupsService {
     * (either from local storage or the database...)
     * @returns 
    */
-    getGroups(): Observable<Group[]> {
+    getGroups(forcedFromDatabase: boolean = false): Observable<Group[]> {
         this.groups = [];
         // check if there is an instance of the groups database in localstorage...
-        if(localStorage.getItem('groups-data') !== null) {
+        if(localStorage.getItem('groups-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the templates data...
             this.groups = JSON.parse(localStorage.getItem('groups-data'));               
             // set the data on the display

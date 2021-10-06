@@ -42,9 +42,9 @@ export class SentencesService {
      * Gets the sentence data from memory or from the database and returns it as an observable...
      * @returns 
      */
-    getSentencesDatabase(uid?: string): Observable<sentence>{
+    getSentencesDatabase(uid?: string, forcedFromDatabase: boolean = false): Observable<sentence>{
         // check if there is an instance of the sentences database in localstorage...
-        if(localStorage.getItem('sentences-data') !== null) {
+        if(localStorage.getItem('sentences-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the sentence data...
             this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));               
             // set the data on the display

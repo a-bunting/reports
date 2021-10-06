@@ -19,6 +19,15 @@
         </div>
     </div>
 
+    <div class="dashboard__database-status">
+        <div class="dashboard__db-status-indicator" [class.dashboard__db-status-indicator--green]="databaseStatus" [class.dashboard__db-status-indicator--red]="!databaseStatus">
+            {{ databaseStatusUpdating ? "Currently Updating" : databaseStatus ? "You are up to date!" : "Your database may need refreshing"}}
+        </div>
+        <div class="dashboard__db-force-update">
+            <button class="dashboard__db-force-update--button" (click)="forceLoadDataClick()" [class.opacity__0]="databaseStatus">Force Database Update</button>
+        </div>
+    </div>
+
     <div class="dashboard__info">
         <p>The dashboard is your login homepage - it will be your destination for all updates and things you need to do.</p>
         <p>More info will be here at later dates!!</p>

@@ -18,6 +18,59 @@
         align-items: center;
     }
 
+    &__database-status {
+        grid-column: 1 / 3;
+
+        // background-color: var(--color-style-juxtapose);
+        border-radius: 1rem;
+        // margin: 1rem;
+        padding: 1rem 1rem;
+
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        font-size: 1.4rem;
+    }
+
+    &__db-status-indicator {
+        padding: .8rem 1.6rem;
+        border-radius: 1rem;
+        transition: all 2s;
+        margin-right: 3rem;
+        border: .2rem solid transparent;
+        width: 30rem;
+        text-align: center;
+
+        &--green { background-color: var(--color-style-main) ;}
+        &--red { background-color: var(--color-style-juxtapose);}
+    }
+
+    &__db-force-update {
+        
+        &--button {
+            padding: .8rem 1.6rem;
+            border-radius: 1rem;
+            transition: background-color .2s, color .2s, border .2s, box-shadow .2s, opacity 2s;
+            border: .2rem solid transparent;
+            text-align: center;
+            font-size: 1.4rem;
+            background-color: var(--color-style-main);
+
+            &:not(:last-of-type) {
+                margin-right: .5rem;
+            }
+
+            &:hover {
+                cursor: pointer;
+                background-color: var(--color-style-juxtapose);
+                color: white;
+                border: .2rem solid white;
+                box-shadow: 0 .3rem .6rem rgba(black, .3);
+            }
+        }
+    }
+
     &__title {
         font-size: 3rem;
         font-weight: bold;

@@ -55,7 +55,7 @@ export class AuthenticationService {
 
             // when successful then authenticate
             const authenticate = this.handleAuthentication(
-                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, token.token 
+                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, false, token.token 
             );
 
             // set the sentences template with the users userid - this will be their own copy of the database.
@@ -109,6 +109,7 @@ export class AuthenticationService {
             const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
             const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
             const member = tokenData.claims.member ? tokenData.claims.member : false;
+            const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
 
             this.handleAuthentication(
                 user.email, 
@@ -118,6 +119,7 @@ export class AuthenticationService {
                 admin,
                 manager, 
                 member,
+                autoUpdate,
                 tokenData.token 
             );
         })
@@ -146,6 +148,7 @@ export class AuthenticationService {
             admin: boolean;
             manager: boolean; 
             member: boolean;
+            autoUpdateDb: boolean;
             _token: string;
             _tokenExpirationDate: string;
         } = JSON.parse(localStorage.getItem('userData'));
@@ -154,7 +157,7 @@ export class AuthenticationService {
             return;
         }
 
-        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData._token, new Date(userData._tokenExpirationDate));
+        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.autoUpdateDb, userData._token, new Date(userData._tokenExpirationDate));
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
@@ -184,9 +187,9 @@ export class AuthenticationService {
      * @param token 
      * @param expiresIn 
      */
-    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, token: string): void {
+    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, autoUpdateDb: boolean, token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, token, expirationDate);
+        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, autoUpdateDb, token, expirationDate);
         this.autoLogout(3600 * 1000);
         this.user.next(user);
 
