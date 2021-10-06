@@ -7,6 +7,7 @@ import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { GroupsService } from 'src/app/services/groups.service';
 import { map, take } from 'rxjs/operators';
+import { ReportsService, ReportTemplate } from 'src/app/services/reports.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,7 +25,8 @@ export class DashboardComponent implements OnInit {
         private AuthService: AuthenticationService,
         private groupService: GroupsService,
         private templatesService: TemplatesService, 
-        private sentenceService: SentencesService
+        private sentenceService: SentencesService,
+        private reportService: ReportsService
     ) {}
     
     ngOnInit(): void {
@@ -57,7 +59,7 @@ export class DashboardComponent implements OnInit {
     forceLoadDataClick(): void {
         this.databaseStatusUpdating = true;
         // force all databases to pull new data from the database.
-        this.forceLoadData(true).subscribe((result: [boolean, boolean, boolean]) => {
+        this.forceLoadData(true).subscribe((result: [boolean, boolean, boolean, boolean]) => {
             this.databaseStatus = result[0] && result[1] && result[2];
             this.databaseStatusUpdating = false;
         }, error => {
@@ -68,13 +70,14 @@ export class DashboardComponent implements OnInit {
 
     }
 
-    forceLoadData(forced: boolean): Observable<[boolean, boolean, boolean]> {
+    forceLoadData(forced: boolean): Observable<[boolean, boolean, boolean, boolean]> {
         // load groups and templates concurrently then act
         let loadGroups = this.groupService.getGroups(forced).pipe(take(1), map((result: Group[]) => { return true; }));
         let loadTemplate = this.templatesService.getTemplates(forced).pipe(take(1), map((result: Template[]) => { return true; }));
         let loadSentence = this.sentenceService.getSentencesDatabase(this.user.id, forced).pipe(take(1), map((result: sentence) => { return true; }));
+        let loadReports = this.reportService.getReports(forced).pipe(take(1), map((result: ReportTemplate[]) => { return true; }));
         // and return them at the same time...
-        return zip(loadGroups, loadTemplate, loadSentence);
+        return zip(loadGroups, loadTemplate, loadSentence, loadReports);
     }
 
 }

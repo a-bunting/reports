@@ -67,11 +67,11 @@ export class ReportsService {
      * todo: add local storage;
      * @returns 
      */
-    getReports(): Observable<ReportTemplate[]> {
+    getReports(forcedFromDatabase: boolean = false): Observable<ReportTemplate[]> {
         this.reports = [];
 
         // if the data exists locally, grab it!
-        if(localStorage.getItem('reports-data') !== null) {
+        if(localStorage.getItem('reports-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the templates data...
             this.reports = JSON.parse(localStorage.getItem('reports-data'));               
             // set the data on the display
