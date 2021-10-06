@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Group, Student } from 'src/app/classes/create-group/create-group.component';
 import { GroupsService } from 'src/app/services/groups.service';
 import { TemplatesService, Template } from 'src/app/services/templates.service';
@@ -88,6 +88,16 @@ export class EditReportComponent implements OnInit {
             e.target.toggleAttribute('stuck', e.intersectionRatio < 1)
         }, { threshold: [1] });
         this.sticky.observe(document.getElementsByClassName('sticky').item(0));
+
+        
+    }
+
+    /**
+     * listen for the escape key press to make any tempory changes go away!
+     * @param event 
+     */
+    @HostListener('document:keydown.escape', ['$event']) onEscapeKeyPress(event: KeyboardEvent) {
+        this.dragging = false;
     }
 
     isUpdating: boolean = false;
@@ -648,6 +658,48 @@ export class EditReportComponent implements OnInit {
     copyReportText(reportId: number): void {
         let text: string = this.report.reports[reportId].report;
         navigator.clipboard.writeText(text);
+    }
+
+    // drag and drop functionality to reorder the table...
+    drop(ev: string) {
+        this.dragging = false;
+    }
+
+    allowDrop(event): void {
+        event.preventDefault();
+        // if the current target has been moved, then auto move it.
+        let targetKey: string = event.target.value;
+
+        if(targetKey !== this.dragKey && !this.dragTimeout) {
+            let moveIndex: number = this.report.keys.findIndex((temp: string) => temp === this.dragKey);
+            let toIndex: number = this.report.keys.findIndex((temp: string) => temp === targetKey);
+
+            if(toIndex !== -1 && moveIndex !== -1) {
+                // reorder keys
+                this.reOrderKeys(moveIndex, toIndex, this.dragKey);
+                // set a timeout before a reorder can happen again
+                setTimeout(() => {
+                    this.dragTimeout = false;
+                }, 250);
+            }
+        }
+    }
+
+    dragging: boolean = false;
+    dragKey: string;
+    dragTimeout: boolean = false;
+
+    drag(ev: string): void {
+        this.dragKey = ev;
+        this.dragging = true;
+    }
+
+    reOrderKeys(from: number, to: number, key: string): void {
+        // stop further drags happen buggily
+        this.dragTimeout = true;
+        // modify the array
+        this.report.keys.splice(from, 1);
+        this.report.keys.splice(to, 0, key);
     }
 
 }

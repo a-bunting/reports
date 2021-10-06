@@ -48,24 +48,20 @@
 
 <!-- global variables, things which are the same for each student... -->
 <div class="reports__global-variables" *ngIf="showGlobals()">
-    <div class="reports__global-variables--text">
+    <div class="reports__variables--text">
         Global Variables 
     </div>
 
     <div class="reports__global-variable" *ngFor="let variable of report.globals; let i = index">
-        <div class="reports__global-variable--text">
-            {{ variable.identifier }}
-        </div>
+        {{ variable.identifier }}
 
-        <div class="reports__global-variable--input">
-            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
-            <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
-                <option value="" [selected]="variable.value === ''" disabled></option>
-                <option value="newOption">* Add new option *</option>
-                <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
-            </select>
-            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
-        </div>
+        <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
+        <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
+            <option value="" [selected]="variable.value === ''" disabled></option>
+            <option value="newOption">* Add new option *</option>
+            <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
+        </select>
+        <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
     </div>
 </div>
 
@@ -137,6 +133,7 @@
         <thead>
             <tr class="reports__data--row reports__data--header">
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
+                    <div class="reports__data--cell-header--dragging" value="{{ key }}" (drop)="drop($event.target.value)" (dragover)="allowDrop($event)" *ngIf="dragging"></div>
                     <div class="reports__data--cell-header">
                         
                         <!-- the make up of the table headers -->
@@ -145,32 +142,33 @@
                             <div class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)">&#8687;</div>
                             <div class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)">&#10010;</div>
                             <div class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)">&#8687; <div class="tooltip">{{ key }}</div></div>
-                            
-                            <div *ngIf="populateIndex === key">
-                                <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)">
-                                    <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
-                                </select>
-                            </div>
+                            <div class="reports__data-buttons reports__data-buttons--move" draggable="true" (click)="showColumn(key)" *ngIf="!isColumnHidden(key)" (drag)="drag($event.target.value)" value="{{ key }}">&harr;</div>
                         </div>
 
+                        <div class="reports__data--cell-header-detail">
+                                
+                            <div class="reports__data--cell-header-key" *ngIf="!isColumnHidden(key)"> 
+                                <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)" *ngIf="populateIndex === key; else displayKey">
+                                    <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
+                                </select>
+                                <ng-template #displayKey> {{ key }} </ng-template>
+                            </div>
 
-                        <div class="reports__data--cell-header-key" *ngIf="!isColumnHidden(key)"> {{ key }} </div>
-                        <!-- <div class="reports__data--cell-header-key" *ngIf="isColumnHidden(key)"></div> -->
-
-                        <div class="reports__data--cell-header-variables">
-                            <!-- what does this column relate to in the rpeort -->
-                            <div class="reports__key-variable-link--flexbox">
-                                <!-- regular vairable display -->
-                                <div class="reports__key-variable-link" *ngFor="let variable of report.variables">
-                                    <div class="reports__key-variable-link--link-variable" *ngIf="variable.key === key" (click)="removeVariableAssignment(variable.identifier)">
-                                        {{ !isColumnHidden(key) ? variable.identifier : "*" }}
+                            <div class="reports__data--cell-header-variables">
+                                <!-- what does this column relate to in the rpeort -->
+                                <div class="reports__key-variable-link--flexbox">
+                                    <!-- regular vairable display -->
+                                    <div class="reports__key-variable-link" *ngFor="let variable of report.variables">
+                                        <div class="reports__key-variable-link--link-variable" *ngIf="variable.key === key" (click)="removeVariableAssignment(variable.identifier)">
+                                            {{ !isColumnHidden(key) ? variable.identifier : "*" }}
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- test variable display -->
-                                <div class="reports__key-variable-link" *ngFor="let tests of report.tests">
-                                    <div *ngFor="let test of tests.values">
-                                        <div class="reports__key-variable-link--link-test" *ngIf="test.key === key" (click)="removeTestVariableAssignment(test.identifier, tests.identifier)">
-                                            {{ !isColumnHidden(key) ? test.identifier : "*" }}
+                                    <!-- test variable display -->
+                                    <div class="reports__key-variable-link" *ngFor="let tests of report.tests">
+                                        <div *ngFor="let test of tests.values">
+                                            <div class="reports__key-variable-link--link-test" *ngIf="test.key === key" (click)="removeTestVariableAssignment(test.identifier, tests.identifier)">
+                                                {{ !isColumnHidden(key) ? test.name : "*" }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -178,13 +176,13 @@
                         </div>
                     </div>
                 </td>
-                <td class="reports__data--cell">Report</td>
+                <td class="reports__data--cell reports__data--report">Report</td>
             </tr>
         </thead>
         <tbody>
             <!-- user data -->
             <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
-                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index"><!-- contenteditable="true" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">-->
+                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
                     <div *ngIf="!isColumnHidden(key)">
                         <!-- if this is a section with options, display only the options  -->
                         <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
