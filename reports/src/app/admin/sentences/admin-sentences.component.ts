@@ -59,13 +59,13 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.isLoading = true;
 
-        // get the sentence data from the database...
-        this.sentenceService.getSentencesDatabase('template').subscribe((data: sentence) => {
+        // get the sentence data from the database... force it to always take it from the database...
+        this.sentenceService.getSentencesDatabase('template', false).subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
             this.initialData = JSON.parse(JSON.stringify(sentenceData));
             this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-            this.sentenceService.generateSentenceOptions(this.route);
+            this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
         }, (error) => {
             console.log(`Error gathering the database: ${error.message}`);
         }, () => {
@@ -82,7 +82,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Upload the changed version of the database to firebase.
+     * Upload the changed version of the TEMPLATE to firebase.
      * @param docName 
      */
     reUploadToFirebase(docName?: string) {
@@ -91,9 +91,8 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
             this.databaseMismatch = false; // disable the changes button and reenable if failure.
     
             // const doc = docName ? docName : 'template';
-            const doc = docName ? docName : 'template';
             // this.databaseService.uploadSentences(doc, this.sentenceData[0]).subscribe(returnData => {
-            this.databaseService.uploadSentences(doc, this.sentenceService.getCurrentSentenceData()[0]).subscribe(returnData => {
+            this.databaseService.uploadSentences('template', this.sentenceService.getCurrentSentenceData()[0]).subscribe(returnData => {
                 // changes comitted
                 this.isLoading = false;
             }, error => {
@@ -388,3 +387,5 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     }
 
 }
+
+//[{"subcategories":[{"id":"7hYZS","tests":[],"subcategories":[{"endpoint":true,"sentence":["${v|forename}$ ${v|surname}$ has earned themselves [1] ${v|grade}$ grade in ${g|Subject Name}$ this ${g|Time Period[semester,term]}$"],"name":"Grade","starter":true,"subcategories":[{"name":"Short","id":"xkvmt","sentence":[],"subcategories":[{"endpoint":true,"id":"X5Up6","subcategories":[{"name":"New","id":"gcj3p"}],"name":"1","sentence":["."]}]},{"tests":[],"subcategories":[{"id":"ucK6b","meta":-2,"endpoint":true,"sentence":[", not achieving quite as well as (LAST GRADE PERIOD). ${gd|[him/her/their]}$"],"tests":[{"values":{"value":"<-2","name":"Expression"},"name":"Grade Change"}],"name":"Not as well"},{"tests":[{"values":{"name":"Expression","value":"<=1,>=-1"},"name":"Grade Change"},{"name":"Grade Level","values":{"value":"90-100","name":"Grade Level (%age)"}}],"id":"7wrSS","name":"As well","sentence":[", achieving just as well as (LAST GRADE PERIOD). ${gd|[him/her/their]}$"],"meta":0,"endpoint":true},{"endpoint":true,"tests":[{"name":"Grade Change","values":{"name":"Expression","value":">=2"}}],"sentence":[", achieving better than (LAST GRADE PERIOD). ${gd|[him/her/their]}$"],"name":"Better","id":"I9i0H","meta":2},{"name":"Much better","tests":[{"values":{"value":">=5","name":"Expression"},"name":"Grade Change"}],"meta":20,"endpoint":true,"sentence":[", achieving far better than ${gd|[him/her/their]}$ did in (LAST GRADE PERIOD)."],"id":"PHEla"}],"id":"hYLfU","sentence":[],"name":"Medium"},{"subcategories":[{"name":"1","endpoint":true,"sentence":["where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."],"id":"neFow"}],"name":"Long","id":"zaAkK","sentence":[]}],"id":"7B4IX"},{"id":"nn4gC","starter":true,"name":"Learning","sentence":["${v|forename}$ ${v|surname}$ has this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$  learned about ${g|Topics Learned}$.","${v|forename}$ ${v|surname}$ has learned about ${g|Topics Learned}$ this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"],"subcategories":[]},{"id":"Jq1gA","subcategories":[{"id":"sE9xO","name":"New"}],"name":"Basic (Jq1gA)","sentence":["This is a report of ${v|forename}$ ${v|surname}$'s progress throughout the last ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"]}],"name":"Intro","sentence":[" "],"starter":false},{"id":"7ZAK2","endpoint":true,"sentence":[" "],"name":"Skill Success or Improvement","subcategories":[{"name":"What they did well (Skill 1)","subcategories":[{"name":"Short\n\n","sentence":["."],"id":"ollxx"},{"subcategories":[{"id":"eiIJm","name":"Very Good","sentence":[", which has been a particular strength of ${gn|his/hers/theirs}$ throughout the course.",", demonstrating a high level of success throughout the course."],"tests":[{"name":"Skill Level","values":{"name":"Skill Level (%age)","value":"90-100"}}]},{"sentence":[", showing [excellent/good/] improvement throughout the course.",", an important skill that has seen a marked improvement throughout the course."],"tests":[{"name":"Skill Level","values":{"name":"Skill Level (%age)","value":"70-89"}}],"name":"Improved","id":"ETijC"},{"sentence":[", an important skill ${gn|he/she/they}$ will continue to use in ${g|Subject Name}$.",", a skill that in ${g|Subject Name}$ we will come back to frequently."],"id":"p8YXT","name":"General"}],"name":"Medium","id":"91aZr"}],"sentence":["I have been particularly impressed this ${g|Time Period[semester,term]}$ with ${v|Forename}$'s ability at ${g|Good Skill (1)}$","${v|Forename}$ has impressed me this ${g|Time Period[semester,term]}$ with ${gn|his/her/their}$ ability at ${v|Good Skill (1)}$"],"id":"wO91f"}]},{"subcategories":[{"subcategories":[{"sentence":["I wish ${v|Forename}$ the best of luck in ${gn|his/her/their}$ new school in the coming ${g|Time Period[semester,term]}$","I [sincerely,] hope ${v|Forename}$ finds success as ${gn|he/she/they}$ move from ${g|School Name[user.school]}$ in the coming ${g|Time Period[semester,term]}$.","I hope that in the coming ${g|Time Period[semester,term]}$, ${v|Forename}$ finds success and happiness at ${gn|his/her/their}$ new school.","I hope the upcoming move is a success for ${v|Forename}$ and ${gn|he/she/they}$ find success in their new school."],"name":"Good luck in new school","id":"gIwdJ","tests":[{"name":"Next Stage","values":{"name":"Student Movement","value":"","options":["Leaving school","Staying in this course","Course is over","Graduating"]}}]},{"id":"rDDuU","tests":[{"values":{"options":["Leaving school","Staying in this course","Course is over","Graduating"],"value":"Staying in this course","name":"Student Movement"},"name":"Next Stage"},{"name":"Grade Level","values":{"name":"Grade Level (%age)","value":"90-100"}}],"sentence":["I look forward to continuing to teach ${v|Forename}$ next ${g|Time Period[semester,term]}$.","I am excited to see what ${v|Forename}$ can achieve next ${g|Time Period[semester,term]}$."],"name":"Staying in the class"},{"tests":[{"name":"Next Stage","values":{"options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"],"value":"Course is over","name":"Student Movement"}}],"id":"LwPBg","name":"Course is finished"},{"tests":[{"values":{"value":"Graduating","name":"Student Movement","options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"]},"name":"Next Stage"}],"id":"LqMJh","name":"Student Graduating"},{"subcategories":[],"id":"zELoC","tests":[{"values":{"options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"],"name":"Student Movement","value":"I am leaving"},"name":"Next Stage"}],"name":"I am leaving"}],"starter":false,"name":"Pleasantries","id":"la0FA"}],"starter":true,"tests":[],"id":"0Tn5b","sentence":[" "],"name":"Finish"}],"id":"FFnsi"}]
