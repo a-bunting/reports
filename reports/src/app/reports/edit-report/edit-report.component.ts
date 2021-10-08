@@ -527,6 +527,10 @@ export class EditReportComponent implements OnInit {
         this.checkForChanges();
     }
 
+    deleteUserReport(reportId: number): void {
+        this.report.reports.splice(reportId, 1);
+    }
+
     /**
      * 
      * If you change the settings on a test variable this function will modify all relevant values...
@@ -648,6 +652,18 @@ export class EditReportComponent implements OnInit {
                 student['user'][colName] = groupData.students[index][key]; 
             })
             // add the key back into the keys database...
+        })
+    }
+
+    populateDataFromColumn(toCol: string, fromCol: string): void {
+        this.report.reports.forEach((student: Student, index: number) => {
+            student['user'][toCol] = student['user'][fromCol];
+        })
+    }
+
+    populateDataFromTextOrOption(key: string, value: string): void {
+        this.report.reports.forEach((student: Student, index: number) => {
+            student['user'][key] = value;
         })
     }
 
