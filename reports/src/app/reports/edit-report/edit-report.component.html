@@ -34,10 +34,9 @@
         </div>
 
         <div class="reports__database-buttons">
-            <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving">{{ isSaving ? "Saving..." : "Save" }}</button>
-            <button class="reports__button" (click)="deleteFromDatabase()" *ngIf="reportSaved">Delete Report</button>
-            <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
-            <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady">{{ reportGenerationReady ? "Generate Reports" : "Need all data to generate reports"}}</button>
+            <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving" title="Save this new report to the database">{{ isSaving ? "Saving..." : "Save" }}</button>
+            <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating" title="Click to update your report in the database">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
+            <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Fill all data"}}</button>
             <!-- <div class="reports__button">Duplicate</div> -->
 
         </div>
@@ -60,6 +59,33 @@
     <div class="reports__variable--description">
         These values are used the test whether sentence stems apply to each user in turn. Select the column that matches the data needed for each variable.
     </div>
+    
+    <!-- variables, things that needf a value for each student -->
+    <div class="reports__variable-column" *ngIf="showVariables()">
+        <div class="reports__variable">
+            <div class="reports__variable--name">
+                Gender
+            </div>
+    
+            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')" [disabled]="checkVariableAssignment('Gender')">
+                <option value="" disabled [selected]="!checkVariableAssignment('Gender')"></option>
+                <option value="Gender">* Add column *</option>
+                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="option === 'Gender'">{{ option }}</option>
+            </select>
+        </div>
+    
+        <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
+            <div class="reports__variable--name">
+                {{ variable.identifier }}
+            </div>
+    
+            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)" title="Select the column from your data that will be the source for the '{{ variable.identifier }}' data.">
+                <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
+                <option value="{{ variable.identifier }}">* Add column *</option>
+                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
+            </select>
+        </div>
+    </div>
 
     <div class="reports__variable-column" *ngIf="showGlobals()">
         <div class="reports__variable" *ngFor="let variable of report.globals; let i = index">
@@ -74,33 +100,6 @@
                 <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
             </select>
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
-        </div>
-    </div>
-    
-    <!-- variables, things that needf a value for each student -->
-    <div class="reports__variable-column" *ngIf="showVariables()">
-        <div class="reports__variable">
-            <div class="reports__variable--name">
-                Gender
-            </div>
-    
-            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')">
-                <option value="" disabled></option>
-                <option value="Gender">* Add column *</option>
-                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
-            </select>
-        </div>
-    
-        <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
-            <div class="reports__variable--name">
-                {{ variable.identifier }}
-            </div>
-    
-            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
-                <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
-                <option value="{{ variable.identifier }}">* Add column *</option>
-                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
-            </select>
         </div>
     </div>
     
@@ -134,84 +133,6 @@
             </div>
         </div>
     </div>
-
-    <!-- <div class="reports__global-variables" *ngIf="showGlobals()">
-        <div class="reports__variables--text">
-            Global Variables 
-        </div>
-    
-        <div class="reports__global-variable" *ngFor="let variable of report.globals; let i = index">
-            {{ variable.identifier }}
-    
-            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
-            <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
-                <option value="" [selected]="variable.value === ''" disabled></option>
-                <option value="newOption">* Add new option *</option>
-                <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
-            </select>
-            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
-        </div>
-    </div>
-    
-    <!-- variables, things that needf a value for each student -->
-    <!-- <div class="reports__variables" *ngIf="showVariables()">
-        <div class="reports__variables--text">
-            Variables
-        </div>
-    
-        <div class="reports__variable">
-            Gender
-    
-            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')">
-                <option value="" disabled></option>
-                <option value="Gender">* Add column *</option>
-                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
-            </select>
-        </div>
-    
-        <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
-            {{ variable.identifier }}
-    
-            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
-                <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
-                <option value="{{ variable.identifier }}">* Add column *</option>
-                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
-            </select>
-        </div>
-    </div> -->
-    
-    <!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
-    <!-- <div class="reports__test-variables" *ngIf="showTests()">
-        <div class="reports__variables--text">
-            Test Variables
-        </div>
-    
-        <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
-            <div class="reports__variable-properties">
-                <div class="reports__variable-properties--name">
-                    {{ test.identifier }}
-                </div>
-                <div class="reports__variable-properties--options" *ngIf="test.settings">
-                    <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)">
-                        <option value="" disabled selected>Select a {{ test.settings.name }}</option>
-                        <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
-                    </select>
-                </div>
-            </div>
-    
-            <div class="reports__sub-variable" *ngFor="let subTestVariable of test.values; let s = index">
-                <div class="reports__sub-variable--text">
-                    {{ subTestVariable.name }}
-    
-                </div>
-                <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
-                    <option value="" selected disabled></option>
-                    <option value="{{ subTestVariable.identifier }}">* Add column *</option>
-                    <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="subTestVariable.key === option">{{ option }}</option>
-                </select>
-            </div>
-        </div>
-    </div> -->
 </div>
 
 <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="showGlobals() || showVariables() || showTests()"></div>
@@ -223,16 +144,16 @@
             <tr class="reports__data--row reports__data--header">
                 <td></td>
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
-                    <div class="reports__data--cell-header--dragging" value="{{ key }}" (drop)="drop($event.target.value)" (dragover)="allowDrop($event)" *ngIf="dragging"></div>
+                    <div class="reports__data--cell-header--dragging" value="{{ key }}" (drop)="drop()" (dragover)="allowDrop($event)" *ngIf="dragging"></div>
                     <div class="reports__data--cell-header">
                         
                         <!-- the make up of the table headers -->
                         <div class="reports__data--cell-header-buttons">
-                            <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)">X</button>
-                            <button class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)">&#8687;</button>
-                            <button class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)">&#10010;</button>
-                            <button class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)">&#8687; <div class="tooltip">{{ key }}</div></button>
-                            <button class="reports__data-buttons reports__data-buttons--move" draggable="true" (click)="showColumn(key)" *ngIf="!isColumnHidden(key)" (drag)="drag($event.target.value)" value="{{ key }}">&harr;</button>
+                            <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)" title="Delete column">X</button>
+                            <button class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)" title="Hide column">&#8647;</button>
+                            <button class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)" title="Prepopulate data from another source">&#10010;</button>
+                            <button class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)" title="Expand {{ key }} data">&#8649; <div class="tooltip">{{ key }}</div></button>
+                            <button class="reports__data-buttons reports__data-buttons--move" draggable="true" (click)="showColumn(key)" *ngIf="!isColumnHidden(key)" (drag)="drag($event.target.value)" value="{{ key }}" title="Click and hold the drag this column to another position.">&harr;</button>
                         </div>
 
                         <div class="reports__data--cell-header-detail">
@@ -300,7 +221,7 @@
             <!-- user data -->
             <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
                 <td class="reports__data--cell">
-                    <div class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)">X</div>
+                    <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this report">X</button>
                 </td>
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
                     <div *ngIf="!isColumnHidden(key)">

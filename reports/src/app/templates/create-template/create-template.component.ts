@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Template, TemplateDB, TemplatesService } from 'src/app//services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
@@ -79,45 +79,6 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
      */
     loadTemplate(id: string | undefined): void {
         if(id !== undefined) {
-            // this isnt a new template so its a database one, search for it...
-            // this.templateService.getTemplate(id).subscribe((template: Template) => {
-            //     // and use the data to populate the template...
-            //     const templateData = template.data();
-            //     this.templateCharacters.min = templateData.characters.min;
-            //     this.templateCharacters.max = templateData.characters.max;
-            //     this.templateName = templateData.name;
-
-            //     // split the routes up into their paragraphs...
-            //     this.viewData = [[[]]];
-            //     this.templateRoutes = undefined;
-
-            //     templateData.template.forEach((route: string, elementId: number) => {
-            //         let split = route.split("|");
-
-            //         if(split[0] === "newParagraph") {
-            //             // add a new paragraph.
-            //             this.addParagraph();
-            //         } else {
-            //             // add a new element and add all the routes to it.
-            //             this.addElement();
-            //             // add routes.
-            //             split.forEach((routeCode: string, index: number) => {
-            //                 try {
-            //                     this.updateElementRoute(elementId, index - 1, routeCode);
-            //                 } catch (error) {
-            //                     console.log(`Error: ${error}`);
-            //                     this.deleteElement(this.templateRoutes.length - 1);
-            //                 }
-            //             })
-            //         }
-            //     })
-
-            //     this.savedTemplate = this.generateTemplate();
-            //     this.templateUpdated = false;
-            //     this.templateSaved = true;
-            //     this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes)[0];
-            // })
-
 
             const templateData: Template = this.templateService.getTemplate(id);
             // and use the data to populate the template...
@@ -129,26 +90,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.viewData = [[[]]];
             this.templateRoutes = undefined;
 
-            templateData.template.forEach((route: string[], elementId: number) => {
-
-                if(route[0] === "newParagraph") {
-                    // add a new paragraph.
-                    this.addParagraph();
-                } else {
-                    // add a new element and add all the routes to it.
-                    this.addElement();
-                    // add routes.
-                    route.forEach((routeCode: string, index: number) => {
-                        try {
-                            this.updateElementRoute(elementId, index - 1, routeCode);
-                        } catch (error) {
-                            console.log(`Error: ${error}`);
-                            this.deleteElement(this.templateRoutes.length - 1);
-                        }
-                    })
-                }
-                
-            })
+            this.updateViewdata(templateData.template);
 
             this.savedTemplate = this.generateTemplate();
             this.templateUpdated = false;
@@ -156,23 +98,39 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
         }
     }
+    
+    /**
+     * Updates the viewdata for a given route...
+     * @param route 
+     */
+    updateViewdata(route: [string[]]): void {
+        this.viewData = [[[]]];
+        this.templateRoutes = undefined;
+
+        route.forEach((route: string[], elementId: number) => {
+
+            if(route[0] === "newParagraph") {
+                // add a new paragraph.
+                this.addParagraph();
+            } else {
+                // add a new element and add all the routes to it.
+                this.addElement();
+                // add routes.
+                route.forEach((routeCode: string, index: number) => {
+                    try {
+                        this.updateElementRoute(elementId, index - 1, routeCode);
+                    } catch (error) {
+                        console.log(`Error: ${error}`);
+                        this.deleteElement(this.templateRoutes.length - 1);
+                    }
+                })
+            } 
+        })
+    }
 
     templateUpdated: boolean = false;
     templateSaved: boolean = false;
     savedTemplate: TemplateDB;
-
-    private getSentencesDatabase(): void {
-        this.sentenceService.getSentencesDatabase(this.user.id).subscribe((data: sentence) => {
-            const sentenceData: sentence[] = [data];
-            // set the data on the display
-            this.initialData = JSON.parse(JSON.stringify(sentenceData));
-            this.sentenceData = JSON.parse(JSON.stringify(sentenceData));
-        }, (error) => {
-            console.log(`Error gathering the database: ${error.message}`);
-        }, () => {
-            this.isLoading = false;
-        });
-    }
 
     /**
      * From the enetred data generates a TemplateDB object
@@ -408,6 +366,52 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             }
         }
         return false;
+    }
+
+    dragFrom: number;
+    dragging: boolean = false;
+    dragTimeout: boolean = false;
+
+    dragPositionChange(index: number): void {
+        this.dragFrom = index;
+        this.dragging = true;
+    }
+
+    dropPosition(): void {
+        this.dragging = false;
+    }
+
+    allowDrop(event):void {
+        event.preventDefault();
+        // get the target
+        let dropIndex: number = event.target.value;
+
+        if(dropIndex !== this.dragFrom && !this.dragTimeout) {
+            this.reOrderElements(this.dragFrom, dropIndex);
+            this.dragFrom = dropIndex;
+                // set a timeout before a reorder can happen again
+            setTimeout(() => {
+                this.dragTimeout = false;
+            }, 500);
+        }
+    }
+
+    reOrderElements(from: number, to: number): void {
+        this.dragTimeout = true;
+        let copy: string[] = [...this.templateRoutes[from]];
+
+        this.templateRoutes.splice(from, 1);
+        this.templateRoutes.splice(to, 0, copy);
+
+        this.updateViewdata(this.templateRoutes);
+    }
+
+    /**
+     * listen for the escape key press to make any tempory changes go away!
+     * @param event 
+     */
+     @HostListener('document:keydown.escape', ['$event']) onEscapeKeyPress(event: KeyboardEvent) {
+        this.dragging = false;
     }
 
 }

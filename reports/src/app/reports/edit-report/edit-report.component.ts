@@ -146,19 +146,6 @@ export class EditReportComponent implements OnInit {
     }
 
     /**
-     * Deletes this report from the database...
-     */
-    deleteFromDatabase(): void {
-
-        this.reportsService.deleteReport(this.report.id).subscribe((result: boolean) => {
-            if(result) {
-                // i think getting here has implied success?
-                this.router.navigate(['/reports']);
-            }
-        })
-    }
-
-    /**
      * Load all required data, including groups and templates data...
      * @returns 
      */
@@ -677,7 +664,7 @@ export class EditReportComponent implements OnInit {
     }
 
     // drag and drop functionality to reorder the table...
-    drop(ev: string) {
+    drop(): void {
         this.dragging = false;
     }
 
@@ -693,6 +680,7 @@ export class EditReportComponent implements OnInit {
             if(toIndex !== -1 && moveIndex !== -1) {
                 // reorder keys
                 this.reOrderKeys(moveIndex, toIndex, this.dragKey);
+                this.dragKey = targetKey;
                 // set a timeout before a reorder can happen again
                 setTimeout(() => {
                     this.dragTimeout = false;

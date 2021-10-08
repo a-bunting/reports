@@ -32,12 +32,17 @@ export class ReportsComponent implements OnInit {
             this.isLoading = false;
             console.log(`Error: ${error}`);
         })
-
-        if(this.activeRouter.children.length > 0) {
-            this.activeRouter.firstChild.params.subscribe((param: Params) => { this.reportId = param.id; })
-        }
+        this.initiateParameterWatcher();
     }
 
+    paramSubscription: Subscription;
+
+    initiateParameterWatcher(): void {
+        // wont work for a new report so fire whenever a new report is loaded.
+        if(this.activeRouter.children.length > 0) {
+            this.paramSubscription = this.activeRouter.firstChild.params.subscribe((param: Params) => { this.reportId = param.id;  })
+        }
+    }
 
     /**
      * Load an individual report navigating to the edit page.
@@ -45,9 +50,30 @@ export class ReportsComponent implements OnInit {
      */
     loadReport(id: string): void {
         if(id !== undefined) {
+            this.reportId = id;
             this.router.navigate(['/reports/edit-report/' + id]);
+            this.initiateParameterWatcher();
         }
     }
+    /**
+     * Deletes this report from the database...
+     */
+    deleteFromDatabase(): void {
+        console.log("here");
+        this.reportsService.deleteReport(this.reportId).subscribe((result: boolean) => {
+            // if(result) {
+                // i think getting here has implied success?
+                console.log("report deleted");
+                this.router.navigate(['/reports']);
+            // }
+        }, error => {
+            console.log(`Report not deleted: ${error}`);
+        })
+    }
 
+    /**
+     * simply removes the reportid
+     */
+    generateNew(): void { this.reportId = undefined; }
 
 }

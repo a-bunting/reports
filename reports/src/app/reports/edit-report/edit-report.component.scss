@@ -66,6 +66,7 @@
         
         &--description {
             display: flex;
+            justify-content: center;
             align-items: center;
             font-size: 1.2rem;
             font-style: italic;
@@ -98,6 +99,7 @@
         select, input {
             max-width: 25rem;
             font-size: 1.2rem;
+            padding: .5rem 1rem;
         }
     }
 
@@ -188,17 +190,6 @@
         &--hide, &--show {
             background-color: green;
         }
-        
-        &--hide { 
-            transform: rotate(-90deg); 
-        }
-
-        &--show { 
-            transform: rotate(90deg);
-            border-radius: .8rem;
-            
-            button { transform: rotate(-90deg);}
-        }
 
         &--move {
             background-color: violet;
@@ -260,13 +251,15 @@
         &--cell-header {
             display: flex;
             justify-content: space-between;
-            align-items: stretch;
+            align-items: center;
 
             &-buttons {
                 display: grid;
-                grid-template: repeat(3rem, 4) / repeat(auto, 1);
+                grid-template: 3rem / 3rem;
+                grid-auto-rows: 3rem;
                 margin-right: 1rem;
                 margin-left: -.2rem;
+                margin: auto 1rem auto -.2rem;
             }
 
             &-detail {

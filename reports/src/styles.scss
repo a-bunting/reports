@@ -26,7 +26,8 @@ html {
 }
 
 body {
-    max-width: 120rem;
+    // max-width: 120rem;
+    max-width: 95vw;
     margin: 0 auto;
     background-image:   linear-gradient(to top left, transparent, var(--color-style-juxtapose)),
                         linear-gradient(to bottom right, var(--color-style-light), var(--color-style-dark));

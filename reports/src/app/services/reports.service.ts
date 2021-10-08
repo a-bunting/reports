@@ -381,8 +381,15 @@ export class ReportsService {
      * @returns 
      */
     deleteReport(id: string): Observable<boolean> {
-
         return this.db.deleteReport(id).pipe(take(1), tap(() => {
+            // remove from the local storage also..
+            let repoIndex: number = this.reports.findIndex((temp: ReportTemplate) => temp.id === id);
+
+            if(repoIndex !== -1) {
+                // delete from the db, doesnt inform the caller of the error though and it will stay in local database.
+                this.reports.splice(repoIndex, 1);
+                this.setlocalStorage(this.reports);
+            }
             return true;
         }, error => {
             console.log(`Error: ${error}`);
