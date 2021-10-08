@@ -47,82 +47,171 @@
 <div class="divider-line divider-line__thin" *ngIf="showGlobals() || showVariables() || showTests()"></div>
 
 <!-- global variables, things which are the same for each student... -->
-<div class="reports__global-variables" *ngIf="showGlobals()">
-    <div class="reports__variables--text">
-        Global Variables 
+<div class="reports__variable-section">
+
+    <div class="reports__variable--description">
+        These values will apply to all the generated reports.
+    </div>  
+
+    <div class="reports__variable--description">
+        These values are individualised to each user. Select the column that matches the data needed for each variable.
     </div>
 
-    <div class="reports__global-variable" *ngFor="let variable of report.globals; let i = index">
-        {{ variable.identifier }}
-
-        <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
-        <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
-            <option value="" [selected]="variable.value === ''" disabled></option>
-            <option value="newOption">* Add new option *</option>
-            <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
-        </select>
-        <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
-    </div>
-</div>
-
-<!-- variables, things that needf a value for each student -->
-<div class="reports__variables" *ngIf="showVariables()">
-    <div class="reports__variables--text">
-        Variables
+    <div class="reports__variable--description">
+        These values are used the test whether sentence stems apply to each user in turn. Select the column that matches the data needed for each variable.
     </div>
 
-    <div class="reports__variable">
-        Gender
-
-        <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')">
-            <option value="" disabled></option>
-            <option value="Gender">* Add column *</option>
-            <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
-        </select>
-    </div>
-
-    <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
-        {{ variable.identifier }}
-
-        <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
-            <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
-            <option value="{{ variable.identifier }}">* Add column *</option>
-            <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
-        </select>
-    </div>
-</div>
-
-<!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
-<div class="reports__test-variables" *ngIf="showTests()">
-    <div class="reports__variables--text">
-        Test Variables
-    </div>
-
-    <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
-        <div class="reports__variable-properties">
-            <div class="reports__variable-properties--name">
-                {{ test.identifier }}
+    <div class="reports__variable-column" *ngIf="showGlobals()">
+        <div class="reports__variable" *ngFor="let variable of report.globals; let i = index">
+            <div class="reports__variable--name">
+                {{ variable.identifier }}
             </div>
-            <div class="reports__variable-properties--options" *ngIf="test.settings">
-                <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)">
-                    <option value="" disabled selected>Select a {{ test.settings.name }}</option>
-                    <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
-                </select>
-            </div>
+    
+            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
+            <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
+                <option value="" [selected]="variable.value === ''" disabled></option>
+                <option value="newOption">* Add new option *</option>
+                <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
+            </select>
+            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
         </div>
-
-        <div class="reports__sub-variable" *ngFor="let subTestVariable of test.values; let s = index">
-            <div class="reports__sub-variable--text">
-                {{ subTestVariable.name }}
-
+    </div>
+    
+    <!-- variables, things that needf a value for each student -->
+    <div class="reports__variable-column" *ngIf="showVariables()">
+        <div class="reports__variable">
+            <div class="reports__variable--name">
+                Gender
             </div>
-            <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
-                <option value="" selected disabled></option>
-                <option value="{{ subTestVariable.identifier }}">* Add column *</option>
-                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="subTestVariable.key === option">{{ option }}</option>
+    
+            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')">
+                <option value="" disabled></option>
+                <option value="Gender">* Add column *</option>
+                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
+            </select>
+        </div>
+    
+        <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
+            <div class="reports__variable--name">
+                {{ variable.identifier }}
+            </div>
+    
+            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
+                <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
+                <option value="{{ variable.identifier }}">* Add column *</option>
+                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
             </select>
         </div>
     </div>
+    
+    <!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
+    <div class="reports__variable-column" *ngIf="showTests()">
+        <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
+            <div class="reports__variable--multirow">
+                <div class="reports__variable--name">
+                    {{ test.identifier }}
+                </div>
+                <div class="reports__variable--options" *ngIf="test.settings">
+                    <!-- <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)"> -->
+                    <select class="reports__input reports__input--select" (change)="testSettingsChange(test.identifier, $event.target.value)">
+                        <option value="" disabled selected>Select a {{ test.settings.name }}</option>
+                        <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
+                    </select>
+                </div>
+            </div>
+    
+            <div class="reports__variable--multirow reports__variable--wrap-prevention" *ngFor="let subTestVariable of test.values; let s = index">
+                <div class="reports__variable--name">
+                    {{ subTestVariable.name }}
+                </div>
+                <div class="reports__variable--options">
+                    <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
+                        <option value="" selected disabled></option>
+                        <option value="{{ subTestVariable.identifier }}">* Add column *</option>
+                        <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="subTestVariable.key === option">{{ option }}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="reports__global-variables" *ngIf="showGlobals()">
+        <div class="reports__variables--text">
+            Global Variables 
+        </div>
+    
+        <div class="reports__global-variable" *ngFor="let variable of report.globals; let i = index">
+            {{ variable.identifier }}
+    
+            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
+            <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
+                <option value="" [selected]="variable.value === ''" disabled></option>
+                <option value="newOption">* Add new option *</option>
+                <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
+            </select>
+            <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
+        </div>
+    </div>
+    
+    <!-- variables, things that needf a value for each student -->
+    <!-- <div class="reports__variables" *ngIf="showVariables()">
+        <div class="reports__variables--text">
+            Variables
+        </div>
+    
+        <div class="reports__variable">
+            Gender
+    
+            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')">
+                <option value="" disabled></option>
+                <option value="Gender">* Add column *</option>
+                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index">{{ option }}</option>
+            </select>
+        </div>
+    
+        <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
+            {{ variable.identifier }}
+    
+            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)">
+                <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
+                <option value="{{ variable.identifier }}">* Add column *</option>
+                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
+            </select>
+        </div>
+    </div> -->
+    
+    <!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
+    <!-- <div class="reports__test-variables" *ngIf="showTests()">
+        <div class="reports__variables--text">
+            Test Variables
+        </div>
+    
+        <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
+            <div class="reports__variable-properties">
+                <div class="reports__variable-properties--name">
+                    {{ test.identifier }}
+                </div>
+                <div class="reports__variable-properties--options" *ngIf="test.settings">
+                    <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)">
+                        <option value="" disabled selected>Select a {{ test.settings.name }}</option>
+                        <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
+                    </select>
+                </div>
+            </div>
+    
+            <div class="reports__sub-variable" *ngFor="let subTestVariable of test.values; let s = index">
+                <div class="reports__sub-variable--text">
+                    {{ subTestVariable.name }}
+    
+                </div>
+                <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
+                    <option value="" selected disabled></option>
+                    <option value="{{ subTestVariable.identifier }}">* Add column *</option>
+                    <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="subTestVariable.key === option">{{ option }}</option>
+                </select>
+            </div>
+        </div>
+    </div> -->
 </div>
 
 <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="showGlobals() || showVariables() || showTests()"></div>

@@ -44,6 +44,63 @@
 
     }
 
+    &__variable-section {
+        display: grid;
+        grid-template: max-content 2fr / repeat(3, 1fr);
+        row-gap: .5rem;
+        column-gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    &__variable-column {
+        flex: 1;
+        border-radius: 1rem;
+        padding: .5rem 1rem 0 1rem;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &__variable {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        &--description {
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-style: italic;
+            text-align: justify;
+            padding-bottom: .7rem;
+            margin-bottom: .5rem;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        margin-bottom: .5rem;
+
+        &--name {
+            font-size: 1.2rem;
+        }
+
+        &--options {
+            margin-top: .3rem;
+            text-align: right;
+        }
+
+        &--multirow {
+            display: flex;
+            flex-direction: column;
+
+            &:not(:last-of-type) {
+                margin-right: .3rem;
+            }
+        }
+
+        select, input {
+            max-width: 25rem;
+            font-size: 1.2rem;
+        }
+    }
+
     &__database-buttons {
         display: flex;
     }
@@ -289,158 +346,160 @@
         }
     }
 
-    &__global-variables {
-        display: flex;
-        align-items: baseline;
-        margin: .5rem 2rem;
-        font-size: 1.4rem;
-    }
 
-    &__global-variable {
+
+    // &__global-variables {
+    //     display: flex;
+    //     align-items: baseline;
+    //     margin: .5rem 2rem;
+    //     font-size: 1.4rem;
+    // }
+
+    // &__global-variable {
         
-        display: flex;
-        align-items: baseline;
-        padding: .5rem 1rem;
-        background-color: var(--color-style-juxtapose);
-        border-radius: 1rem;
+    //     display: flex;
+    //     align-items: baseline;
+    //     padding: .5rem 1rem;
+    //     background-color: var(--color-style-juxtapose);
+    //     border-radius: 1rem;
 
-        &:not(:first-of-type) {
-            margin-left: 1rem;
-        }
+    //     &:not(:first-of-type) {
+    //         margin-left: 1rem;
+    //     }
 
-        input {
-            border-radius: .5rem;
-            padding: .5rem 1rem;
-        }
+    //     input {
+    //         border-radius: .5rem;
+    //         padding: .5rem 1rem;
+    //     }
 
-        select {
-            border-radius: .5rem;
-            padding: .5rem 1rem;
-        }
+    //     select {
+    //         border-radius: .5rem;
+    //         padding: .5rem 1rem;
+    //     }
 
-        input, select {
-            margin-left: 2rem;
-        }
-    }
+    //     input, select {
+    //         margin-left: 2rem;
+    //     }
+    // }
 
-    &__variables {
-        display: flex;
-        align-items: baseline;
-        flex-wrap: wrap;
-        margin: .5rem 2rem;
-        font-size: 1.4rem;
+    // &__variables {
+    //     display: flex;
+    //     align-items: baseline;
+    //     flex-wrap: wrap;
+    //     margin: .5rem 2rem;
+    //     font-size: 1.4rem;
 
-        &--text {
-            font-weight: bold;
-            margin-right: 2rem;
-            width: 12rem;
-        }
-    }
+    //     &--text {
+    //         font-weight: bold;
+    //         margin-right: 2rem;
+    //         width: 12rem;
+    //     }
+    // }
     
-    &__test-variables {
-        display: flex;
-        align-items: baseline;
-        margin: .5rem 2rem;
-        font-size: 1.4rem;
+    // &__test-variables {
+    //     display: flex;
+    //     align-items: baseline;
+    //     margin: .5rem 2rem;
+    //     font-size: 1.4rem;
 
-        &--text {
-            font-weight: bold;
-            margin-right: 2rem;
-            width: 12rem;
-        }
-    }
+    //     &--text {
+    //         font-weight: bold;
+    //         margin-right: 2rem;
+    //         width: 12rem;
+    //     }
+    // }
 
-    &__variable {
+    // &__variable {
         
-        display: flex;
-        align-items: baseline;
-        padding: .5rem 1rem;
-        background-color: var(--color-style-main);
-        border-radius: 1rem;
-        border: 2px solid transparent;
-        transition: all .2s;
+    //     display: flex;
+    //     align-items: baseline;
+    //     padding: .5rem 1rem;
+    //     background-color: var(--color-style-main);
+    //     border-radius: 1rem;
+    //     border: 2px solid transparent;
+    //     transition: all .2s;
 
-        &--text {
-            margin-right: 1rem;
-        }
+    //     &--text {
+    //         margin-right: 1rem;
+    //     }
 
-        &:not(:first-of-type) {
-            margin-left: 1rem;
-        }
+    //     &:not(:first-of-type) {
+    //         margin-left: 1rem;
+    //     }
 
-        &:hover {
-            background-color: var(--color-style-juxtapose);
-            border: 2px solid white;
-            color: white;
-        }
+    //     &:hover {
+    //         background-color: var(--color-style-juxtapose);
+    //         border: 2px solid white;
+    //         color: white;
+    //     }
 
-        select {
-            border-radius: .5rem;
-            padding: .5rem 1rem;
-            margin-left: 1rem;
-        }
+    //     select {
+    //         border-radius: .5rem;
+    //         padding: .5rem 1rem;
+    //         margin-left: 1rem;
+    //     }
 
-        &--button {
-            padding: .5rem;
-            margin-left: 1rem;
-            border-radius: .3rem;
-            background-color: var(--color-style-juxtapose);
-            text-align: center;
-            font-size: 1.2rem;
-            transition: all .2s;
+    //     &--button {
+    //         padding: .5rem;
+    //         margin-left: 1rem;
+    //         border-radius: .3rem;
+    //         background-color: var(--color-style-juxtapose);
+    //         text-align: center;
+    //         font-size: 1.2rem;
+    //         transition: all .2s;
 
-            &:hover {
-                background-color: var(--color-style-main);
-                cursor: pointer;
-                color: black;
-            }
-        }
+    //         &:hover {
+    //             background-color: var(--color-style-main);
+    //             cursor: pointer;
+    //             color: black;
+    //         }
+    //     }
 
-        &-properties {
-            display: flex;
-            flex-direction: column;
+    //     &-properties {
+    //         display: flex;
+    //         flex-direction: column;
 
-            margin-right: .5rem;
-            border-right: 1px dashed rgba(150, 150, 150, 0.7);
-            padding-right: .5rem;
+    //         margin-right: .5rem;
+    //         border-right: 1px dashed rgba(150, 150, 150, 0.7);
+    //         padding-right: .5rem;
 
-            &--name {
-                font-weight: bold;
-            }
+    //         &--name {
+    //             font-weight: bold;
+    //         }
 
-            &--options {
-                margin-top: .5rem;
+    //         &--options {
+    //             margin-top: .5rem;
 
-                select {
-                    margin-left: 0;
-                }
-            }
-        }
-    }
+    //             select {
+    //                 margin-left: 0;
+    //             }
+    //         }
+    //     }
+    // }
 
-    &__sub-variable {
-        display: flex;
-        flex-direction: column;
-        justify-content: baseline;
+    // &__sub-variable {
+    //     display: flex;
+    //     flex-direction: column;
+    //     justify-content: baseline;
 
-        &:first-of-type {
-            margin-left: 2rem;
-        }
+    //     &:first-of-type {
+    //         margin-left: 2rem;
+    //     }
 
-        &:not(:last-of-type) {
-            margin-right: .5rem;
-        }
+    //     &:not(:last-of-type) {
+    //         margin-right: .5rem;
+    //     }
 
-        &--text {
-            margin-bottom: .5rem;
-            font-weight: bold;
-            text-align: center;
-        }
+    //     &--text {
+    //         margin-bottom: .5rem;
+    //         font-weight: bold;
+    //         text-align: center;
+    //     }
 
-        select {
-            margin-left: 0rem;
-        }
-    }
+    //     select {
+    //         margin-left: 0rem;
+    //     }
+    // }
 
     &__key-variable-link {
 
