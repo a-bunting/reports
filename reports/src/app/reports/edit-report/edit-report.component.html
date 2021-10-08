@@ -221,29 +221,57 @@
     <table class="reports__data--table" *ngIf="loadedGroup !== undefined">
         <thead>
             <tr class="reports__data--row reports__data--header">
+                <td></td>
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
                     <div class="reports__data--cell-header--dragging" value="{{ key }}" (drop)="drop($event.target.value)" (dragover)="allowDrop($event)" *ngIf="dragging"></div>
                     <div class="reports__data--cell-header">
                         
                         <!-- the make up of the table headers -->
                         <div class="reports__data--cell-header-buttons">
-                            <div class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)">X</div>
-                            <div class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)">&#8687;</div>
-                            <div class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)">&#10010;</div>
-                            <div class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)">&#8687; <div class="tooltip">{{ key }}</div></div>
-                            <div class="reports__data-buttons reports__data-buttons--move" draggable="true" (click)="showColumn(key)" *ngIf="!isColumnHidden(key)" (drag)="drag($event.target.value)" value="{{ key }}">&harr;</div>
+                            <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)">X</button>
+                            <button class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)">&#8687;</button>
+                            <button class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)">&#10010;</button>
+                            <button class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)">&#8687; <div class="tooltip">{{ key }}</div></button>
+                            <button class="reports__data-buttons reports__data-buttons--move" draggable="true" (click)="showColumn(key)" *ngIf="!isColumnHidden(key)" (drag)="drag($event.target.value)" value="{{ key }}">&harr;</button>
                         </div>
 
                         <div class="reports__data--cell-header-detail">
                                 
                             <div class="reports__data--cell-header-key" *ngIf="!isColumnHidden(key)"> 
-                                <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)" *ngIf="populateIndex === key; else displayKey">
-                                    <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
-                                </select>
+
+
+                                <div class="reports__data--prepopulate" *ngIf="populateIndex === key; else displayKey">
+                                    
+                                    <div class="reports__data--prepopulate-text">Prepopulate</div>
+                                    Data from group:
+                                    <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)">
+                                        <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
+                                    </select>
+                                    Copy a column:
+                                    <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromColumn(key, $event.target.value)">
+                                        <option value="{{ listKey }}" *ngFor="let listKey of report.keys" [disabled]="listKey === key">{{ listKey }}</option>
+                                    </select>
+                                    Or set all to:
+                                    <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
+                                    
+                                    <ng-template #optionsBlock>
+                                        <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromTextOrOption(key, $event.target.value)">
+                                            <option disabled></option>
+                                            <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index">{{ option }}</option>
+                                        </select>
+                                    </ng-template>
+
+                                    <ng-template #typeBlock>
+                                        <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="populateDataFromTextOrOption(key, $event.target.value)">
+                                    </ng-template>
+                                </div>
+
                                 <ng-template #displayKey> {{ key }} </ng-template>
+
+                                <!-- if this is a section with options, display only the options  -->
                             </div>
 
-                            <div class="reports__data--cell-header-variables">
+                            <div class="reports__data--cell-header-variables" *ngIf="populateIndex !== key">
                                 <!-- what does this column relate to in the rpeort -->
                                 <div class="reports__key-variable-link--flexbox">
                                     <!-- regular vairable display -->
@@ -271,6 +299,9 @@
         <tbody>
             <!-- user data -->
             <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
+                <td class="reports__data--cell">
+                    <div class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)">X</div>
+                </td>
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
                     <div *ngIf="!isColumnHidden(key)">
                         <!-- if this is a section with options, display only the options  -->
