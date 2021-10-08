@@ -15,11 +15,14 @@
 
 <div class="create-template__structure">
     
-    <div class="create-template__label">Template Structure</div>
+    <div class="create-template__label">Template Structure <span *ngIf="dragging">(Hit escape or drop to stop reordering)</span></div>
     <!-- // structural elements go here... -->
     
     <div class="create-template__builder">
-        <div class="create-template__element" *ngFor="let templateSegment of templateRoutes; let t = index">
+
+        <div class="create-template__element" *ngFor="let templateSegment of templateRoutes; let t = index" (drag)="dragPositionChange(t)" draggable="true">
+            <div class="create-template__dragbox" *ngIf="dragging" (drop)="dropPosition()" (dragover)="allowDrop($event)" value="{{t}}"></div>
+
             <div *ngIf="templateSegment[0] === 'newParagraph'">
                 <div class="create-template__element--paragraph">Paragraph</div>
             </div>
