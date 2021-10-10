@@ -214,9 +214,11 @@
                         </div>
                     </div>
                 </td>
+                <td class="reports__data--cell reports__data--report">Length</td>
                 <td class="reports__data--cell reports__data--report">Report</td>
             </tr>
         </thead>
+
         <tbody>
             <!-- user data -->
             <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
@@ -239,9 +241,10 @@
                         </ng-template>
                     </div>
                     <div *ngIf="isColumnHidden(key)">
-                        . . .
+                        ...
                     </div>
                 </td>
+                <td class="reports__data--cell reports__data--report tooltipped" (click)="copyReportText(reportId)">{{individual.report.length}}</td>
                 <td class="reports__data--cell reports__data--report tooltipped" (click)="copyReportText(reportId)">{{individual.report}} <div class="tooltip">Click to copy to clipboard</div></td>
             </tr>
         </tbody>

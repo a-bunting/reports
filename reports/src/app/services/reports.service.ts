@@ -646,7 +646,6 @@ export class ReportsService {
      * @returns 
      */
     generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
-        let generatedReport: string;
 
         // get the gender if it exists...
         let genderIndex: number = variables.findIndex((test: TestIndividualValue) => test.identifier === "Gender");
@@ -672,14 +671,27 @@ export class ReportsService {
         globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
         variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user[variable.key]); })
 
-        // gender transform...
-        reportUnSubstituted = this.genderConversion(reportUnSubstituted, gender);
-
-        // perform a grammar check
-        reportUnSubstituted = this.grammarCheck(reportUnSubstituted);
-
         // return selected sentence
-        return reportUnSubstituted;
+        return this.substitutions(reportUnSubstituted, gender);
+    }
+
+    /**
+     * Runs the grammar check functions.
+     * Sometimes this is not going to be super smart.
+     * @param report 
+     * @returns 
+     */
+    substitutions(report: string, gender: "m" | "f" | "p"): string {
+        report = this.anOrA(report);
+        report = this.sentenceCase(report);
+        report = this.repeatCharacterRemoval(report);
+        // gender transform...
+        report = this.genderConversion(report, gender);
+        // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
+        report = this.pickAWord(report);
+        // finally remove the whitespace;
+        report = this.removeWhiteSpace(report);
+        return report;
     }
 
     /**
@@ -690,9 +702,17 @@ export class ReportsService {
      * @returns 
      */
     valuesSubstitute(report: string, substitution: string, value: string): string {
+        // first if there is a (notation) then escape it so it works properly...
+        substitution = substitution.replace(/[()]/g, '\\$&');
+        // then get to replacing text!
         let strReplace = new RegExp('\\$\\{('+substitution+')+(\\[.*?])?\\}\\$', 'gi');
-        let subbed = report.replace(strReplace, value);
-        return subbed;
+        let regExData: string[];
+
+        while((regExData = strReplace.exec(report)) !== null) {
+            report = report.replace(regExData[0], value);
+        }
+
+        return report;
     }
 
     /**
@@ -704,30 +724,55 @@ export class ReportsService {
     genderConversion(report: string, gender: "m"|"f"|"p"): string {
         let genderUnique: string = gender.toLowerCase();
         let genderIndex: number = (genderUnique === "m" ? 0 : genderUnique === "f" ? 1 : 2);
-        let strReplace = new RegExp('\\$\\{(gd\\|\\[(.*?)/(.*?)/(.*?)\\])+(\\[.*?])?\\}\\$', 'gi');
+        let strReplace = new RegExp('\\$\\{(gn\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
         // wil;l this only work once??????? :S
-        let regexData: string[] = strReplace.exec(report);
-        let subbed: string = report;
-        // if any gender info is found, substitute it...
-        if(regexData) {  subbed = report.replace(regexData[0], regexData[2+genderIndex]); }
+        let regexData: string[];
+
+        while((regexData = strReplace.exec(report)) !== null) {
+            report = report.replace(regexData[0], regexData[2+genderIndex]);
+        }
+
         // return
-        return subbed;
+        return report;
     }
 
-    grammarCheck(report: string): string {
-        report = this.anOrA(report);
-        report = this.sentenceCase(report);
+    /**
+     * If multiple optionsal words exist in a bracket notation [this/that]
+     * then this function will randomly select one of the words.
+     * @param report 
+     * @returns 
+     */
+    pickAWord(report: string): string {
+        let strReplace = new RegExp('\\[(.*?)\\]', 'gi');
+        let regExData: string[];
+
+        while((regExData = strReplace.exec(report)) !== null) {
+            let options: string[] = regExData[1].split('/');
+            let randomValue: number = Math.floor(Math.random() * options.length);
+            report = report.replace(regExData[0], options[randomValue]);
+        }
+
         return report;
     }
 
     /**
      * Is it an AN or an A.
-     * RULES: If the next word is a CONSONANT then its A, if its a VOWEL then its AN 
+     * RULES: If the next word is a CONSONANT then its A, if its a VOWEL then its AN.
+     * 90% of the time this will be followed by a grade!
      * @param report 
      * @returns 
      */
     anOrA(report: string): string {
+        let strReplace = new RegExp('\\[AnOrA\\]+(.*)?', 'gi');
+        let regExData: string[];        
+        
+        while((regExData = strReplace.exec(report)) !== null) {
+            // not quite working yet
+            let choice: string = (regExData[1].trimStart())[0].toLowerCase() === ("a"||"e"||"i"||"o"||"u") ? "an" : "a";
+            let newStr: string = regExData[0].replace("[AnOrA]", choice);
+            report = report.replace(regExData[0], newStr);
+        }
         return report;
     }
 
@@ -741,15 +786,60 @@ export class ReportsService {
      * @returns 
      */
     sentenceCase(report: string): string {
-        return report;
+        let uppered: string = report;
+        let sentences: string[] = uppered.split('.');
+        // each sentence should have a capital letter...
+        sentences.forEach((sentence: string) => {
+            sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+        })
+        // make sure there is a . at the end
+        uppered.charAt(report.length - 1) !== '.' ? uppered += '.' : null;
+        // return
+        return uppered;
     }
 
     /**
-     * Removes whitespace at the start and end of the text, and strips any double whitespaces.
+     * Removes whitespace at the start and end of the text
+     * strips any double whitespaces
+     * removes whitespace right before a , or a .
      * @param report 
      * @returns 
      */
     removeWhiteSpace(report: string): string {
+        // get rid of multiple whitespaces...
+        report = report.trim().replace(/\s\s+/g, '');
+        // ensure there is also a whitespace after a fullstop or a comma...
+        let sentences: string[] = report.split('.');
+
+        // remove all whitespace within the sentences, at the start and end of the . and , structures...
+        sentences.forEach((sentence: string) => {
+            // then split into commas...
+            let sections: string[] = sentence.split(',');
+            
+            sections.forEach((section: string, i: number) => {
+                section.trim();
+                // if its the end of the sentence use a full stop, optherwise use a comma and space...
+            })
+        })        // recombined.replace(' +/gi', ' ');
+
+        return report;
+    }
+
+    repeatCharacterRemoval(report: string): string {
+        let chars: string[] = [',','.',',.','.,'];
+        
+        chars.forEach((char: string) => {
+
+            let regEx: RegExp = new RegExp('['+char+']{2,10}', 'gi');
+            let regExString: string[];
+
+            while((regExString = regEx.exec(report)) !== null) {
+                report = report.replace(regExString[0], char[0]);
+            }
+
+
+        })
+        
         return report;
     }
 }
