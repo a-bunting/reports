@@ -8,6 +8,8 @@
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="classes/">Classes</a>
             <a class="header__menu--item" *ngIf="isAuthenticated && (isMember || isAdmin)" routerLinkActive="link-active" routerLink="templates/">Templates</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="reports/">Reports</a>
+            <!-- <a class="header__menu--item" *ngIf="(!isMember && !isAdmin) && isAuthenticated" routerLinkActive="link-active" routerLink="join/">Go Pro</a> -->
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="join/">Go Pro</a>
             <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active" routerLink="admin/">Admin</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a>
         </nav>

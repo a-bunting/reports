@@ -10,12 +10,14 @@ import { AuthComponent } from './utilities/auth/auth.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthGuard } from './utilities/authentication/auth-guard.guard';
 import { DemoGuard } from './utilities/authentication/demo-guard.guard';
+import { MemberGuard } from './utilities/authentication/member.guard';
 import { AdminGuard } from './utilities/authentication/admin.guard';
 import { AdminUsersComponent } from './admin/users/admin-users.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
+import { JoinComponent } from './utilities/join/join.component';
 
 const routes: Routes = [
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], children: [
@@ -36,7 +38,8 @@ const routes: Routes = [
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
         {path: 'sentences', component: AdminSentencesComponent},
         {path: 'users', component: AdminUsersComponent}
-    ]}
+    ]},
+    {path: 'join', component: JoinComponent, canActivate: [AuthGuard, MemberGuard]}
 ];
 
 @NgModule({
