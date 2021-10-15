@@ -63,28 +63,47 @@
 
         position: relative;
         transition: filter .6s;
-
+        
         &--title, &--free, &--pro {
             padding: 3rem;
             text-align: center;
             font-size: 1.6rem;
         }
-
+        
         &--highlight {
             font-weight: bold;
             color: orange;
         }
-
+        
         &--title {
+
+            position: relative;
             font-size: 3rem;
             font-weight: bold;
             z-index: 100;
-            backdrop-filter: blur(2px);
+            overflow: hidden;
             border: 5px solid black;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             &--text {
-                transition: transform .2s;
+                position: relative;
             }
+
+            &::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 100%;
+                backdrop-filter: blur(2px);
+            }
+            
+            background-image: url(../../../assets/title_images/database.JPG);
+
         }
         
         &--free, &--pro {
@@ -92,28 +111,35 @@
         }
 
         &--free {
-            background-color: gray;
-            transform: translateY(-100%);
-            animation: returnToOrigin 0.9s ease-in-out 0s 1 forwards;
+            background-image: linear-gradient(to bottom, rgba(70,70,70), rgb(140,140,140));
+            transform: rotateX(-180deg);
+            animation: rotate180deg 2s ease-out 0s 1 forwards;
             z-index: 50;
+            transform-origin: top;
+            backface-visibility: hidden;
+            perspective: 100rem;
         }
         
         &--pro {
             background-color: yellow;
-            transform: translateY(-200%);
-            animation: returnToOrigin 0.9s ease-in-out 0s 1 forwards;
+            transform: translateY(-200%) rotateX(180deg);
+            animation: 
+            rotate180deg 2s ease-out 2s 1 forwards;
             z-index: 1;
+            transform-origin: top;
+            backface-visibility: hidden;
+            perspective: 100rem;
         }
 
         &:hover {
 
             filter: none !important;
 
-            .join__bonus--title--text {
-                letter-spacing: .3rem;
-                transform: scale(1.3);
-                filter: brightness(1.2);
-            }
+            // .join__bonus--title--text {
+            //     letter-spacing: .3rem;
+            //     transform: scale(1.3);
+            //     filter: brightness(1.2);
+            // }
         }
     }
 
@@ -122,21 +148,7 @@
     }
 
     &__databases {
-        background-color: transparent;
-        overflow: hidden;
-
-        &:before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            z-index: -1;
-            transform: rotate(10deg);
-
-            background-image: url(../../../assets/title_images/database.JPG);
-        }
+        
     }
 
     &__groups {
@@ -151,6 +163,10 @@
 
 @keyframes returnToOrigin {
     100% { transform: translateY(0%); }
+}
+
+@keyframes rotate180deg {
+    100% { transform: rotateX(0deg); }
 }
 
 .display { opacity: 1; visibility: visible;}
