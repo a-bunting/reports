@@ -4,70 +4,73 @@
     <h4 class="component-intro__description">
         Join up and become a member for full access and unlimited report generation.
     </h4>
-</div>
     
-<div class="join__spiel">
-    Joining up to Reports will open up a world of time and opportunity. All your reports generated super fast, saving you much time and energy. It also helps me to dedicate the time and energy to continue developing it, and pay the server bills!!
+    <button class="join__button" (click)="togglePayment()">Sign up Now!</button>
 
-    <q>15 dollars? Thats about the cost of a Margarita.</q>
-    <q>... and I would even have the time to drink it!</q>
 </div>
 
-<div class="join__tiers">
+<div class="join__payment" [class.display]="showPaymentPane">
+    
+    <div class="join__payment--shade" (click)="togglePayment()"></div>
+    <div class="join__payment--detail"></div>
 
-    <div class="join__row join__features--features">
-        <div class="join__title"></div>
-        <div class="join__demo">Demo</div>
-        <div class="join__pro">Membership</div>
-    </div>
-    <div class="join__row join__features--features">
-        <div class="join__title">Features</div>
-        <div class="join__demo">Basic</div>
-        <div class="join__pro">Unlimited</div>
-        <div class="join__desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos perferendis accusantium quos iure error laboriosam vel eius illo, ratione doloremque eveniet, qui, dolorum quasi maiores fuga tempora? Vel, ratione maiores.
-        </div>
-    </div>
-    <div class="join__row join__features--database">
-        <div class="join__title">Databases</div>
-        <div class="join__demo">Basic</div>
-        <div class="join__pro">Basic (access to all future databases)</div>
-        <div class="join__desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos perferendis accusantium quos iure error laboriosam vel eius illo, ratione doloremque eveniet, qui, dolorum quasi maiores fuga tempora? Vel, ratione maiores.
-        </div>
-    </div>
-    <div class="join__row join__features--templates">
-        <div class="join__title">Templates</div>
-        <div class="join__demo">Basic</div>
-        <div class="join__pro">Unlimited</div>
-        <div class="join__desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos perferendis accusantium quos iure error laboriosam vel eius illo, ratione doloremque eveniet, qui, dolorum quasi maiores fuga tempora? Vel, ratione maiores.
-        </div>
-    </div>
-    <div class="join__row join__features--classes">
-        <div class="join__title">Classes</div>
-        <div class="join__demo">Basic</div>
-        <div class="join__pro">Unlimited</div>
-        <div class="join__desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos perferendis accusantium quos iure error laboriosam vel eius illo, ratione doloremque eveniet, qui, dolorum quasi maiores fuga tempora? Vel, ratione maiores.
-        </div>
-    </div>
-    <div class="join__row join__features--reports">
-        <div class="join__title">Reports</div>
-        <div class="join__demo">30 / month</div>
-        <div class="join__pro">Unlimited</div>
-        <div class="join__desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos perferendis accusantium quos iure error laboriosam vel eius illo, ratione doloremque eveniet, qui, dolorum quasi maiores fuga tempora? Vel, ratione maiores.
-        </div>
-    </div>
-    <div class="join__row join__features--cost">
-        <div class="join__title">Cost</div>
-        <div class="join__demo">Free</div>
-        <div class="join__pro">$15 / year</div>
-        <div class="join__desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos perferendis accusantium quos iure error laboriosam vel eius illo, ratione doloremque eveniet, qui, dolorum quasi maiores fuga tempora? Vel, ratione maiores.
-        </div>
+</div>
+
+<div class="join__details">
+
+    <div class="join__spiel">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam totam explicabo accusamus ipsum, corporis placeat, consequatur animi amet voluptate suscipit numquam atque eligendi harum blanditiis tenetur? Delectus vitae quasi iure.
     </div>
 
+
+    <div class="join__bonus-box">
+        <div class="join__bonus join__templates">
+            <div class="join__bonus--title">
+                Templates
+            </div>
+            <div class="join__bonus--free">
+                3 Templates only
+            </div>
+            <div class="join__bonus--pro">
+                <span class="join__bonus--highlight">Unlimited</span> templates!
+            </div>
+        </div>
+        <div class="join__bonus join__databases">
+            <div class="join__bonus--title">
+                <div class="join__bonus--title--text">Databases</div>
+            </div>
+            <div class="join__bonus--free">
+                Basic database
+            </div>
+            <div class="join__bonus--pro">
+                Basic database + <span class="join__bonus--highlight">more in the future!</span>
+            </div>
+        </div>
+        <div class="join__bonus join__groups">
+            <div class="join__bonus--title">
+                Groups
+            </div>
+            <div class="join__bonus--free">
+                Three groups only
+            </div>
+            <div class="join__bonus--pro">
+                <span class="join__bonus--highlight">Unlimited</span> Groups!
+            </div>
+        </div>
+        <div class="join__bonus join__reports">
+            <div class="join__bonus--title">
+                Reports
+            </div>
+            <div class="join__bonus--free">
+                30 reports per month
+            </div>
+            <div class="join__bonus--pro">
+                <span class="join__bonus--highlight">Unlimited</span> Reports!
+            </div>
+        </div>
+
+
+
+    </div>
 
 </div>

@@ -7,9 +7,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class JoinComponent implements OnInit {
 
-  constructor() { }
+    showPaymentPane: boolean = false;
 
-  ngOnInit(): void {
-  }
+    constructor() { }
+
+    ngOnInit(): void {
+    }
+
+    togglePayment(): void {
+        this.showPaymentPane = !this.showPaymentPane;
+    }
 
 }
