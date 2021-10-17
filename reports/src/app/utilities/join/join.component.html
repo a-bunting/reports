@@ -5,99 +5,87 @@
         Join up and become a member for full access and unlimited report generation.
     </h4>
     
-    <button class="join__button" (click)="togglePayment()">Sign up Now!</button>
+    <!-- <button class="join__button" (click)="togglePayment()">Sign up Now!</button> -->
 
 </div>
 
-<div class="join__payment" [class.display]="showPaymentPane">
+<!-- <div class="join__payment" [class.display]="showPaymentPane">
     
     <div class="join__payment--shade" (click)="togglePayment()"></div>
     <div class="join__payment--detail"></div>
 
-</div>
+</div> -->
 
 <div class="join__details">
 
-    <div class="join__spiel">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam totam explicabo accusamus ipsum, corporis placeat, consequatur animi amet voluptate suscipit numquam atque eligendi harum blanditiis tenetur? Delectus vitae quasi iure.
+    <div class="join__grid">
+
+        There are many bonuses to joining reports right now.
+        <div class="join__bonuses">
+
+            <div class="join__bonus join__bonus--db">
+                <div class="join__bonus--cell join__bonus--title">Databases</div>
+                <div class="join__bonus--cell join__bonus--text">Basic</div>
+                <div class="join__bonus--cell join__bonus--basic">Only the basic database, but all updates made to it are included</div>
+                <div class="join__bonus--cell join__bonus--pro">Still only the basic database for now, but <div class="join__highlight">more will come</div> with added diversity of type (i.e. Texan y'all)</div>
+                <div class="join__bonus--cell join__bonus--text">Pro</div>
+            </div>
+            
+            <div class="join__bonus join__bonus--template">
+                <div class="join__bonus--cell join__bonus--title">Templates</div>
+                <div class="join__bonus--cell join__bonus--text">Basic</div>
+                <div class="join__bonus--cell join__bonus--basic">Two templates created at any one time</div>
+                <div class="join__bonus--cell join__bonus--pro"><div class="join__highlight">Unlimited</div> templates! Save and retrieve those reports you used last year and do the same again!</div>
+                <div class="join__bonus--cell join__bonus--text">Pro</div>
+            </div>
+            
+            <div class="join__bonus join__bonus--groups">
+                <div class="join__bonus--cell join__bonus--title">Groups</div>
+                <div class="join__bonus--cell join__bonus--text">Basic</div>
+                <div class="join__bonus--cell join__bonus--basic">Three groups maximum at any one time</div>
+                <div class="join__bonus--cell join__bonus--pro">Up to <div class="join__highlight">15</div> different groups (exploring unlimited in time!). Create your basic groups but also generate subgroups for those specific reports you need.</div>
+                <div class="join__bonus--cell join__bonus--text">Pro</div>
+            </div>
+            
+            <div class="join__bonus join__bonus--reports">
+                <div class="join__bonus--cell join__bonus--title">Reports</div>
+                <div class="join__bonus--cell join__bonus--text">Basic</div>
+                <div class="join__bonus--cell join__bonus--basic">40 reports per month and two report sets</div>
+                <div class="join__bonus--cell join__bonus--pro"><div class="join__highlight">Unlimited</div> report generation and 20 report sets! Soon to come will be the ability to save your past reports and refer back to them.</div>
+                <div class="join__bonus--cell join__bonus--text">Pro</div>
+            </div>
+
+        </div>
+
+        <div class="join__payment-details">
+
+            <div class="join__text">
+                Start by selecting a payment schedule. Currently we only offer 6 months or 1 year subscriptions. If you want more options please leave feedback on your dashboard!
+            </div>
+
+            <div class="join__payment-options">
+                <button class="join__button" (click)="selectPaymentPlan(option.period, option.cost)" *ngFor="let option of paymentOptions" [class.join__button--selected]="option.period === paymentSelected.period" [disabled]="option.period === paymentSelected.period">{{ option.period }} months for ${{ option.cost }}.00 (US)</button>
+            </div>
+
+            <div class="join__payment-order" [class.visible]="paymentStage > 1">
+                <!-- <div class="join__greyarea" [class.join__greyarea-fadeout]="paymentStage > 1"></div> -->
+
+                <ul class="join__payment-selected">
+                    <li class="join__text">You have selected a period of <b>{{ paymentSelected ? paymentSelected.period : "TBA" }}</b> months.</li>
+                    <li class="join__text">This is at a cost of <b>${{ paymentSelected ? paymentSelected.cost : "TBA" }}.00</b> (USD) for one year.</li>
+                </ul>
+
+                <div class="join__payment-recurring">
+                    <input type="checkbox" name="recurring" id="recurring" class="join__checkbox"> 
+                    <label for="recurring" class="join__checkbox--label">I would like a recurring subscription</label>
+                </div>
+
+                <div class="join__sub-title">How would you like to pay?</div>
+
+            </div>
+        </div>
+
     </div>
 
-
-    <div class="join__bonus-box">
-
-
-        <div class="join__bonus join__templates">
-            
-            
-            <div class="join__bonus--title">
-                <div class="join__bonus--title--text">
-                    Templates
-                </div>
-            </div>
-
-            <div class="join__bonus--hangers"></div>
-            
-            <div class="join__bonus--free">
-                3 Templates only
-            </div>
-            
-            <div class="join__bonus--hangers"></div>
-
-
-            <div class="join__bonus--pro">
-                <span class="join__bonus--highlight">Unlimited</span> templates!
-            </div>
-        </div>
-
-
-        <div class="join__bonus join__databases">
-            <div class="join__bonus--title">
-                <div class="join__bonus--title--text">
-                    Databases
-                
-                    <div class="join__bonus--description">
-                        This is a description
-                    </div>
-                </div>
-            </div>
-            <div class="join__bonus--hangers"></div>
-            <div class="join__bonus--free">
-                Basic database
-            </div>
-            <div class="join__bonus--hangers"></div>
-            <div class="join__bonus--pro">
-                Basic database + <span class="join__bonus--highlight">more in the future!</span>
-            </div>
-        </div>
-        <div class="join__bonus join__groups">
-            <div class="join__bonus--title">
-                <div class="join__bonus--title--text">Groups</div>
-            </div>
-            <div class="join__bonus--hangers"></div>
-            <div class="join__bonus--free">
-                Three groups only
-            </div>
-            <div class="join__bonus--hangers"></div>
-            <div class="join__bonus--pro">
-                <span class="join__bonus--highlight">Unlimited</span> Groups!
-            </div>
-        </div>
-        <div class="join__bonus join__reports">
-            <div class="join__bonus--title">
-                <div class="join__bonus--title--text">Reports</div>
-            </div>
-            <div class="join__bonus--hangers"></div>
-            <div class="join__bonus--free">
-                30 reports per month
-            </div>
-            <div class="join__bonus--hangers"></div>
-            <div class="join__bonus--pro">
-                <span class="join__bonus--highlight">Unlimited</span> Reports!
-            </div>
-        </div>
-
-
-
-    </div>
 
 </div>
