@@ -1,0 +1,26 @@
+<div class="bugreport">
+
+    <button class="bugreport__submit-button" *ngIf="!reportActive" (click)="submitReportToggle(true)">Is something not right?</button>
+    
+    <div class="bugreport__report" *ngIf="reportActive">
+        
+        <div class="bugreport__text">It is regarding</div>
+        <select class="bugreport__input">
+            <option value="current">This page isn't working right</option>
+            <option value="general">I have a general issue</option>
+            <option value="bug">I want to report a bug</option>
+            <option value="feature">Feature request</option>
+        </select>
+        
+        <div class="bugreport__text">The problem is</div>
+        <div class="bugreport__report-text">
+            <textarea class="bugreport__input bugreport__input--textarea"></textarea>
+        </div>
+
+        <div class="bugreport__buttons">
+            <button class="bugreport__submit-button" (click)="submitReportToggle(false)">Cancel</button>
+            <button class="bugreport__submit-button">Submit</button>
+        </div>
+    </div>
+
+</div>

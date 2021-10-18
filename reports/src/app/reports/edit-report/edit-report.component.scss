@@ -104,6 +104,13 @@
         }
     }
 
+    &__key {
+        &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    }
+
     &__database-buttons {
         display: flex;
     }
@@ -119,6 +126,16 @@
         &--text {
             letter-spacing: .3rem;
         }
+
+        &--textarea {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            letter-spacing: .15rem;
+        }
         
         &--table {
             width: 100%;
@@ -129,7 +146,7 @@
 
     &__button {
         padding: .8rem 1.6rem;
-        border-radius: 1rem;
+        border-radius: 1rem 2rem;
         transition: all .2s;
         border: .2rem solid transparent;
         text-align: center;
@@ -147,6 +164,7 @@
                 color: white;
                 border: .2rem solid white;
                 box-shadow: 0 .3rem .6rem rgba(black, .3);
+                transform: translateY(-.3rem);
             }
         }
     }
@@ -196,7 +214,33 @@
             background-color: violet;
             &:hover { cursor: move; }
         }
+
+        &--report-delete {
+            margin-top: 1rem;
+            background-color: red;
+        }
+
+        &--report-regenerate {
+            background-color: green;
+        }
+
+        &--report-edit {
+            background-color: violet;
+        }
+
+        &--report-save {
+            background-color: orange;
+        }
+
+        &--collapse-all {
+            background-color: green;
+        }
+        
+        &--show-all {
+            background-color: orange;
+        }
     }
+
 
     &__data {
         margin-top: 1rem;
@@ -316,6 +360,13 @@
         &--report {
             text-align: left;
             cursor: copy;
+
+            &-options {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
         }
         
         &--buttons {

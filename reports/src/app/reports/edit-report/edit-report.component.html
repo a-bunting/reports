@@ -142,15 +142,24 @@
     <table class="reports__data--table" *ngIf="loadedGroup !== undefined">
         <thead>
             <tr class="reports__data--row reports__data--header">
-                <td></td>
+
+                <td class="reports__data--cell">
+                    <div class="reports__data--cell-header">
+                        <div class="reports__data--cell-header-buttons">
+                            <button class="reports__data-buttons reports__data-buttons--collapse-all tooltipped" (click)="hideAllColumns()">&#8647; <div class="tooltip">Collapse all except reports</div></button>
+                            <button class="reports__data-buttons reports__data-buttons--show-all tooltipped" (click)="showAllColumns()">&#8649; <div class="tooltip">Show all columns</div></button>
+                        </div>
+                    </div>
+                </td>
+
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
                     <div class="reports__data--cell-header--dragging" value="{{ key }}" (drop)="drop()" (dragover)="allowDrop($event)" *ngIf="dragging"></div>
                     <div class="reports__data--cell-header">
                         
                         <!-- the make up of the table headers -->
                         <div class="reports__data--cell-header-buttons">
-                            <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)" title="Delete column">X</button>
-                            <button class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)" title="Hide column">&#8647;</button>
+                            <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)" title="Delete column">&#10008;</button>
+                            <button class="reports__data-buttons reports__data-buttons--hide" (click)="hideColumn(key)" *ngIf="!isColumnHidden(key)" title="Hide column">&#8592;</button>
                             <button class="reports__data-buttons reports__data-buttons--populate" (click)="populateSelect(key)" *ngIf="!isColumnHidden(key)" title="Prepopulate data from another source">&#10010;</button>
                             <button class="reports__data-buttons reports__data-buttons--show tooltipped" (click)="showColumn(key)" *ngIf="isColumnHidden(key)" title="Expand {{ key }} data">&#8649; <div class="tooltip">{{ key }}</div></button>
                             <button class="reports__data-buttons reports__data-buttons--move" draggable="true" (click)="showColumn(key)" *ngIf="!isColumnHidden(key)" (drag)="drag($event.target.value)" value="{{ key }}" title="Click and hold the drag this column to another position.">&harr;</button>
@@ -187,7 +196,9 @@
                                     </ng-template>
                                 </div>
 
-                                <ng-template #displayKey> {{ key }} </ng-template>
+                                <ng-template #displayKey> 
+                                    <div class="reports__key" (click)="sortColumn(key)">{{ key }} </div>
+                                </ng-template>
 
                                 <!-- if this is a section with options, display only the options  -->
                             </div>
@@ -214,7 +225,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="reports__data--cell reports__data--report">Length</td>
+                <td class="reports__data--cell">Report Tools (inc Chars)</td>
                 <td class="reports__data--cell reports__data--report">Report</td>
             </tr>
         </thead>
@@ -236,16 +247,50 @@
                                 </select>
                         </ng-template>
                         <ng-template #typeBlock>
-                            <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user[key] }}">
-                            <!-- {{ individual.user[key] }} -->
+
+                            <div *ngIf="individual.user[key].length < 20; then inputSingle else inputArea"></div>
+                            
+                            <ng-template #inputSingle>
+                                <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user[key] }}">
+                            </ng-template>
+
+                            <ng-template #inputArea>
+                                <textarea class="reports__input reports__input--textarea reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">{{ individual.user[key] }}</textarea>
+                            </ng-template>
+                            
                         </ng-template>
                     </div>
                     <div *ngIf="isColumnHidden(key)">
                         ...
                     </div>
                 </td>
-                <td class="reports__data--cell reports__data--report tooltipped" (click)="copyReportText(reportId)">{{individual.report.length}}</td>
-                <td class="reports__data--cell reports__data--report tooltipped" (click)="copyReportText(reportId)">{{individual.report}} <div class="tooltip">Click to copy to clipboard</div></td>
+
+                <td class="reports__data--cell reports__data--report-options">
+                    <span>{{individual.report.length}}</span>
+                    <button class="reports__data-buttons reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)">&#10008;</button>
+                    <button class="reports__data-buttons reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)">&#10557;</button>
+                    <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)">&#9851;</button>
+                    <button class="reports__data-buttons reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)">&#9998;</button>
+                </td>
+
+                <td class="reports__data--cell reports__data--report">
+                    
+                    <span *ngIf="reportIdToEdit !== reportId; then displayReport else editReport"></span>
+
+                    <ng-template #displayReport>
+                        <div class="tooltipped" (click)="copyReportText(reportId)">
+                            {{individual.report}} <div class="tooltip">Click to copy to clipboard</div>
+                        </div>
+                    </ng-template>
+
+                    <ng-template #editReport>
+                        <!-- <textarea class="reports__input reports__input--textarea" (blur)="editReport(reportId, $event.target.value)"> -->
+                        <textarea class="reports__input reports__input--textarea" (blur)="editReportText(reportId, $event.target.value)">{{ individual.report }}</textarea>
+                    </ng-template>
+
+                </td>
+
+                
             </tr>
         </tbody>
     </table>

@@ -449,6 +449,20 @@ export class EditReportComponent implements OnInit {
     }
 
     /**
+     * Hides all the columns at once
+     */
+    hideAllColumns(): void {
+        this.hiddenColumns = this.report.keys;
+    }
+
+    /**
+     * Shows all the columns...
+     */
+    showAllColumns(): void {
+        this.hiddenColumns = [];
+    }
+
+    /**
      * Shows a hidden column
      * @param key 
      */
@@ -704,6 +718,79 @@ export class EditReportComponent implements OnInit {
         // modify the array
         this.report.keys.splice(from, 1);
         this.report.keys.splice(to, 0, key);
+    }
+
+    // REPORT TOOLS
+
+    /**
+     * Removes a report from the user.
+     * @param reportId 
+     */
+    deleteIndividualReport(reportId: number): void {
+        this.report.reports[reportId].report = "";
+    }
+
+    /**
+     * Creates a new version of the report for this user.
+     * @param reportId 
+     */
+    regenerateIndividualReport(reportId: number): void {
+        this.report.reports[reportId].report = this.reportsService.generateIndividualReports(this.report.reports[reportId], this.report.globals, this.report.variables, this.report.tests);
+    }
+
+    saveIndividualReport(reportId: number): void {
+        // see if any reports have already been saved...
+        let reportFound: boolean = this.report.keys.includes("Saved Report");
+    
+        if(reportFound) {
+            this.report.reports[reportId].user['Saved Report'] = this.report.reports[reportId].report;
+        } else {
+            // add the column and the key for each user.
+            this.report.reports.forEach((user: Report) => {
+                user.user['Saved Report'] = "";
+            })
+            this.report.keys.push('Saved Report');
+            this.addedColumns.push('Saved Report');
+            // then add to it for this user.
+            this.report.reports[reportId].user['Saved Report'] = this.report.reports[reportId].report;
+        }
+    }
+
+    reportIdToEdit: number = -1;
+
+    /**
+     * Allows this report to be individually edited.
+     * @param reportId 
+     */
+    editIndividualReport(reportId: number): void {
+        this.reportIdToEdit === reportId ? this.reportIdToEdit = -1 :  this.reportIdToEdit = reportId;
+    }
+
+    /**
+     * Edits the text of a report...
+     * @param reportId 
+     * @param newText 
+     */
+    editReportText(reportId: number, newText: string): void {
+        this.report.reports[reportId].report = newText;
+        this.editIndividualReport(reportId);
+    }
+
+    sortDirection: number = 1;
+
+    /**
+     * Sorts a column by key.
+     * @param key 
+     */
+    sortColumn(key: string): void {
+        this.report.reports.sort((a: Report, b: Report) => {
+            let keyA: string = a.user[key];
+            let keyB: string = b.user[key];
+            return keyA > keyB ? 1 * this.sortDirection : keyA === keyB ? 0 : -1 * this.sortDirection;
+        });
+        // reverse the sort for the next iteration.
+        // basic method but effective.
+        this.sortDirection *= -1;
     }
 
 }
