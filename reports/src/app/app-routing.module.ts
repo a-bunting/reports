@@ -18,6 +18,7 @@ import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
 import { JoinComponent } from './utilities/join/join.component';
+import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-reports.component';
 
 const routes: Routes = [
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], children: [
@@ -37,7 +38,8 @@ const routes: Routes = [
     {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
         {path: 'sentences', component: AdminSentencesComponent},
-        {path: 'users', component: AdminUsersComponent}
+        {path: 'users', component: AdminUsersComponent},
+        {path: 'bugreports', component: AdminBugReportsComponent}
     ]},
     {path: 'join', component: JoinComponent, canActivate: [AuthGuard, MemberGuard]}
 ];

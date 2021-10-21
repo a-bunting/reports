@@ -27,6 +27,7 @@ import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
 import { JoinComponent } from './utilities/join/join.component';
 import { BugreportComponent } from './utilities/bugreport/bugreport.component';
+import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-reports.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { BugreportComponent } from './utilities/bugreport/bugreport.component';
     EditGroupComponent,
     EditReportComponent,
     JoinComponent,
-    BugreportComponent
+    BugreportComponent,
+    AdminBugReportsComponent
   ],
   imports: [
     BrowserModule,

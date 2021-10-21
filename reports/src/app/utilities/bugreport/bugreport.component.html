@@ -1,11 +1,11 @@
 <div class="bugreport">
 
-    <button class="bugreport__submit-button" *ngIf="!reportActive" (click)="submitReportToggle(true)">Is something not right?</button>
+    <button class="bugreport__submit-button" *ngIf="!reportActive" (click)="submitReportToggle(true)">{{ submitted ? "Noted, thanks. Is something else not right?" : "Is something not right?" }}</button>
     
     <div class="bugreport__report" *ngIf="reportActive">
         
         <div class="bugreport__text">It is regarding</div>
-        <select class="bugreport__input">
+        <select class="bugreport__input" [(ngModel)]="problemRegarding" [disabled]="submitting">
             <option value="current">This page isn't working right</option>
             <option value="general">I have a general issue</option>
             <option value="bug">I want to report a bug</option>
@@ -14,12 +14,12 @@
         
         <div class="bugreport__text">The problem is</div>
         <div class="bugreport__report-text">
-            <textarea class="bugreport__input bugreport__input--textarea"></textarea>
+            <textarea class="bugreport__input bugreport__input--textarea" [(ngModel)]="reportText" [disabled]="submitting"></textarea>
         </div>
 
         <div class="bugreport__buttons">
-            <button class="bugreport__submit-button" (click)="submitReportToggle(false)">Cancel</button>
-            <button class="bugreport__submit-button">Submit</button>
+            <button class="bugreport__submit-button" (click)="submitReportToggle(false)" [disabled]="submitting">Cancel</button>
+            <button class="bugreport__submit-button" (click)="submitBugReport()" [disabled]="submitting">{{ submitting ? "Submitting..." : submitted ? "Submitted" : "Submit" }}</button>
         </div>
     </div>
 

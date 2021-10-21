@@ -8,6 +8,8 @@ import { sentence } from './sentences.service';
 import { Group, Student } from '../classes/create-group/create-group.component';
 import { TemplateDB } from '../services/templates.service';
 import { ReportTemplate } from './reports.service';
+import { BugReport, BugreportComponent } from '../utilities/bugreport/bugreport.component';
+import { Timestamp } from 'rxjs/internal/operators/timestamp';
 
 @Injectable({
   providedIn: 'root'
@@ -127,6 +129,18 @@ export class DatabaseService {
     deleteReport(id: string): Observable<any> {
         this.writeOperation();
         return from(this.firebase.collection('reports').doc(id).delete());
+    }
+
+    // bug report stuff...
+    addBugReport(report: BugReport): Observable<any> {
+        // add to the database...
+        this.writeOperation();
+        return from(this.firebase.collection('bugreports').add(report));
+    }
+
+    getBugReports(): Observable<any> {
+        this.readOperation();
+        return this.firebase.collection('bugreports').get();
     }
 
 }
