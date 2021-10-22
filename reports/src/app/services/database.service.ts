@@ -138,9 +138,19 @@ export class DatabaseService {
         return from(this.firebase.collection('bugreports').add(report));
     }
 
-    getBugReports(): Observable<any> {
+    getAllBugReports(): Observable<any> {
         this.readOperation();
         return this.firebase.collection('bugreports').get();
+    }
+    
+    getIncompletedBugReports(): Observable<any> {
+        this.readOperation();
+        return this.firebase.collection('bugreports', report => report.where('addressed', '==', false)).get();
+    }
+
+    updateBugReport(documentId: string, status: boolean): Observable<any> {
+        this.writeOperation();
+        return from(this.firebase.collection('bugreports').doc(documentId).update({'addressed': status}));
     }
 
 }

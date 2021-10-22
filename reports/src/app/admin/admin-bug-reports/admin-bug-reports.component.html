@@ -1,1 +1,51 @@
-<p>admin-bug-reports works!</p>
+<div class="admin-bugs">
+
+    
+    <div class="admin-bugs__categories">
+        <div class="loading" *ngIf="loadingData">
+            <app-loading-spinner></app-loading-spinner>
+        </div>
+        <div class="admin-bugs__category" [class.admin-bugs__category--selected]="viewCategory === -1" (click)="setCategory(-1)" *ngIf="bugs.length > 0 && !loadingData">Show all reports</div>
+        <div class="admin-bugs__category" [class.admin-bugs__category--selected]="viewCategory === i"  *ngFor="let bug of bugs; let i = index" (click)="setCategory(i)">
+            {{ bug.category }}
+        </div>
+
+        <div class="admin-bugs__none-active" *ngIf="bugs.length === 0 && !loadingData">There are no {{ allReports ? "reported" : "incompleted" }} bugs, feature requests or communications!</div>
+        
+        <div class="admin-bugs__include-all" *ngIf="!loadingData">
+            <div class="admin-bugs__include-all--button admin-bugs__include-all--all" [class.admin-bugs__include-all--button--selected]="!allReports" (click)="getIncompleteReports()">Incompleted Reports</div>
+            <div class="admin-bugs__include-all--button admin-bugs__include-all--incomplete" [class.admin-bugs__include-all--button--selected]="allReports" (click)="getAllReports()">All Reports</div>
+        </div>
+
+
+        
+    </div>
+    
+    <div class="admin-bugs__reports">
+        <div class="loading" *ngIf="loadingData">
+            <app-loading-spinner></app-loading-spinner>
+        </div>
+
+        <div class="admin-bugs__report" [class.admin-bugs__report--addressed]="report.addressed" *ngFor="let report of getReportsToDisplay(); let i = index">
+            <div *ngIf="report.user.name === undefined; then retrieveBlock else datablock"></div>
+
+            <ng-template #retrieveBlock>
+                <div class="admin-bugs__report--user" (click)="getUserDetails(report.user, report.uniqueId)">Retrieve user data</div>
+            </ng-template>
+            <ng-template #datablock>
+                <div class="admin-bugs__report--email"><a href="mailto:{{report.user.email}}">{{ report.user.name }}</a></div>
+            </ng-template>
+
+            <div class="admin-bugs__report--date">{{ (report.date) | date:'medium' }}</div>
+            <div class="admin-bugs__report--page">{{ report.page }}</div>
+            <div class="admin-bugs__report--flags">
+                <div class="admin-bugs__report--button admin-bugs__report--button--addressed" (click)="completeAction(report.user, report.date)">&#10003;</div>
+            </div>
+            <div class="admin-bugs__report--report">
+                {{ report.report }}
+            </div>
+        </div>
+
+    </div>
+
+</div>

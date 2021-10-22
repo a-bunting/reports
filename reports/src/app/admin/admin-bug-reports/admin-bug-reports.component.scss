@@ -1,0 +1,183 @@
+.admin-bugs {
+
+    margin: 2rem;
+    display: flex;
+    
+    &__none-active {
+        font-size: 1.4rem;
+        text-align: justify;
+    }
+
+    &__categories {
+        position: relative;
+        flex: 0 0 20rem;
+        
+        display: flex;
+        flex-direction: column;
+    }
+    
+    &__category {
+        padding: 1rem 2rem;
+        background-color: var(--color-style-main);
+        border-radius: 1rem;
+        transition: all .2s;
+        border: .2rem solid transparent;
+        margin-bottom: .8rem;
+        font-size: 1.6rem;
+        text-align: center;
+        box-shadow: 0 .1rem .2rem black;
+        
+        &:hover, &--selected {
+            cursor: pointer;
+            background-color: var(--color-style-juxtapose);
+            border: .2rem solid white;
+            color: white;
+        }
+        
+        &:hover {
+            box-shadow: 0 .2rem .4rem black;
+            transform: translateY(-.3rem);
+        }
+        
+        &--selected {
+            box-shadow: 0 .1rem .2rem black;
+            font-weight: bold;
+        }
+        
+        
+        
+    }
+    
+    &__include-all {
+        display: flex;
+        margin-top: 1rem;
+        border-top: .2rem solid rgba(black, .2);
+        padding-top: 1rem;
+        
+        &--button {
+            padding: .5rem 2rem;
+            background-color: var(--color-style-main);
+            border-radius: 1rem;
+            transition: all .2s;
+            border: .2rem solid transparent;
+            margin-bottom: .8rem;
+            font-size: 1.2rem;
+            text-align: center;
+            box-shadow: 0 .1rem .2rem black;
+            
+            &:not(:last-of-type) {
+                margin-right: .5rem;
+            }
+            
+            &:hover, &--selected {
+                cursor: pointer;
+                background-color: var(--color-style-juxtapose);
+                border: .2rem solid white;
+                color: white;
+            }
+            
+            &:hover {
+                box-shadow: 0 .2rem .4rem black;
+                transform: translateY(-.3rem);
+            }
+            
+            &--selected {
+                box-shadow: 0 .1rem .2rem black;
+                font-weight: bold;
+            } 
+            
+        }
+        
+        &--all, &--incomplete {
+        }
+    }
+    
+
+    &__reports {
+        flex: 1;
+        margin-left: 2rem;
+        position: relative;
+        
+        display: flex;
+        flex-direction: column;
+    }
+    
+    &__report {
+        display: grid;
+        align-items: baseline;
+        grid-template: min-content max-content / 1fr repeat(3, max-content);
+        padding: 1rem 2rem;
+        margin-bottom: .6rem;
+        background-color: var(--color-style-main);
+        row-gap: .5rem;
+        column-gap: 2rem;
+        font-size: 1.4rem;
+        border-radius: 1rem;
+        box-shadow: 0 .1rem .2rem black;
+
+        &--addressed {
+            background-color: var(--color-style-dark);
+        }
+
+        &--user, &--email { 
+            grid-row: 1 / 2;
+            grid-column: 1 / 2;
+            transition: all .2s;
+            color: blue;
+        }
+
+        &--user { 
+            &:hover {
+                cursor: pointer;
+                letter-spacing: .1rem;
+            }
+        }
+
+        &--date { 
+            grid-row: 1 / 2;
+            grid-column: 3 / 4;
+            text-align: center;
+        }
+        
+        &--page { 
+            grid-row: 1 / 2;
+            grid-column: 2 / 3;
+            text-align: center;
+        }
+
+        &--report { 
+            grid-row: 2 / 3;
+            grid-column: 1 / 5;
+            padding-top: 1rem;
+            border-top: .1rem solid rgba(black, .4);
+
+        }
+
+        &--button {
+            padding: .2rem .6rem;
+            border-radius: .2rem;
+            border: .2rem solid transparent;
+            font-size: 1.2rem;
+            transition: all .2s;
+            
+            &:hover {
+                filter: brightness(1.2);
+                cursor: pointer;
+                border: .2rem solid black;
+            }
+
+            &:not(:last-of-type) {
+                margin-right: .3rem;
+            }
+
+            &--addressed {
+                background-color: orange;
+            }
+        }
+
+        &--flags {
+            grid-row: 1 / 2;
+            grid-column: 4 / 5;
+        }
+    }
+}

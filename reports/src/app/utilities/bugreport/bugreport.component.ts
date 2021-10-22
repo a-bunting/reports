@@ -12,6 +12,7 @@ export interface BugReport {
     page: string;
     timestamp: number;
     userid: string;
+    addressed: boolean;
 }
 
 @Component({
@@ -21,7 +22,7 @@ export interface BugReport {
 })
 export class BugreportComponent implements OnInit {
 
-    reportActive: boolean = true;
+    reportActive: boolean = false;
     submitting: boolean = false;
     submitted: boolean = false;
 
@@ -51,7 +52,8 @@ export class BugreportComponent implements OnInit {
             comment: this.reportText,
             page: window.location.pathname,
             timestamp: Date.now(),
-            userid: this.user.id
+            userid: this.user.id,
+            addressed: false
         } 
 
         this.submitting = true;
