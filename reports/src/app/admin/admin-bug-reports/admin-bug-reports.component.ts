@@ -41,10 +41,13 @@ export class AdminBugReportsComponent implements OnInit {
                 data.docs.forEach((document: DocumentSnapshot<BugReport>) => {
                     // NB: https://stackoverflow.com/questions/5416920/timestamp-to-human-readable-format
                     let newReport: BugReport = document.data();
+                    // see if the user already exists in the downloaded database (download is on demand but persists)
+                    let userIndex: number = this.downloadedUsers.findIndex((temp: User) => temp.id === newReport.userid );
+
                     /// create the newbug section
                     let newBug: BugData = { 
                         uniqueId: document.id,
-                        user: newReport.userid, 
+                        user: userIndex === -1 ? newReport.userid : this.downloadedUsers[userIndex], 
                         date: newReport.timestamp, 
                         page: newReport.page, 
                         report: newReport.comment,
@@ -102,39 +105,35 @@ export class AdminBugReportsComponent implements OnInit {
         return bugReports.sort((a: BugData, b: BugData) => b.date - a.date);
     }
 
+    /**
+     * Flag a bug in the database as either true or false - alternates the value.
+     * Then sets the look on the page.
+     * @param user 
+     * @param date 
+     */
     completeAction(user: string, date: number): void {
         let reports: BugData[] = this.getReportsToDisplay();
         let index: number = reports.findIndex((temp: BugData) => temp.date === date && temp.user === user);
 
         if(index !== -1) {
             // modify the array and the database...
-            this.setCompletionStatus(reports[index].uniqueId, reports[index].addressed).subscribe((result: boolean) => {              
-                if(result) {
-                    reports[index].addressed = !reports[index].addressed;
-                }
+            this.db.updateBugReport(reports[index].uniqueId, !reports[index].addressed).subscribe(() => {
+                reports[index].addressed = !reports[index].addressed;
+            }, error => {
+                console.log(`Error whilst changing status: ${error}`);
             })
         }
     }
 
+    downloadedUsers: User[] = [];
+
     /**
-     * Set the completion status of a bug in the databse
-     * not working with observables right now.
+     * Gets the user details from the database and applies it to all bugs submitted by that person.
+     * @param userid 
      * @param id 
-     * @param status 
      */
-    setCompletionStatus(id: string, status: boolean): Observable<boolean> {
-        return this.db.updateBugReport(id, status).pipe(take(1), tap(() => {
-            // worked
-            return true;
-        }, error => {
-            console.log(`Error updating status of report: ${error}`);
-            return false;
-        }))
-    }
-
     getUserDetails(userid: string, id: string): void {
-
-
+        // query the db for the user details...
         this.db.getUserName(userid).subscribe((result: DocumentSnapshot<User>) => {
             let user: User = result.data();
             // update all reportd with the user id...
@@ -142,11 +141,17 @@ export class AdminBugReportsComponent implements OnInit {
                 reportSet.report.forEach((rep: BugData) => {
                     if(rep.user === userid) {
                         rep.user = user;
+                        rep.user['id'] = result.id;
                     }
                 })
             });
-        })
+            // and update the downloadedUsers with this user if they dont already exist (which they shouldn't but in case...)
+            let found: User = this.downloadedUsers.find((temp: User) => temp.id === userid);
 
+            if(!found) {
+                this.downloadedUsers.push(user);
+            }
+        })
     }
 
 }

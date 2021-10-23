@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { render } from 'creditcardpayments/creditCardPayments';
 
 @Component({
   selector: 'app-join',
@@ -9,9 +10,23 @@ export class JoinComponent implements OnInit {
 
     showPaymentPane: boolean = false;
 
-    constructor() { }
+    constructor() { 
+        
+    }
 
     ngOnInit(): void {
+
+        render(
+            {
+                id: "myPaypalButtons", 
+                currency: "USD", 
+                value: "15.00", 
+                onApprove: (details) => {
+                    console.log("transaction approved: ", details);
+                }
+            }
+        );
+
     }
 
     togglePayment(): void {
