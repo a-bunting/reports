@@ -28,6 +28,7 @@ import { EditReportComponent } from './reports/edit-report/edit-report.component
 import { JoinComponent } from './utilities/join/join.component';
 import { BugreportComponent } from './utilities/bugreport/bugreport.component';
 import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-reports.component';
+import { NgxPayPalModule } from 'ngx-paypal';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-re
     HttpClientModule, 
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    AngularFirestoreModule 
+    AngularFirestoreModule, 
+    NgxPayPalModule
   ],
   providers: [
         AuthenticationService,

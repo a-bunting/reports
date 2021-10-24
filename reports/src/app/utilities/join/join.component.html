@@ -1,13 +1,9 @@
-
 <div class="component-intro">
     <h1 class="component-intro__title">Go Pro</h1>
     
     <h4 class="component-intro__description">
         Join up and become a member for full access and unlimited report generation.
     </h4>
-    
-    <!-- <button class="join__button" (click)="togglePayment()">Sign up Now!</button> -->
-
 </div>
 
 <div class="join__details">
@@ -76,17 +72,17 @@
 
                 <div class="join__sub-title">How would you like to pay?</div>
 
-                <div class="join__text">
-                    Currently payment are only processed via PayPal
+                <div class="join__text u__margin-bottom--large">
+                    Currently payment are only processed via PayPal. This is because they are able to protect your data much better than I could. None of the details you supply to Paypal are stored or returned to me in anyway.
                 </div>
 
-                
+                <ngx-paypal [config]="payPalConfig"></ngx-paypal>
 
             </div>
 
         </div>
         
-        <div class="myPaypalButtons"></div>
+
         
     </div>
 
