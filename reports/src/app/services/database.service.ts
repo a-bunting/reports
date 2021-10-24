@@ -53,6 +53,11 @@ export class DatabaseService {
         return this.firebase.collection('users').doc(uid).get();
     }
 
+    modifyUserData(userid: string, data: {}): Observable<any> {
+        this.writeOperation();
+        return from(this.firebase.collection('users').doc(userid).update(data));
+    }
+
     // GROUPS
     /**
      * Get all the groups this user is a part of
@@ -118,7 +123,8 @@ export class DatabaseService {
 
     updateReport(data: {}, id: string): Observable<any> {
         this.writeOperation();
-        return from(this.firebase.collection('reports').doc(id).update(data));
+        
+        return from(this.firebase.collection('reports').doc(id).update({...data, lastUpdated: Date.now()}));
     }
 
     addNewReport(data: ReportTemplate): Observable<any> {

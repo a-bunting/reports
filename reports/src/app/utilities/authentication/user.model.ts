@@ -21,9 +21,21 @@ export class User {
 
     set setUsername(username: string) {
         this.name = username;
+        this.updateLocalStorage();
     }
-
+    
+    set setAutoUpdate(value: boolean) {
+        this.autoUpdateDb = value;
+        this.updateLocalStorage();
+    }
+    
     set setEst(est: {id: string, name: string}) {
         this.establishment = est;
+        this.updateLocalStorage();
     }
+
+    private updateLocalStorage(): void {
+        localStorage.setItem('userData', JSON.stringify(this));
+    }
+    
 }

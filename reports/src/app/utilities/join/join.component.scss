@@ -67,44 +67,6 @@
         margin-bottom: 2.5rem;
     }
 
-    &__checkbox {
-        visibility: hidden;
-        display: none;
-        
-        &--label {
-            
-            font-size: 1.4rem;
-            
-            &::before {
-                content: "\2718";
-                color: red;
-                background-color: var(--color-style-main);
-                padding: .3rem 0.9rem;
-                border-radius: .5rem;
-                margin-right: 1.5rem;
-                border: .2rem solid var(--color-style-juxtapose);
-                transition: all .2s;
-            }
-
-            &:hover {
-                cursor: pointer;
-            }
-            
-        }
-        
-        &:checked {
-            
-            + .join__checkbox--label {
-                &::before {
-                    content: "\2714";
-                    color: greenyellow;
-                    background-color: var(--color-style-juxtapose);
-                    border: .2rem solid white;
-                }
-            }
-        }
-    }
-
     &__grid {
         display: grid;
         grid-template-columns: 2fr 35rem;

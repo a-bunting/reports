@@ -7,7 +7,8 @@ import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { GroupsService } from 'src/app/services/groups.service';
 import { map, take } from 'rxjs/operators';
-import { ReportsService, ReportTemplate } from 'src/app/services/reports.service';
+import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,8 +21,10 @@ export class DashboardComponent implements OnInit {
     username: string;
     facility: string;
     autoUpdateDb: boolean;
+    reports: ReportTemplate[];
 
     constructor(
+        private db: DatabaseService,
         private AuthService: AuthenticationService,
         private groupService: GroupsService,
         private templatesService: TemplatesService, 
@@ -40,17 +43,12 @@ export class DashboardComponent implements OnInit {
 
                 if(user.autoUpdateDb) {
                     this.forceLoadDataClick();
+                } else {
+                    // reports are needed for a component so load them, but dont force it.
+                    this.loadReports();
                 }
             }
         })
-    }
-
-    onUsernameChange(): void {
-        this.user.setUsername = this.username;
-    }
-
-    onEstablishmentChange(): void {
-        // nothing yet, free agents only to start
     }
 
     databaseStatus: boolean = false;
@@ -58,10 +56,13 @@ export class DashboardComponent implements OnInit {
 
     forceLoadDataClick(): void {
         this.databaseStatusUpdating = true;
+        this.reportsLoading = true;
         // force all databases to pull new data from the database.
-        this.forceLoadData(true).subscribe((result: [boolean, boolean, boolean, boolean]) => {
-            this.databaseStatus = result[0] && result[1] && result[2];
+        this.forceLoadData(true).subscribe((result: [boolean, boolean, boolean, ReportTemplate[]]) => {
+            this.databaseStatus = result[0] && result[1] && result[2] && result[3] !== undefined;
             this.databaseStatusUpdating = false;
+            this.reports = result[3].sort((a: ReportTemplate, b: ReportTemplate) => a.lastUpdated - b.lastUpdated).slice(0, 4);
+            this.reportsLoading = false;
         }, error => {
             console.log("Database Status Update Failed...");
             this.databaseStatus = false;
@@ -70,14 +71,52 @@ export class DashboardComponent implements OnInit {
 
     }
 
-    forceLoadData(forced: boolean): Observable<[boolean, boolean, boolean, boolean]> {
+    forceLoadData(forced: boolean): Observable<[boolean, boolean, boolean, ReportTemplate[]]> {
         // load groups and templates concurrently then act
         let loadGroups = this.groupService.getGroups(forced).pipe(take(1), map((result: Group[]) => { return true; }));
         let loadTemplate = this.templatesService.getTemplates(forced).pipe(take(1), map((result: Template[]) => { return true; }));
         let loadSentence = this.sentenceService.getSentencesDatabase(this.user.id, forced).pipe(take(1), map((result: sentence) => { return true; }));
-        let loadReports = this.reportService.getReports(forced).pipe(take(1), map((result: ReportTemplate[]) => { return true; }));
+        let loadReports = this.reportService.getReports(forced).pipe(take(1), map((result: ReportTemplate[]) => { return result; }));
         // and return them at the same time...
         return zip(loadGroups, loadTemplate, loadSentence, loadReports);
+    }
+    
+    reportsLoading: boolean = false;
+
+    loadReports(): void {
+        this.reportsLoading = true;
+        this.reportService.getReports().subscribe((result: ReportTemplate[]) => { 
+            this.reports = result.sort((a: ReportTemplate, b: ReportTemplate) => a.lastUpdated - b.lastUpdated).slice(0, 4);
+            this.reportsLoading = false;
+        });
+    }
+
+    // unused anymore..
+    reportCount(reportsId: number): number {
+        let reportsWritten: number = 0;
+
+        this.reports[reportsId].reports.forEach((report: Report) => {
+            report.report !== "" ? reportsWritten++ : null;
+        })
+
+        return reportsWritten;
+    }
+
+    modifyUserData(fieldName: string, value: string | boolean): void {
+
+        this.db.modifyUserData(this.user.id, {[fieldName]: value}).subscribe(() => {
+            console.log("Success, user data modified.");
+
+            // switch based upon the fields
+            switch(fieldName) {
+                case 'name': this.user.setUsername = ''+value; break;
+                case 'autoUpdateDb': this.user.setAutoUpdate = value === 'true'; break;
+            }
+
+        }, error => {
+            console.log(`Update failed: ${error}`);
+        })
+
     }
 
 }

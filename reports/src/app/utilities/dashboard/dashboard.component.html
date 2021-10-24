@@ -6,7 +6,7 @@
             <div class="dashboard__data--item">
                 <div class="dashboard__data--text">Name</div>
                 <div class="dashboard__data--input">
-                    <input type="text" name="userNameInput" id="userNameInput" (blur)="onUsernameChange()" (keyup.enter)="onUsernameChange()" [(ngModel)]="username">
+                    <input type="text" name="userNameInput" id="userNameInput" (blur)="modifyUserData('name', username)" (keyup.enter)="modifyUserData('name', username)" [(ngModel)]="username">
                 </div>
             </div>
             
@@ -23,22 +23,59 @@
         <div class="dashboard__db-status-indicator" [class.dashboard__db-status-indicator--green]="databaseStatus" [class.dashboard__db-status-indicator--red]="!databaseStatus">
             {{ databaseStatusUpdating ? "Currently Updating" : databaseStatus ? "You are up to date!" : "Your database may need refreshing"}}
         </div>
+
         <div class="dashboard__db-force-update">
-            <button class="dashboard__db-force-update--button" (click)="forceLoadDataClick()" [class.opacity__0]="databaseStatus">Force Database Update</button>
+            <button class="dashboard__db-force-update--button" (click)="forceLoadDataClick()" [disabled]="databaseStatus || databaseStatusUpdating">Force Database Update</button>
         </div>
+
     </div>
 
-    <div class="dashboard__info">
-        <p>The dashboard is your login homepage - it will be your destination for all updates and things you need to do.</p>
-        <p>More info will be here at later dates!!</p>
+    <div class="dashboard__db-set-autoupdate">
+        <input type="checkbox" name="autoUpd" id="autoUpd" class="input__checkbox" [checked]="autoUpdateDb" [(ngModel)]="autoUpdateDb" (change)="modifyUserData('autoUpdateDb', autoUpdateDb)">
+        <label for="autoUpd" class="input__checkbox--label">Auto Update on load</label>
     </div>
 
-    <div class="dashboard__tips">
-        <p>Check out these tips to help you get the best of this website!</p>
-        <ul>
-            <li>If you are new to this site I suggest you first set up your classes, then build your templates, then make your reports. Each page has instructions and/or a tutorial to help you.</li>
-            <li>If you see a word surrounded by these operators << >> it means that field can be used in a report. For example << name >> in a report might change to 'Alex Bunting'.</li>
-        </ul>
+    <div class="dashboard__flexbox">
+        <div class="dashboard__left">
+            <div class="dashboard__info">
+                <p>The dashboard is your login homepage - it will be your destination for all updates and things you need to do.</p>
+                <p>More info will be here at later dates!!</p>
+            </div>
+            <div class="dashboard__tips">
+                <p>Check out these tips to help you get the best of this website!</p>
+                <ul>
+                    <li>If you are new to this site I suggest you first set up your classes, then build your templates, then make your reports. Each page has instructions and/or a tutorial to help you.</li>
+                    <li>If you see a word surrounded by these operators ${{'{'}} skillName {{'}'}}$ it means that field can be used in a report. For example ${{'{'}} skillName {{'}'}}$ in a report might change to 'Alex Bunting'.</li>
+                    <li>Sometimes words will have a g| or a v| before it, i.e. ${{'{'}} g | skillName {{'}'}}$. In this case the g stands for global, and will be the same in all reports.</li>
+                    <li>If you want to premade some options, you can add them after the name in square brackets, i.e. ${{'{'}} g | skillName [graphing,tables,conclusions] {{'}'}}$. Users can usually add to these in their reports also.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="dashboard__right">
+            <div class="dashboard__reports">
+
+                <div class="loading" *ngIf="reportsLoading">
+                    <app-loading-spinner></app-loading-spinner>
+                </div>
+        
+                Here are the last reports you have been working on:
+        
+                <div class="dashboard__reports--report" *ngIf="!reports">
+                    You have no reports yet.
+                </div>
+
+                <div class="dashboard__reports--report" *ngFor="let report of reports; let i = index">
+                    <div class="dashboard__reports--button" routerLink="../reports/edit-report/{{ report.id }}">Load Report</div>
+                    <div class="dashboard__reports--name">{{ report.name }}</div>
+                    <div class="dashboard__reports--lastupd">Updated {{ report.lastUpdated | date:'medium' }}</div>
+                </div>
+                
+            </div>
+        
+            <div class="dashboard__tutorials">
+                Tutorials... coming soon!
+            </div>
+        </div>
     </div>
 
 </div>

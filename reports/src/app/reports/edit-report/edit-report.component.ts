@@ -219,7 +219,7 @@ export class EditReportComponent implements OnInit {
      */
     newReport(): void {
         this.isLoading = false;
-        this.report = {id: "", groupId: "", templateId: "", name: "", manager: this.user.id, variables: [], globals: [], tests: [], keys: [], reports: []};
+        this.report = {id: "", groupId: "", templateId: "", name: "", lastUpdated: Date.now(), manager: this.user.id, variables: [], globals: [], tests: [], keys: [], reports: []};
         this.loadedGroup = undefined;
     }
 
