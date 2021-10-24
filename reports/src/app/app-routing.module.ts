@@ -19,8 +19,10 @@ import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
 import { JoinComponent } from './utilities/join/join.component';
 import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-reports.component';
+import { IntroComponent } from './utilities/intro/intro.component';
 
 const routes: Routes = [
+    {path: '', component: IntroComponent},
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], children: [
         {path: 'edit-report', component: EditReportComponent},
         {path: 'edit-report/:id', component: EditReportComponent}

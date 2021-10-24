@@ -11,7 +11,7 @@ import { Template, TemplatesService } from './templates.service';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './tests.service';
 
 export interface ReportTemplate {
-    id: string; name: string; manager: string; templateId: string; groupId: string;
+    id: string; name: string; manager: string; templateId: string; groupId: string; lastUpdated: number;
     variables: VariableValues[]; globals: GlobalValues[]; tests: TestValues[];
     keys: string[];
     reports: Report[];
@@ -19,7 +19,7 @@ export interface ReportTemplate {
 
 export interface FBReportTemplate {
     id: string; name: string; manager: string;  templateId: string; groupId: string;
-    variables: any, 
+    variables: any; lastUpdated: number;
     globals: any; 
     tests: any;
     keys: string[];
@@ -189,7 +189,8 @@ export class ReportsService {
             variables: variables[1],
             tests: tests,
             keys: keys,
-            reports: individualReports
+            reports: individualReports,
+            lastUpdated: Date.now()
         };
         return report;
     }
@@ -501,7 +502,8 @@ export class ReportsService {
             globals: newGlobals,
             tests: testsObject,
             keys: report.keys,
-            reports: report.reports
+            reports: report.reports, 
+            lastUpdated: report.lastUpdated
         }
 
         return newReport;
