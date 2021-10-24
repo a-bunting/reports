@@ -28,7 +28,7 @@ const routes: Routes = [
         {path: 'edit-report/:id', component: EditReportComponent}
     ]},
     {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
-    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard, DemoGuard], children: [
+    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard], children: [
         {path: 'create-template', component: CreateTemplateComponent},
         {path: 'create-template/:id', component: CreateTemplateComponent}
     ]},

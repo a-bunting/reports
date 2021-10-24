@@ -23,6 +23,9 @@ html {
     box-sizing: border-box;
     font-size: 62.5%;
     font-family: 'Open Sans', sans-serif;
+
+    @media screen and (max-width: 1200px) { font-size: 50.0%; }
+    @media screen and (max-width: 1015px) { font-size: 37.5%; }
 }
 
 body {

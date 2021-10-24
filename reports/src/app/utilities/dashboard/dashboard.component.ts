@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
         this.forceLoadData(true).subscribe((result: [boolean, boolean, boolean, ReportTemplate[]]) => {
             this.databaseStatus = result[0] && result[1] && result[2] && result[3] !== undefined;
             this.databaseStatusUpdating = false;
-            this.reports = result[3].sort((a: ReportTemplate, b: ReportTemplate) => a.lastUpdated - b.lastUpdated).slice(0, 4);
+            this.reports = result[3].sort((a: ReportTemplate, b: ReportTemplate) => b.lastUpdated - a.lastUpdated).slice(0, 4);
             this.reportsLoading = false;
         }, error => {
             console.log("Database Status Update Failed...");
@@ -86,7 +86,7 @@ export class DashboardComponent implements OnInit {
     loadReports(): void {
         this.reportsLoading = true;
         this.reportService.getReports().subscribe((result: ReportTemplate[]) => { 
-            this.reports = result.sort((a: ReportTemplate, b: ReportTemplate) => a.lastUpdated - b.lastUpdated).slice(0, 4);
+            this.reports = result.sort((a: ReportTemplate, b: ReportTemplate) => b.lastUpdated - a.lastUpdated).slice(0, 4);
             this.reportsLoading = false;
         });
     }
@@ -103,14 +103,13 @@ export class DashboardComponent implements OnInit {
     }
 
     modifyUserData(fieldName: string, value: string | boolean): void {
-
+        // set the user field in the database...
         this.db.modifyUserData(this.user.id, {[fieldName]: value}).subscribe(() => {
-            console.log("Success, user data modified.");
-
             // switch based upon the fields
+            
             switch(fieldName) {
                 case 'name': this.user.setUsername = ''+value; break;
-                case 'autoUpdateDb': this.user.setAutoUpdate = value === 'true'; break;
+                case 'autoUpdateDb': let v: boolean = value === true; this.user.setAutoUpdate = v; break;
             }
 
         }, error => {

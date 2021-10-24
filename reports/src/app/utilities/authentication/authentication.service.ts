@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { auth } from 'firebase/firebase-auth';
+import { auth, signInWithGoogle, signUpWithGoogle } from 'firebase/firebase-auth';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { UserCredential, IdTokenResult } from '@firebase/auth-types';
-import { AngularFirestore, AngularFirestoreDocument, DocumentSnapshot } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { User } from './user.model';
@@ -132,7 +132,7 @@ export class AuthenticationService {
             localStorage.removeItem('userData');
             localStorage.removeItem('sentences-data');
             this.user.next(null);
-            this.router.navigate(['/auth']);
+            this.router.navigate(['/']);
         }).catch(error => {
             console.log(`An error occurred during logout: ${error.message}`); 
       })) 

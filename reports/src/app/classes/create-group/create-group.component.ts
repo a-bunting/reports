@@ -90,18 +90,20 @@ export class CreateGroupComponent implements OnInit {
         })
     }
 
+    userInfo: string;
+
     generateUserData() {
         this.userDataGenerated = true;
         this.groupId = undefined;
         let data: string[];
 
         // for now use testdata if none exists in the textbox
-        if(document.getElementById('groupInputBox').innerText === "") {
+        if(this.userInfo === "") {
             // no test data in box, use variable testData
             data = testData.split("\n");
         } else {
             // testdata exists in the box
-            data = document.getElementById('groupInputBox').innerText.split("\n");
+            data = this.userInfo.split("\n");
         }
 
         // get data and split into individual elements

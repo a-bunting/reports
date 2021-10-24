@@ -11,7 +11,7 @@
         <div class="create-group__text">
             
             <div class="create-group__text--textbox">
-                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line."></textarea>
+                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" [(ngModel)]="userInfo" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line."></textarea>
             </div>
             <div class="create-group__text--submit">
                 <div class="create-group__text--header-check">
@@ -21,16 +21,16 @@
                 <button class="create-group__text--submit--button create-group__text--submit--enabled" (click)="generateUserData()">Create Group</button>
             </div>
         </div>
-
+<!-- 
         <div class="create-group__or">
             or...
         </div>
 
-        <div class="create-group__drop" draggable="true">
+        <div class="create-group__drop" draggable="true" (drop)="fileDropped()">
             <div class="create-group__drop--text">
                 Drag CSV file here...
             </div>
-        </div>
+        </div> -->
     </div>
 
     <div class="create-group__controls" *ngIf="userDataGenerated">
