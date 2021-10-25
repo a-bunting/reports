@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { NgForm } from '@angular/forms';
+import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
 import { User } from './utilities/authentication/user.model';
@@ -16,6 +17,7 @@ export class AppComponent implements OnInit {
     isMember: boolean = false;
     isAdmin: boolean = false; // change to false once integrated fully.
     user: User;
+    authForm: NgForm;
 
     constructor(private authService: AuthenticationService) {}
 
@@ -42,5 +44,35 @@ export class AppComponent implements OnInit {
         }, error => {
             console.log(`Error logging out: ${error.message}`);
         });
+    }
+
+    isLoading: boolean = false;
+    errorMessage: string;
+
+    onSubmit(form: NgForm) {
+
+        if(!form.valid) {
+            console.log("invalid form");
+            return;
+        }
+        
+        this.isLoading = true;
+        const email = form.value.email;
+        const password = form.value.password;
+    
+        let authObs: Observable<any> = this.authService.login3(email, password);
+    
+        authObs.subscribe((responseData: any) => {
+            this.isLoading = false;
+        }, 
+        errorMessage => {
+            console.log(`Error logging in: ${errorMessage}`);
+            this.errorMessage = errorMessage;
+            this.isLoading = false;
+        })
+    }
+
+    removeErrorMessage(): void {
+        this.errorMessage = undefined;
     }
 }

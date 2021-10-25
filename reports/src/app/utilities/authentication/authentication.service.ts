@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import firebase from 'firebase/app';
 import { auth, signInWithGoogle, signUpWithGoogle } from 'firebase/firebase-auth';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { UserCredential, IdTokenResult } from '@firebase/auth-types';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
@@ -77,16 +77,6 @@ export class AuthenticationService {
         return from(signUp);
     }
 
-    /** GOOGLE SIGN IN OPTIONS UNFINISHED */
-    signUpWithGoogle(): void {
-        const provider = new auth.signUpWithGoogle();
-    }
-    
-    signInWithGoogle(): void {
-        const provider = new auth.signInWithGoogle();
-        const credential = this.fAuth.signInWithPopup(provider);
-    }
-
     /**
      * Logs a user in.
      * @param email 
@@ -127,10 +117,56 @@ export class AuthenticationService {
         return from(signIn);
     }
     
+    GoogleAuth(): any {
+        const googleAuth = new firebase.auth.GoogleAuthProvider();
+        return this.AuthLogin(googleAuth);
+    }
+
+    /**
+     * Login OR SIGN UP via an external provider
+     * @param provider 
+     * @returns 
+     */
+    AuthLogin(provider) {
+        return this.fAuth.signInWithPopup(provider).then((result) => {
+
+            const userDocRef = this.firestore.collection('users').doc(result.user.uid);
+            
+            // promise all rejects if one fails or continues if all succeed
+            return Promise.all([
+                Promise.resolve(result.user), 
+                result.user.getIdTokenResult(),
+                userDocRef.ref.get()
+            ]);
+
+        }).then(([user, tokenData, userDataSnapshot]) => {
+
+            const establishment = userDataSnapshot.get('establishment') ? userDataSnapshot.get('establishment') : {id: "freeagent", name: "Free Agent" };
+            const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
+            const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
+            const member = tokenData.claims.member ? tokenData.claims.member : false;
+            const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
+
+            this.handleAuthentication(
+                user.email, 
+                user.uid,
+                user.displayName,
+                establishment,
+                admin,
+                manager, 
+                member,
+                autoUpdate,
+                tokenData.token 
+            );
+
+        });
+    }
+
     logout(): Observable<any> {
         return from(this.fAuth.signOut().then(() => {
-            localStorage.removeItem('userData');
-            localStorage.removeItem('sentences-data');
+            // localStorage.removeItem('userData');
+            // localStorage.removeItem('sentences-data');
+            localStorage.clear();
             this.user.next(null);
             this.router.navigate(['/']);
         }).catch(error => {

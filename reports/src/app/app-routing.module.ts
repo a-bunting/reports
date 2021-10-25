@@ -36,7 +36,7 @@ const routes: Routes = [
         {path: 'create-group', component: CreateGroupComponent},
         {path: '', component: EditGroupComponent}
     ]},
-    {path: 'auth', component: AuthComponent},
+    {path: 'register', component: AuthComponent},
     {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
         {path: 'sentences', component: AdminSentencesComponent},

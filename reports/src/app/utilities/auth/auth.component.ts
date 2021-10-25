@@ -12,56 +12,45 @@ import { AuthenticationService } from '../authentication/authentication.service'
 
 export class AuthComponent implements OnInit {
 
+    constructor(private authService: AuthenticationService, private router: Router) { }
 
-    
-  constructor(private authService: AuthenticationService, private router: Router) { }
+    ngOnInit(): void {
 
-  ngOnInit(): void {
-  }
-
-  isLoginMode: boolean = true;
-  isLoading: boolean = false;
-  error: string = null;
-
-  onSwitchMode() { this.isLoginMode = !this.isLoginMode; }
-
-  clearError() {
-      this.error = null;
-  }
-
-  onSubmit(form: NgForm) {
-
-    if(!form.valid) {
-        console.log("invalid form");
-        return;
-    }
-    
-    this.isLoading = true;
-    const email = form.value.email;
-    const password = form.value.password;
-    const name = form.value.name;
-
-    let authObs: Observable<any>;
-    
-    if(!this.isLoginMode) {
-        // new user mode
-        authObs = from(this.authService.signup(email, password, name));
-    } else {
-        // login mode...
-        authObs = this.authService.login3(email, password);
     }
 
-    authObs.subscribe((responseData: any) => {
-        console.log("here");
-        this.isLoading = false;
-    }, 
-    errorMessage => {
-        console.log("no here");
-        this.error = errorMessage;
-        this.isLoading = false;
-    })
-    
-    form.reset();
-}
+    isLoading: boolean = false;
+    error: string = null;
 
+    clearError() {
+        this.error = undefined;
+    }
+
+    onSubmit(form: NgForm) {
+
+        if(!form.valid) {
+            console.log("invalid form");
+            return;
+        }
+        
+        this.isLoading = true;
+        const email = form.value.registerEmail;
+        const password = form.value.registerPassword;
+        const name = form.value.registerName;
+
+        let authObs: Observable<any>  = from(this.authService.signup(email, password, name));
+
+        authObs.subscribe((responseData: any) => {
+            this.isLoading = false;
+        }, 
+        errorMessage => {
+            this.error = errorMessage;
+            this.isLoading = false;
+        })
+        
+        form.reset();
+    }
+
+    GoogleAuth(): void {
+        this.authService.GoogleAuth();
+    }
 }

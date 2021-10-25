@@ -10,7 +10,11 @@
 
     <div class="join__grid">
 
-        There are many bonuses to joining reports right now.
+        <div class="join__text">
+            There are many bonuses to joining reports right now.
+        </div>
+        
+        
         <div class="join__bonuses">
 
             <div class="join__bonus join__bonus--db">
@@ -58,16 +62,15 @@
             </div>
 
             <div class="join__payment-order" [class.visible]="paymentStage > 1">
-                <!-- <div class="join__greyarea" [class.join__greyarea-fadeout]="paymentStage > 1"></div> -->
-
+<!-- 
                 <ul class="join__payment-selected">
                     <li class="join__text">You have selected a period of <b>{{ paymentSelected ? paymentSelected.period : "TBA" }}</b> months.</li>
                     <li class="join__text">This is at a cost of <b>${{ paymentSelected ? paymentSelected.cost : "TBA" }}.00</b> (USD) for one year.</li>
-                </ul>
+                </ul> -->
 
                 <div class="join__payment-recurring">
-                    <input type="checkbox" name="recurring" id="recurring" class="join__checkbox"> 
-                    <label for="recurring" class="join__checkbox--label">I would like a recurring subscription</label>
+                    <input type="checkbox" name="recurring" id="recurring" class="input__checkbox"> 
+                    <label for="recurring" class="input__checkbox--label">I would like a recurring subscription</label>
                 </div>
 
                 <div class="join__sub-title">How would you like to pay?</div>

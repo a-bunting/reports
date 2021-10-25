@@ -3,10 +3,10 @@
 <div class="gradient gradient__3"></div>
 
 <div class="component-intro">
-    <h1 class="component-intro__title">Login</h1>
+    <h1 class="component-intro__title">Register</h1>
     
     <h4 class="component-intro__description">
-        Login to view your personal data.
+        Sign up for free and try reports out with full functionality.
     </h4>
 </div>
 
@@ -22,23 +22,28 @@
 
     <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
         <div class="auth__form">
-            <div class="auth__label" *ngIf="!isLoginMode">Name</div>
-            <input type="name" id="name" class="auth__input" name="name"  *ngIf="!isLoginMode" ngModel required>
+            <div class="auth__label">Name</div>
+            <input type="text" id="registerName" class="auth__input" name="registerName" ngModel required>
             
             <div class="auth__label">Email</div>
-            <input type="email" id="email" class="auth__input" name="email" ngModel required email>
+            <input type="email" id="registerEmail" class="auth__input" name="registerEmail" ngModel required email>
 
             <div class="auth__label">Password</div>
-            <input type="password" id="password" class="auth__input" name="password" minLength="6" ngModel required password>
-
-            <div class="auth__signup-links" *ngIf="!isLoginMode">
-                Alternatives, signup with google
-            </div>
-
+            <input type="password" id="registerPassword" class="auth__input" name="registerPassword" minLength="6" ngModel required password>
+            
             <div class="auth__buttons">
-                <button type="button" class="auth__button" (click)="onSubmit(authForm)" [disabled]="!authForm.valid">{{ isLoginMode ? 'Login' : 'Sign up with Email' }}</button>
-                <button type="button" class="auth__button" (click)="onSwitchMode()">{{ !isLoginMode ? 'Back to Login' : 'Sign Up' }}</button>
+                <button type="button" class="auth__button" (click)="onSubmit(authForm)" [disabled]="!authForm.valid">Register Now</button>
             </div>
+
+            <div class="auth__or">
+                or
+            </div>
+
+            <div class="auth__signup-links">
+                <img src="../assets/btn_google_signin_light_normal_web.png" class="auth__google" alt="Sign in with Google"  (click)="GoogleAuth()">
+
+            </div>
+
         </div>
     </form>
 </div>

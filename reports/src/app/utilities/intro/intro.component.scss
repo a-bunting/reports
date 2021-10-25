@@ -28,7 +28,7 @@
     &__join-buttons {
         grid-row: 3 / 4;
         grid-column: 1 / 2;
-        justify-self: center;
+        justify-self: left;
         align-self: center;
         opacity: 0;
         animation: opacityUp 2s 1s 1 forwards;
@@ -71,6 +71,7 @@
             border: .2rem solid white;
             transform: translateY(-.5rem);
             box-shadow: .6rem 1.2rem black;
+            color: white;
         }
 
         &:not(:last-of-type) {

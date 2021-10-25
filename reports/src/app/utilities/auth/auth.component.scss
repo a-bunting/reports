@@ -10,7 +10,7 @@
 
     &__label {
         padding: .5rem 1rem;
-        font-size: 2rem;
+        font-size: 1.6rem;
         letter-spacing: .2rem;
     }
 
@@ -19,10 +19,6 @@
         font-size: 1.6rem;
         padding-left: 1rem;
         letter-spacing: .2rem;
-
-        &:hover {
-
-        }
     }
 
     &__buttons {
@@ -54,6 +50,16 @@
         }
     }
 
+    &__google {
+        transition: all .2s;
+        &:hover {
+            filter: brightness(1.2);
+            transform: translateY(-.3rem);
+            cursor: pointer;
+            box-shadow: 0 .2rem .4rem rgba(black, .5);
+        }
+    }
+
     &__signup-links {
         grid-column: 2 / span 1;
         font-size: 2rem;
@@ -62,24 +68,17 @@
     &__error {
         padding: 1rem 2rem;
         background-color: var(--color-style-juxtapose);
-        font-size: 2rem;
+        font-size: 1.6rem;
         color: var(--color-style-light);
         margin-bottom: 2rem;
         border-radius: 1rem;
         border: 2px solid var(--color-style-light);
         cursor: pointer;
     }
-}
 
-.loading {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, .6);
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    &__or {
+        display: flex;
+        grid-column: 2 / 3;
+        font-size: 1.4rem;
+    }
 }

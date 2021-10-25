@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
                 return true;
             }
             // if the route is not allowed redirect to the authentication page...
-            return this.router.createUrlTree(['/auth']);
+            return this.router.createUrlTree(['/']);
         }));
     }
   
