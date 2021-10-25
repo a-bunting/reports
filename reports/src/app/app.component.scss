@@ -68,6 +68,100 @@
             text-shadow: 0 0 .2rem white;
         }
     }
+
+    &__login {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-left: 7rem;
+        font-size: 1.6rem;
+        padding: 1rem 2rem;
+        margin-bottom: -1rem;
+        transition: all .2s;
+
+        &-text {
+            margin-right: 2rem;
+
+            &:last-of-type {
+                font-weight: bold;
+                margin: 0 3rem;
+            }
+        }
+
+        &--input {
+            padding: .8rem 1rem;
+            letter-spacing: .2rem;
+            border-radius: 1rem;
+            margin-right: 1rem;
+            width: 15rem;
+        }
+
+        button {
+            border-radius: 1rem;
+            background-color: var(--color-style-main);
+            border: .2rem solid transparent;
+            padding: .7rem 1.4rem;
+            font-size: 1.4rem;
+            transition: all .2s;
+            box-shadow: 0 .15rem .3rem rgba(black, .5);
+
+            &:not(:disabled) {
+                &:hover {
+                    cursor: pointer;
+                    background-color: var(--color-style-juxtapose);
+                    border: .2rem solid white;
+                    transform: translateY(-.3rem);
+                    box-shadow: 0 .3rem .6rem black;
+                    color: white;
+                }  
+            }
+        }
+
+        &--google {
+            transition: all .2s;
+            &:hover {
+                filter: brightness(1.2);
+                transform: translateY(-.3rem);
+                cursor: pointer;
+                box-shadow: 0 .2rem .4rem rgba(black, .5);
+            }
+        }
+
+        &-error {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 30rem;
+            border-radius: 1rem;
+            border: .2rem solid transparent;
+            background-color: var(--color-style-main);
+            padding: 1rem 2rem;
+            transition: all .2s;
+            box-shadow: 0 .2rem .4rem rgba(black, .5);
+            font-size: 1.6rem;
+            
+            &:hover {
+                cursor: pointer;
+                border: .2rem solid transparent;
+                background-color: var(--color-style-juxtapose);
+                box-shadow: 0 .4rem .6rem rgba(black, 1);
+                transform: translateY(-.3rem);
+            }
+
+        }
+
+
+        &:hover {
+            background-color: var(--color-style-juxtapose);
+            border-radius: 1rem;
+            margin-top: 1rem;
+            // margin-bottom: 1rem;
+            padding-top: 0rem;
+            padding-bottom: 0rem;
+            box-shadow: 0 .3rem .6rem rgba(black, .4);
+        }
+
+    }
 }
 
 main {
