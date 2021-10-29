@@ -58,15 +58,21 @@
         font-size: 4rem;
         display: flex;
         align-items: center;
-        font-weight: 700;
         text-align: center;
+        
+        
+        a {
+            font-weight: 700;
+            text-decoration: none;
+            color: black;
+            transition: text-shadow .2s, color .2s;
 
-        transition: text-shadow .2s, color .2s;
-
-        &:hover {
-            color: var(--color-style-juxtapose);
-            text-shadow: 0 0 .2rem white;
+            &:hover {
+                color: var(--color-style-juxtapose);
+                text-shadow: 0 0 .2rem white;
+            }
         }
+
     }
 
     &__login {
@@ -176,4 +182,16 @@ footer {
     font-style: italic;
     text-align: center;
     letter-spacing: .1rem;
+    
+    p {
+        &:not(:last-of-type) {
+            margin-bottom: .3rem;
+        }
+    }
+
+    a {
+        &:not(:last-of-type) {
+            margin-right: 4rem;
+        }
+    }
 }

@@ -31,7 +31,7 @@
         </form>
         
         <div class="header__logo">
-            !Bogo
+            <a routerLink="/">!Bogo</a>
         </div>
         
     </header>
@@ -51,6 +51,11 @@
     <app-bugreport *ngIf="user"></app-bugreport>
     
     <footer class="footer">
-        Reports and everything within is copyright to !Bogo> (Alex Bunting) 2021. No parts may be reused for any purpose without express permission.
+        <p>Reports and everything within is copyright to !Bogo> (Alex Bunting) 2021. No parts may be reused for any purpose without express permission.</p>
+        <p>
+            <a routerLink="terms/" class="footer__link">Terms and Conditions</a>
+            <a routerLink="privacy/" class="footer__link">Privacy Policy</a>
+        </p>
+
     </footer>
 </div>

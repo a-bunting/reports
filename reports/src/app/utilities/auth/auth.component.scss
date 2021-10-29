@@ -2,10 +2,46 @@
     position: relative;
     padding: 2rem 5rem;
 
+    &__split {
+        display: flex;
+        position: relative;
+        height: 100%;
+    }
+
+    &__tandc {
+        position: relative;
+        padding-left: 1rem;
+        padding-right: .5rem;
+        opacity: 0;
+        transition: all .2s;
+        overflow: hidden;
+        max-height: 0;
+    }
+
+    &__tandc--display {
+        opacity: 1;
+        max-height: 100%;
+        // overflow: auto;
+    }
+
+    &__terms-button {
+        font-size: 1.4rem;
+        color: blue;
+        text-decoration: underline;
+        transition: all .2s;
+
+        &:hover {
+            cursor: pointer;
+            color: white;
+        }
+    }
+
     &__form {
         display: grid;
         row-gap: .8rem;
         grid-template-columns: 15rem 30rem;
+        position: sticky;
+        top: 5rem;
     }
 
     &__label {
@@ -50,13 +86,29 @@
         }
     }
 
+    &__terms {
+        grid-column: 2 / span 1;
+        margin-top: .5rem;
+    }
+
     &__google {
         transition: all .2s;
-        &:hover {
-            filter: brightness(1.2);
-            transform: translateY(-.3rem);
-            cursor: pointer;
-            box-shadow: 0 .2rem .4rem rgba(black, .5);
+        background-image: url(../../../assets/btn_google_signin_light_normal_web.png);
+        background-repeat: no-repeat;
+        background-color: white;
+        opacity: .5;
+        width: 19.1rem;
+        height: 4.6rem;
+        transition: all .2s;
+
+        &:not(:disabled) {
+            opacity: 1;
+            &:hover {
+                filter: brightness(1.2);
+                transform: translateY(-.3rem);
+                cursor: pointer;
+                box-shadow: 0 .2rem .4rem rgba(black, .5);
+            }
         }
     }
 

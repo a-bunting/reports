@@ -30,6 +30,8 @@ import { BugreportComponent } from './utilities/bugreport/bugreport.component';
 import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-reports.component';
 import { NgxPayPalModule } from 'ngx-paypal';
 import { IntroComponent } from './utilities/intro/intro.component';
+import { TermsComponent } from './utilities/terms/terms.component';
+import { PrivacyComponent } from './utilities/privacy/privacy.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,9 @@ import { IntroComponent } from './utilities/intro/intro.component';
     JoinComponent,
     BugreportComponent,
     AdminBugReportsComponent,
-    IntroComponent
+    IntroComponent,
+    TermsComponent,
+    PrivacyComponent
   ],
   imports: [
     BrowserModule,
