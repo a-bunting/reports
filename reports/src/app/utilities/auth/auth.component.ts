@@ -20,6 +20,8 @@ export class AuthComponent implements OnInit {
 
     isLoading: boolean = false;
     error: string = null;
+    termsSelected: boolean = false;
+    privacySelected: boolean = false;
 
     clearError() {
         this.error = undefined;
@@ -52,5 +54,13 @@ export class AuthComponent implements OnInit {
 
     GoogleAuth(): void {
         this.authService.GoogleAuth();
+    }
+
+    showTerms: boolean = false;
+    showPrivacy: boolean = false;
+
+    toggleText(terms: boolean, privacy: boolean): void { 
+        this.showTerms = terms ? this.showTerms ? false : true : false;
+        this.showPrivacy = privacy ? this.showPrivacy ? false : true : false; 
     }
 }

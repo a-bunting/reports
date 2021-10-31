@@ -20,30 +20,52 @@
         <app-loading-spinner></app-loading-spinner>
     </div>
 
-    <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
-        <div class="auth__form">
-            <div class="auth__label">Name</div>
-            <input type="text" id="registerName" class="auth__input" name="registerName" ngModel required>
-            
-            <div class="auth__label">Email</div>
-            <input type="email" id="registerEmail" class="auth__input" name="registerEmail" ngModel required email>
+    <div class="auth__split">
+        <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
+            <div class="auth__form">
+                    
+                <div class="auth__label">Name</div> 
+                <input type="text" id="registerName" class="auth__input" name="registerName" ngModel required>
+                
+                <div class="auth__label">Email</div>
+                <input type="email" id="registerEmail" class="auth__input" name="registerEmail" ngModel required email>
 
-            <div class="auth__label">Password</div>
-            <input type="password" id="registerPassword" class="auth__input" name="registerPassword" minLength="6" ngModel required password>
-            
-            <div class="auth__buttons">
-                <button type="button" class="auth__button" (click)="onSubmit(authForm)" [disabled]="!authForm.valid">Register Now</button>
+                <div class="auth__label">Password</div>
+                <input type="password" id="registerPassword" class="auth__input" name="registerPassword" minLength="6" ngModel required password>
+                
+                <div class="auth__terms">
+                    <input type="checkbox" id="termsAndConditions" class="input__checkbox" name="termsAndConditions" [(ngModel)]="termsSelected" ngModel required>
+                    <label for="termsAndConditions" class="input__checkbox--label">I agree to the </label> <a class="auth__terms-button" (click)="toggleText(true, false)">terms and conditions</a>
+                </div>
+
+                <div class="auth__terms">
+                    <input type="checkbox" id="privacypolicy" class="input__checkbox" name="privacypolicy" [(ngModel)]="privacySelected" ngModel required>
+                    <label for="privacypolicy" class="input__checkbox--label">I have read the </label> <a class="auth__terms-button" (click)="toggleText(false, true)">privacy policy</a>
+                </div>
+                
+                <div class="auth__buttons">
+                    <button type="button" class="auth__button" (click)="onSubmit(authForm)" [disabled]="!authForm.valid">Register Now</button>
+                </div>
+
+                
+                <div class="auth__or">
+                    or
+                </div>
+                
+                <div class="auth__signup-links">
+                    <button class="auth__google" alt="Sign in with Google" (click)="GoogleAuth()" [disabled]="!termsSelected || !privacySelected"></button>
+                </div>   
             </div>
+        </form>
 
-            <div class="auth__or">
-                or
+        <div class="auth__display-text">
+            <div class="auth__tandc" [class.auth__tandc--display]="showTerms">
+                <app-terms></app-terms>
             </div>
-
-            <div class="auth__signup-links">
-                <img src="../assets/btn_google_signin_light_normal_web.png" class="auth__google" alt="Sign in with Google"  (click)="GoogleAuth()">
-
+    
+            <div class="auth__tandc" [class.auth__tandc--display]="showPrivacy">
+                <app-privacy></app-privacy>
             </div>
-
         </div>
-    </form>
+    </div>
 </div>

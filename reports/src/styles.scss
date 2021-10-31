@@ -30,6 +30,7 @@ html {
 
 body {
     // max-width: 120rem;
+    position: relative;
     max-width: 95vw;
     margin: 0 auto;
     background-image:   linear-gradient(to top left, transparent, var(--color-style-juxtapose)),
@@ -194,7 +195,9 @@ body {
 
 
 .opacity__0 { opacity: 0; }
-.opacity__1 { opacity: 1; }
+.opacity__1 { opacity: 1 !important; }
+.visible__hidden { visibility: hidden; }
+.visible__visible { visibility: visible; }
 
 .gradient {
     z-index: -100;

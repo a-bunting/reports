@@ -9,7 +9,6 @@ import { TemplatesComponent } from './templates/templates.component';
 import { AuthComponent } from './utilities/auth/auth.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthGuard } from './utilities/authentication/auth-guard.guard';
-import { DemoGuard } from './utilities/authentication/demo-guard.guard';
 import { MemberGuard } from './utilities/authentication/member.guard';
 import { AdminGuard } from './utilities/authentication/admin.guard';
 import { AdminUsersComponent } from './admin/users/admin-users.component';
@@ -20,6 +19,8 @@ import { EditReportComponent } from './reports/edit-report/edit-report.component
 import { JoinComponent } from './utilities/join/join.component';
 import { AdminBugReportsComponent } from './admin/admin-bug-reports/admin-bug-reports.component';
 import { IntroComponent } from './utilities/intro/intro.component';
+import { PrivacyComponent } from './utilities/privacy/privacy.component';
+import { TermsComponent } from './utilities/terms/terms.component';
 
 const routes: Routes = [
     {path: '', component: IntroComponent},
@@ -43,7 +44,9 @@ const routes: Routes = [
         {path: 'users', component: AdminUsersComponent},
         {path: 'bugreports', component: AdminBugReportsComponent}
     ]},
-    {path: 'join', component: JoinComponent, canActivate: [AuthGuard, MemberGuard]}
+    {path: 'join', component: JoinComponent, canActivate: [AuthGuard, MemberGuard]},
+    {path: 'privacy', component: PrivacyComponent},
+    {path: 'terms', component: TermsComponent}
 ];
 
 @NgModule({
