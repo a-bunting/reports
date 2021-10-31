@@ -1,11 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { from, Observable, zip } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Observable, zip } from 'rxjs';
 import { User } from '../authentication/user.model';
 import { AuthenticationService } from '../authentication/authentication.service';
-import { Group } from 'src/app/classes/create-group/create-group.component';
+import { GroupsService, Group } from 'src/app/services/groups.service';
 import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
-import { GroupsService } from 'src/app/services/groups.service';
 import { map, take } from 'rxjs/operators';
 import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -64,7 +63,7 @@ export class DashboardComponent implements OnInit {
             this.reports = result[3].sort((a: ReportTemplate, b: ReportTemplate) => b.lastUpdated - a.lastUpdated).slice(0, 4);
             this.reportsLoading = false;
         }, error => {
-            console.log("Database Status Update Failed...");
+            console.log("Database Status Update Failed: " + error);
             this.databaseStatus = false;
             this.databaseStatusUpdating = false;
         })

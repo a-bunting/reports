@@ -1,11 +1,9 @@
-import { variable } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
 import { of, Observable } from 'rxjs';
-import { flatMap, map, take, tap } from 'rxjs/operators';
-import { ConsoleService } from '../admin/services/console.service';
-import { Student } from '../classes/create-group/create-group.component';
+import { map, take, tap } from 'rxjs/operators';
+import { GroupsService, Student } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
-import { Report, TestValues } from './reports.service';
+import { TestValues } from './reports.service';
 import { TemplateTest, Test, TestsService, TestVariable } from './tests.service';
 
 export interface sentence {
@@ -36,7 +34,7 @@ export class SentencesService {
     // these do NOT need to be an array, but in a slow start everything got coded this way and so thats how it is!...
     sentenceData: sentence[] = [];
 
-    constructor(private databaseService: DatabaseService, private testsService: TestsService) { }
+    constructor(private databaseService: DatabaseService, private testsService: TestsService, private groupService: GroupsService) { }
 
     /**
      * Gets the sentence data from memory or from the database and returns it as an observable...
@@ -559,19 +557,19 @@ export class SentencesService {
                         applicableTests.forEach((testTemp: TemplateTest) => {
                             // get the correct test from the test database...
                             let test: Test = this.testsService.getTest(testTemp.name);
-                            let newUserData: Student = {};
+                            let newUserData: Student = { id: userData.id, data: {} };
                             // get the data needed from the user...
                             let testVariables: TestVariable[] = test.variables;
                             testVariables.forEach((variable: TestVariable) => {
                                 // find each variable identifvier in the userdata...
-                                variable.identifier in userData ? newUserData[variable.identifier] = userData[variable.identifier] : newUserData[variable.identifier] = "";
+                                variable.identifier in userData ? newUserData.data[variable.identifier] = userData[variable.identifier] : newUserData.data[variable.identifier] = "";
                             })
                             // any settings may also needed and should be added to the array
                             // NOT SURE THIS WILL WORK...
                             let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.name);
                             
                             if("settings" in test) {
-                                newUserData['settings'] = tests[testIndex].settings.value;
+                                newUserData.data['settings'] = tests[testIndex].settings.value;
                             }
     
                             // submit the user data to the test to check if its truthy or falsey

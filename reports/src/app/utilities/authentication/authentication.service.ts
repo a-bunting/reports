@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import firebase from 'firebase/app';
-import { auth, signInWithGoogle, signUpWithGoogle } from 'firebase/firebase-auth';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
@@ -18,9 +17,16 @@ export interface AuthResponseData {
   providedIn: 'root'
 })
 
+/**
+ * NOTE TO SELF
+ * 
+ * This works, but I am not happy with the flow, and needs to be more robust perhaps.
+ */
+
 export class AuthenticationService {
 
     user = new BehaviorSubject<User>(null);
+    keepAlive: boolean = true; //for testing = true, but needs to persist somehow... localstorage settings?
 
     constructor(public firestore: AngularFirestore,
                 public fAuth: AngularFireAuth, 
@@ -34,7 +40,9 @@ export class AuthenticationService {
      * @param name 
      * @returns Observable
      */
-    signup(email: string, password: string, name: string): Observable<any> {
+    signup(email: string, password: string, name: string, stayLoggedIn: boolean = false): Observable<any> {
+
+        this.keepAlive = stayLoggedIn;
 
         const signUp = this.fAuth.createUserWithEmailAndPassword(email, password).then((result) => {
             // get the sentences template to copy for this user
@@ -83,7 +91,10 @@ export class AuthenticationService {
      * @param password 
      * @returns Observable
      */
-    login3(email: string, password: string): Observable<any> {
+    login3(email: string, password: string, stayLoggedIn: boolean = false): Observable<any> {
+
+        this.keepAlive = stayLoggedIn;
+
         const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
             
@@ -117,7 +128,8 @@ export class AuthenticationService {
         return from(signIn);
     }
     
-    GoogleAuth(): any {
+    GoogleAuth(stayLoggedIn: boolean = true): any {
+        this.keepAlive = stayLoggedIn;
         const googleAuth = new firebase.auth.GoogleAuthProvider();
         return this.AuthLogin(googleAuth);
     }
@@ -174,6 +186,10 @@ export class AuthenticationService {
       })) 
     }
 
+    /**
+     * Used to facilitate relogin after refresh.
+     * @returns 
+     */
     autoLogin() {
 
         const userData: {
@@ -212,7 +228,27 @@ export class AuthenticationService {
 
      autoLogout(expirationDuration: number) {
          this.logoutTimer = setTimeout(() => {
-             this.logout();
+             if(this.keepAlive) {
+                 // if keepalive is true then refresh the token and the userdata...
+                 firebase.auth().currentUser.getIdToken(true).then((result: string) => {
+                        const newUser: User = new User(
+                            this.user.value.email,
+                            this.user.value.id,
+                            this.user.value.name,
+                            this.user.value.establishment,
+                            this.user.value.admin,
+                            this.user.value.manager,
+                            this.user.value.member,
+                            this.user.value.autoUpdateDb,
+                            result, 
+                            new Date(new Date().getTime() + (3600 * 1000))
+                        );
+
+                        this.user.next(newUser);
+                 });
+             } else {
+                 this.logout();
+             }
          }, expirationDuration);
      }
 
@@ -235,6 +271,10 @@ export class AuthenticationService {
         // persistence using local storage
         localStorage.setItem('userData', JSON.stringify(user));
         this.router.navigate(['/dashboard']);
+    }
+
+    setKeepAlive(value: boolean): void {
+        this.keepAlive = value;
     }
 
   /**

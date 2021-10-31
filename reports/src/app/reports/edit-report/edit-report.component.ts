@@ -1,6 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { Group, Student } from 'src/app/classes/create-group/create-group.component';
-import { GroupsService } from 'src/app/services/groups.service';
+import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { TemplatesService, Template } from 'src/app/services/templates.service';
 import { GlobalValues, Report, ReportsService, ReportTemplate, TestIndividualValue, TestValues, VariableValues } from 'src/app/services/reports.service';
 import { from, observable, Observable, Subject, Subscription, zip } from 'rxjs';
@@ -555,7 +554,7 @@ export class EditReportComponent implements OnInit {
 
         // test all the values that were set for this, and if they are not in the new scheme, remove them...
         // this should come with a varning :D
-        this.report.reports.forEach((report: Student) => {
+        this.report.reports.forEach((report: Report) => {
             this.report.tests[testIndex].values.forEach((temp: TestIndividualValue) => {
                 // change to blank...
                 report['user'][temp.identifier] = "";
@@ -649,7 +648,7 @@ export class EditReportComponent implements OnInit {
             // set the values in the report
             // need unique id on students else reordering will break this
             // poor man solution for now.
-            this.report.reports.forEach((student: Student, index: number) => {
+            this.report.reports.forEach((student: Report, index: number) => {
                 student['user'][colName] = groupData.students[index][key]; 
             })
             // add the key back into the keys database...
@@ -657,13 +656,13 @@ export class EditReportComponent implements OnInit {
     }
 
     populateDataFromColumn(toCol: string, fromCol: string): void {
-        this.report.reports.forEach((student: Student, index: number) => {
+        this.report.reports.forEach((student: Report, index: number) => {
             student['user'][toCol] = student['user'][fromCol];
         })
     }
 
     populateDataFromTextOrOption(key: string, value: string): void {
-        this.report.reports.forEach((student: Student, index: number) => {
+        this.report.reports.forEach((student: Report, index: number) => {
             student['user'][key] = value;
         })
     }

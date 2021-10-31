@@ -1,11 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot, SnapshotOptions } from '@angular/fire/firestore';
-import { take } from 'rxjs/operators';
-import { GroupsService } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { DatabaseService } from '../../services/database.service';
-import { Group, Student } from '../create-group/create-group.component';
+import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 
 @Component({
   selector: 'app-edit-group',
@@ -58,6 +54,7 @@ export class EditGroupComponent implements OnInit {
     updatingData: boolean[] = [];
 
     updateGroup(groupIndex: number): void {
+
         let group: Group = { 
             name: this.groups[groupIndex].name, 
             keys: this.groups[groupIndex].keys, 
@@ -87,17 +84,30 @@ export class EditGroupComponent implements OnInit {
     }
 
     /**
+         * Returns the position of a user within their group.
+         * @param userId 
+         */
+    getIndexPositionById(userId: string, groupId: number): number {
+        const index: number = this.groups[groupId].students.findIndex((temp: Student) => temp.id === userId);
+        return index;
+    }
+
+    /**
      * Chnage a value for one of the users.
      * This does not impact any users already in a report...
      * @param index 
      * @param key 
      * @param input 
      */
-     userValueChange(groupIndex: number, index: number, key: string, input: FocusEvent | KeyboardEvent) {
+     userValueChange(groupId: number, studentId: string, key: string, input: FocusEvent | KeyboardEvent) {
         const reference: HTMLElement = <HTMLElement>input.target;
         const newValue = reference.innerText.split("\n");
-        this.updatedData[groupIndex] = true;
-        this.groups[groupIndex].students[index][key] = newValue[0];
+        const studentIndex: number = this.getIndexPositionById(studentId, groupId);
+
+        if(studentIndex !== -1) {
+            this.updatedData[groupId] = true;
+            this.groups[groupId].students[studentIndex].data[key] = newValue[0];
+        }
     }
 
     /**
@@ -106,12 +116,12 @@ export class EditGroupComponent implements OnInit {
      */
     addUser(groupIndex: number): void {
         // new user template
-        let newUserTemplate: Student = {};
+        let newUserTemplate: Student = { id: this.groupService.generateRandomId(), data: {} };
         this.updatedData[groupIndex] = true;
 
         // add the keys to the new user in the right order...
         this.groups[groupIndex].keys.forEach((key: string) => {
-            newUserTemplate[key] = "";
+            newUserTemplate.data[key] = "";
         })
 
         this.groups[groupIndex].students.push(newUserTemplate);
@@ -143,12 +153,12 @@ export class EditGroupComponent implements OnInit {
         this.updatedData[groupIndex] = true;
         
         // iterate over the data and build a new array
-        this.groups[groupIndex].students.forEach((row) => {
-            let newDataUser = {};
+        this.groups[groupIndex].students.forEach((row: Student) => {
+            let newDataUser: Student = { id: row.id, data: {}};
             // go through the array line by line changing the key values...
             this.groups[groupIndex].keys.forEach((key: string, i: number) => {
-                const newKey = { [newKeyArray[`${i}`]] : row[`${key}`] }
-                newDataUser = {...newDataUser, ...newKey};
+                const newKey = { [(''+newKeyArray[`${i}`]).trim()] : row.data[`${key}`] }
+                newDataUser.data = { ...newDataUser.data, ...newKey};
             })
 
             // add ot the new array
@@ -168,15 +178,18 @@ export class EditGroupComponent implements OnInit {
         this.groups[groupIndex].keys.push(colName);
         this.updatedData[groupIndex] = true;
 
-        // new data
-        let newData = [...this.groups];
-
         // iterate over and add to each of the userdata...
-        newData[groupIndex].students.forEach((row) => {
-            row[colName] = "";
+        this.groups[groupIndex].students.forEach((row: Student) => {
+            row.data[colName] = "";
         });
+        // let newData = [...this.groups];
 
-        this.groups = newData;
+        // // iterate over and add to each of the userdata...
+        // newData[groupIndex].students.forEach((row: Student) => {
+        //     row.data[colName] = "";
+        // });
+
+        // this.groups = newData;
 
         console.log(this.groups);
     }
@@ -192,7 +205,7 @@ export class EditGroupComponent implements OnInit {
         
         // and remove from each of the user data array
         this.groups[groupIndex].students.forEach(row => {
-            delete row[colName];
+            delete row.data[colName];
         });
         
         this.groups[groupIndex].keys.splice(index, 1);
@@ -264,6 +277,17 @@ export class EditGroupComponent implements OnInit {
      */
     returnZero(): number {
         return 0;
+    }
+
+    sortDataForDisplay(data: {}, groupId: number): {} {
+        let returnValue: {} = {};
+
+        // sort the data into the same order as the keys.,..
+        this.groups[groupId].keys.forEach((key: string) => {
+            const newKey: {} = { [''+key] : data[key] };
+            returnValue = {...returnValue, ...newKey};
+        })
+        return returnValue;
     }
 
 }

@@ -1,15 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
-import { GroupsService } from 'src/app/services/groups.service';
+import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
-
-export interface Group {
-    name: string, id? : string, keys: string[]; managers: string[], students: Student[]
-}
-
-export interface Student {
-}
 
 @Component({
   selector: 'app-create-group',
@@ -111,7 +104,7 @@ export class CreateGroupComponent implements OnInit {
         
         // if there is a header row build a list of the keys to use for this dataset
         if(this.headerRow) {
-            keys = data[0].split(",");
+            keys = data[0].split(",").map((a: string) => a.trim());
             data.splice(0, 1);
         } else {
             // create a set of keys which is just numbers...
@@ -127,19 +120,29 @@ export class CreateGroupComponent implements OnInit {
         
         data.forEach((row: string) => {
             let newUserData = row.split(",");
-            let user = {};
+            let user = { id: this.groupService.generateRandomId(), data: {} };
 
             // user a for loop to ensure even if a value is not defined it exists as a blank in the array
             for(let t = 0 ; t < keys.length ; t++) {
                 const keyName: string = keys[t];
-                const dataPoint = newUserData[t] ? newUserData[t] : "";
-                user = { ...user, [keyName] : dataPoint };
+                const dataPoint: string = newUserData[t] ? newUserData[t] : "";
+                user.data = { ...user.data, [keyName.trim()] : dataPoint.trim() };
             }
             // push to the newdata array
             newData.push(user);
         })
 
+        console.log(keys, newData);
         this.userData = newData;
+    }
+
+    /**
+     * Returns the position of a user within their group.
+     * @param userId 
+     */
+    getIndexPositionById(userId: string): number {
+        const index: number = this.userData.findIndex((temp: Student) => temp.id === userId);
+        return index;
     }
 
     /**
@@ -148,10 +151,11 @@ export class CreateGroupComponent implements OnInit {
      * @param key 
      * @param input 
      */
-    userValueChange(index: number, key: string, input: FocusEvent | KeyboardEvent) {
+    userValueChange(userId: string, key: string, input: FocusEvent | KeyboardEvent) {
         const reference: HTMLElement = <HTMLElement>input.target;
         const newValue = reference.innerText.split("\n");
-        this.userData[index][key] = newValue[0];
+        const userIndex: number = this.getIndexPositionById(userId);
+        this.userData[userIndex].data[key] = newValue[0];
         this.dataUpdated = false;
         this.dataChanged = true;
     }
@@ -160,10 +164,16 @@ export class CreateGroupComponent implements OnInit {
      * Remove a user
      * @param index 
      */
-    removeUser(index: number): void {
-        this.userData.splice(index, 1);
-        this.dataUpdated = false;
-        this.dataChanged = true;
+    removeUser(userId: string): void {
+        const userIndex: number = this.getIndexPositionById(userId);
+
+        if(userIndex !== -1) {
+            this.userData.splice(userIndex, 1);
+            this.dataUpdated = false;
+            this.dataChanged = true;
+        } else {
+            console.log("Error, user not found...");
+        }
     }
 
     /**
@@ -174,20 +184,20 @@ export class CreateGroupComponent implements OnInit {
      */
     columnValueChange(index: number, input: FocusEvent | KeyboardEvent) {
         const reference: HTMLElement = <HTMLElement>input.target;
-        const newKeyArray = [...this.keys];
-        const newValue = reference.innerText.split("\n");
+        const newKeyArray: string[] = [...this.keys];
+        const newValue: string[] = reference.innerText.split("\n");
 
         newKeyArray[index] = newValue[0];
         
-        let newData = [];
+        let newData: Student[] = [];
         
         // iterate over the data and build a new array
-        this.userData.forEach((row) => {
-            let newDataUser = {};
+        this.userData.forEach((row: Student) => {
+            let newDataUser: Student = { id: row.id, data: {} };
             // go through the array line by line changing the key values...
             this.keys.forEach((key: string, i: number) => {
-                const newKey = { [newKeyArray[`${i}`]] : row[`${key}`] }
-                newDataUser = {...newDataUser, ...newKey};
+                const newKey = { [(''+newKeyArray[`${i}`]).trim()] : row.data[`${key}`] }
+                newDataUser = { id: newDataUser.id, data: {...newDataUser.data, ...newKey}};
             })
 
             // add ot the new array
@@ -212,8 +222,8 @@ export class CreateGroupComponent implements OnInit {
         let newData = [...this.userData];
 
         // iterate over and add to each of the userdata...
-        newData.forEach((row) => {
-            row[colName] = "";
+        newData.forEach((row: Student) => {
+            row.data[colName] = "";
         });
 
         this.userData = newData;
@@ -230,8 +240,8 @@ export class CreateGroupComponent implements OnInit {
         const colName: string = this.keys[index];
         
         // and remove from each of the user data array
-        this.userData.forEach(row => {
-            delete row[colName];
+        this.userData.forEach((row: Student) => {
+            delete row.data[colName];
         });
 
         this.keys.splice(index, 1);
@@ -245,6 +255,18 @@ export class CreateGroupComponent implements OnInit {
      */
     returnZero(): number {
         return 0;
+    }
+
+    sortDataForDisplay(data: {}): {} {
+        let returnValue: {} = {};
+
+        // sort the data into the same order as the keys.,..
+        this.keys.forEach((key: string) => {
+            const newKey: {} = { [''+key] : data[key] };
+            returnValue = {...returnValue, ...newKey};
+        })
+
+        return returnValue;
     }
 
 }

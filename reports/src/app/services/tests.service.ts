@@ -1,6 +1,5 @@
-import { Expression } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { Student } from '../classes/create-group/create-group.component';
+import { Student } from 'src/app/services/groups.service';
 
 export interface Test {
     name: string; description: string; // explanation of the test - name preceded by 'Select a '...

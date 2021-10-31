@@ -62,9 +62,11 @@
             </thead>
             <tbody>
                 <tr class="create-group__data--row create-group__data--data" *ngFor="let row of userData; let i = index">
-                    <td class="create-group__data--cell" *ngFor="let user of row | keyvalue : returnZero" (blur)="userValueChange(i, user.key, $event)" (keyup.enter)="userValueChange(i, user.key, $event)" contenteditable="true">{{ user.value }}</td>
+                    <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero" (blur)="userValueChange(row.id, user.key, $event)" (keyup.enter)="userValueChange(row.id, user.key, $event)" contenteditable="true">
+                        {{ user.value }}
+                    </td>
                     <td class="create-group__data--cell">
-                        <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(i)">&#10006; <div class="tooltip">Delete this user</div></div>
+                        <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(row.id)">&#10006; <div class="tooltip">Delete this user</div></div>
                     </td> 
                 </tr>              
             </tbody>

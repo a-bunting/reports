@@ -1,15 +1,14 @@
-import { Injectable, OnChanges, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
-import { AngularFirestore, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { User } from '../utilities/authentication/user.model';
 import { sentence } from './sentences.service';
-import { Group, Student } from '../classes/create-group/create-group.component';
+import { Group } from 'src/app/services/groups.service';
 import { TemplateDB } from '../services/templates.service';
 import { ReportTemplate } from './reports.service';
-import { BugReport, BugreportComponent } from '../utilities/bugreport/bugreport.component';
-import { Timestamp } from 'rxjs/internal/operators/timestamp';
+import { BugReport } from '../utilities/bugreport/bugreport.component';
 
 @Injectable({
   providedIn: 'root'

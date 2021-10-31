@@ -2,8 +2,15 @@ import { Injectable } from '@angular/core';
 import { DocumentData, DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of, Subject } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
-import { Group, Student } from '../classes/create-group/create-group.component';
 import { DatabaseService } from './database.service';
+
+export interface Group {
+    name: string, id? : string, keys: string[]; managers: string[], students: Student[]
+}
+
+export interface Student {
+    id: string, data: {}
+}
 
 @Injectable({
   providedIn: 'root'
@@ -42,13 +49,13 @@ export class GroupsService {
     
                     // rearrange the student data to have the same order of keys as the newData.keys array
                     newData.students.forEach((student: Student) => {
-                        let newStudent: Student = {};
+                        let newStudent: Student = { id: student.id, data: {} };
                         // arrange the keys by the keys array
                         newData.keys.forEach((key: string) => {
-                            if(student[key]) {
-                                newStudent[key] = student[key];
+                            if(student.data[key]) {
+                                newStudent.data[key] = student.data[key];
                             } else {
-                                newStudent[key] = "";
+                                newStudent.data[key] = "";
                             }
                         })
                         // add the new student to the array
@@ -106,13 +113,12 @@ export class GroupsService {
      */
     updateGroup(group: Group, id: string): Observable<any> {
         // call the db
-        console.log(id, group);
         return this.db.modifyGroup(group, id).pipe(take(1), tap((res) => {
             // success...
             let index = this.groups.findIndex((grp: Group) => grp.id === id);
             // if found then update local storage
             if(index !== -1) {
-                this.groups[index] = group;
+                this.groups[index] = { id: id, ...group};
                 this.updateLocalStorage(this.groups);
             }
         }, error => {
@@ -163,5 +169,23 @@ export class GroupsService {
             console.log(`Error updating database: ${error}`);
             return false;
         }))
+    }
+
+    /**
+     * Generate a new random ID...
+     * DONE
+     * @returns 
+     */
+     generateRandomId(): string {
+        let newId: string = "";
+        // get the characterset, length of character set and intended length of random ID.
+        const characterset: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const numberOfCharacters: number = characterset.length;
+        const length: number = 5;   // 5 seems good, 62^5
+        // generate a random number
+        for(let i = 0; i < length; i++) {
+            newId += characterset.charAt(Math.floor(Math.random() * numberOfCharacters));
+        }
+        return newId;
     }
 }

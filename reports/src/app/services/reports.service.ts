@@ -2,10 +2,9 @@ import { Injectable } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
-import { Group, Student } from '../classes/create-group/create-group.component';
+import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
 import { User } from '../utilities/authentication/user.model';
-import { GroupsService } from './groups.service';
 import { sentence, SentencesService } from './sentences.service';
 import { Template, TemplatesService } from './templates.service';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './tests.service';
@@ -27,7 +26,7 @@ export interface FBReportTemplate {
 }
 
 export interface Report {
-    user: Student; template: Template; report: string; generated: number;
+    userId: string, user: Student; template: Template; report: string; generated: number;
 }
 
 export interface GlobalValues {
@@ -169,6 +168,7 @@ export class ReportsService {
         // parse each of the users into a new report for themselves - this lets us individualise each student
         group.students.forEach((student: Student) => {
             let newReport: Report = {
+                userId: student.id,
                 user: {...student}, 
                 template: {...template},
                 report: "",
