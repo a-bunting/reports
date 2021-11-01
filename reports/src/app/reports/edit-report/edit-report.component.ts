@@ -1,18 +1,15 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { GroupsService, Student, Group } from 'src/app/services/groups.service';
+import { GroupsService, Group, Student } from 'src/app/services/groups.service';
 import { TemplatesService, Template } from 'src/app/services/templates.service';
 import { GlobalValues, Report, ReportsService, ReportTemplate, TestIndividualValue, TestValues, VariableValues } from 'src/app/services/reports.service';
-import { from, observable, Observable, Subject, Subscription, zip } from 'rxjs';
+import { Observable, Subscription, zip } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
-import { Variable } from '@angular/compiler/src/render3/r3_ast';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from 'src/app/services/tests.service';
-import { JsonpClientBackend } from '@angular/common/http';
 import { DocumentReference } from '@angular/fire/firestore';
-import { group } from '@angular/animations';
 
 @Component({
   selector: 'app-edit-report',
@@ -157,23 +154,164 @@ export class EditReportComponent implements OnInit {
         return zip(loadGroups, loadTemplate, loadSentence);
     }
 
+
+    groupsSelected: string[] = [];
+
+    selectGroup(id: string, value: boolean): void {
+        // find if this is selected or not...
+        const groupIndex: number = this.groupsSelected.findIndex((temp: string) => temp === id);
+        // then do something appropriate with the data
+        if(groupIndex !== -1) {
+            if(value === false) { this.groupsSelected.splice(groupIndex, 1); }
+        } else {
+            if(value === true) { this.groupsSelected.push(id); }
+        }
+    }
+
+    loadGroupsFromSelection(): void {
+
+        // start by getting the groups from the database, as we need to do keys first then users...
+        let students: Student[] = [];
+        let keys: string[] = [];
+
+
+        // for each group in the selected array import those students into the system.
+        this.groupsSelected.forEach((groupId: string) => {
+            // get the group from the database....
+            this.groupService.getGroup(groupId).subscribe((data: Group) => {
+                // get the students
+                students = [...students, ...data.students];
+                // get the keys and remove duplicated
+                keys = [...keys, ...data.keys].filter((value: string, index: number, restOfArray: string[]) => restOfArray.indexOf(value) === index);
+            });
+        }); 
+
+        // add any new keys... assume keys with the same value are the same thing
+        keys.forEach((key: string) => {
+            if(!this.report.keys.includes(key)) {
+                this.report.keys.push(key);
+            }
+        })
+
+        // and add the students
+        students.forEach((student: Student) => {
+            // find if the student already existsw...
+            const studentIndex: number = this.report.reports.findIndex((report: Report) => report.user.id === student.id);
+            
+            // if not add them...
+            if(studentIndex === -1) {
+                // not found this studednt yet so its a new addition...
+                const newReport: Report = {
+                    userId: student.id, 
+                    user: student, 
+                    template: this.report.templateId ? this.templatesService.getTemplate(this.report.templateId) : undefined, 
+                    report: "", 
+                    generated: undefined
+                }
+                // checka all the keys have a value for this user and if not set it as blank...
+                this.report.keys.forEach((key: string) => {
+                    if(!(key in newReport.user.data)) {
+                        newReport.user.data[key] = "";
+                    }
+                })
+                // and add to the array....
+                this.report.reports.push(newReport);
+            } else {
+
+                let report: Report = this.report.reports[studentIndex];
+
+                keys.forEach((key: string) => {
+                    key in report.user.data ? report.user.data[key] += '/' + student.data[key] : report.user.data[key] = student.data[key];
+                })
+
+            }
+        })  
+
+
+
+        // // for each group in the selected array import those students into the system.
+        // this.groupsSelected.forEach((groupId: string) => {
+
+        //     // get the group from the database....
+        //     this.groupService.getGroup(groupId).subscribe((data: Group) => {
+
+        //         // add any new keys... assume keys with the same value are the same thing
+        //         data.keys.forEach((key: string) => {
+        //             if(!this.report.keys.includes(key)) {
+        //                 this.report.keys.push(key);
+        //             }
+        //         })
+
+        //         // and add the students
+        //         data.students.forEach((student: Student) => {
+        //             // find if the student already existsw...
+        //             const studentIndex: number = this.report.reports.findIndex((report: Report) => report.user.id === student.id);
+                    
+        //             // if not add them...
+        //             if(studentIndex === -1) {
+        //                 // not found this studednt yet so its a new addition...
+        //                 const newReport: Report = {
+        //                     userId: student.id, 
+        //                     user: student, 
+        //                     template: this.report.templateId ? this.templatesService.getTemplate(this.report.templateId) : undefined, 
+        //                     report: "", 
+        //                     generated: undefined
+        //                 }
+        //                 // checka ll the keys have a value for this user and if not set it as blank...
+        //                 this.report.keys.forEach((key: string) => {
+
+        //                     if(!(key in newReport.user.data)) {
+        //                         console.log(`Adding ${key} to ${newReport.user.id}`);
+        //                         newReport.user.data[key] = "";
+        //                     }
+
+        //                 })
+
+        //                 // and add to the array....
+        //                 this.report.reports.push(newReport);
+        //             } else {
+
+        //                 let report: Report = this.report.reports[studentIndex];
+
+        //                 data.keys.forEach((key: string) => {
+        //                     key in report.user.data ? report.user.data[key] += student.data[key] : report.user.data[key] = student.data[key];
+        //                 })
+
+        //             }
+        //         })
+        //     })
+        // })
+
+        console.log(this.report);
+
+        // and clear the textbox, and close the rmenu...
+        document.getElementsByName("selectGroups").forEach((checkBox: HTMLInputElement) => {
+            checkBox.checked = false;
+        })
+        // clear the array, students can be added again!!!
+        this.groupsSelected = [];
+    }
+
     /**
      * Load an individual groups data, why not source this through the group service?
+     * 
+     * DEPRECATED...
+     * 
      * @param groupId 
      */
-    loadGroup(groupId: string): void {
-        // get the index
-        let index: number = this.groups.findIndex((temp: Group) => temp.id === groupId);
-        // and load...
-        if(index !== -1) {
-            this.report.groupId = this.groups[index].id;
-            this.loadedGroup = this.groups[index].id;
-            this.groupKeys = [];
-            this.populateIndex = undefined;
-            this.parseCheck();
-        }
-        this.checkForChanges();
-    }
+    // loadGroup(groupId: string): void {
+    //     // get the index
+    //     let index: number = this.groups.findIndex((temp: Group) => temp.id === groupId);
+    //     // and load...
+    //     if(index !== -1) {
+    //         this.report.groupId = this.groups[index].id;
+    //         this.loadedGroup = this.groups[index].id;
+    //         this.groupKeys = [];
+    //         this.populateIndex = undefined;
+    //         this.parseCheck();
+    //     }
+    //     this.checkForChanges();
+    // }
 
     loadedTemplate: string;
     relatedTests: TemplateTest[] = [];
@@ -186,8 +324,9 @@ export class EditReportComponent implements OnInit {
             // set the report id
             this.report.templateId = this.templates[index].id;
             this.loadedTemplate = this.templates[index].id;
-            // check if we can make the report yet...
-            this.parseCheck();
+            // get the template and proces the variables required...
+            const template: Template = this.templatesService.getTemplate(this.templates[index].id);
+            this.processTemplate(template);
         }
         this.checkForChanges();
     }
@@ -228,11 +367,20 @@ export class EditReportComponent implements OnInit {
     /**
      * Check if all data is available to parse the group into a report
      */
-    parseCheck(): void {
-        if((this.loadedGroup !== undefined) && (this.loadedTemplate !== undefined)) {
-            this.report = this.reportsService.parseReport(this.loadedGroup, this.loadedTemplate, this.report.name, this.report.id, this.user);
-            this.loadedReport = JSON.parse(JSON.stringify(this.report)); // not pretty but acceptable for now...
-        }
+    processTemplate(template: Template): void {
+        // get the variables...
+        let variables: [GlobalValues[], VariableValues[]] = this.reportsService.generateVariables(template);
+        let tests: TestValues[] = this.reportsService.generateTests(template);
+        // set the variables related to the template...
+        this.report.globals = variables[0];
+        this.report.variables = variables[1];
+        this.report.tests = tests;
+        
+        // deprecated...
+        // if((this.loadedGroup !== undefined) && (this.loadedTemplate !== undefined)) {
+        //     this.report = this.reportsService.parseReport(this.loadedGroup, this.loadedTemplate, this.report.name, this.report.id, this.user);
+        //     this.loadedReport = JSON.parse(JSON.stringify(this.report)); // not pretty but acceptable for now...
+        // }
     }
 
     //DEALING WITH VARIABLES
@@ -294,7 +442,7 @@ export class EditReportComponent implements OnInit {
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
             this.report.reports.forEach((user: Report) => {
-                user.user[toIdentifier] = "";
+                user.user.data[toIdentifier] = "";
             })
             this.report.keys.push(toIdentifier);
             this.addedColumns.push(toIdentifier);
@@ -310,6 +458,7 @@ export class EditReportComponent implements OnInit {
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
             
+            // why is this randomyl here??? :S
             let newVar: VariableValues = { identifier: assignIdentifier, key: toIdentifier, value: "", options: ['m','f','p'] };
             this.report.variables.push(newVar);
         }
@@ -330,7 +479,7 @@ export class EditReportComponent implements OnInit {
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
             this.report.reports.forEach((user: Report) => {
-                user.user[toIdentifier] = "";
+                user.user.data[toIdentifier] = "";
             })
             this.report.keys.push(toIdentifier);
             this.addedColumns.push(toIdentifier);
@@ -427,12 +576,12 @@ export class EditReportComponent implements OnInit {
         const newValue = reference.innerText.split("\n");
         input.preventDefault();
 
-        this.report.reports[reportId].user[key] = newValue[0];
+        this.report.reports[reportId].user.data[key] = newValue[0];
         this.checkForChanges();
     }
 
     valueChange2(reportId: number, key: string, input: string): void {
-        this.report.reports[reportId].user[key] = input;
+        this.report.reports[reportId].user.data[key] = input;
         this.checkForChanges();
     }
 
@@ -503,7 +652,7 @@ export class EditReportComponent implements OnInit {
             this.report.keys.splice(findIndex, 1);
             // remove from the users as well...
             this.report.reports.forEach((user: Report) => {
-                delete user.user[key];
+                delete user.user.data[key];
             })
             // AND remove any variables which are added to it...
             this.report.variables.every((temp: VariableValues) => {
@@ -557,7 +706,7 @@ export class EditReportComponent implements OnInit {
         this.report.reports.forEach((report: Report) => {
             this.report.tests[testIndex].values.forEach((temp: TestIndividualValue) => {
                 // change to blank...
-                report['user'][temp.identifier] = "";
+                report['user'].data[temp.identifier] = "";
             })
         })
     }
@@ -649,7 +798,7 @@ export class EditReportComponent implements OnInit {
             // need unique id on students else reordering will break this
             // poor man solution for now.
             this.report.reports.forEach((student: Report, index: number) => {
-                student['user'][colName] = groupData.students[index][key]; 
+                student['user'].data[colName] = groupData.students[index].data[key]; 
             })
             // add the key back into the keys database...
         })
@@ -657,13 +806,13 @@ export class EditReportComponent implements OnInit {
 
     populateDataFromColumn(toCol: string, fromCol: string): void {
         this.report.reports.forEach((student: Report, index: number) => {
-            student['user'][toCol] = student['user'][fromCol];
+            student['user'].data[toCol] = student['user'].data[fromCol];
         })
     }
 
     populateDataFromTextOrOption(key: string, value: string): void {
         this.report.reports.forEach((student: Report, index: number) => {
-            student['user'][key] = value;
+            student['user'].data[key] = value;
         })
     }
 
@@ -742,16 +891,16 @@ export class EditReportComponent implements OnInit {
         let reportFound: boolean = this.report.keys.includes("Saved Report");
     
         if(reportFound) {
-            this.report.reports[reportId].user['Saved Report'] = this.report.reports[reportId].report;
+            this.report.reports[reportId].user.data['Saved Report'] = this.report.reports[reportId].report;
         } else {
             // add the column and the key for each user.
             this.report.reports.forEach((user: Report) => {
-                user.user['Saved Report'] = "";
+                user.user.data['Saved Report'] = "";
             })
             this.report.keys.push('Saved Report');
             this.addedColumns.push('Saved Report');
             // then add to it for this user.
-            this.report.reports[reportId].user['Saved Report'] = this.report.reports[reportId].report;
+            this.report.reports[reportId].user.data['Saved Report'] = this.report.reports[reportId].report;
         }
     }
 
@@ -783,8 +932,8 @@ export class EditReportComponent implements OnInit {
      */
     sortColumn(key: string): void {
         this.report.reports.sort((a: Report, b: Report) => {
-            let keyA: string = a.user[key];
-            let keyB: string = b.user[key];
+            let keyA: string = a.user.data[key];
+            let keyB: string = b.user.data[key];
             return keyA > keyB ? 1 * this.sortDirection : keyA === keyB ? 0 : -1 * this.sortDirection;
         });
         // reverse the sort for the next iteration.
