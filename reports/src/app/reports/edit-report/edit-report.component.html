@@ -13,7 +13,7 @@
                     <input type="text" name="reportsname" id="reportsname" [(ngModel)]="report.name" class="reports__input reports__input--text">
                 </div>
             </div>
-            <div class="reports__settings--setting">
+            <!-- <div class="reports__settings--setting">
                 <div class="reports__settings--text">Class</div>
                 <div class="reports__settings--input">
                     <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select"  (change)="loadGroup($event.target.value)" [disabled]="report.groupId !== ''">
@@ -21,7 +21,7 @@
                         <option value="{{ grp.id }}" *ngFor="let grp of groups; let i = index" [selected]="report.groupId === grp.id">{{grp.name}}</option>
                     </select>
                 </div>
-            </div>
+            </div> -->
             <div class="reports__settings--setting">
                 <div class="reports__settings--text">Template</div>
                 <div class="reports__settings--input">
@@ -31,6 +31,32 @@
                     </select>
                 </div>
             </div>
+
+            <div class="reports__settings--setting">
+
+
+                    <div class="multi-select-dropdown">
+
+                        <input type="checkbox" name="selectGroups" id="openMenuAddClass">
+
+                        <label for="openMenuAddClass" class="multi-select-dropdown__selector">
+                            <div class="multi-select-dropdown__selector--text">Add Students...</div>
+                            <div class="multi-select-dropdown__selector--arrow">&#10148;</div>
+                        </label>
+
+                        <div class="multi-select-dropdown__element">
+                            <div class="multi-select-dropdown__option" *ngFor="let grp of groups; let i = index">
+                                <input name="selectGroups" type="checkbox" id="groupToAdd--{{ grp.id }}" (change)="selectGroup(grp.id, $event.target.checked)">
+                                <label for="groupToAdd--{{ grp.id }}">{{ grp.name }}</label>
+                            </div>
+                            <div class="multi-select-dropdown__option">
+                                <button class="input__button" (click)="loadGroupsFromSelection()" [disabled]="groupsSelected.length === 0">Add</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
         </div>
 
         <div class="reports__database-buttons">
@@ -139,7 +165,7 @@
 
 <div class="reports__data">
     <!-- Data table -->
-    <table class="reports__data--table" *ngIf="loadedGroup !== undefined">
+    <table class="reports__data--table" *ngIf="report.reports.length > 0">
         <thead>
             <tr class="reports__data--row reports__data--header">
 
@@ -242,20 +268,20 @@
                         <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
                         <ng-template #optionsBlock>
                                 <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)">
-                                    <option disabled [selected]="individual.user[key] === '' || individual.user[key] === undefined"></option>
-                                    <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user[key]">{{ option }}</option>
+                                    <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
+                                    <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
                                 </select>
                         </ng-template>
                         <ng-template #typeBlock>
 
-                            <div *ngIf="individual.user[key].length < 20; then inputSingle else inputArea"></div>
+                            <div *ngIf="individual.user.data[key].length < 20; then inputSingle else inputArea"></div>
                             
                             <ng-template #inputSingle>
-                                <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user[key] }}">
+                                <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}">
                             </ng-template>
 
                             <ng-template #inputArea>
-                                <textarea class="reports__input reports__input--textarea reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">{{ individual.user[key] }}</textarea>
+                                <textarea class="reports__input reports__input--textarea reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">{{ individual.user.data[key] }}</textarea>
                             </ng-template>
                             
                         </ng-template>

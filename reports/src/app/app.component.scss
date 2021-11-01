@@ -15,12 +15,13 @@
     // The main menu and its items.
     &__menu {
 
-        font-size: 2rem;
+        font-size: 1.6rem;
         padding-left: 5rem;
         display: flex;
 
         &--item {
-            width: 12rem;
+            width: 10rem;
+            position: relative;
 
             background-color: var(--color-style-main);
             padding: 0 2rem 1.4rem 2rem;
@@ -30,10 +31,30 @@
             color: var(--color-style-dark);
             border-radius: 0 0 1rem 1rem;
             transform: translateY(-1rem);
-
             text-decoration: none;
-
             transition: all .2s;
+            overflow: hidden;
+
+            img { 
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -37%);
+                width: 3rem;
+                height: 3rem;
+                
+            }
+            
+            img, span { transition: all .3s .2s; }
+
+            span { 
+                position: absolute;
+                top: 50%;
+                left: -50%;
+                transform: translate(-50%, -50%);
+                width: 100%;
+                text-align: center; 
+            }
 
             &:hover {
                 background-color: var(--color-style-juxtapose);
@@ -41,14 +62,31 @@
                 cursor: pointer;
                 transform: translateY(0);
                 box-shadow: 0 .3rem .6rem rgba(black, .5);
+
+                span {
+                    left: 50%;
+                }
+                
+                img {
+                    left: 150%;
+                }
             }
 
             &:not(:last-child) {
                 margin-right: .5rem;
             }
 
-            &:last-child {
+            &:nth-of-type(6) {
                 margin-left: 2rem;
+            }
+
+            &:nth-of-type(n+6) {
+                background-color: var(--color-style-dark);
+                color: white;
+
+                img {
+                    filter: invert(100%);
+                }
             }
         }
     }

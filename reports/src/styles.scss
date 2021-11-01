@@ -93,6 +93,10 @@ body {
     border: 2px solid var(--color-style-light);
     background-color: var(--color-style-juxtapose) !important;
     color: var(--color-style-light) !important;
+    
+    &__menu {
+        border-top: none;
+    }
 }
 
 .divider-line {
@@ -189,6 +193,23 @@ body {
                 border: .2rem solid white;
             }
         }
+    }
+}
+
+.input__button {
+    padding: .5rem 1rem;
+    font-size: 1.4rem;
+    background-color: var(--color-style-main);
+    box-shadow: 0 .2rem .4rem rgba(black, .4);
+    transition: all .2s;
+    border-radius: 1rem;
+
+    &:hover {
+        cursor: pointer;
+        color: white;
+        transform: translateY(-.3rem);
+        background-color: var(--color-style-juxtapose);
+        box-shadow: 0 .4rem .8rem rgba(black, .7);
     }
 }
 

@@ -4,14 +4,46 @@
         
         <nav class="header__menu" *ngIf="user">
             <!-- <a class="header__menu--item" *ngIf="!isAuthenticated" routerLinkActive="link-active" routerLink="auth/">Login</a> -->
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="dashboard/">Dashboard</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="dashboard/">
+                <img src="../assets/icons/home.svg" alt="Dashboard">
+                <span>Dashboard</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="sentences/">
+                <img src="../assets/icons/database.svg" alt="Sentences Database">
+                <span>Database</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="classes/">
+                <img src="../assets/icons/users.svg" alt="Groups">
+                <span>Groups</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="templates/">
+                <img src="../assets/icons/insert-template.svg" alt="Templates">
+                <span>Templates</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="reports/">
+                <img src="../assets/icons/file-text2.svg" alt="Reports">
+                <span>Reports</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="join/">
+                <img src="../assets/icons/user-plus.svg" alt="Go Pro">
+                <span>Go Pro</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="admin/">
+                <img src="../assets/icons/user-tie.svg" alt="Admin Area">
+                <span>Admin</span>
+            </a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">
+                <img src="../assets/icons/exit.svg" alt="Logout">
+                <span>Logout</span>
+            </a>
+            <!-- <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="dashboard/">Dashboard</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="sentences/">Database</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="classes/">Classes</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="templates/">Templates</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="reports/">Reports</a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="join/">Go Pro</a>
             <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active" routerLink="admin/">Admin</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a>
+            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a> -->
         </nav>
 
         <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">

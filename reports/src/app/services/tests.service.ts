@@ -101,8 +101,8 @@ export class TestsService {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData['settings'].name);
                 // find the user grades...
-                let newGrade: string = userData['curGrade'];
-                let oldGrade: string = userData['oldGrade'];
+                let newGrade: string = userData.data['curGrade'];
+                let oldGrade: string = userData.data['oldGrade'];
                 // this is untested...
                 let newGradeValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
                 let oldGradeValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
@@ -199,11 +199,11 @@ export class TestsService {
             ], 
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
-                let gradingSystem: TestOptions = this.findGradingSystemByName(userData['settings'].name);
+                let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
                 let numberOfGradeEntries: number = Object.keys(gradingSystem).length;
                 // get the value of the user within the grade scale and find the user grades...
                 let levelValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
-                let level: string = userData['curSkillLevel'];
+                let level: string = userData.data['curSkillLevel'];
                 let positionInScale: number = levelValueArray.indexOf(level);
                 // get the values...
                 // the difference in indices is simply the difference in grade
@@ -270,11 +270,11 @@ export class TestsService {
             ], 
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
-                let gradingSystem: TestOptions = this.findGradingSystemByName(userData['settings'].name);
+                let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
                 let numberOfGradeEntries: number = Object.keys(gradingSystem).length;
                 // get the value of the user within the grade scale and find the user grades...
                 let levelValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
-                let level: string = userData['curGrade'];
+                let level: string = userData.data['curGrade'];
                 let positionInScale: number = levelValueArray.indexOf(level);
                 // get the values...
                 // the difference in indices is simply the difference in grade
@@ -317,7 +317,7 @@ export class TestsService {
                 { name: "Where are they going?", identifier: "nextSteps", description: "What are the students doing next semester with respect to this school or course?"}
             ], 
             calculateValueFunction: (userData: Student): string => {
-                return userData['nextSteps'];
+                return userData.data['nextSteps'];
             },
             testFunction: function(valueToTest: string, testString: string): boolean {
                 // simply a comparison between the user value and the test value
@@ -341,7 +341,7 @@ export class TestsService {
                 { name: "Effort Level", identifier: "effortLevel", description: "How much effort would you say the student puts into their work?"}
             ], 
             calculateValueFunction: (userData: Student): string => {
-                return userData['effortLevel'];
+                return userData.data['effortLevel'];
             },
             testFunction: function(valueToTest: string, testString: string): boolean {
                 let effortLevels: string[] = ["No effort", "Very little effort", "Acceptable effort", "Good effort", "High level of effort"];
@@ -394,35 +394,3 @@ export class TestsService {
     }
 
 }
-
-
-
-
-
-
-    // old tests list - too basic...
-    // public testsList: Test[] = [
-    //     {
-    //         name: 'gradeChange', 
-    //         variables: ['oldGrade', 'newGrade'],
-    //         test: {name: "grdDiff", description: "The difference between their old grade and their new grade in sublevels (A to A+ is +1, A to A- is -1). Can use > or < or = to qualify.", type: "string"},
-    //         function: (oldGrade: number, recentGrade: number): number => {
-    //             return recentGrade - oldGrade;
-    //         }
-    //     }, 
-    //     {
-    //         name: 'improvement', 
-    //         variables: ['improvement'],
-    //         test: {name: "improvementFactor", description: "On a scale of 1 to 4 how much have their improved (4 is a lot, 1 is not at all)", type: "number", options: ["1", "2", "3", "4"]},
-    //         function: (value: number): number => {
-    //             return value;
-    //         }
-    //     }
-    // ]
-
-    // export interface OldDeprecatedTest {
-    //     name: string; 
-    //     variables: string[];
-    //     test: {name: string, description: string, type: string, options?: string[]}; 
-    //     function: Function
-    // }

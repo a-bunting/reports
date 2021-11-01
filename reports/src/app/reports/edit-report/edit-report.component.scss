@@ -411,161 +411,6 @@
         }
     }
 
-
-
-    // &__global-variables {
-    //     display: flex;
-    //     align-items: baseline;
-    //     margin: .5rem 2rem;
-    //     font-size: 1.4rem;
-    // }
-
-    // &__global-variable {
-        
-    //     display: flex;
-    //     align-items: baseline;
-    //     padding: .5rem 1rem;
-    //     background-color: var(--color-style-juxtapose);
-    //     border-radius: 1rem;
-
-    //     &:not(:first-of-type) {
-    //         margin-left: 1rem;
-    //     }
-
-    //     input {
-    //         border-radius: .5rem;
-    //         padding: .5rem 1rem;
-    //     }
-
-    //     select {
-    //         border-radius: .5rem;
-    //         padding: .5rem 1rem;
-    //     }
-
-    //     input, select {
-    //         margin-left: 2rem;
-    //     }
-    // }
-
-    // &__variables {
-    //     display: flex;
-    //     align-items: baseline;
-    //     flex-wrap: wrap;
-    //     margin: .5rem 2rem;
-    //     font-size: 1.4rem;
-
-    //     &--text {
-    //         font-weight: bold;
-    //         margin-right: 2rem;
-    //         width: 12rem;
-    //     }
-    // }
-    
-    // &__test-variables {
-    //     display: flex;
-    //     align-items: baseline;
-    //     margin: .5rem 2rem;
-    //     font-size: 1.4rem;
-
-    //     &--text {
-    //         font-weight: bold;
-    //         margin-right: 2rem;
-    //         width: 12rem;
-    //     }
-    // }
-
-    // &__variable {
-        
-    //     display: flex;
-    //     align-items: baseline;
-    //     padding: .5rem 1rem;
-    //     background-color: var(--color-style-main);
-    //     border-radius: 1rem;
-    //     border: 2px solid transparent;
-    //     transition: all .2s;
-
-    //     &--text {
-    //         margin-right: 1rem;
-    //     }
-
-    //     &:not(:first-of-type) {
-    //         margin-left: 1rem;
-    //     }
-
-    //     &:hover {
-    //         background-color: var(--color-style-juxtapose);
-    //         border: 2px solid white;
-    //         color: white;
-    //     }
-
-    //     select {
-    //         border-radius: .5rem;
-    //         padding: .5rem 1rem;
-    //         margin-left: 1rem;
-    //     }
-
-    //     &--button {
-    //         padding: .5rem;
-    //         margin-left: 1rem;
-    //         border-radius: .3rem;
-    //         background-color: var(--color-style-juxtapose);
-    //         text-align: center;
-    //         font-size: 1.2rem;
-    //         transition: all .2s;
-
-    //         &:hover {
-    //             background-color: var(--color-style-main);
-    //             cursor: pointer;
-    //             color: black;
-    //         }
-    //     }
-
-    //     &-properties {
-    //         display: flex;
-    //         flex-direction: column;
-
-    //         margin-right: .5rem;
-    //         border-right: 1px dashed rgba(150, 150, 150, 0.7);
-    //         padding-right: .5rem;
-
-    //         &--name {
-    //             font-weight: bold;
-    //         }
-
-    //         &--options {
-    //             margin-top: .5rem;
-
-    //             select {
-    //                 margin-left: 0;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // &__sub-variable {
-    //     display: flex;
-    //     flex-direction: column;
-    //     justify-content: baseline;
-
-    //     &:first-of-type {
-    //         margin-left: 2rem;
-    //     }
-
-    //     &:not(:last-of-type) {
-    //         margin-right: .5rem;
-    //     }
-
-    //     &--text {
-    //         margin-bottom: .5rem;
-    //         font-weight: bold;
-    //         text-align: center;
-    //     }
-
-    //     select {
-    //         margin-left: 0rem;
-    //     }
-    // }
-
     &__key-variable-link {
 
         display: flex;
@@ -625,4 +470,104 @@
     padding: .5rem 1rem; 
     margin: -.5rem -1rem; 
     width: 100%;
+}
+
+
+
+
+.multi-select-dropdown {
+    position: relative;
+    width: 20rem;
+
+    input { 
+        display: none;
+        transition: all .2s;
+        
+        &:checked {
+            & ~ .multi-select-dropdown__element {
+                display: block;
+                z-index: 50000;
+            }
+
+            & + .multi-select-dropdown__selector {
+                border-radius: 1rem 2rem 0 0;
+            }
+
+            & + .multi-select-dropdown__selector > .multi-select-dropdown__selector--arrow {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+
+    &__selector {
+        display: flex;
+        justify-content: right;
+        padding: .7rem 2rem;
+        background-color: white;
+        border-radius: 1rem 2rem;
+        box-shadow: 0 .2rem .4rem rgba(black, .4);
+        
+        &--text {
+            flex: 1;
+            font-size: 1.4rem;
+        }
+        
+        &--arrow {
+            transform: rotate(90deg);
+            transform-origin: center;
+            text-align: center;
+        }
+        
+        &:hover {
+            cursor: pointer;
+            box-shadow: 0 .3rem .6rem rgba(black, .6);
+        }
+    }
+    
+    &__element {
+        display: none;
+        max-height: 0;
+        transition: all .2s;
+    }
+    
+    &__option {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 20rem;
+        background-color: white;
+        padding: 1rem 2rem;
+        border: .1rem solid rgba(black, .1);
+
+        input[type="checkbox"] { 
+            display: block;
+            justify-self: flex-start;
+            transform: translateX(-.7rem);
+        }
+
+        button {
+            justify-self: flex-end;
+            align-self: flex-end;
+            width: 100%;
+        }
+        
+        label {
+            flex: 1;
+            font-size: 1.4rem;
+            justify-self: flex-end;
+            text-align: right;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        &:last-of-type {
+            border-radius: 0 0 1rem 2rem;
+        }
+
+        &:hover {
+            filter: brightness(1.1);
+        }
+    }
 }

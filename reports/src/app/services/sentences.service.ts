@@ -550,36 +550,42 @@ export class SentencesService {
                     let allTrue: boolean = true;
                     // check if there are any tests applicable on this data
                     
-                    if("tests" in data[routeIndex]) {
-                        // check if the user passes the tests...
-                        let applicableTests: TemplateTest[] = data[routeIndex].tests;
-                        // looop over all tests
-                        applicableTests.forEach((testTemp: TemplateTest) => {
-                            // get the correct test from the test database...
-                            let test: Test = this.testsService.getTest(testTemp.name);
-                            let newUserData: Student = { id: userData.id, data: {} };
-                            // get the data needed from the user...
-                            let testVariables: TestVariable[] = test.variables;
-                            testVariables.forEach((variable: TestVariable) => {
-                                // find each variable identifvier in the userdata...
-                                variable.identifier in userData ? newUserData.data[variable.identifier] = userData[variable.identifier] : newUserData.data[variable.identifier] = "";
-                            })
-                            // any settings may also needed and should be added to the array
-                            // NOT SURE THIS WILL WORK...
-                            let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.name);
-                            
-                            if("settings" in test) {
-                                newUserData.data['settings'] = tests[testIndex].settings.value;
-                            }
+                    // check first that the route still existts - if the template has changed the id may have disappeared.
+                    // Poor system ready for renewal before its evenb launched :)
+                    if(routeIndex !== -1) {
+                        if("tests" in data[routeIndex]) {
+                            // check if the user passes the tests...
+                            let applicableTests: TemplateTest[] = data[routeIndex].tests;
+                            // looop over all tests
+                            applicableTests.forEach((testTemp: TemplateTest) => {
+                                // get the correct test from the test database...
+                                let test: Test = this.testsService.getTest(testTemp.name);
+                                let newUserData: Student = { id: userData.id, data: {} };
+                                // get the data needed from the user...
+                                let testVariables: TestVariable[] = test.variables;
+                                testVariables.forEach((variable: TestVariable) => {
+                                    // find each variable identifvier in the userdata...
+                                    // STUDENT OBJECT CHANGE TEST PHRASE
     
-                            // submit the user data to the test to check if its truthy or falsey
-                            let testValue = test.calculateValueFunction(newUserData);
-                            let result: boolean = test.testFunction(testValue, testTemp.values.value);
-                            // push the result onto the array...
-                            testResults.push(result);
-                        })
-                        // this returns true if all tests are true. If any test is false, then eliminate this from the game!!
-                        allTrue = testResults.some((x: boolean) => x);
+                                    variable.identifier in userData.data ? newUserData.data[variable.identifier] = userData[variable.identifier] : newUserData.data[variable.identifier] = "";
+                                })
+                                // any settings may also needed and should be added to the array
+                                // NOT SURE THIS WILL WORK...
+                                let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.name);
+                                
+                                if("settings" in test) {
+                                    newUserData.data['settings'] = tests[testIndex].settings.value;
+                                }
+        
+                                // submit the user data to the test to check if its truthy or falsey
+                                let testValue = test.calculateValueFunction(newUserData);
+                                let result: boolean = test.testFunction(testValue, testTemp.values.value);
+                                // push the result onto the array...
+                                testResults.push(result);
+                            })
+                            // this returns true if all tests are true. If any test is false, then eliminate this from the game!!
+                            allTrue = testResults.some((x: boolean) => x);
+                        }
                     }
                     // END OF TESTS AGAINST USER DATA
     
@@ -647,10 +653,13 @@ export class SentencesService {
         let sentenceIndex: number = data.findIndex((temp: sentence) => temp.id === routeId);
         // get the sentence text array...
         let sentences: string[];
-        // if there are sentences attached to this then push them to the return value
-        if("sentence" in data[sentenceIndex]) {
-            // if there are sentences then return them.
-            sentences = data[sentenceIndex].sentence;
+        // check the sentence exists...
+        if(sentenceIndex !== -1) {
+            // if there are sentences attached to this then push them to the return value
+            if("sentence" in data[sentenceIndex]) {
+                // if there are sentences then return them.
+                sentences = data[sentenceIndex].sentence;
+            }
         }
         return sentences;
     }

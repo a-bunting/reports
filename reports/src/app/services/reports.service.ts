@@ -146,54 +146,57 @@ export class ReportsService {
 
     /**
      * Takes a group and a template and parses it into a reports template.
-     * @param group 
+    
+        DEPRECATED - Moved to the onChnage for the template in the edit-report.ts
+    
+    * @param group 
      * @param template 
      * @returns ReportTemplate
      */
-     parseReport(groupId: string, templateId: string, reportName: string, repotId: string, user: User): ReportTemplate {
-        // set the individual components - not needed verbose but for clarity in design phase
-        let template: Template = this.templateService.getTemplate(templateId);
-        let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
-        let tests: TestValues[] = this.generateTests(template);
-        let individualReports: Report[] = [];
-        let reportsName: string = reportName;
-        let manager: string = user.id;
-        let reportId: string = repotId;
+    //  parseReport(groupId: string, templateId: string, reportName: string, repotId: string, user: User): ReportTemplate {
+    //     // set the individual components - not needed verbose but for clarity in design phase
+    //     let template: Template = this.templateService.getTemplate(templateId);
+    //     let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
+    //     let tests: TestValues[] = this.generateTests(template);
+    //     let individualReports: Report[] = [];
+    //     let reportsName: string = reportName;
+    //     let manager: string = user.id;
+    //     let reportId: string = repotId;
         
-        let group: Group;
-        this.groupsService.getGroup(groupId).subscribe((grp: Group) => { group = grp; });
+    //     let group: Group;
+    //     this.groupsService.getGroup(groupId).subscribe((grp: Group) => { group = grp; });
 
-        let keys: string[] = group.keys;
+    //     let keys: string[] = group.keys;
 
-        // parse each of the users into a new report for themselves - this lets us individualise each student
-        group.students.forEach((student: Student) => {
-            let newReport: Report = {
-                userId: student.id,
-                user: {...student}, 
-                template: {...template},
-                report: "",
-                generated: Date.now()
-            }
-            // and push to the main reports
-            individualReports.push(newReport);
-        })
+    //     // parse each of the users into a new report for themselves - this lets us individualise each student
+    //     group.students.forEach((student: Student) => {
+    //         let newReport: Report = {
+    //             userId: student.id,
+    //             user: {...student}, 
+    //             template: {...template},
+    //             report: "",
+    //             generated: Date.now()
+    //         }
+    //         // and push to the main reports
+    //         individualReports.push(newReport);
+    //     })
 
-        // and build the report itself...
-        let report: ReportTemplate = {
-            id: reportId, 
-            groupId: group.id, 
-            templateId: template.id,
-            name: reportsName, 
-            manager: manager, 
-            globals: variables[0],
-            variables: variables[1],
-            tests: tests,
-            keys: keys,
-            reports: individualReports,
-            lastUpdated: Date.now()
-        };
-        return report;
-    }
+    //     // and build the report itself...
+    //     let report: ReportTemplate = {
+    //         id: reportId, 
+    //         groupId: group.id, 
+    //         templateId: template.id,
+    //         name: reportsName, 
+    //         manager: manager, 
+    //         globals: variables[0],
+    //         variables: variables[1],
+    //         tests: tests,
+    //         keys: keys,
+    //         reports: individualReports,
+    //         lastUpdated: Date.now()
+    //     };
+    //     return report;
+    // }
 
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
@@ -654,7 +657,7 @@ export class ReportsService {
         let gender: "m"|"f"|"p" = "p";
         // if it exists then reassign else leave it as p (plural!)
         if(genderIndex !== -1) {
-            gender = report.user[variables[genderIndex].key];
+            gender = report.user.data[variables[genderIndex].key];
         }
 
         // first we need a sentence structure generated for this template.
@@ -671,7 +674,7 @@ export class ReportsService {
 
         // now sub in values
         globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
-        variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user[variable.key]); })
+        variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
 
         // return selected sentence
         return this.substitutions(reportUnSubstituted, gender);
