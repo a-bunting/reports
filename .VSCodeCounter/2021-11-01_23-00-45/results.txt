@@ -1,0 +1,127 @@
+Date : 2021-11-01 23:00:45
+Directory : d:\GIT\reports\reports\src\app
+Total : 77 files,  9101 codes, 1955 comments, 2061 blanks, all 13117 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |         36 |      4,575 |      1,853 |      1,033 |      7,461 |
+| SCSS       |         21 |      3,283 |         47 |        711 |      4,041 |
+| HTML       |         20 |      1,243 |         55 |        317 |      1,615 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                    | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                       |         77 |      9,101 |      1,955 |      2,061 |     13,117 |
+| admin                                                                                   |         13 |      1,412 |        189 |        300 |      1,901 |
+| admin\admin-bug-reports                                                                 |          3 |        289 |         30 |         73 |        392 |
+| admin\sentences                                                                         |          3 |        807 |        127 |        160 |      1,094 |
+| admin\services                                                                          |          1 |         15 |          0 |          6 |         21 |
+| admin\users                                                                             |          3 |        270 |         32 |         52 |        354 |
+| classes                                                                                 |          9 |        962 |        138 |        223 |      1,323 |
+| classes\create-group                                                                    |          3 |        485 |         61 |        105 |        651 |
+| classes\edit-group                                                                      |          3 |        457 |         77 |        108 |        642 |
+| reports                                                                                 |          6 |      1,346 |        336 |        288 |      1,970 |
+| reports\edit-report                                                                     |          3 |      1,208 |        320 |        262 |      1,790 |
+| sentences                                                                               |          3 |        832 |        124 |        162 |      1,118 |
+| services                                                                                |          6 |      1,683 |        936 |        407 |      3,026 |
+| templates                                                                               |          6 |        665 |        101 |        147 |        913 |
+| templates\create-template                                                               |          3 |        521 |         78 |        111 |        710 |
+| utilities                                                                               |         29 |      1,745 |        119 |        458 |      2,322 |
+| utilities\auth                                                                          |          3 |        221 |          1 |         53 |        275 |
+| utilities\authentication                                                                |          6 |        333 |         68 |         78 |        479 |
+| utilities\bugreport                                                                     |          3 |        139 |          1 |         35 |        175 |
+| utilities\dashboard                                                                     |          3 |        349 |         17 |         79 |        445 |
+| utilities\intro                                                                         |          3 |        105 |          1 |         23 |        129 |
+| utilities\join                                                                          |          3 |        345 |         30 |         85 |        460 |
+| utilities\loading-spinner                                                               |          2 |         41 |          1 |          6 |         48 |
+| utilities\privacy                                                                       |          3 |         96 |          0 |         44 |        140 |
+| utilities\terms                                                                         |          3 |        116 |          0 |         55 |        171 |
++-----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                | language   | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| d:\GIT\reports\reports\src\app\admin\admin-bug-reports\admin-bug-reports.component.html | HTML       |         38 |          0 |         13 |         51 |
+| d:\GIT\reports\reports\src\app\admin\admin-bug-reports\admin-bug-reports.component.scss | SCSS       |        148 |          0 |         35 |        183 |
+| d:\GIT\reports\reports\src\app\admin\admin-bug-reports\admin-bug-reports.component.ts   | TypeScript |        103 |         30 |         25 |        158 |
+| d:\GIT\reports\reports\src\app\admin\admin.component.html                               | HTML       |         14 |          0 |          3 |         17 |
+| d:\GIT\reports\reports\src\app\admin\admin.component.scss                               | SCSS       |          6 |          0 |          1 |          7 |
+| d:\GIT\reports\reports\src\app\admin\admin.component.ts                                 | TypeScript |         11 |          0 |          5 |         16 |
+| d:\GIT\reports\reports\src\app\admin\sentences\admin-sentences.component.html           | HTML       |        125 |          5 |         15 |        145 |
+| d:\GIT\reports\reports\src\app\admin\sentences\admin-sentences.component.scss           | SCSS       |        460 |          1 |         97 |        558 |
+| d:\GIT\reports\reports\src\app\admin\sentences\admin-sentences.component.ts             | TypeScript |        222 |        121 |         48 |        391 |
+| d:\GIT\reports\reports\src\app\admin\services\console.service.ts                        | TypeScript |         15 |          0 |          6 |         21 |
+| d:\GIT\reports\reports\src\app\admin\users\admin-users.component.html                   | HTML       |         30 |          0 |          4 |         34 |
+| d:\GIT\reports\reports\src\app\admin\users\admin-users.component.scss                   | SCSS       |         88 |          0 |         21 |        109 |
+| d:\GIT\reports\reports\src\app\admin\users\admin-users.component.ts                     | TypeScript |        152 |         32 |         27 |        211 |
+| d:\GIT\reports\reports\src\app\app-routing.module.ts                                    | TypeScript |         54 |          0 |          3 |         57 |
+| d:\GIT\reports\reports\src\app\app.component.html                                       | HTML       |         69 |          9 |         16 |         94 |
+| d:\GIT\reports\reports\src\app\app.component.scss                                       | SCSS       |        193 |          3 |         39 |        235 |
+| d:\GIT\reports\reports\src\app\app.component.ts                                         | TypeScript |         64 |          0 |         15 |         79 |
+| d:\GIT\reports\reports\src\app\app.module.ts                                            | TypeScript |         76 |          0 |          3 |         79 |
+| d:\GIT\reports\reports\src\app\classes\classes.component.html                           | HTML       |         11 |          0 |          5 |         16 |
+| d:\GIT\reports\reports\src\app\classes\classes.component.scss                           | SCSS       |          0 |          0 |          1 |          1 |
+| d:\GIT\reports\reports\src\app\classes\classes.component.ts                             | TypeScript |          9 |          0 |          4 |         13 |
+| d:\GIT\reports\reports\src\app\classes\create-group\create-group.component.html         | HTML       |         58 |         10 |          9 |         77 |
+| d:\GIT\reports\reports\src\app\classes\create-group\create-group.component.scss         | SCSS       |        232 |          1 |         52 |        285 |
+| d:\GIT\reports\reports\src\app\classes\create-group\create-group.component.ts           | TypeScript |        195 |         50 |         44 |        289 |
+| d:\GIT\reports\reports\src\app\classes\edit-group\edit-group.component.html             | HTML       |         55 |          1 |          9 |         65 |
+| d:\GIT\reports\reports\src\app\classes\edit-group\edit-group.component.scss             | SCSS       |        230 |          0 |         53 |        283 |
+| d:\GIT\reports\reports\src\app\classes\edit-group\edit-group.component.ts               | TypeScript |        172 |         76 |         46 |        294 |
+| d:\GIT\reports\reports\src\app\reports\edit-report\edit-report.component.html           | HTML       |        244 |         14 |         51 |        309 |
+| d:\GIT\reports\reports\src\app\reports\edit-report\edit-report.component.scss           | SCSS       |        457 |         11 |        110 |        578 |
+| d:\GIT\reports\reports\src\app\reports\edit-report\edit-report.component.ts             | TypeScript |        507 |        295 |        101 |        903 |
+| d:\GIT\reports\reports\src\app\reports\reports.component.html                           | HTML       |         29 |          0 |          4 |         33 |
+| d:\GIT\reports\reports\src\app\reports\reports.component.scss                           | SCSS       |         56 |          0 |         11 |         67 |
+| d:\GIT\reports\reports\src\app\reports\reports.component.ts                             | TypeScript |         53 |         16 |         11 |         80 |
+| d:\GIT\reports\reports\src\app\sentences\sentences.component.html                       | HTML       |        127 |          4 |         13 |        144 |
+| d:\GIT\reports\reports\src\app\sentences\sentences.component.scss                       | SCSS       |        461 |          1 |         97 |        559 |
+| d:\GIT\reports\reports\src\app\sentences\sentences.component.ts                         | TypeScript |        244 |        119 |         52 |        415 |
+| d:\GIT\reports\reports\src\app\services\database.service.ts                             | TypeScript |        116 |         15 |         33 |        164 |
+| d:\GIT\reports\reports\src\app\services\groups.service.ts                               | TypeScript |        109 |         66 |         17 |        192 |
+| d:\GIT\reports\reports\src\app\services\reports.service.ts                              | TypeScript |        466 |        270 |        114 |        850 |
+| d:\GIT\reports\reports\src\app\services\sentences.service.ts                            | TypeScript |        563 |        431 |        197 |      1,191 |
+| d:\GIT\reports\reports\src\app\services\templates.service.ts                            | TypeScript |        135 |         75 |         23 |        233 |
+| d:\GIT\reports\reports\src\app\services\tests.service.ts                                | TypeScript |        294 |         79 |         23 |        396 |
+| d:\GIT\reports\reports\src\app\templates\create-template\create-template.component.html | HTML       |         59 |          1 |         18 |         78 |
+| d:\GIT\reports\reports\src\app\templates\create-template\create-template.component.scss | SCSS       |        177 |          3 |         34 |        214 |
+| d:\GIT\reports\reports\src\app\templates\create-template\create-template.component.ts   | TypeScript |        285 |         74 |         59 |        418 |
+| d:\GIT\reports\reports\src\app\templates\templates.component.html                       | HTML       |         26 |          5 |          8 |         39 |
+| d:\GIT\reports\reports\src\app\templates\templates.component.scss                       | SCSS       |         61 |          0 |         15 |         76 |
+| d:\GIT\reports\reports\src\app\templates\templates.component.ts                         | TypeScript |         57 |         18 |         13 |         88 |
+| d:\GIT\reports\reports\src\app\utilities\auth\auth.component.html                       | HTML       |         54 |          0 |         18 |         72 |
+| d:\GIT\reports\reports\src\app\utilities\auth\auth.component.scss                       | SCSS       |        117 |          1 |         18 |        136 |
+| d:\GIT\reports\reports\src\app\utilities\auth\auth.component.ts                         | TypeScript |         50 |          0 |         17 |         67 |
+| d:\GIT\reports\reports\src\app\utilities\authentication\admin.guard.ts                  | TypeScript |         22 |          2 |          6 |         30 |
+| d:\GIT\reports\reports\src\app\utilities\authentication\auth-guard.guard.ts             | TypeScript |         20 |          2 |          6 |         28 |
+| d:\GIT\reports\reports\src\app\utilities\authentication\authentication.service.ts       | TypeScript |        212 |         59 |         48 |        319 |
+| d:\GIT\reports\reports\src\app\utilities\authentication\demo-guard.guard.ts             | TypeScript |         22 |          2 |          6 |         30 |
+| d:\GIT\reports\reports\src\app\utilities\authentication\member.guard.ts                 | TypeScript |         22 |          3 |          6 |         31 |
+| d:\GIT\reports\reports\src\app\utilities\authentication\user.model.ts                   | TypeScript |         35 |          0 |          6 |         41 |
+| d:\GIT\reports\reports\src\app\utilities\bugreport\bugreport.component.html             | HTML       |         20 |          0 |          6 |         26 |
+| d:\GIT\reports\reports\src\app\utilities\bugreport\bugreport.component.scss             | SCSS       |         58 |          0 |         14 |         72 |
+| d:\GIT\reports\reports\src\app\utilities\bugreport\bugreport.component.ts               | TypeScript |         61 |          1 |         15 |         77 |
+| d:\GIT\reports\reports\src\app\utilities\dashboard\dashboard.component.html             | HTML       |         69 |          0 |         16 |         85 |
+| d:\GIT\reports\reports\src\app\utilities\dashboard\dashboard.component.scss             | SCSS       |        187 |          9 |         43 |        239 |
+| d:\GIT\reports\reports\src\app\utilities\dashboard\dashboard.component.ts               | TypeScript |         93 |          8 |         20 |        121 |
+| d:\GIT\reports\reports\src\app\utilities\intro\intro.component.html                     | HTML       |         15 |          1 |          4 |         20 |
+| d:\GIT\reports\reports\src\app\utilities\intro\intro.component.scss                     | SCSS       |         79 |          0 |         14 |         93 |
+| d:\GIT\reports\reports\src\app\utilities\intro\intro.component.ts                       | TypeScript |         11 |          0 |          5 |         16 |
+| d:\GIT\reports\reports\src\app\utilities\join\join.component.html                       | HTML       |         62 |          5 |         26 |         93 |
+| d:\GIT\reports\reports\src\app\utilities\join\join.component.scss                       | SCSS       |        189 |         16 |         44 |        249 |
+| d:\GIT\reports\reports\src\app\utilities\join\join.component.ts                         | TypeScript |         94 |          9 |         15 |        118 |
+| d:\GIT\reports\reports\src\app\utilities\loading-spinner\loading-spinner.component.scss | SCSS       |         32 |          1 |          2 |         35 |
+| d:\GIT\reports\reports\src\app\utilities\loading-spinner\loading-spinner.component.ts   | TypeScript |          9 |          0 |          4 |         13 |
+| d:\GIT\reports\reports\src\app\utilities\privacy\privacy.component.html                 | HTML       |         59 |          0 |         34 |         93 |
+| d:\GIT\reports\reports\src\app\utilities\privacy\privacy.component.scss                 | SCSS       |         26 |          0 |          5 |         31 |
+| d:\GIT\reports\reports\src\app\utilities\privacy\privacy.component.ts                   | TypeScript |         11 |          0 |          5 |         16 |
+| d:\GIT\reports\reports\src\app\utilities\terms\terms.component.html                     | HTML       |         79 |          0 |         45 |        124 |
+| d:\GIT\reports\reports\src\app\utilities\terms\terms.component.scss                     | SCSS       |         26 |          0 |          5 |         31 |
+| d:\GIT\reports\reports\src\app\utilities\terms\terms.component.ts                       | TypeScript |         11 |          0 |          5 |         16 |
+| Total                                                                                   |            |      9,101 |      1,955 |      2,061 |     13,117 |
++-----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

@@ -113,11 +113,15 @@
 
     &__database-buttons {
         display: flex;
+        justify-self: flex-end;
     }
 
     &__input {
-        padding: .8rem 1rem;
-        border-radius: 1rem;
+        padding: .8rem 2rem;
+        background-color: white;
+        border-radius: 1rem 2rem;
+        box-shadow: 0 .2rem .4rem rgba(black, .4);
+        font-size: 1.4rem;
 
         &--select {
             align-items: center;
@@ -478,6 +482,7 @@
 .multi-select-dropdown {
     position: relative;
     width: 20rem;
+    z-index: 50000;
 
     input { 
         display: none;
@@ -486,7 +491,6 @@
         &:checked {
             & ~ .multi-select-dropdown__element {
                 display: block;
-                z-index: 50000;
             }
 
             & + .multi-select-dropdown__selector {
@@ -506,6 +510,7 @@
         background-color: white;
         border-radius: 1rem 2rem;
         box-shadow: 0 .2rem .4rem rgba(black, .4);
+        user-select: none; 
         
         &--text {
             flex: 1;

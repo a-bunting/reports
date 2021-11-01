@@ -7,67 +7,53 @@
     <div class="reports__settings">
 
         <div class="reports__settings--flex">
+
             <div class="reports__settings--setting">
                 <div class="reports__settings--text">Reports Name</div>
                 <div class="reports__settings--input">
                     <input type="text" name="reportsname" id="reportsname" [(ngModel)]="report.name" class="reports__input reports__input--text">
                 </div>
             </div>
-            <!-- <div class="reports__settings--setting">
-                <div class="reports__settings--text">Class</div>
-                <div class="reports__settings--input">
-                    <select name="reportsclass" id="reportsclass" class="reports__input reports__input--select"  (change)="loadGroup($event.target.value)" [disabled]="report.groupId !== ''">
-                        <option value="" disabled selected></option>
-                        <option value="{{ grp.id }}" *ngFor="let grp of groups; let i = index" [selected]="report.groupId === grp.id">{{grp.name}}</option>
-                    </select>
-                </div>
-            </div> -->
+
             <div class="reports__settings--setting">
-                <div class="reports__settings--text">Template</div>
                 <div class="reports__settings--input">
                     <select name="reportstemplate" id="reportstemplate" class="reports__input reports__input--select" (change)="loadTemplate($event.target.value)">
-                        <option value="" disabled selected></option>
+                        <option value="" disabled selected>Select a Template</option>
                         <option value="{{ temp.id }}" *ngFor="let temp of templates; let i = index" [selected]="report.templateId === temp.id">{{temp.name}}</option>
                     </select>
                 </div>
             </div>
 
             <div class="reports__settings--setting">
+                <div class="multi-select-dropdown">
 
+                    <input type="checkbox" name="selectGroups" id="openMenuAddClass">
 
-                    <div class="multi-select-dropdown">
+                    <label for="openMenuAddClass" class="multi-select-dropdown__selector">
+                        <div class="multi-select-dropdown__selector--text">Add Students...</div>
+                        <div class="multi-select-dropdown__selector--arrow">&#10148;</div>
+                    </label>
 
-                        <input type="checkbox" name="selectGroups" id="openMenuAddClass">
-
-                        <label for="openMenuAddClass" class="multi-select-dropdown__selector">
-                            <div class="multi-select-dropdown__selector--text">Add Students...</div>
-                            <div class="multi-select-dropdown__selector--arrow">&#10148;</div>
-                        </label>
-
-                        <div class="multi-select-dropdown__element">
-                            <div class="multi-select-dropdown__option" *ngFor="let grp of groups; let i = index">
-                                <input name="selectGroups" type="checkbox" id="groupToAdd--{{ grp.id }}" (change)="selectGroup(grp.id, $event.target.checked)">
-                                <label for="groupToAdd--{{ grp.id }}">{{ grp.name }}</label>
-                            </div>
-                            <div class="multi-select-dropdown__option">
-                                <button class="input__button" (click)="loadGroupsFromSelection()" [disabled]="groupsSelected.length === 0">Add</button>
-                            </div>
+                    <div class="multi-select-dropdown__element">
+                        <div class="multi-select-dropdown__option" *ngFor="let grp of groups; let i = index">
+                            <input name="selectGroups" type="checkbox" id="groupToAdd--{{ grp.id }}" (change)="selectGroup(grp.id, $event.target.checked)">
+                            <label for="groupToAdd--{{ grp.id }}">{{ grp.name }}</label>
+                        </div>
+                        <div class="multi-select-dropdown__option">
+                            <button class="input__button" (click)="loadGroupsFromSelection()" [disabled]="groupsSelected.length === 0">Add</button>
                         </div>
                     </div>
-
-
-
+                </div>
+            </div>
         </div>
-
+        
         <div class="reports__database-buttons">
-            <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving" title="Save this new report to the database">{{ isSaving ? "Saving..." : "Save" }}</button>
+            <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving" title="Save this new report to the database">{{ isSaving ? "Saving..." : "Save Report Set" }}</button>
             <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating" title="Click to update your report in the database">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
-            <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Fill all data"}}</button>
+            <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Generate Reports" }}</button>
             <!-- <div class="reports__button">Duplicate</div> -->
-
         </div>
     </div>
-</div>
 
 <div class="divider-line divider-line__thin" *ngIf="showGlobals() || showVariables() || showTests()"></div>
 

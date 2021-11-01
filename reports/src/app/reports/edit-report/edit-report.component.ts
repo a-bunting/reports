@@ -169,11 +169,15 @@ export class EditReportComponent implements OnInit {
     }
 
     loadGroupsFromSelection(): void {
-
         // start by getting the groups from the database, as we need to do keys first then users...
+        // get the keys already in the db...
+        let keys: string[] = [...this.report.keys];
         let students: Student[] = [];
-        let keys: string[] = [];
 
+        // prepopulate with the current students...
+        this.report.reports.forEach((repo: Report) => {
+            students = [...students, repo.user];
+        })
 
         // for each group in the selected array import those students into the system.
         this.groupsSelected.forEach((groupId: string) => {
@@ -193,6 +197,9 @@ export class EditReportComponent implements OnInit {
             }
         })
 
+        // create a constant with the template, ready to input to new user reports...
+        const repoTemplate: Template = this.report.templateId ? this.templatesService.getTemplate(this.report.templateId) : undefined;
+
         // and add the students
         students.forEach((student: Student) => {
             // find if the student already existsw...
@@ -200,11 +207,11 @@ export class EditReportComponent implements OnInit {
             
             // if not add them...
             if(studentIndex === -1) {
-                // not found this studednt yet so its a new addition...
+                // not found this student yet so its a new addition...
                 const newReport: Report = {
                     userId: student.id, 
                     user: student, 
-                    template: this.report.templateId ? this.templatesService.getTemplate(this.report.templateId) : undefined, 
+                    template: repoTemplate, 
                     report: "", 
                     generated: undefined
                 }
@@ -217,72 +224,24 @@ export class EditReportComponent implements OnInit {
                 // and add to the array....
                 this.report.reports.push(newReport);
             } else {
-
+                // select the report from the database...
                 let report: Report = this.report.reports[studentIndex];
 
                 keys.forEach((key: string) => {
-                    key in report.user.data ? report.user.data[key] += '/' + student.data[key] : report.user.data[key] = student.data[key];
+                    // check to see if the key already exists ont he user data object
+                    if(key in report.user.data) {
+                        // the key exists, check if its been defined...
+                        if(student.data[key] !== undefined) {
+                            // if it has a value check if its a different value, and if it is put both in divided by a /
+                            report.user.data[key] = (report.user.data[key] === student.data[key] ? report.user.data[key] : report.user.data[key] += '/' + student.data[key]);
+                        }
+                    } else {
+                        // its not got this key and so create it and make it blank...
+                        report.user.data[key] = "";
+                    }
                 })
-
             }
         })  
-
-
-
-        // // for each group in the selected array import those students into the system.
-        // this.groupsSelected.forEach((groupId: string) => {
-
-        //     // get the group from the database....
-        //     this.groupService.getGroup(groupId).subscribe((data: Group) => {
-
-        //         // add any new keys... assume keys with the same value are the same thing
-        //         data.keys.forEach((key: string) => {
-        //             if(!this.report.keys.includes(key)) {
-        //                 this.report.keys.push(key);
-        //             }
-        //         })
-
-        //         // and add the students
-        //         data.students.forEach((student: Student) => {
-        //             // find if the student already existsw...
-        //             const studentIndex: number = this.report.reports.findIndex((report: Report) => report.user.id === student.id);
-                    
-        //             // if not add them...
-        //             if(studentIndex === -1) {
-        //                 // not found this studednt yet so its a new addition...
-        //                 const newReport: Report = {
-        //                     userId: student.id, 
-        //                     user: student, 
-        //                     template: this.report.templateId ? this.templatesService.getTemplate(this.report.templateId) : undefined, 
-        //                     report: "", 
-        //                     generated: undefined
-        //                 }
-        //                 // checka ll the keys have a value for this user and if not set it as blank...
-        //                 this.report.keys.forEach((key: string) => {
-
-        //                     if(!(key in newReport.user.data)) {
-        //                         console.log(`Adding ${key} to ${newReport.user.id}`);
-        //                         newReport.user.data[key] = "";
-        //                     }
-
-        //                 })
-
-        //                 // and add to the array....
-        //                 this.report.reports.push(newReport);
-        //             } else {
-
-        //                 let report: Report = this.report.reports[studentIndex];
-
-        //                 data.keys.forEach((key: string) => {
-        //                     key in report.user.data ? report.user.data[key] += student.data[key] : report.user.data[key] = student.data[key];
-        //                 })
-
-        //             }
-        //         })
-        //     })
-        // })
-
-        console.log(this.report);
 
         // and clear the textbox, and close the rmenu...
         document.getElementsByName("selectGroups").forEach((checkBox: HTMLInputElement) => {
