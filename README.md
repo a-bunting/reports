@@ -2,9 +2,13 @@
  
 Reports is a web app designed for teachers, to help produce meaningful written reports in a fraction of the time it would normally take to do so. It analyses data input by the user with known other data (such as grade scales) to automatically generate a unique comment which will help the learner improve.
 
+
 **Links**
 
 Trello Link (project management) - https://trello.com/b/N05RiTLU/reports
+
+
+**Goals**
 
 Reports has a few important goals:
 
@@ -16,3 +20,7 @@ Currently the first goal only I feel is being met, to meet the next few goals:
 
 - Whilst it is easy to navigate (I think!) there needs to be more instruction on how to use, and so  a tutorials module will be build which can float on top of the rest of the APP.
 - Importing data is a little tricky. Copy and paste is supported well because of the easy with which you can modify groups, but its hard to test because I only have access to powerschool currently.
+
+**Workflow**
+
+![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/763952/139637543-75cd725f-b8d7-4790-8e59-1b8cc1a77631.gif)
