@@ -69,7 +69,8 @@
     min-height: 15rem;
     
     &__level {
-        
+
+        position: relative;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -124,60 +125,6 @@
         flex-wrap: nowrap;
     }
 
-    &__undo {
-        font-size: 1.4rem;
-        transition: all .2s;
-        border: .2rem transparent solid;
-        padding: .4rem 1rem;
-        background-color: var(--color-style-juxtapose);
-        border-radius: 1rem 0 0 1rem;
-
-        &:hover {
-            cursor: pointer;
-            border: .2rem white solid;
-            color: white;
-            filter: brightness(80%);
-        }
-
-        &--empty {
-            background-color: gray;
-
-            &:hover {
-                cursor: default;
-                border: .2rem transparent solid;
-                color: black;
-                filter: brightness(100%);
-            }
-        }
-    }
-
-    &__copy-indicator {
-        font-size: 1.4rem;
-        transition: all .2s;
-        border: .2rem transparent solid;
-        padding: .4rem 1rem;
-        background-color: var(--color-style-juxtapose);
-        border-radius: 0 1rem 1rem 0;
-
-        &:hover {
-            cursor: pointer;
-            border: .2rem white solid;
-            color: white;
-            filter: brightness(80%);
-        }
-
-        &--empty {
-            background-color: gray;
-
-            &:hover {
-                cursor: default;
-                border: .2rem transparent solid;
-                color: black;
-                filter: brightness(100%);
-            }
-        }
-    }
-
     &__control-bar {
         display: flex;
 
@@ -185,33 +132,27 @@
             font-size: 1.4rem;
             transition: all .2s;
             border: .2rem transparent solid;
-            padding: .4rem 1rem;
-
+            padding: .7rem 2rem;
+            box-shadow: 0 .2rem .4rem rgba(black, .4);
+            background-color: var(--color-style-main);
+            
             &:hover {
-                cursor: pointer;
-                border: .2rem white solid;
-                color: white;
-                filter: brightness(80%);
+                &:not(:disabled) {
+                    cursor: pointer;
+                    border: .1rem white solid;
+                    color: white;
+                    background-color: var(--color-style-juxtapose);
+                    box-shadow: 0 .4rem .8rem rgba(black, .6);
+                }
             }
 
             &:first-of-type { border-radius: 1rem 0 0 1rem; }
             &:last-of-type { border-radius: 0 1rem 1rem 0; }
-            &-autosave { background-color: var(--color-style-main); }
-            &-dataview { background-color: var(--color-style-main); }
-            &-savelocal { background-color: var(--color-style-main); }
-            &-commit { background-color: var(--color-style-main); }
             
             &-selected { 
-                filter: brightness(80%); 
-            }
-            
-            &-disabled {
-                background-color: gray;
-                &:hover {
-                    cursor: default;
-                    border: .2rem transparent solid;
-                    color: black;
-                }
+                border: .1rem white solid;
+                color: white;
+                background-color: var(--color-style-dark);
             }
         }
     }

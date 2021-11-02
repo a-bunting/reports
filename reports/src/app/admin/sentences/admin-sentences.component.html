@@ -7,21 +7,21 @@
 
 <div class="admin-sentences__controls">
     <div class="admin-sentences__control-bar">
-        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-autosave" [class.admin-sentences__control-bar--control-selected]="!autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</div>
-        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-dataview" [class.admin-sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</div>
-        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-savelocal" [class.admin-sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</div>
-        <div class="admin-sentences__control-bar--control admin-sentences__control-bar--control-commit" [class.admin-sentences__control-bar--control-disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</div>
+        <button class="admin-sentences__control-bar--control" [class.admin-sentences__control-bar--control-selected]="autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</button>
+        <button class="admin-sentences__control-bar--control" [class.admin-sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</button>
+        <button class="admin-sentences__control-bar--control" [disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</button>
+        <button class="admin-sentences__control-bar--control" [disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</button>
     </div>
     <div class="admin-sentences__memory">
-        <div class="admin-sentences__undo" [class.admin-sentences__undo--empty]="undoChain.length === 0" (click)="undoLastChange()">
+        <button class="admin-sentences__control-bar--control" [disabled]="undoChain.length === 0" (click)="undoLastChange()">
             {{ undoChain.length !== 0 ? undoChain[undoChain.length - 1].commandName : "Undo list empty" }}
-            <span class="admin-sentences__undo--full" *ngIf="undoChain.length === maxUndo">
+            <span *ngIf="undoChain.length === maxUndo">
                 (Undo list full)
             </span>
-        </div>
-        <div class="admin-sentences__copy-indicator" [class.admin-sentences__copy-indicator--empty]="!copiedItem" (click)="clearCopiedItem()">
+        </button>
+        <button class="admin-sentences__control-bar--control" [disabled]="!copiedItem" (click)="clearCopiedItem()">
             {{ copiedItem ? "Item Copied - Click to clear" : "Copy memory empty" }}
-        </div>
+        </button>
     </div>
 </div>
 
@@ -110,6 +110,11 @@
                 </div>
             </div>
         </div>
+        
+        <div class="admin-sentences__level--infobox-text" *ngIf="sentenceStem.length === 0">
+            Click 'Add Sublevel' below in order to add more stems onto this branch.
+        </div>
+
         <div *ngIf="!isLoading">
             <div class="admin-sentences__stem-phrase--add" *ngIf="copiedItem" (click)="pasteItem(o)">Paste  Item Here</div>
             <div class="admin-sentences__stem-phrase--add" (click)="addNewSubLevel(o)">Add sublevel...</div>
@@ -132,7 +137,7 @@
             <span *ngFor="let name of getRouteNames(); let i = index"> {{ getRouteNames().length > 1 ? name : "No route defined (at 'Base' level)" }} <span class="span" *ngIf="i !== getRouteNames().length - 1 && i > 0">&#x27AA;</span></span>
         </div>
     </div>
-    <div class="sentences__row sentences__header">
+    <div class="sentences__row sentences__header" *ngIf="possibilities">
         <div class="sentences__number">#</div>
         <div class="sentences__characters">Characters</div>
         <div class="sentences__sentence">Sentence</div>

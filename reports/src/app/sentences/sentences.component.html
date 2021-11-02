@@ -7,23 +7,26 @@
 
 <div class="sentences__controls">
     <div class="sentences__control-bar">
-        <div class="sentences__control-bar--control sentences__control-bar--control-autosave" [class.sentences__control-bar--control-selected]="!autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</div>
-        <div class="sentences__control-bar--control sentences__control-bar--control-dataview" [class.sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</div>
-        <div class="sentences__control-bar--control sentences__control-bar--control-replace" *ngIf="!replaceTriggered" (click)="triggerReplace()">Replace with Template</div>
-        <div class="sentences__control-bar--control sentences__control-bar--control-replace" [class.sentences__control-bar--control-disabled]="replaceWorking" *ngIf="replaceTriggered" (click)="replaceWithTemplate()">{{ !replaceWorking ? "I am sure (click to confirm)" : "Replacing with Template..." }}</div>
-        <div class="sentences__control-bar--control sentences__control-bar--control-savelocal" [class.sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</div>
-        <div class="sentences__control-bar--control sentences__control-bar--control-commit" [class.sentences__control-bar--control-disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</div>
+        <!-- autosave removed for NOW to see how the databse usage racks up - will enable in the future if possible. -->
+        <!-- <button class="sentences__control-bar--control" [class.sentences__control-bar--control-selected]="autosave" (click)="autosaveToggle()" [disabled]="replaceTriggered">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</button> -->
+        <button class="sentences__control-bar--control" [class.sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()" [disabled]="replaceTriggered">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</button>
+        <button class="sentences__control-bar--control" *ngIf="!replaceTriggered" (click)="triggerReplace()">Replace with Template</button>
+        <button class="sentences__control-bar--control" [class.sentences__control-bar--control-selected]="!replaceWorking" [disabled]="replaceWorking" *ngIf="replaceTriggered" (click)="replaceWithTemplate()">{{ !replaceWorking ? "I am sure (click to confirm)" : "Replacing with Template..." }}</button>
+        <button class="sentences__control-bar--control" [class.sentences__control-bar--control-selected]="!replaceWorking" *ngIf="replaceTriggered" (click)="cancelTemplateReplacement()" [disabled]="replaceWorking">Cancel Replacement</button>
+        <!-- <button class="sentences__control-bar--control sentences__control-bar--control-savelocal" [class.sentences__control-bar--control-disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</button> -->
+        <button class="sentences__control-bar--control" [disabled]="!databaseMismatch || replaceTriggered" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit changes to Database" }}</button>
     </div>
     <div class="sentences__memory">
-        <div class="sentences__undo" [class.sentences__undo--empty]="undoChain.length === 0" (click)="undoLastChange()">
-            {{ undoChain.length !== 0 ? undoChain[undoChain.length - 1].commandName : "Undo list empty" }}
-            <span class="sentences__undo--full" *ngIf="undoChain.length === maxUndo">
+        <button class="sentences__control-bar--control" [disabled]="undoChain.length === 0" (click)="undoLastChange()">
+            {{ undoChain.length !== 0 ? "Undo " + undoChain[undoChain.length - 1].commandName : "Undo list empty" }}
+            <span *ngIf="undoChain.length === maxUndo">
                 (Undo list full)
             </span>
-        </div>
-        <div class="sentences__copy-indicator" [class.sentences__copy-indicator--empty]="!copiedItem" (click)="clearCopiedItem()">
+        </button>
+
+        <button class="sentences__control-bar--control" [disabled]="!copiedItem" (click)="clearCopiedItem()">
             {{ copiedItem ? "Item Copied - Click to clear" : "Copy memory empty" }}
-        </div>
+        </button>
     </div>
 </div>
 
@@ -108,7 +111,13 @@
                     <div class="sentences__buttons-bottom--add-test" (click)="addNewTestSelectionBox(sentence.order, sentence.index)">Add Test</div>
                 </div>
             </div>
+            
         </div>
+
+        <div class="sentences__level--infobox-text" *ngIf="sentenceStem.length === 0">
+            Click 'Add Sublevel' below in order to add more stems onto this branch.
+        </div>
+
         <div *ngIf="!isLoading">
             <div class="sentences__stem-phrase--add" *ngIf="copiedItem" (click)="pasteItem(o)">Paste  Item Here</div>
             <div class="sentences__stem-phrase--add" (click)="addNewSubLevel(o)">Add sublevel...</div>

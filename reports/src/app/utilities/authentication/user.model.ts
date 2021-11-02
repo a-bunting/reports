@@ -19,6 +19,10 @@ export class User {
         return this._token;
     }
 
+    get tokenExpiration(): Date {
+        return this.tokenExpiration;
+    }
+
     set setUsername(username: string) {
         this.name = username;
         this.updateLocalStorage();

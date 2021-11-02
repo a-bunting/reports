@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import firebase from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { User } from './user.model';
 import { sentence } from 'src/app/services/sentences.service';
+import { async } from 'rxjs/internal/scheduler/async';
 
 export interface AuthResponseData {
     kind: string, idToken: string, email: string, 
@@ -23,7 +24,7 @@ export interface AuthResponseData {
  * This works, but I am not happy with the flow, and needs to be more robust perhaps.
  */
 
-export class AuthenticationService {
+export class AuthenticationService implements OnInit {
 
     user = new BehaviorSubject<User>(null);
     keepAlive: boolean = true; //for testing = true, but needs to persist somehow... localstorage settings?
@@ -33,7 +34,21 @@ export class AuthenticationService {
                 private router: Router) {
                 }
 
+    ngOnInit(): void {
+
+
+        this.fAuth.onAuthStateChanged((user) => {
+            if(user) {
+                console.log(user);
+            } else {
+                console.log(`Chnages detected but... no data!`);
+            }
+        });
+
+    }
+
     /**
+     * 
      * Sign up a new user to the system.
      * @param email 
      * @param password 
@@ -83,6 +98,12 @@ export class AuthenticationService {
         });
 
         return from(signUp);
+    }
+
+    login2(email: string, password: string, stayLoggedIn: boolean = false): Observable<any> {
+        return from(this.fAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+            return this.login3(email, password, true);   
+        }))
     }
 
     /**
@@ -227,7 +248,7 @@ export class AuthenticationService {
      private logoutTimer: number;
 
      autoLogout(expirationDuration: number) {
-         this.logoutTimer = setTimeout(() => {
+         this.logoutTimer = setInterval(() => {
              if(this.keepAlive) {
                  // if keepalive is true then refresh the token and the userdata...
                  firebase.auth().currentUser.getIdToken(true).then((result: string) => {
@@ -247,9 +268,10 @@ export class AuthenticationService {
                         this.user.next(newUser);
                  });
              } else {
+                 clearInterval(this.logoutTimer);
                  this.logout();
              }
-         }, expirationDuration);
+         }, 36000000);//new Date(this.user.value.tokenExpiration).getTime() + 3600001);
      }
 
     /**

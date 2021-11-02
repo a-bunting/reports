@@ -65,7 +65,7 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
             // set the data on the display
             this.initialData = JSON.parse(JSON.stringify(sentenceData));
             this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-            this.possibilities = this.sentenceService.generateSentenceOptions(this.route);
+            this.sentenceService.generateSentenceOptions(this.route);
         }, (error) => {
             console.log(`Error gathering the database: ${error.message}`);
         }, () => {
