@@ -99,7 +99,8 @@ export class TestsService {
             ], 
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
-                let gradingSystem: TestOptions = this.findGradingSystemByName(userData['settings'].name);
+                let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
+                
                 // find the user grades...
                 let newGrade: string = userData.data['curGrade'];
                 let oldGrade: string = userData.data['oldGrade'];

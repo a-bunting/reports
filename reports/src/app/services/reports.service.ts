@@ -1,3 +1,4 @@
+import { ConstantPool } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
@@ -715,6 +716,7 @@ export class ReportsService {
 
         while((regExData = strReplace.exec(report)) !== null) {
             report = report.replace(regExData[0], value);
+            strReplace.lastIndex = 0;
         }
 
         return report;
