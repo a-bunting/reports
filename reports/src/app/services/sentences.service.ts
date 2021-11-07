@@ -436,6 +436,7 @@ export class SentencesService {
                             // check if the user passes the tests...
                             // console.log(data[routeIndex].tests);
                             let applicableTests: TemplateTest[] = data[routeIndex].tests;
+
                             // looop over all tests
                             applicableTests.forEach((testTemp: TemplateTest) => {
                                 // get the correct test from the test database...

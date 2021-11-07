@@ -195,13 +195,13 @@ export class TestsService {
                 }
             },
             variables: [
-                { name: "Current Level", identifier: "curSkillLevel", description: "The students skill level at the time you write the report."},
-                { name: "Skill Name", identifier: "skillName", description: "The skill that this particular test is checking."}
+                { name: "Current Level", identifier: "curSkillLevel", description: "The students skill level at the time you write the report."}//,
+                // { name: "Skill Name", identifier: "skillName", description: "The skill that this particular test is checking."}
             ], 
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
-                let numberOfGradeEntries: number = Object.keys(gradingSystem).length;
+                let numberOfGradeEntries: number = Object.keys(gradingSystem.options).length - 1;
                 // get the value of the user within the grade scale and find the user grades...
                 let levelValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
                 let level: string = userData.data['curSkillLevel'];

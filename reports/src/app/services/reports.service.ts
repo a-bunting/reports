@@ -27,11 +27,11 @@ export interface FBReportTemplate {
 }
 
 export interface Report {
-    userId: string, user: Student; template: Template; report: string; generated: number;
+    userId: string, user: Student; templateId: string; report: string; generated: number;
 }
 
 export interface GlobalValues {
-    identifier: string; value: string ; options: string[]
+    identifier: string; value: string; options: string[]
 }
 
 export interface VariableValues {
@@ -293,12 +293,12 @@ export class ReportsService {
         let newTests = this.convertTestValuesToObjectArray(reportCopyForFirebase.tests);
         let newGlobals = this.convertGlobalValuesToObjectArray(reportCopyForFirebase.globals);
         let newVariables = this.convertVariableValuesToObjectArray(reportCopyForFirebase.variables);
-        let newReports = this.convertTemplateRouteToObjectArray(reportCopyForFirebase.reports);
+        // let newReports = this.convertTemplateRouteToObjectArray(reportCopyForFirebase.reports);
 
         reportCopyForFirebase.globals = newGlobals;
         reportCopyForFirebase.variables = newVariables;
         reportCopyForFirebase.tests = newTests;
-        reportCopyForFirebase.reports = newReports;
+        // reportCopyForFirebase.reports = newReports;
 
         // call the database function and return true if it succeeds and false if it fails...
         return this.db.updateReport(reportCopyForFirebase, reportId).pipe(take(1), tap(() => {
@@ -359,12 +359,12 @@ export class ReportsService {
         let newTests = this.convertTestValuesToObjectArray(reportCopyForFirebase.tests);
         let newGlobals = this.convertGlobalValuesToObjectArray(reportCopyForFirebase.globals);
         let newVariables = this.convertVariableValuesToObjectArray(reportCopyForFirebase.variables);
-        let newReports = this.convertTemplateRouteToObjectArray(reportCopyForFirebase.reports);
+        // let newReports = this.convertTemplateRouteToObjectArray(reportCopyForFirebase.reports);
 
         reportCopyForFirebase.globals = newGlobals;
         reportCopyForFirebase.variables = newVariables;
         reportCopyForFirebase.tests = newTests;
-        reportCopyForFirebase.reports = newReports;
+        // reportCopyForFirebase.reports = newReports;
 
         // return the observable///
         return this.db.addNewReport(reportCopyForFirebase).pipe(take(1), tap((res: DocumentReference) => {
@@ -389,21 +389,21 @@ export class ReportsService {
      */
     convertBackToArrays(report: FBReportTemplate): ReportTemplate {
         // do the template arrays first...    
-        let templateArray = Object.values(report.reports[0].template.template);
-        let newTemplateArray: [string[]] = [[]];
-        // and sub routes...
-        templateArray.forEach((route: {}, i: number) => {
-            let newRoute: string[] = Object.values(route);
-            if(i === 0) {
-                newTemplateArray[0] = newRoute;
-            } else {
-                newTemplateArray.push(newRoute);
-            }
-        })
-        // place back onto the users...
-        report.reports.forEach((temp: Report) => {
-            temp.template.template = newTemplateArray;
-        });
+        // let templateArray = Object.values(report.reports[0].template.template);
+        // let newTemplateArray: [string[]] = [[]];
+        // // and sub routes...
+        // templateArray.forEach((route: {}, i: number) => {
+        //     let newRoute: string[] = Object.values(route);
+        //     if(i === 0) {
+        //         newTemplateArray[0] = newRoute;
+        //     } else {
+        //         newTemplateArray.push(newRoute);
+        //     }
+        // })
+        // // place back onto the users...
+        // report.reports.forEach((temp: Report) => {
+        //     temp.template.template = newTemplateArray;
+        // });
 
 
         // VARIABLES....
@@ -516,26 +516,26 @@ export class ReportsService {
         return returnObject;
     }
 
-    convertTemplateRouteToObjectArray(report: Report[]): any {
-        let returnObject: any[] = [...report];
-        // get a single template, assume its the same for everyone at this point
+    // convertTemplateRouteToObjectArray(report: Report[]): any {
+    //     let returnObject: any[] = [...report];
+    //     // get a single template, assume its the same for everyone at this point
 
-        let singleTemplate: any = report[0].template.template;
-        let singleReturn: {} = {};
-        singleTemplate.forEach((temp: any, i: number) => {
-            let route: {} = {};
-            temp.forEach((option: string, s: number) => {
-                route[s] = option;
-            })
-            temp = route;
-            singleReturn[i] = temp;
-        })
-        // then place this back onto the reports...
-        returnObject.forEach((rep: any) => {
-            rep.template.template = singleReturn;
-        })
-        return returnObject;
-    }
+    //     let singleTemplate: any = report[0].template.template;
+    //     let singleReturn: {} = {};
+    //     singleTemplate.forEach((temp: any, i: number) => {
+    //         let route: {} = {};
+    //         temp.forEach((option: string, s: number) => {
+    //             route[s] = option;
+    //         })
+    //         temp = route;
+    //         singleReturn[i] = temp;
+    //     })
+    //     // then place this back onto the reports...
+    //     returnObject.forEach((rep: any) => {
+    //         rep.template.template = singleReturn;
+    //     })
+    //     return returnObject;
+    // }
 
     /**
      * REPORT GENERATION
@@ -605,7 +605,7 @@ export class ReportsService {
         }
 
         // first we need a sentence structure generated for this template.
-        let template: Template = report.template;
+        let template: Template = this.templateService.getTemplate(report.templateId);
         let minCharacters: number = template.characters.min;
         let maxCharacters: number = template.characters.max;
         let sentenceOptionsTested: string[] = this.sentenceService.newTestSentenceOptionCreator(template.template, report.user, tests);

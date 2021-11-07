@@ -212,7 +212,7 @@ export class EditReportComponent implements OnInit {
                 const newReport: Report = {
                     userId: student.id, 
                     user: student, 
-                    template: repoTemplate, 
+                    templateId: repoTemplate.id, 
                     report: "", 
                     generated: undefined
                 }
@@ -258,13 +258,17 @@ export class EditReportComponent implements OnInit {
     loadTemplate(templateId: string): void {
         // get the index
         let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
-        // and load
+        // and if it exists then load...
         if(index !== -1) {
             // set the report id
-            this.report.templateId = this.templates[index].id;
-            this.loadedTemplate = this.templates[index].id;
+            this.report.templateId = templateId;
+            this.loadedTemplate = templateId;
+            // set the template id on each of the users (in the future potentially each student may have different template ids)
+            this.report.reports.forEach((repo: Report) => {
+                repo.templateId = templateId;
+            })
             // get the template and proces the variables required...
-            const template: Template = this.templatesService.getTemplate(this.templates[index].id);
+            const template: Template = this.templatesService.getTemplate(templateId);
             this.processTemplate(template);
         }
         this.checkForChanges();
@@ -273,7 +277,7 @@ export class EditReportComponent implements OnInit {
     loadedReport: ReportTemplate; // the saved version of the report to check for changes against
 
     /**
-     * Load an individual report.
+     * Load an report set.
      * @param id 
      */
     loadReport(id: string): void {
@@ -285,8 +289,7 @@ export class EditReportComponent implements OnInit {
             // check if we can make the report yet...
             this.loadedGroup = this.report.groupId;
             this.loadedTemplate = this.report.templateId;
-
-            console.log(this.report);
+            this.loadTemplate(this.loadedTemplate);
         }, error => {
             this.isLoading = false;
             console.log(`Error loading report with ID ${id}: ${error}`);
@@ -312,16 +315,35 @@ export class EditReportComponent implements OnInit {
         // get the variables...
         let variables: [GlobalValues[], VariableValues[]] = this.reportsService.generateVariables(template);
         let tests: TestValues[] = this.reportsService.generateTests(template);
-        // set the variables related to the template...
-        this.report.globals = variables[0];
-        this.report.variables = variables[1];
-        this.report.tests = tests;
         
-        // deprecated...
-        // if((this.loadedGroup !== undefined) && (this.loadedTemplate !== undefined)) {
-        //     this.report = this.reportsService.parseReport(this.loadedGroup, this.loadedTemplate, this.report.name, this.report.id, this.user);
-        //     this.loadedReport = JSON.parse(JSON.stringify(this.report)); // not pretty but acceptable for now...
-        // }
+        // if the variables are already defined we dont want to overwrite them.
+        // globals
+        let newGlobals: GlobalValues[] = [];
+        let newVariables: VariableValues[] = [];
+        let newTests: TestValues[] = [];
+
+        variables[0].forEach((variable: GlobalValues) => {
+            let variableIndex: number = this.report.globals.findIndex((temp: GlobalValues) => temp.identifier === variable.identifier);
+            // if the index isnt found on the already loaded global variables then add it, it isnt already there.
+            variableIndex === -1 ? newGlobals.push(variable) : newGlobals.push(this.report.globals[variableIndex]);
+        })
+        // variables
+        variables[1].forEach((variable: VariableValues) => {
+            let variableIndex: number = this.report.variables.findIndex((temp: GlobalValues) => temp.identifier === variable.identifier);
+            // if the index isnt found on the already loaded variable variables then add it, it isnt already there.
+            variableIndex === -1 ? newVariables.push(variable) : newVariables.push(this.report.variables[variableIndex]);
+        })
+        // tests
+        tests.forEach((test: TestValues) => {
+            let testIndex: number = this.report.tests.findIndex((temp: TestValues) => test.identifier === temp.identifier);
+            // if the index isnt found on the already loaded global variables then add it, it isnt already there.
+            testIndex === -1 ? newTests.push(test) : newTests.push(this.report.tests[testIndex]);
+        })
+
+        this.report.globals = newGlobals;
+        this.report.variables = newVariables;
+        this.report.tests = newTests;
+
     }
 
     //DEALING WITH VARIABLES
@@ -1028,5 +1050,11 @@ export class EditReportComponent implements OnInit {
         //     }
         // }
     } 
+
+    
+
+    printReportObject(): void {
+        console.log(this.report);
+    }
 
 }
