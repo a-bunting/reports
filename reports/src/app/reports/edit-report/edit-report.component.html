@@ -94,6 +94,7 @@
             <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)" title="Select the column from your data that will be the source for the '{{ variable.identifier }}' data.">
                 <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
                 <option value="{{ variable.identifier }}">* Add column *</option>
+                <!-- <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option> -->
                 <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
             </select>
         </div>
@@ -249,15 +250,18 @@
                     <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this report">X</button>
                 </td>
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
+
                     <div *ngIf="!isColumnHidden(key)">
                         <!-- if this is a section with options, display only the options  -->
                         <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
+
                         <ng-template #optionsBlock>
                                 <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)">
                                     <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
                                     <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
                                 </select>
                         </ng-template>
+
                         <ng-template #typeBlock>
 
                             <div *ngIf="individual.user.data[key].length < 20; then inputSingle else inputArea"></div>
@@ -275,6 +279,7 @@
                     <div *ngIf="isColumnHidden(key)">
                         ...
                     </div>
+
                 </td>
 
                 <td class="reports__data--cell reports__data--report-options">

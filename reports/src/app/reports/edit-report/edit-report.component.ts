@@ -168,6 +168,7 @@ export class EditReportComponent implements OnInit {
         }
     }
 
+    // need works on keys
     loadGroupsFromSelection(): void {
         // start by getting the groups from the database, as we need to do keys first then users...
         // get the keys already in the db...
@@ -251,27 +252,6 @@ export class EditReportComponent implements OnInit {
         this.groupsSelected = [];
     }
 
-    /**
-     * Load an individual groups data, why not source this through the group service?
-     * 
-     * DEPRECATED...
-     * 
-     * @param groupId 
-     */
-    // loadGroup(groupId: string): void {
-    //     // get the index
-    //     let index: number = this.groups.findIndex((temp: Group) => temp.id === groupId);
-    //     // and load...
-    //     if(index !== -1) {
-    //         this.report.groupId = this.groups[index].id;
-    //         this.loadedGroup = this.groups[index].id;
-    //         this.groupKeys = [];
-    //         this.populateIndex = undefined;
-    //         this.parseCheck();
-    //     }
-    //     this.checkForChanges();
-    // }
-
     loadedTemplate: string;
     relatedTests: TemplateTest[] = [];
 
@@ -305,6 +285,8 @@ export class EditReportComponent implements OnInit {
             // check if we can make the report yet...
             this.loadedGroup = this.report.groupId;
             this.loadedTemplate = this.report.templateId;
+
+            console.log(this.report);
         }, error => {
             this.isLoading = false;
             console.log(`Error loading report with ID ${id}: ${error}`);
@@ -388,6 +370,7 @@ export class EditReportComponent implements OnInit {
         this.checkForChanges();
     }
 
+    // need works on keys
     /**
      * Assings a variable to a column of data...
      * @param toIdentifier 
@@ -400,12 +383,14 @@ export class EditReportComponent implements OnInit {
 
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
-            this.report.reports.forEach((user: Report) => {
-                user.user.data[toIdentifier] = "";
-            })
             this.report.keys.push(toIdentifier);
             this.addedColumns.push(toIdentifier);
         }
+
+        // asign to students...
+        this.report.reports.forEach((user: Report) => {
+            user.user.data[assignIdentifier] = user.user.data[toIdentifier] ? user.user.data[toIdentifier] : "";
+        })
 
         // now assign tot he new column...
         let varIndex: number = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === assignIdentifier.toLowerCase());
@@ -437,12 +422,14 @@ export class EditReportComponent implements OnInit {
 
         // if it doesnt exist then create a column for it...
         while((findIndex = this.report.keys.findIndex((temp: string) => temp === toIdentifier)) === -1) {
-            this.report.reports.forEach((user: Report) => {
-                user.user.data[toIdentifier] = "";
-            })
             this.report.keys.push(toIdentifier);
             this.addedColumns.push(toIdentifier);
         }
+
+        // asign to students...
+        this.report.reports.forEach((user: Report) => {
+            user.user.data[assignIdentifier] = user.user.data[toIdentifier] ? user.user.data[toIdentifier] : "";
+        })
 
         // now assign tot he new column...
         let varIndex: number = this.report.tests.findIndex((temp: TestValues) => temp.identifier.toLowerCase() === testName.toLowerCase());
@@ -455,6 +442,8 @@ export class EditReportComponent implements OnInit {
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
         }
+        console.log(this.report);
+
         this.checkForChanges();        
     }
 
@@ -522,6 +511,13 @@ export class EditReportComponent implements OnInit {
         return false;
     }
 
+
+
+
+    
+
+
+    // need works on keys
     /**
      * Set a value on the data table...
      * Adds it to the report array...
@@ -530,19 +526,31 @@ export class EditReportComponent implements OnInit {
      * @param key 
      * @param input 
      */
-    valueChange(reportId: number, key: string, input: FocusEvent | KeyboardEvent): void {
-        const reference: HTMLElement = <HTMLElement>input.target;
-        const newValue = reference.innerText.split("\n");
-        input.preventDefault();
+    valueChange2(reportId: number, name: string, input: string): void {
 
-        this.report.reports[reportId].user.data[key] = newValue[0];
+        let keys: string[] = this.getKeyFromName(name);
+
+        for(let i = 0 ; i < keys.length ; i++) {
+            this.report.reports[reportId].user.data[keys[i]] = input;
+        }
+
+        this.report.reports[reportId].user.data[name] = input;
+
+        console.log(this.report.reports[reportId].user.data);
         this.checkForChanges();
     }
 
-    valueChange2(reportId: number, key: string, input: string): void {
-        this.report.reports[reportId].user.data[key] = input;
-        this.checkForChanges();
-    }
+
+
+
+
+
+
+
+
+
+
+
 
     hiddenColumns: string[] = [];
     addedColumns: string[] = [];
@@ -598,6 +606,17 @@ export class EditReportComponent implements OnInit {
         return this.addedColumns.findIndex((str: string) => str === colName) === -1 ? false : true;
     }
 
+
+
+
+    
+
+
+
+    
+
+
+    // need works on keys
     /**
      * Deletes a column that has been created in the reports section.
      * Cannot delete columns of data which ahs been pre entered.
@@ -635,10 +654,29 @@ export class EditReportComponent implements OnInit {
         this.checkForChanges();
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     deleteUserReport(reportId: number): void {
         this.report.reports.splice(reportId, 1);
     }
 
+
+
+
+    
+
+
+    // need works on keys
     /**
      * 
      * If you change the settings on a test variable this function will modify all relevant values...
@@ -669,6 +707,16 @@ export class EditReportComponent implements OnInit {
             })
         })
     }
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Checks whether a column has specific values it can take...
@@ -719,9 +767,26 @@ export class EditReportComponent implements OnInit {
         this.reportGenerationReady = this.reportsService.testExecutability(this.report);
     }
 
+
+    
+
+
+
+    
+
+
+    // need works on keys
     generateReports(): void {
         this.report = this.reportsService.generateBatchReports(this.report);
     }
+
+
+
+
+
+
+
+
 
     // functions to show the various sections or not...
     showTests(): boolean { return this.report ? this.report.tests ? this.report.tests.length > 0 ? true : false : false : false; }
@@ -749,6 +814,15 @@ export class EditReportComponent implements OnInit {
         })
     }
 
+
+
+
+
+
+
+    // need works on keys
+
+
     populateDataFromKey(colName: string, key: string): void {
         // get the columns/ data fields for this group...
         this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
@@ -774,6 +848,18 @@ export class EditReportComponent implements OnInit {
             student['user'].data[key] = value;
         })
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Copies the report text into the clipboard
@@ -899,5 +985,48 @@ export class EditReportComponent implements OnInit {
         // basic method but effective.
         this.sortDirection *= -1;
     }
+
+
+
+    getKeyFromName(name: string): string[] {
+        let keys: string[] = [];
+        // test the variables first to see if its a variable...
+        
+        for(let i = 0 ; i < this.report.variables.length ; i++) {
+            this.report.variables[i].key === name ? keys.push(this.report.variables[i].identifier) : null;
+        }
+
+        // check the tests...
+        for(let i = 0 ; i < this.report.tests.length ; i++) {
+            // now the values in the tests...
+            for(let o = 0 ; o < this.report.tests[i].values.length ; o++) {
+                this.report.tests[i].values[o].key === name ? keys.push(this.report.tests[i].values[o].identifier) : null;
+            }
+        }
+
+        return keys.filter((value: string, index: number, restOfArray: string[]) => restOfArray.indexOf(value) === index);
+
+
+        // if(varIndex !== -1) {
+        //     // add it to the array.
+        //     keys.push(this.report.variables[varIndex].identifier);
+        // } else {
+        //     // see if its a test variables...
+        //     let testVarResult: number[] = [-1, -1];
+
+        //     testVarResult[0] = this.report.tests.findIndex((test: TestValues) => {
+        //         testVarResult[1] = test.values.findIndex((testValues: TestIndividualValue) => testValues.key === name );
+        //         return testVarResult[1] > -1;
+        //     })
+
+        //     if(testVarResult[0] !== -1) {
+        //         console.log(name, this.report.tests[testVarResult[0]].values[testVarResult[1]].identifier);
+        //         return this.report.tests[testVarResult[0]].values[testVarResult[1]].identifier;
+        //     } else {
+        //         // not found!
+        //         return undefined;
+        //     }
+        // }
+    } 
 
 }

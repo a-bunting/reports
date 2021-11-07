@@ -212,7 +212,6 @@ export class SentencesService {
      * Generates all potential options for sentences that could be make from a route
      * @param route 
      */
-    //  generateSentenceOptions(route: string[]): void {
     generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
         
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
@@ -325,7 +324,7 @@ export class SentencesService {
     }
 
 
-    generateTestedSentence(route: string[], userData: Student, tests: TestValues[]): string[] {
+    generateTestedSentence(route: string[], userData?: Student, tests?: TestValues[]): string[] {
 
         let options: string[] = [];
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
@@ -405,126 +404,6 @@ export class SentencesService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // newTestSentenceOptionCreator(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[] {
-
-    //     let textArrays: string[][] = [];
-    //     let data: sentence[] = this.sentenceData;
-
-    //     // console.log(`Route: `, route[0]);
-
-    //     // iterate over each part of the route...
-    //     fullRoute.forEach((route: string[]) => {
-
-    //     })
-
-    //     fullRoute[0].forEach((unSplitRoute: string) => {
-
-    //         // split the route by / bars...
-    //         let splitRoutes: string[] = unSplitRoute.split('/');
-    //         let routeData: string[][] = [];
-
-    //         splitRoutes.forEach((routeId: string) => {
-
-
-    //             // THIS IS ALL CHECKING TESTS AGAINST USER DATA
-
-    //             // find out if this route is applicable to the user with any tests that might be happening.
-    //             let routeIndex: number = data.findIndex((temp: sentence) => temp.id === routeId);
-    //             let testResults: boolean[] = [];
-    //             let allTrue: boolean = true;
-    //             // check if there are any tests applicable on this data
-                
-    //             if("tests" in data[routeIndex]) {
-    //                 // check if the user passes the tests...
-    //                 let applicableTests: TemplateTest[] = data[routeIndex].tests;
-    //                 // looop over all tests
-    //                 applicableTests.forEach((testTemp: TemplateTest) => {
-    //                     // get the correct test from the test database...
-    //                     let test: Test = this.testsService.getTest(testTemp.name);
-    //                     let newUserData: Student = {};
-    //                     // get the data needed from the user...
-    //                     let testVariables: TestVariable[] = test.variables;
-    //                     testVariables.forEach((variable: TestVariable) => {
-    //                         // find each variable identifvier in the userdata...
-    //                         variable.identifier in userData ? newUserData[variable.identifier] = userData[variable.identifier] : newUserData[variable.identifier] = "";
-    //                     })
-    //                     // any settings may also needed and should be added to the array
-    //                     // NOT SURE THIS WILL WORK...
-    //                     let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.name);
-                        
-    //                     if("settings" in test) {
-    //                         newUserData['settings'] = tests[testIndex].settings.value;
-    //                     }
-
-    //                     // submit the user data to the test to check if its truthy or falsey
-    //                     let testValue = test.calculateValueFunction(newUserData);
-    //                     let result: boolean = test.testFunction(testValue, testTemp.values.value);
-    //                     // push the result onto the array...
-    //                     testResults.push(result);
-    //                 })
-    //                 // this returns true if all tests are true. If any test is false, then eliminate this from the game!!
-    //                 allTrue = testResults.some((x: boolean) => x);
-    //             }
-    //             // END OF TESTS AGAINST USER DATA
-
-
-    //             if(allTrue) {
-    //                 // iterate on the data
-    //                 let sentenceValues: string[] = this.iterateSentenceFunction(data, routeId);
-        
-    //                 // push to the main array
-    //                 if(sentenceValues !== undefined) {
-    //                     sentenceValues.length > 0 ? routeData.push(sentenceValues) : null;
-    //                 }
-    //             }
-
-    //         })
-
-    //         // flatten this array so all options available to the user are on the same array...
-    //         textArrays.push(routeData.flat());
-
-    //         // ALL ID1/ID2/ID3 should be the last entry, it wouldnt make sense otherwise...
-    //         // find the index of the category just found and  make the data variables the subcategories...
-    //         // will return -1 for a split route as it wont find that unique id...
-    //         let subIndex: number =  data.findIndex((temp: sentence) => temp.id === unSplitRoute);
-            
-    //         // all of the previous data is on the same level so only increment data after they all have run.
-    //         if(subIndex !== -1) {
-    //             if("subcategories" in data[subIndex]) {
-    //                 data = data[subIndex].subcategories;
-    //             }
-    //         }
-
-    //     })
-
-    //     // weed out empty arrays
-    //     let newArray: string[][] = textArrays.filter((temp: string[]) => temp.length > 0 && /\S/.test(temp[0]));
-    //     // now to find all the sentence options by a cartesian transform on the data...
-    //     let returnArray: string[][] = this.cartesianProduct(newArray);
-    //     // and iterate over joining all the strings up for an array of options
-    //     let final: string[] = returnArray.map((str: string[]) => str.join());
-    //     // and return all options :)
-    //     return final;
-    // }
-
     newTestSentenceOptionCreator(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[] {
 
         let finalOptions: string[][] = [];
@@ -552,22 +431,24 @@ export class SentencesService {
                     
                     // check first that the route still existts - if the template has changed the id may have disappeared.
                     // Poor system ready for renewal before its evenb launched :)
-                    if(routeIndex !== -1) {
+                    if(routeIndex !== -1 && tests) {
                         if("tests" in data[routeIndex]) {
                             // check if the user passes the tests...
+                            // console.log(data[routeIndex].tests);
                             let applicableTests: TemplateTest[] = data[routeIndex].tests;
                             // looop over all tests
                             applicableTests.forEach((testTemp: TemplateTest) => {
                                 // get the correct test from the test database...
                                 let test: Test = this.testsService.getTest(testTemp.name);
                                 let newUserData: Student = { id: userData.id, data: {} };
+
                                 // get the data needed from the user...
                                 let testVariables: TestVariable[] = test.variables;
+
                                 testVariables.forEach((variable: TestVariable) => {
                                     // find each variable identifvier in the userdata...
                                     // STUDENT OBJECT CHANGE TEST PHRASE
-    
-                                    variable.identifier in userData.data ? newUserData.data[variable.identifier] = userData[variable.identifier] : newUserData.data[variable.identifier] = "";
+                                    variable.identifier in userData.data ? newUserData.data[variable.identifier] = userData.data[variable.identifier] : newUserData.data[variable.identifier] = "";
                                 })
                                 // any settings may also needed and should be added to the array
                                 // NOT SURE THIS WILL WORK...
@@ -579,6 +460,7 @@ export class SentencesService {
         
                                 // submit the user data to the test to check if its truthy or falsey
                                 let testValue = test.calculateValueFunction(newUserData);
+
                                 let result: boolean = test.testFunction(testValue, testTemp.values.value);
                                 // push the result onto the array...
                                 testResults.push(result);
@@ -666,23 +548,6 @@ export class SentencesService {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Generates an example sentence and gives the quantity of potential reports for this template
      * 
@@ -702,19 +567,11 @@ export class SentencesService {
 
         routeArray.forEach((route: string[], i: number) => {
             // check if its a new paragraph...
-            if(route[0] === "newParagraph") {
-                report += "</p><p>";
-            } else {
-                // starting paragraph tag
-                if(i === 0) { report += "<p>"; }
-
+            if(route[0] !== "newParagraph") {
                 // generate sentence option 1
                 const str = this.generateSentenceOptions(route);
                 quantity = quantity * str.length;
                 report += str[0].sentence;
-                
-                // close paragraph tag
-                if (i === routeArray.length - 1) { report += "</p>"; }
             }
         })
 

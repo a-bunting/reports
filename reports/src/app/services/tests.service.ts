@@ -100,7 +100,6 @@ export class TestsService {
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
-                
                 // find the user grades...
                 let newGrade: string = userData.data['curGrade'];
                 let oldGrade: string = userData.data['oldGrade'];
@@ -140,14 +139,15 @@ export class TestsService {
                                 let valueToTestAgainst: number = Number(exp[1]);
                                 // run through the options - looks nicer in a switch :)
                                 switch(exp[0]) {
-                                    case "<": valueToTest < valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
-                                    case ">": valueToTest > valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
-                                    case "=": valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
-                                    case "==": valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
-                                    case ">=": valueToTest >= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break; 
-                                    case "<=": valueToTest <= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case "<": +valueToTest < valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case ">": +valueToTest > valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case "=": +valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case "==": +valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
+                                    case ">=": +valueToTest >= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break; 
+                                    case "<=": +valueToTest <= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
                                     default: currentPassStatus = false;
                                 }
+
                             }
                         }
                     });

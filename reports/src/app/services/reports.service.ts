@@ -145,60 +145,6 @@ export class ReportsService {
         }
     }
 
-    /**
-     * Takes a group and a template and parses it into a reports template.
-    
-        DEPRECATED - Moved to the onChnage for the template in the edit-report.ts
-    
-    * @param group 
-     * @param template 
-     * @returns ReportTemplate
-     */
-    //  parseReport(groupId: string, templateId: string, reportName: string, repotId: string, user: User): ReportTemplate {
-    //     // set the individual components - not needed verbose but for clarity in design phase
-    //     let template: Template = this.templateService.getTemplate(templateId);
-    //     let variables: [GlobalValues[], VariableValues[]] = this.generateVariables(template);
-    //     let tests: TestValues[] = this.generateTests(template);
-    //     let individualReports: Report[] = [];
-    //     let reportsName: string = reportName;
-    //     let manager: string = user.id;
-    //     let reportId: string = repotId;
-        
-    //     let group: Group;
-    //     this.groupsService.getGroup(groupId).subscribe((grp: Group) => { group = grp; });
-
-    //     let keys: string[] = group.keys;
-
-    //     // parse each of the users into a new report for themselves - this lets us individualise each student
-    //     group.students.forEach((student: Student) => {
-    //         let newReport: Report = {
-    //             userId: student.id,
-    //             user: {...student}, 
-    //             template: {...template},
-    //             report: "",
-    //             generated: Date.now()
-    //         }
-    //         // and push to the main reports
-    //         individualReports.push(newReport);
-    //     })
-
-    //     // and build the report itself...
-    //     let report: ReportTemplate = {
-    //         id: reportId, 
-    //         groupId: group.id, 
-    //         templateId: template.id,
-    //         name: reportsName, 
-    //         manager: manager, 
-    //         globals: variables[0],
-    //         variables: variables[1],
-    //         tests: tests,
-    //         keys: keys,
-    //         reports: individualReports,
-    //         lastUpdated: Date.now()
-    //     };
-    //     return report;
-    // }
-
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
         let variables: VariableValues[] = [];
@@ -207,12 +153,14 @@ export class ReportsService {
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
-            this.sentenceService.generateSentenceOptions(section).forEach((option: {sentence: string, depth: number, delete: boolean}) => {
-                
+            // this.sentenceService.generateSentenceOptions(section).forEach((option: {sentence: string, depth: number, delete: boolean}) => {
+            this.sentenceService.newTestSentenceOptionCreator(template.template).forEach((option: string) => {
+
                 let typeMatches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
-                while(typeMatches = splitRegex.exec(option.sentence)) { 
+                while(typeMatches = splitRegex.exec(option)) { 
                     let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
+                    
                     // test if its already been identified and if not, push onto the array
                     if(exists === -1) {
                         // duplicates array used to ensure no doubles...
@@ -230,11 +178,6 @@ export class ReportsService {
                         // and get the options, if any...
                         while(optionsMatches = optionsRegex.exec(data[1])) {
                             options = optionsMatches[1].split(',');
-                            // let options = optionsMatches[1].split(',');
-                            
-                            // options.forEach((opt: string, l: number) => {
-                            //     optionObject[l] = opt;
-                            // })
                         }
 
                         // finally build the variable to put into the reports array
