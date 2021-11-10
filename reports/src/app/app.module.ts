@@ -32,6 +32,7 @@ import { NgxPayPalModule } from 'ngx-paypal';
 import { IntroComponent } from './utilities/intro/intro.component';
 import { TermsComponent } from './utilities/terms/terms.component';
 import { PrivacyComponent } from './utilities/privacy/privacy.component';
+import { PasswordChangeComponent } from './utilities/password-change/password-change.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { PrivacyComponent } from './utilities/privacy/privacy.component';
     AdminBugReportsComponent,
     IntroComponent,
     TermsComponent,
-    PrivacyComponent
+    PrivacyComponent,
+    PasswordChangeComponent
   ],
   imports: [
     BrowserModule,

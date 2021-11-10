@@ -337,5 +337,32 @@ export class AuthenticationService implements OnInit {
         return errorMessage;
     }
 
+    // password checking...
+
+    strong = new RegExp('(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9])');
+    medium = new RegExp('(?=.{7,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])');
+    long = new RegExp('(?=.{10,})');
+    acceptable = new RegExp('(?=.{6,})');
+    
+    /**
+     * Checks if the password meets the bare minimum standards...
+     * @returns 
+     */
+    testPassword(pass: string): boolean {
+        return this.acceptable.test(pass) ? true : false;
+    }
+
+    getPasswordStrength(password: string): number {
+        if(this.strong.test(password)) {
+            return 1;
+        } else if(this.medium.test(password) || this.long.test(password)) {
+            return 2
+        } else return 3;
+    }
+
+    checkPasswordMatch(newPass: string, newRepeat: string): boolean {
+        return newPass === newRepeat ? true : false;
+    }
+
 
 }

@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
     isAdmin: boolean = false; // change to false once integrated fully.
     user: User;
     authForm: NgForm;
+    forgotPassword: boolean = false;
 
     constructor(private authService: AuthenticationService) {}
 
@@ -74,5 +75,9 @@ export class AppComponent implements OnInit {
 
     removeErrorMessage(): void {
         this.errorMessage = undefined;
+    }
+
+    toggleForgot(): void {
+        this.forgotPassword = !this.forgotPassword;
     }
 }

@@ -31,7 +31,16 @@
                 <input type="email" id="registerEmail" class="auth__input" name="registerEmail" ngModel required email>
 
                 <div class="auth__label">Password</div>
-                <input type="password" id="registerPassword" class="auth__input" name="registerPassword" minLength="6" ngModel required password>
+                <div class="auth__input-container">
+                    <div class="auth__indicator auth__indicator--{{ authService.getPasswordStrength(authForm.value.registerPassword) }}">&nbsp;</div>
+                    <input type="password" id="registerPassword" class="auth__input" name="registerPassword" minLength="6" ngModel required password>
+                </div>
+                
+                <div class="auth__label">Repeat Pass...</div>
+                <div class="auth__input-container">
+                    <div class="auth__indicator auth__indicator--{{ authService.checkPasswordMatch(authForm.value.registerPassword, authForm.value.registerRepeatPassword) }}">&nbsp;</div>
+                    <input type="password" id="registerRepeatPassword" class="auth__input" name="registerRepeatPassword" minLength="6" ngModel required password>
+                </div>
                 
                 <div class="auth__terms">
                     <input type="checkbox" id="termsAndConditions" class="input__checkbox" name="termsAndConditions" [(ngModel)]="termsSelected" ngModel required>

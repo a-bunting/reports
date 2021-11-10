@@ -49,13 +49,14 @@
         <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
             <div class="header__login" *ngIf="!user">
 
-                <input type="email" id="email" name="email" class="header__login--input" [disabled]="isLoading" ngModel required email>
                 <div class="header__login-text">Username</div>
+                <input type="email" id="email" name="email" class="header__login--input" [disabled]="isLoading" ngModel required email>
 
-                <input  type="password" id="password" name="password" class="header__login--input" minLength="6" [disabled]="isLoading" ngModel required password>
-                <div class="header__login-text">Password</div>
+                <div class="header__login-text">Password (<span class="header__password-forgot" (click)="toggleForgot()">I forgot!</span>)</div>
+                <input  type="password" id="password" name="password" class="header__login--input" minLength="6" [disabled]="isLoading" *ngIf="!forgotPassword" ngModel required password>
 
-                <button class="input__button" [disabled]="isLoading">Log In</button>
+                <button class="input__button" [disabled]="isLoading" *ngIf="!forgotPassword">Log In</button>
+                <button class="input__button" *ngIf="forgotPassword">Send Password Reset Email</button>
                 
                 <div class="header__login-text">or</div>
                 <img src="../assets/btn_google_signin_light_normal_web.png" class="header__login--google" alt="Sign in with Google"  (click)="authService.GoogleAuth()">

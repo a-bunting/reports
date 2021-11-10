@@ -12,7 +12,7 @@ import { AuthenticationService } from '../authentication/authentication.service'
 
 export class AuthComponent implements OnInit {
 
-    constructor(private authService: AuthenticationService, private router: Router) { }
+    constructor(public authService: AuthenticationService, private router: Router) { }
 
     ngOnInit(): void {
 
@@ -22,6 +22,7 @@ export class AuthComponent implements OnInit {
     error: string = null;
     termsSelected: boolean = false;
     privacySelected: boolean = false;
+    authForm: NgForm;
 
     clearError() {
         this.error = undefined;

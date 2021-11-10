@@ -39,7 +39,7 @@
     &__form {
         display: grid;
         row-gap: .8rem;
-        grid-template-columns: 15rem 30rem;
+        grid-template-columns: 20rem 35rem;
         position: sticky;
         top: 5rem;
     }
@@ -55,6 +55,7 @@
         font-size: 1.6rem;
         padding-left: 1rem;
         letter-spacing: .2rem;
+        width: 100%;
     }
 
     &__buttons {
@@ -132,5 +133,26 @@
         display: flex;
         grid-column: 2 / 3;
         font-size: 1.4rem;
+    }
+
+    &__input-container {
+        display: flex;
+    }
+
+    &__indicator {
+
+        display: inline-block;
+        border-radius: 1rem 0 0 1rem;
+        width: 5rem;
+        transform: translateX(1rem);
+        font-size: 1.4rem;
+        padding: .5rem .5rem .5rem .8rem;
+        z-index: -1;
+
+        &--1 { background-color: green; &::before { content: "🤩"; }}
+        &--2 { background-color: orange; &::before { content: "😐"; }}
+        &--3 { background-color: red; &::before { content: "😓"; }}
+        &--true { background-color: green; &::before { content: " 👌"; }}
+        &--false { background-color: red; &::before { content: "👎"; }}
     }
 }
