@@ -603,7 +603,7 @@ export class ReportsService {
         if(genderIndex !== -1) {
             gender = report.user.data[variables[genderIndex].key];
         }
-
+        
         // first we need a sentence structure generated for this template.
         let template: Template = this.templateService.getTemplate(report.templateId);
         let minCharacters: number = template.characters.min;
@@ -631,9 +631,10 @@ export class ReportsService {
      * @returns 
      */
     substitutions(report: string, gender: "m" | "f" | "p"): string {
-        report = this.anOrA(report);
+        report = this.anOrA(report);        
         report = this.sentenceCase(report);
-        report = this.repeatCharacterRemoval(report);
+        report = this.repeatCharacterRemoval2(report);
+        console.log(report);
         // gender transform...
         report = this.genderConversion(report, gender);
         // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
@@ -737,15 +738,15 @@ export class ReportsService {
      */
     sentenceCase(report: string): string {
         let uppered: string = report;
+        let result: string = "";
         let sentences: string[] = uppered.split('.');
         // each sentence should have a capital letter...
-        sentences.forEach((sentence: string) => {
-            sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+        sentences.forEach((sentence: string, i: number) => {
+            i !== 0 ? result += " " : null;
+            result += (sentence.charAt(0).toUpperCase() + sentence.slice(1)).trimLeft() + '.';
         })
-        // make sure there is a . at the end
-        uppered.charAt(report.length - 1) !== '.' ? uppered += '.' : null;
         // return
-        return uppered;
+        return result;
     }
 
     /**
@@ -775,8 +776,20 @@ export class ReportsService {
         return report;
     }
 
+    repeatCharacterRemoval2(report: string): string {
+        let regExComma: RegExp = new RegExp('[ ,]{2,}', 'gi');
+        let regExFS: RegExp = new RegExp(/(\.[\s]{1,}\.)/gm);
+        
+        let regExString: string[];
+
+        while((regExString = regExComma.exec(report)) !== null) { report = report.replace(regExString[0], ', '); }
+        while((regExString = regExFS.exec(report)) !== null) { report = report.replace(regExString[0], '.'); }
+
+        return report;
+    }
+
     repeatCharacterRemoval(report: string): string {
-        let chars: string[] = [',','.',',.','.,'];
+        let chars: string[] = [',,','..',',.','.,','.'];
         
         chars.forEach((char: string) => {
 
@@ -784,7 +797,8 @@ export class ReportsService {
             let regExString: string[];
 
             while((regExString = regEx.exec(report)) !== null) {
-                report = report.replace(regExString[0], char[0]);
+                report = report.replace(regExString[0], regExString[0].charAt(0));
+                console.log(`Replacing ${regExString[0]} with ${regExString[0].charAt(0)}`);
             }
 
 

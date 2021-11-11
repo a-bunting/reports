@@ -507,7 +507,7 @@ export class SentencesService {
             // now to find all the sentence options by a cartesian transform on the data...
             let returnArray: string[][] = this.cartesianProduct(newArray);
             // and iterate over joining all the strings up for an array of options
-            let finalSentences: string[] = returnArray.map((str: string[]) => str.join());
+            let finalSentences: string[] = returnArray.map((str: string[]) => str.join('')).map((str: string) => str += '.');
 
             finalOptions.push(finalSentences);
         })
@@ -517,7 +517,7 @@ export class SentencesService {
         // now to find all the sentence options by a cartesian transform on the data...
         let returnArray: string[][] = this.cartesianProduct(newArray);
         // and iterate over joining all the strings up for an array of options
-        let finalSentences: string[] = returnArray.map((str: string[]) => str.join());
+        let finalSentences: string[] = returnArray.map((str: string[]) => str.join(''));
 
         // and return all options :)
         return finalSentences;
