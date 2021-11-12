@@ -437,6 +437,8 @@ export class SentencesService {
                             // console.log(data[routeIndex].tests);
                             let applicableTests: TemplateTest[] = data[routeIndex].tests;
 
+                            console.log(applicableTests);
+
                             // looop over all tests
                             applicableTests.forEach((testTemp: TemplateTest) => {
                                 // get the correct test from the test database...

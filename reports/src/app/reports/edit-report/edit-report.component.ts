@@ -270,6 +270,14 @@ export class EditReportComponent implements OnInit {
             // get the template and proces the variables required...
             const template: Template = this.templatesService.getTemplate(templateId);
             this.processTemplate(template);
+        } else {
+            // the template may have been deleted, what now?
+
+
+
+
+
+            
         }
         this.checkForChanges();
     }

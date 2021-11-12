@@ -205,11 +205,13 @@ body {
     border-radius: 1rem;
 
     &:hover {
-        cursor: pointer;
-        color: white;
-        transform: translateY(-.3rem);
-        background-color: var(--color-style-juxtapose);
-        box-shadow: 0 .4rem .8rem rgba(black, .7);
+        &:not(:disabled) {
+            cursor: pointer;
+            color: white;
+            transform: translateY(-.3rem);
+            background-color: var(--color-style-juxtapose);
+            box-shadow: 0 .4rem .8rem rgba(black, .7);
+        }
     }
 }
 

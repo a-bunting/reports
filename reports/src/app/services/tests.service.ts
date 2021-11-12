@@ -328,10 +328,10 @@ export class TestsService {
         {   // this isnt well written because data is replicated... sort out later.
             name: "Effort", 
             settings: { name: "The effort level", description: "How much effort does the student put into their work?", options: [{ name: "Effort Level", options: { 0: "No effort", 1: "Very little effort", 2: "Acceptable effort", 3: "Good effort", 4: "High level of effort"}}] },
-            description: "Where are the students going for the next time period (end of year usually going to be course over, and end of a semester would be to stay in the course",
+            description: "A verbal description of how much effort students have put into the course. Higher outcomes (usually) yield more positive statements.",
             test: {
-                name: "Maximum Effort Level", 
-                description: "This helps differentiate students by their effort levels. ALl students at this level and above pass the test.", 
+                name: "Effort Level", 
+                description: "This helps differentiate students by their effort levels. ALl students at this level pass the test.", 
                 options: ["No effort", "Very little effort", "Acceptable effort", "Good effort", "High level of effort"],
                 validityFunction: function(expression: string): boolean {
                     // simply check if the value is in the options available...
@@ -346,12 +346,13 @@ export class TestsService {
             },
             testFunction: function(valueToTest: string, testString: string): boolean {
                 let effortLevels: string[] = ["No effort", "Very little effort", "Acceptable effort", "Good effort", "High level of effort"];
+                // note this is used as opposed ot a straight string compare as in the future i expect multi functions here...
                 // where the user is on the scale...
                 let minEffortIndex: number = effortLevels.findIndex((temp: string) => temp === valueToTest);
                 // where they need to be to pass the test...
-                let comparisonEffort: number = effortLevels.findIndex((temp: string) => temp === valueToTest);
+                let comparisonEffort: number = effortLevels.findIndex((temp: string) => temp === testString);
                 // simply a comparison between the user value and the test value
-                return minEffortIndex >= comparisonEffort;
+                return minEffortIndex === comparisonEffort;
             }
         }
     ]

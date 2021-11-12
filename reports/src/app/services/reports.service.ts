@@ -634,7 +634,6 @@ export class ReportsService {
         report = this.anOrA(report);        
         report = this.sentenceCase(report);
         report = this.repeatCharacterRemoval2(report);
-        console.log(report);
         // gender transform...
         report = this.genderConversion(report, gender);
         // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
@@ -682,6 +681,7 @@ export class ReportsService {
 
         while((regexData = strReplace.exec(report)) !== null) {
             report = report.replace(regexData[0], regexData[2+genderIndex]);
+            strReplace.lastIndex = 0;
         }
 
         // return
@@ -702,6 +702,7 @@ export class ReportsService {
             let options: string[] = regExData[1].split('/');
             let randomValue: number = Math.floor(Math.random() * options.length);
             report = report.replace(regExData[0], options[randomValue]);
+            strReplace.lastIndex = 0;
         }
 
         return report;
@@ -720,9 +721,10 @@ export class ReportsService {
         
         while((regExData = strReplace.exec(report)) !== null) {
             // not quite working yet
-            let choice: string = (regExData[1].trimStart())[0].toLowerCase() === ("a"||"e"||"i"||"o"||"u") ? "an" : "a";
+            let choice: string = (regExData[1].trimStart())[0].toLowerCase() === ("a"||"e"||"i"||"o"||"u") || !isNaN(+regExData[1].trimStart()) ? "an" : "a";           
             let newStr: string = regExData[0].replace("[AnOrA]", choice);
             report = report.replace(regExData[0], newStr);
+            strReplace.lastIndex = 0;
         }
         return report;
     }
@@ -789,7 +791,7 @@ export class ReportsService {
     }
 
     repeatCharacterRemoval(report: string): string {
-        let chars: string[] = [',,','..',',.','.,','.'];
+        let chars: string[] = [',,','..',',.','.,'];
         
         chars.forEach((char: string) => {
 
@@ -798,7 +800,7 @@ export class ReportsService {
 
             while((regExString = regEx.exec(report)) !== null) {
                 report = report.replace(regExString[0], regExString[0].charAt(0));
-                console.log(`Replacing ${regExString[0]} with ${regExString[0].charAt(0)}`);
+                regEx.lastIndex = 0;
             }
 
 
