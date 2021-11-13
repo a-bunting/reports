@@ -85,6 +85,7 @@
                             <input type="text" *ngIf="!test.values.options" (keyup.enter)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value, test.name)" (blur)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value, test.name)" value="{{ test.values.value }}">
                             <!-- select if its an option -->
                             <select *ngIf="test.values.options" (change)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value, test.name)">
+                                <option selected disabled></option>
                                 <option value="{{opt}}" *ngFor="let opt of test.values.options; let i = index" [selected]="test.values.value == opt">{{ opt }}</option>
                             </select>
                         </div>

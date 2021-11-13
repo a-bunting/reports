@@ -1,10 +1,11 @@
 import { ConstantPool } from '@angular/compiler';
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
+import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
 import { sentence, SentencesService } from './sentences.service';
 import { Template, TemplatesService } from './templates.service';
@@ -53,14 +54,17 @@ export interface TestIndividualValue {
 export class ReportsService {
 
     reports: ReportTemplate[] = [];
+    user: User;
 
     constructor(
         private db: DatabaseService,
         private sentenceService: SentencesService,
         private testsService: TestsService,
         private groupsService: GroupsService, 
-        private templateService: TemplatesService
-    ) { }
+        private templateService: TemplatesService,
+        private auth: AuthenticationService
+    ) { 
+    }
 
     /**
      * Retrieves all user reports from the database...
@@ -610,18 +614,24 @@ export class ReportsService {
         let maxCharacters: number = template.characters.max;
         let sentenceOptionsTested: string[] = this.sentenceService.newTestSentenceOptionCreator(template.template, report.user, tests);
 
-        // trim down to the sentences which match the character range...
-        sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
-        // select a random value to pick at random a sentence from the options avaikable
-        let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
-        let reportUnSubstituted: string = sentenceOptionsTested[randomValueForSelect];
-
-        // now sub in values
-        globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
-        variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
-
-        // return selected sentence
-        return this.substitutions(reportUnSubstituted, gender);
+        // if we have any results...
+        if(sentenceOptionsTested.length > 0) {
+            // trim down to the sentences which match the character range...
+            sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
+            // select a random value to pick at random a sentence from the options avaikable
+            let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
+            let reportUnSubstituted: string = sentenceOptionsTested[randomValueForSelect];
+    
+            // now sub in values    
+            globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
+            variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
+            reportUnSubstituted = this.substitutions(reportUnSubstituted, gender);
+            
+            // return selected sentence
+            return reportUnSubstituted;
+        } else {
+            return "";
+        }
     }
 
     /**

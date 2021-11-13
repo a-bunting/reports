@@ -272,7 +272,7 @@ export class TestsService {
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
-                let numberOfGradeEntries: number = Object.keys(gradingSystem).length;
+                let numberOfGradeEntries: number = Object.keys(gradingSystem.options).length - 1;
                 // get the value of the user within the grade scale and find the user grades...
                 let levelValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
                 let level: string = userData.data['curGrade'];
@@ -280,6 +280,7 @@ export class TestsService {
                 // get the values...
                 // the difference in indices is simply the difference in grade
                 // bigger values means better grade gains
+                // console.log(`position: ${positionInScale}, numberofgradeentried: ${numberOfGradeEntries}`);
                 return positionInScale * (100 / numberOfGradeEntries);
             },
             testFunction: function(valueToTest: number, testPattern: string): boolean {
@@ -291,7 +292,7 @@ export class TestsService {
                     let exp: string[] = testPattern.split(regEx); // should have an array of [number, '-', number]
                     // strip out any percentages user might have put in......
                     exp.forEach((section: string, i: number) => { exp[i] = section.replace('%', '');  })
-
+                    
                     if(valueToTest >= +exp[0] && valueToTest <= +exp[2]) {
                         return true;
                     } else return false;

@@ -437,8 +437,6 @@ export class SentencesService {
                             // console.log(data[routeIndex].tests);
                             let applicableTests: TemplateTest[] = data[routeIndex].tests;
 
-                            console.log(applicableTests);
-
                             // looop over all tests
                             applicableTests.forEach((testTemp: TemplateTest) => {
                                 // get the correct test from the test database...
@@ -469,7 +467,7 @@ export class SentencesService {
                                 testResults.push(result);
                             })
                             // this returns true if all tests are true. If any test is false, then eliminate this from the game!!
-                            allTrue = testResults.some((x: boolean) => x);
+                            allTrue = !testResults.some((x: boolean) => x === false);
                         }
                     }
                     // END OF TESTS AGAINST USER DATA
