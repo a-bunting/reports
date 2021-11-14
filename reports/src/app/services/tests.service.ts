@@ -328,15 +328,15 @@ export class TestsService {
         }, 
         {   // this isnt well written because data is replicated... sort out later.
             name: "Effort", 
-            settings: { name: "The effort level", description: "How much effort does the student put into their work?", options: [{ name: "Effort Level", options: { 0: "No effort", 1: "Very little effort", 2: "Acceptable effort", 3: "Good effort", 4: "High level of effort"}}] },
-            description: "A verbal description of how much effort students have put into the course. Higher outcomes (usually) yield more positive statements.",
+            settings: { name: "The effort level", description: "How much effort does the student put into their work?", options: [{ name: "Effort Level", options: { 0: "No effort", 1: "Very little effort|minimum", 2: "Very Little effort", 3: "Acceptable effort|minimum", 4: "Acceptable effort", 5: "Good effort|minimum", 6: "Good effort", 7: "High level of effort"}}] },
+            description: "A verbal description of how much effort students have put into the course. Higher outcomes (usually) yield more positive statements. Minimums means that level and above will pass the test.",
             test: {
                 name: "Effort Level", 
                 description: "This helps differentiate students by their effort levels. ALl students at this level pass the test.", 
-                options: ["No effort", "Very little effort", "Acceptable effort", "Good effort", "High level of effort"],
+                options: ["No effort", "Very little effort|minimum",  "Very little effort", "Acceptable effort|minimum", "Acceptable effort", "Good effort|minimum", "Good effort", "High level of effort"],
                 validityFunction: function(expression: string): boolean {
                     // simply check if the value is in the options available...
-                    return ["No effort", "Very little effort", "Acceptable effort", "Good effort", "High level of effort"].includes(expression);
+                    return ["No effort", "Very little effort|minimum",  "Very little effort", "Acceptable effort|minimum", "Acceptable effort", "Good effort|minimum", "Good effort", "High level of effort"].includes(expression);
                 }
             },
             variables: [
@@ -346,16 +346,94 @@ export class TestsService {
                 return userData.data['effortLevel'];
             },
             testFunction: function(valueToTest: string, testString: string): boolean {
-                let effortLevels: string[] = ["No effort", "Very little effort", "Acceptable effort", "Good effort", "High level of effort"];
-                // note this is used as opposed ot a straight string compare as in the future i expect multi functions here...
-                // where the user is on the scale...
-                let minEffortIndex: number = effortLevels.findIndex((temp: string) => temp === valueToTest);
-                // where they need to be to pass the test...
-                let comparisonEffort: number = effortLevels.findIndex((temp: string) => temp === testString);
-                // simply a comparison between the user value and the test value
-                return minEffortIndex === comparisonEffort;
+                let effortLevels: string[] = ["No effort", "Very little effort|minimum",  "Very little effort", "Acceptable effort|minimum", "Acceptable effort", "Good effort|minimum", "Good effort", "High level of effort"];
+                // needs to know if its a minimum or an equals to.
+                let splitString: string[] = valueToTest.split('|');
+
+                if(splitString.length > 1) {
+                    switch(splitString[1]) {
+                        case "minimum": {
+                            // gets the locations of the users value within the array
+                            let valueToTestIndex: number = effortLevels.findIndex((test: string) => test === valueToTest);
+                            // gets the locations of the teststring in the array...
+                            let testAgainstIndex: number = effortLevels.findIndex((test: string) => test === testString);
+                            // of the location of the user within the array is equal to or greater than the location of the test against then return true, else false;
+                            return valueToTestIndex >= testAgainstIndex;
+                        }
+                    }
+                } else {
+                    // simply a comparison between the user value and the test value
+                    return valueToTest === testString;
+                }
+            }
+        }, 
+        {
+            name: "Grade Pattern", 
+            settings: { name: "Grade Pattern", description: "How have the students grades evolved over this time period?", options: [{ name: "Grade Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]}, 
+            description: "This is a simple test of students grades over a time period, it allows us to do more than just compare two grades but to make comments based on flakey or consistent grade patterns. There are no specific grades for this test but it will help build comments relating to (for example) organisation and burnout.", 
+            test: {
+                name: "Grade Pattern",
+                description: "A pattern matched with a grade level can distinguish how a student has performed over time.", 
+                options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"], 
+                validityFunction: (): boolean => {
+                    return true;
+                }
+            },
+            variables: [
+                { name: "Grade pattern over time", identifier: "patternGrade", description: "How have the students grades evolved over time?"}
+            ],
+            calculateValueFunction: (userData: Student): string => {
+                return userData.data['patternGrade'];
+            },
+            testFunction: (valueToTest: string, testString: string): boolean => {
+                return valueToTest === testString;
+            }
+        }, 
+        {
+            name: "Effort Pattern", 
+            settings: { name: "Effort Pattern", description: "How has the students effort level evolved over this time period?", options: [{ name: "Effort Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]}, 
+            description: "This is a simple test of students effort over a time period, it allows us to make comments about students waning or building effort.", 
+            test: {
+                name: "Effort Pattern",
+                description: "A pattern matched with a effort level can distinguish well a student has worked over time.", 
+                options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"], 
+                validityFunction: (): boolean => {
+                    return true;
+                }
+            },
+            variables: [
+                { name: "Effort pattern over time", identifier: "patternEffort", description: "How has the students effort level evolved over time?"}
+            ],
+            calculateValueFunction: (userData: Student): string => {
+                return userData.data['patternEffort'];
+            },
+            testFunction: (valueToTest: string, testString: string): boolean => {
+                return valueToTest === testString;
             }
         }
+
+
+        // template for additional tests
+        // {
+        //     name: "", 
+        //     settings: { name: "", description: "", options: []}, 
+        //     description: "", 
+        //     test: {
+        //         name: "",
+        //         description: "", 
+        //         options: [], 
+        //         validityFunction: (): boolean => {
+        //             return true;
+        //         }
+        //     },
+        //     variables: [{name: "", identifier: "", description: ""}],
+        //     calculateValueFunction: (): string => {
+        //         return null;
+        //     },
+        //     testFunction: (): boolean => {
+        //         return true;
+        //     }
+        // }
     ]
 
 
