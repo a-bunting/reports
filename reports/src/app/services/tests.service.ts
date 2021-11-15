@@ -3,6 +3,7 @@ import { Student } from 'src/app/services/groups.service';
 
 export interface Test {
     name: string; description: string; // explanation of the test - name preceded by 'Select a '...
+    identifier: string; // a unique id which identifies the test (irrespective of the name presented to the user)
     settings?:  {   // settings are optional and let you select an option set as opposed to specifying one set of options for all situations. 
                     name: string;   // the name of the setting
                     description: string;    // descirption of the seeting
@@ -33,7 +34,8 @@ export interface TestOptions {
 
 // what does a template need for a test?
 export interface TemplateTest {
-    name: string; // the name of the test
+    name: string; // the name of the test, this can be anything for the particular use.
+    identifier: string, // this is how the best is linked to this database
     values: {
         name: string; // the name of the testing value
         value: string | number; // the value assigned to this test for the specific sentenceStem
@@ -62,6 +64,7 @@ export class TestsService {
     public testsList: Test[] = [
         {
             name: "Grade Change", 
+            identifier: "gradeDifferenceCalculator",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Calculates a value taken from two grades at different points in time and returns the difference in sublevels. For example if a student moved from a B- to an A- (American grade system) this would return 3.",
             test: {
@@ -95,14 +98,14 @@ export class TestsService {
             },
             variables: [
                 { name: "Current Grade", identifier: "curGrade", description: "The students grade at the time you write the report."},
-                { name: "Previous Grade", identifier: "oldGrade", description: "The students grade at the time you want to compare the current grade to (for example, the last time you reported)."}
+                { name: "Comparison Grade", identifier: "comparisonGrade", description: "The students grade you want to compare to their current grade."}
             ], 
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
                 // find the user grades...
                 let newGrade: string = userData.data['curGrade'];
-                let oldGrade: string = userData.data['oldGrade'];
+                let oldGrade: string = userData.data['comparisonGrade'];
                 // this is untested...
                 let newGradeValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
                 let oldGradeValueArray: { [key: number]: string }[] = Object.keys(gradingSystem.options).map((key) => (  gradingSystem.options[key] ));
@@ -160,6 +163,7 @@ export class TestsService {
         }, 
         {
             name: "Skill Level", 
+            identifier: "skillLevelTest",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Simply test if a student is at a particular skill level. To compare skill levels use the 'grade change' test.",
             test: {
@@ -232,6 +236,7 @@ export class TestsService {
         }, 
         {
             name: "Grade Level", 
+            identifier: "gradeLevelTest",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Simply returns a value which indicates where the student is within the grade scale as a poercentage. A student doing very well will be close to the 100% and students struggling will be closer to 0%.",
             test: {
@@ -304,6 +309,7 @@ export class TestsService {
         }, 
         {   // this isnt well written because data is replicated... sort out later.
             name: "Next Stage", 
+            identifier: "nextStageTest",
             settings: { name: "Their next steps", description: "Where are they going next year?", options: [{ name: "Where are they going for their next time period?", options: { 0: "Leaving school", 1: "Staying in this course", 2: "Course is over", 3: "Graduating", 4: "I am leaving"}}] },
             description: "Where are the students going for the next time period (end of year usually going to be course over, and end of a semester would be to stay in the course",
             test: {
@@ -328,15 +334,16 @@ export class TestsService {
         }, 
         {   // this isnt well written because data is replicated... sort out later.
             name: "Effort", 
-            settings: { name: "The effort level", description: "How much effort does the student put into their work?", options: [{ name: "Effort Level", options: { 0: "No effort", 1: "Very little effort|minimum", 2: "Very Little effort", 3: "Acceptable effort|minimum", 4: "Acceptable effort", 5: "Good effort|minimum", 6: "Good effort", 7: "High level of effort"}}] },
+            identifier: "effortTest",
+            settings: { name: "The effort level", description: "How much effort does the student put into their work?", options: [{ name: "Effort Level", options: { 0: "No effort", 1: "Very Little effort", 2: "Acceptable effort", 3: "Good effort", 4: "High level of effort"}}] },
             description: "A verbal description of how much effort students have put into the course. Higher outcomes (usually) yield more positive statements. Minimums means that level and above will pass the test.",
             test: {
                 name: "Effort Level", 
                 description: "This helps differentiate students by their effort levels. ALl students at this level pass the test.", 
-                options: ["No effort", "Very little effort|minimum",  "Very little effort", "Acceptable effort|minimum", "Acceptable effort", "Good effort|minimum", "Good effort", "High level of effort"],
+                options: ["No effort", "Very little effort|minimum",  "Very little effort", "Very little effort|maximum", "Acceptable effort|minimum", "Acceptable effort", "Acceptable effort|maximum", "Good effort|minimum", "Good effort", "Good effort|maximum", "High level of effort"],
                 validityFunction: function(expression: string): boolean {
                     // simply check if the value is in the options available...
-                    return ["No effort", "Very little effort|minimum",  "Very little effort", "Acceptable effort|minimum", "Acceptable effort", "Good effort|minimum", "Good effort", "High level of effort"].includes(expression);
+                    return ["No effort", "Very little effort|minimum",  "Very little effort", "Very little effort|maximum", "Acceptable effort|minimum", "Acceptable effort", "Acceptable effort|maximum", "Good effort|minimum", "Good effort", "Good effort|maximum", "High level of effort"].includes(expression);
                 }
             },
             variables: [
@@ -346,9 +353,9 @@ export class TestsService {
                 return userData.data['effortLevel'];
             },
             testFunction: function(valueToTest: string, testString: string): boolean {
-                let effortLevels: string[] = ["No effort", "Very little effort|minimum",  "Very little effort", "Acceptable effort|minimum", "Acceptable effort", "Good effort|minimum", "Good effort", "High level of effort"];
+                let effortLevels: string[] = ["No effort","Very little effort","Acceptable effort","Good effort","High level of effort"];
                 // needs to know if its a minimum or an equals to.
-                let splitString: string[] = valueToTest.split('|');
+                let splitString: string[] = testString.split('|');
 
                 if(splitString.length > 1) {
                     switch(splitString[1]) {
@@ -356,10 +363,19 @@ export class TestsService {
                             // gets the locations of the users value within the array
                             let valueToTestIndex: number = effortLevels.findIndex((test: string) => test === valueToTest);
                             // gets the locations of the teststring in the array...
-                            let testAgainstIndex: number = effortLevels.findIndex((test: string) => test === testString);
+                            let testAgainstIndex: number = effortLevels.findIndex((test: string) => test === splitString[0]);
                             // of the location of the user within the array is equal to or greater than the location of the test against then return true, else false;
                             return valueToTestIndex >= testAgainstIndex;
                         }
+                        case "maximum": {
+                            // gets the locations of the users value within the array
+                            let valueToTestIndex: number = effortLevels.findIndex((test: string) => test === valueToTest);
+                            // gets the locations of the teststring in the array...
+                            let testAgainstIndex: number = effortLevels.findIndex((test: string) => test === splitString[0]);
+                            // of the location of the user within the array is equal to or greater than the location of the test against then return true, else false;
+                            return valueToTestIndex <= testAgainstIndex;
+                        }
+                        default: { return false };
                     }
                 } else {
                     // simply a comparison between the user value and the test value
@@ -369,6 +385,7 @@ export class TestsService {
         }, 
         {
             name: "Grade Pattern", 
+            identifier: "gradePatternTest",
             settings: { name: "Grade Pattern", description: "How have the students grades evolved over this time period?", options: [{ name: "Grade Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]}, 
             description: "This is a simple test of students grades over a time period, it allows us to do more than just compare two grades but to make comments based on flakey or consistent grade patterns. There are no specific grades for this test but it will help build comments relating to (for example) organisation and burnout.", 
             test: {
@@ -386,11 +403,13 @@ export class TestsService {
                 return userData.data['patternGrade'];
             },
             testFunction: (valueToTest: string, testString: string): boolean => {
+                console.log(valueToTest, testString);
                 return valueToTest === testString;
             }
         }, 
         {
             name: "Effort Pattern", 
+            identifier: "effortPatternTest",
             settings: { name: "Effort Pattern", description: "How has the students effort level evolved over this time period?", options: [{ name: "Effort Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]}, 
             description: "This is a simple test of students effort over a time period, it allows us to make comments about students waning or building effort.", 
             test: {
@@ -416,6 +435,7 @@ export class TestsService {
         // template for additional tests
         // {
         //     name: "", 
+        //     identifier: "",
         //     settings: { name: "", description: "", options: []}, 
         //     description: "", 
         //     test: {
@@ -444,9 +464,9 @@ export class TestsService {
      * @param testName 
      * @returns 
      */
-    getTest(testName: string): Test {
+    getTest(testIdentifier: string): Test {
         //get the index
-        let testIndex: number = this.testsList.findIndex((test: Test) => test.name === testName);
+        let testIndex: number = this.testsList.findIndex((test: Test) => test.identifier === testIdentifier);
         // and return the variables...
         return testIndex === -1 ? null : this.testsList[testIndex];
     }
@@ -457,9 +477,9 @@ export class TestsService {
      * @param testName 
      * @returns 
      */
-    getTestVariables(testName: string): TestVariable[] {
+    getTestVariables(testIdentifier: string): TestVariable[] {
         //get the index
-        let testIndex: number = this.testsList.findIndex((test: Test) => test.name === testName);
+        let testIndex: number = this.testsList.findIndex((test: Test) => test.identifier === testIdentifier);
         // and return the variables...
         return testIndex === -1 ? [] : this.testsList[testIndex].variables;
     }

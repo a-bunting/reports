@@ -440,7 +440,7 @@ export class SentencesService {
                             // looop over all tests
                             applicableTests.forEach((testTemp: TemplateTest) => {
                                 // get the correct test from the test database...
-                                let test: Test = this.testsService.getTest(testTemp.name);
+                                let test: Test = this.testsService.getTest(testTemp.identifier);
                                 let newUserData: Student = { id: userData.id, data: {} };
 
                                 // get the data needed from the user...
@@ -751,13 +751,14 @@ export class SentencesService {
             try {
                 const testsAlreadyMade: boolean = (value.subcategories[subPosition]['tests']) ? true : false;
                 const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
-                const testName: string = (<HTMLInputElement>document.getElementById('newTest')).value;
-                const test: Test = this.testsService.testsList.find((temp: Test) => temp.name === testName);
+                const testIdent: string = (<HTMLInputElement>document.getElementById('newTest')).value;
+                // const test: Test = this.testsService.testsList.find((temp: Test) => temp.name === testName);
+                const test: Test = this.testsService.testsList.find((temp: Test) => temp.identifier === testIdent);
 
                 if(test !== undefined) {
                     // if the test was found add it...
                     const options: string[] | number[] = (test.test.options ? test.test.options : undefined);
-                    const newTest: TemplateTest = {name: testName, values: {name: test.test.name, value: "", options: options}};
+                    const newTest: TemplateTest = {name: test.name, identifier: test.identifier, values: {name: test.test.name, value: "", options: options}};
                     // first add the test
                     if(testsAlreadyMade) {
                         value.subcategories[subPosition]['tests'].push(newTest);
@@ -797,6 +798,18 @@ export class SentencesService {
         const callback: Function = (value: sentence) => {
             try {
                 value.subcategories[index].tests[testIndex].values.value = modifiedValue;
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        return this.modifyData(position, callback, route);
+    }
+
+    modifyTestName(position: number, index: number, testIndex: number, route: string[], modifiedValue: string): boolean {
+        const callback: Function = (value: sentence) => {
+            try {
+                value.subcategories[index].tests[testIndex].name = modifiedValue;
                 return true;
             } catch (e) {
                 return false;

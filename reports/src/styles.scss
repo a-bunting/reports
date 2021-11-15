@@ -122,10 +122,14 @@ body {
 
 .tooltipped {
     position: relative;
+    z-index: 100;
 
-    &:hover .tooltip {
-        visibility: visible;
-        opacity: 1;
+    &:hover {
+        .tooltip {
+            visibility: visible;
+            opacity: 1;
+            z-index: 1000000 !important;
+        }
     }
 }
 
@@ -142,7 +146,7 @@ body {
     opacity: 0;
     transition: all .2s;
     text-align: center;
-    // z-index: 99;
+    z-index: 101;
 }
 
 .loading {

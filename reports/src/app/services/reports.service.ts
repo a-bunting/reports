@@ -40,7 +40,7 @@ export interface VariableValues {
 }
 
 export interface TestValues { 
-    identifier: string, settings?: { name: string; value: TestOptions; options: TestOptions[] }, values: TestIndividualValue[]
+    name: string, identifier: string, settings?: { name: string; value: TestOptions; options: TestOptions[] }, values: TestIndividualValue[]
 }
 
 export interface TestIndividualValue { 
@@ -188,6 +188,7 @@ export class ReportsService {
                         let newVariable: GlobalValues | VariableValues;
                         let identifier: string = data[1].split('[')[0];
 
+
                         switch(data[0]) {
                             case 'g':
                                 // this is a global values
@@ -230,8 +231,8 @@ export class ReportsService {
                                 if(testIndex === -1) {
                                     
                                     // get the test we are intersted in...
-                                    let newTest: Test = this.testsService.getTest(test.name);
-                                    let testValues: TestValues = {identifier: test.name, values: []};
+                                    let newTest: Test = this.testsService.getTest(test.identifier);
+                                    let testValues: TestValues = {name: test.name, identifier: test.identifier, values: []};
 
                                     // if default settings are required then set those up here...
                                     if("settings" in newTest) {
@@ -641,13 +642,13 @@ export class ReportsService {
      * @returns 
      */
     substitutions(report: string, gender: "m" | "f" | "p"): string {
-        report = this.anOrA(report);        
         report = this.sentenceCase(report);
         report = this.repeatCharacterRemoval2(report);
         // gender transform...
         report = this.genderConversion(report, gender);
         // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
         report = this.pickAWord(report);
+        report = this.anOrA(report);        
         // finally remove the whitespace;
         report = this.removeWhiteSpace(report);
         return report;
@@ -709,6 +710,7 @@ export class ReportsService {
         let regExData: string[];
 
         while((regExData = strReplace.exec(report)) !== null) {
+            // recursive options support - only one level deep allowed otherwise things get too complex
             let options: string[] = regExData[1].split('/');
             let randomValue: number = Math.floor(Math.random() * options.length);
             report = report.replace(regExData[0], options[randomValue]);

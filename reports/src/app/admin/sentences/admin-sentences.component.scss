@@ -176,7 +176,7 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            overflow: none;
+            // overflow: none;
         }
 
         &--name {
@@ -202,10 +202,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: all .1s;
 
             &:hover {
                 cursor: pointer;
-                filter: brightness(140%);
+                filter: brightness(150%);
+                box-shadow: 0 .2rem .4rem rgba(black, .4);
             }
 
             &-copy {

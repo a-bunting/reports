@@ -123,7 +123,7 @@
         <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
             <div class="reports__variable--multirow">
                 <div class="reports__variable--name">
-                    {{ test.identifier }}
+                    {{ test.name }}
                 </div>
                 <div class="reports__variable--options" *ngIf="test.settings">
                     <!-- <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)"> -->

@@ -302,8 +302,8 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * @param value 
      * @param testName
      */
-     changeTestOptionValue(position: number, index: number, testIndex: number, value: string, testName: string) {
-        let testCheck: Test = this.testsService.getTest(testName);
+     changeTestOptionValue(position: number, index: number, testIndex: number, value: string, testIdentifier: string) {
+        let testCheck: Test = this.testsService.getTest(testIdentifier);
         let testResult: boolean = this.sentenceService.testValueValidation(value, testCheck);
 
         if(testResult) {
@@ -312,6 +312,11 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         } else {
             console.log("Incorrect Test Value");
         }
+    }
+
+    changeTestName(position: number, index: number, testIndex: number, value: string, testIdentifier: string) {
+        const modified: boolean = this.sentenceService.modifyTestName(position, index, testIndex, this.route, value);
+        modified ? this.modifySuccess() : this.errorText = "Modification of test name failed...";
     }
 
     // COPY AND PASTE FUNCTION - FULL DETIAL IN SENTENCE SERVICE  for PASTE
