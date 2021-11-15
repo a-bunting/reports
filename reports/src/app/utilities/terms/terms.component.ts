@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-terms',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TermsComponent implements OnInit {
 
-  constructor() { }
+  constructor(private titleService: Title) { }
 
   ngOnInit(): void {
+    if(window.location.pathname === "/terms") {
+        this.titleService.setTitle(`Reports - Terms and Conditions`);
+    }
   }
 
 }

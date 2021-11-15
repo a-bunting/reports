@@ -4,6 +4,7 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { DatabaseService } from '../services/database.service';
 import { TestsService, Test } from '../services/tests.service';
 import { SentencesService, sentence } from '../services/sentences.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-sentences',
@@ -46,18 +47,20 @@ export class SentencesComponent implements OnInit, OnDestroy {
     constructor(private databaseService: DatabaseService, 
                 private auth: AuthenticationService, 
                 private testsService: TestsService,
-                private sentenceService: SentencesService) {
-                
-                // get the user details...
-                auth.user.subscribe((newUser: User) => {
-                    this.user = newUser;
-                })
+                private sentenceService: SentencesService, 
+                private titleService: Title
+    ) {
+        // get the user details...
+        auth.user.subscribe((newUser: User) => {
+            this.user = newUser;
+        })
     }
-
+    
     /**
      * On init get the database...
      */
     ngOnInit(): void {
+        this.titleService.setTitle(`Reports - Sentence Database`);
         this.isLoading = true;
 
         // get the sentence data from the database...
@@ -332,16 +335,23 @@ export class SentencesComponent implements OnInit, OnDestroy {
      * @param value 
      * @param testName
      */
-     changeTestOptionValue(position: number, index: number, testIndex: number, value: string, testName: string) {
-        let testCheck: Test = this.testsService.getTest(testName);
-        let testResult: boolean = this.sentenceService.testValueValidation(value, testCheck);
+     changeTestOptionValue(position: number, index: number, testIndex: number, inputElement: any, testIdentifier: string) {
+        let testCheck: Test = this.testsService.getTest(testIdentifier);
+        let testResult: boolean = this.sentenceService.testValueValidation(inputElement.target.value, testCheck);
 
         if(testResult) {
-            const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, value);
+            const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, inputElement.target.value);
             modified ? this.modifySuccess() : this.errorText = "Modification of test failed...";
+            inputElement.target.classList.remove('sentences__stem-phrase--incorrect-input');
         } else {
             console.log("Incorrect Test Value");
+            inputElement.target.classList.add('sentences__stem-phrase--incorrect-input');
         }
+    }
+
+    changeTestName(position: number, index: number, testIndex: number, value: string, testIdentifier: string) {
+        const modified: boolean = this.sentenceService.modifyTestName(position, index, testIndex, this.route, value);
+        modified ? this.modifySuccess() : this.errorText = "Modification of test name failed...";
     }
 
     // COPY AND PASTE FUNCTION - FULL DETIAL IN SENTENCE SERVICE  for PASTE
@@ -406,8 +416,8 @@ export class SentencesComponent implements OnInit, OnDestroy {
      * @param testName 
      * @returns 
      */
-     getTestDescription(testName: string): string {
-        let test: Test = this.testsService.testsList.find((temp: Test) => temp.name === testName);
+     getTestDescription(testIdentifier: string): string {
+        let test: Test = this.testsService.testsList.find((temp: Test) => temp.identifier === testIdentifier);
         // if the test was found in the list return the description.
         if(test !== undefined) {
             return test.test.description;

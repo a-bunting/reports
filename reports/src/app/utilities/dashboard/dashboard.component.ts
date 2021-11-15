@@ -8,6 +8,7 @@ import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
 import { DatabaseService } from 'src/app/services/database.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,10 +29,13 @@ export class DashboardComponent implements OnInit {
         private groupService: GroupsService,
         private templatesService: TemplatesService, 
         private sentenceService: SentencesService,
-        private reportService: ReportsService
+        private reportService: ReportsService, 
+        private titleService: Title
     ) {}
     
     ngOnInit(): void {
+        this.titleService.setTitle(`Reports - Dashboard`);
+        // get user data...
         this.AuthService.user.subscribe((user: User) => {
             if(user) {
                 this.user = user;

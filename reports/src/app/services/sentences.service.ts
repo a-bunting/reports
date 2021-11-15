@@ -757,7 +757,7 @@ export class SentencesService {
 
                 if(test !== undefined) {
                     // if the test was found add it...
-                    const options: string[] | number[] = (test.test.options ? test.test.options : undefined);
+                    const options: string[] | number[] = (test.test.options ? test.test.options : null);
                     const newTest: TemplateTest = {name: test.name, identifier: test.identifier, values: {name: test.test.name, value: "", options: options}};
                     // first add the test
                     if(testsAlreadyMade) {

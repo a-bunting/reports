@@ -302,15 +302,17 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * @param value 
      * @param testName
      */
-     changeTestOptionValue(position: number, index: number, testIndex: number, value: string, testIdentifier: string) {
+     changeTestOptionValue(position: number, index: number, testIndex: number, inputElement: any, testIdentifier: string) {
         let testCheck: Test = this.testsService.getTest(testIdentifier);
-        let testResult: boolean = this.sentenceService.testValueValidation(value, testCheck);
+        let testResult: boolean = this.sentenceService.testValueValidation(inputElement.target.value, testCheck);
 
         if(testResult) {
-            const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, value);
+            const modified: boolean = this.sentenceService.modifyTestValue(position, index, testIndex, this.route, inputElement.target.value);
             modified ? this.modifySuccess() : this.errorText = "Modification of test failed...";
+            inputElement.target.classList.remove('admin-sentences__stem-phrase--incorrect-input');
         } else {
             console.log("Incorrect Test Value");
+            inputElement.target.classList.add('admin-sentences__stem-phrase--incorrect-input');
         }
     }
 
@@ -381,8 +383,8 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
      * @param testName 
      * @returns 
      */
-    getTestDescription(testName: string): string {
-        let test: Test = this.testsService.testsList.find((temp: Test) => temp.name === testName);
+    getTestDescription(testIdentifier: string): string {
+        let test: Test = this.testsService.testsList.find((temp: Test) => temp.identifier === testIdentifier);
         // if the test was found in the list return the description.
         if(test !== undefined) {
             return test.test.description;

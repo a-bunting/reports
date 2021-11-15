@@ -226,7 +226,7 @@ export class ReportsService {
 
                             templateInfo.tests.forEach((test: TemplateTest) => {
                                 // check if this test is already added
-                                const testIndex = testVals.findIndex((t: TestValues) => test.name === t.identifier);
+                                const testIndex = testVals.findIndex((t: TestValues) => test.identifier === t.identifier);
                                 // if not there, add it...
                                 if(testIndex === -1) {
                                     

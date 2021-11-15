@@ -336,6 +336,28 @@
             margin: .5rem;
             border-top: 1px dashed black;
         }
+
+        &--input {
+            width: 6rem;
+            border-radius: .4rem;
+            padding: .2rem .4rem;
+            letter-spacing: .1rem;
+
+            &--long {
+                width: 16rem;
+            }
+        }
+
+        &--incorrect-input {
+            box-shadow: 0 0 .8rem rgba(red, .8);
+            background-color: rgba(red, .3);
+        }
+
+        &--select {
+            width: 10rem;
+            border-radius: .4rem;
+            padding: .2rem .4rem;
+        }
     
         &--test {
             display: flex;

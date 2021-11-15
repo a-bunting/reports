@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-edit-group',
@@ -16,7 +17,7 @@ export class EditGroupComponent implements OnInit {
     loadingFailure: boolean = false;
     user: User;
 
-    constructor(private groupsService: GroupsService, private auth: AuthenticationService, private groupService: GroupsService) { 
+    constructor(private groupsService: GroupsService, private auth: AuthenticationService, private groupService: GroupsService, private titleService: Title) { 
         // get the user info...
         auth.user.subscribe((user: User) => {
             this.user = user;
@@ -25,6 +26,7 @@ export class EditGroupComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadGroups();
+        this.titleService.setTitle(`Reports - Edit Classes`);
     }
 
     /**

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../authentication/authentication.service';
@@ -12,10 +13,10 @@ import { AuthenticationService } from '../authentication/authentication.service'
 
 export class AuthComponent implements OnInit {
 
-    constructor(public authService: AuthenticationService, private router: Router) { }
+    constructor(public authService: AuthenticationService, private router: Router, private titleService: Title) { }
 
     ngOnInit(): void {
-
+        this.titleService.setTitle(`Reports - Register`);
     }
 
     isLoading: boolean = false;

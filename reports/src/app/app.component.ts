@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
@@ -24,7 +25,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.authService.autoLogin();
-        
+
         this.authService.user.subscribe((user: User) => {
             this.isAuthenticated = !!user;
             if(user) {

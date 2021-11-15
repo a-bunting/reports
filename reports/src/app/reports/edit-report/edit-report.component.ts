@@ -10,6 +10,7 @@ import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from 'src/app/services/tests.service';
 import { DocumentReference } from '@angular/fire/firestore';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-edit-report',
@@ -45,7 +46,8 @@ export class EditReportComponent implements OnInit {
         private groupService: GroupsService, 
         private templatesService: TemplatesService, 
         private sentenceService: SentencesService, 
-        private testsService: TestsService
+        private testsService: TestsService, 
+        private titleService: Title
     ) { }
 
     ngOnInit(): void {
@@ -86,6 +88,10 @@ export class EditReportComponent implements OnInit {
         this.sticky.observe(document.getElementsByClassName('sticky').item(0));
 
         
+    }
+
+    setTitle(newTitle: string): void {
+        this.titleService.setTitle(newTitle);
     }
 
     /**
@@ -272,12 +278,12 @@ export class EditReportComponent implements OnInit {
             this.processTemplate(template);
         } else {
             // the template may have been deleted, what now?
-
-
-
-
-
-            
+            this.report.templateId = "";
+            this.loadedTemplate = "";
+            // set the template id on each of the users (in the future potentially each student may have different template ids)
+            this.report.reports.forEach((repo: Report) => {
+                repo.templateId = "";
+            })
         }
         this.checkForChanges();
     }
@@ -297,6 +303,7 @@ export class EditReportComponent implements OnInit {
             // check if we can make the report yet...
             this.loadedGroup = this.report.groupId;
             this.loadedTemplate = this.report.templateId;
+            this.setTitle(`Reports - ${this.report.name}`);
             this.loadTemplate(this.loadedTemplate);
         }, error => {
             this.isLoading = false;
@@ -839,6 +846,7 @@ export class EditReportComponent implements OnInit {
     getGroupData(): void {
         // get the columns/ data fields for this group...
         this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
+            console.log(this.report);
             let groupData: Group = grp;
             this.groupKeys = groupData.keys;
         })

@@ -79,26 +79,25 @@
                     <!-- tests -->
                     <div class="admin-sentences__stem-phrase--test" *ngFor="let test of sentence.tests; let t = index">
                         <div class="admin-sentences__stem-phrase--test--name">
-                            <input type="text" (keyup.enter)="changeTestName(sentence.order, sentence.index, t, $event.target.value, test.identifier)" (blur)="changeTestName(sentence.order, sentence.index, t, $event.target.value, test.name)" value="{{ test.name }}">
+                            <input type="text" class="admin-sentences__stem-phrase--input admin-sentences__stem-phrase--input--long" (keyup.enter)="changeTestName(sentence.order, sentence.index, t, $event.target.value, test.identifier)" (blur)="changeTestName(sentence.order, sentence.index, t, $event.target.value, test.identifier)" value="{{ test.name }}">
                         </div>
                         <!-- test inputs -->
                         <div class="admin-sentences__stem-phrase--test-inputs">
                             <!-- text if its open -->
-                            <input type="text" *ngIf="!test.values.options" (keyup.enter)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value, test.identifier)" (blur)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value, test.identifier)" value="{{ test.values.value }}">
+                            <input type="text" class="admin-sentences__stem-phrase--input" *ngIf="!test.values.options" (keyup.enter)="changeTestOptionValue(sentence.order, sentence.index, t, $event, test.identifier)" (blur)="changeTestOptionValue(sentence.order, sentence.index, t, $event, test.identifier)" value="{{ test.values.value }}">
                             <!-- select if its an option -->
-                            <select *ngIf="test.values.options" (change)="changeTestOptionValue(sentence.order, sentence.index, t, $event.target.value, test.identifier)">
+                            <select *ngIf="test.values.options" class="admin-sentences__stem-phrase--select" (change)="changeTestOptionValue(sentence.order, sentence.index, t, $event, test.identifier)">
                                 <option selected disabled></option>
                                 <option value="{{opt}}" *ngFor="let opt of test.values.options; let i = index" [selected]="test.values.value == opt">{{ opt }}</option>
                             </select>
                         </div>
                         <div class="admin-sentences__stem-phrase--test--buttons">
-                            <div class="admin-sentences__stem-phrase--test--help admin-sentences__stem-phrase--test--button tooltipped">&#63; <div class="tooltip">{{ getTestDescription(test.name) }}</div></div>
+                            <div class="admin-sentences__stem-phrase--test--help admin-sentences__stem-phrase--test--button tooltipped">&#63; <div class="tooltip">{{ getTestDescription(test.identifier) }}</div></div>
                             <div class="admin-sentences__stem-phrase--test--delete admin-sentences__stem-phrase--test--button" (click)="removeTest(sentence.order, sentence.index, t)">&times;</div>
                         </div>
                     </div>
                     <div class="admin-sentences__stem-phrase--test" *ngIf="addTest.order === sentence.order && addTest.index === sentence.index">
-                        <select name="newTest" id="newTest">
-                            <!-- <option value="{{ test.name }}" *ngFor="let test of filterTests(sentence.tests, testsService.testsList); let u = index">{{ test.name }}</option> -->
+                        <select name="newTest" id="newTest" class="admin-sentences__stem-phrase--select">
                             <option value="{{ test.identifier }}" *ngFor="let test of filterTests(sentence.tests, testsService.testsList); let u = index">{{ test.name }}</option>
                         </select>
                         <div class="admin-sentences__stem-phrase--test--buttons">

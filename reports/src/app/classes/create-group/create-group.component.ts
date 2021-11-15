@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
+import { Title } from '@angular/platform-browser';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
@@ -23,13 +24,14 @@ export class CreateGroupComponent implements OnInit {
     dataChanged: boolean = false;
     groupId: string; // if the class has been created this will be populated with the database id.
 
-    constructor(private groupService: GroupsService, private auth: AuthenticationService) { 
+    constructor(private groupService: GroupsService, private auth: AuthenticationService, private titleService: Title) { 
         auth.user.subscribe((user: User) => {
             this.user = user;
         })
     }
 
     ngOnInit(): void {
+        this.titleService.setTitle(`Reports - Create New Class`);
     }
 
     createGroup(): void {
