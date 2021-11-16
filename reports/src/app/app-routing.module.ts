@@ -6,6 +6,8 @@ import { CreateTemplateComponent } from './templates/create-template/create-temp
 import { TemplatesComponent } from './templates/templates.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthGuard } from './utilities/authentication/auth-guard.guard';
+import { PrivacyComponent } from './utilities/privacy/privacy.component';
+import { TermsComponent } from './utilities/terms/terms.component';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
@@ -27,10 +29,10 @@ const routes: Routes = [
         {path: 'create-group', component: CreateGroupComponent},
         {path: '', component: EditGroupComponent}
     ]},
-    {path: 'register', loadChildren: () => import('./utilities/auth/auth.module').then(m => m.AuthModule)},
-    {path: 'terms', loadChildren: () => import('./utilities/auth/auth.module').then(m => m.AuthModule)},
-    {path: 'privacy', loadChildren: () => import('./utilities/auth/auth.module').then(m => m.AuthModule)},
     {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
+    {path: 'register', loadChildren: () => import('./utilities/auth/auth.module').then(m => m.AuthModule)},
+    {path: 'terms', component: TermsComponent},
+    {path: 'privacy', component: PrivacyComponent},
     {path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)},
     {path: 'join', loadChildren: () => import('./utilities/join/join.module').then(m => m.JoinModule)}
 ];
