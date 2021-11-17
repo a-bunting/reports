@@ -30,7 +30,7 @@ export class AuthenticationService implements OnInit {
     keepAlive: boolean = true; //for testing = true, but needs to persist somehow... localstorage settings?
 
     constructor(public firestore: AngularFirestore,
-                public fAuth: AngularFireAuth, 
+                public fAuth: AngularFireAuth,
                 private router: Router) {
                 }
 
@@ -364,14 +364,18 @@ export class AuthenticationService implements OnInit {
         return newPass === newRepeat ? true : false;
     }
 
+    /**
+     * This will be how any password reset happens, as angularfire2 doesnt support direct changing of user credentials.
+     * @param emailAddress 
+     * @returns 
+     */
     sendPasswordResetEmail(emailAddress: string): Observable<boolean> {
-        
+        //
         return from(this.fAuth.sendPasswordResetEmail(emailAddress).then(() => {
             return true;
         }, error => {
             return false;
         }))
     }
-
 
 }

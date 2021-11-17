@@ -88,9 +88,11 @@ export class AppComponent implements OnInit {
     // QUESTION: HOW TO DEAL WITH THIS? WHAT IF IT GOES WRONG?
 
     sendPasswordResetEmail(): void {
-        this.isLoading = true;        
+        this.isLoading = true;       
         
-        this.authService.sendPasswordResetEmail(this.authForm.value.email).subscribe((result: boolean) => {
+        let email: string = document.getElementById('email').innerText;
+        
+        this.authService.sendPasswordResetEmail(email).subscribe((result: boolean) => {
             this.isLoading = false;        
             this.passwordResetSentSuccessfully = true;
             // giv eit 5 seconds to display and then take it away
