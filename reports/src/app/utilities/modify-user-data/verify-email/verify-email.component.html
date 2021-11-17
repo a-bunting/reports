@@ -1,0 +1,11 @@
+<div class="loading" *ngIf="isLoading">
+    <app-loading-spinner></app-loading-spinner>
+</div>
+
+<div class="verify-success" *ngIf="state">
+    Your email verification was sucessful, thank you!
+</div>
+
+<div class="verify-failure" *ngIf="!state">
+    Your email address verification failed, please try again by clicking the link sent to you in the verification email.
+</div>

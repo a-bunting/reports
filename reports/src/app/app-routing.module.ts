@@ -13,6 +13,9 @@ import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
 import { IntroComponent } from './utilities/intro/intro.component';
+import { AuthComponent } from "./utilities/auth/auth.component";
+import { PasswordResetComponent } from './utilities/modify-user-data/password-reset/password-reset.component';
+import { ModifyUserDataComponent } from './utilities/modify-user-data/modify-user-data.component';
 
 const routes: Routes = [
     {path: '', component: IntroComponent},
@@ -30,9 +33,13 @@ const routes: Routes = [
         {path: '', component: EditGroupComponent}
     ]},
     {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
-    {path: 'register', loadChildren: () => import('./utilities/auth/auth.module').then(m => m.AuthModule)},
+    {path: 'register', component: AuthComponent},
     {path: 'terms', component: TermsComponent},
     {path: 'privacy', component: PrivacyComponent},
+    {path: 'fb', component: ModifyUserDataComponent, children: [
+        {path: 'password', component: PasswordResetComponent},
+        {path: 'verify', component: PrivacyComponent}
+    ]},
     {path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)},
     {path: 'join', loadChildren: () => import('./utilities/join/join.module').then(m => m.JoinModule)}
 ];

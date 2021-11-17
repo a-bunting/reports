@@ -1,0 +1,24 @@
+.verify {
+
+    &__success, &__failure {
+        width: 50%;
+        font-size: 3rem;
+        font-weight: bold;
+        padding: 4rem 6rem;
+        border: .2rem solid white;
+        box-shadow: 0 .4rem .8rem rgba(black, .5);
+        margin: 5rem auto;
+        text-align: center;
+        border-radius: 1rem 2rem;
+    }
+    
+    &__success {
+        background-image: linear-gradient(to bottom right, var(--color-style-main) 30%, var(--color-style-dark));
+    }
+    
+    &__failure {
+        background-image: linear-gradient(to bottom right, var(--color-style-main) 30%, var(--color-style-juxtapose));
+    }
+    
+}
+

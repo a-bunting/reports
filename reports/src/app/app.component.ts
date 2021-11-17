@@ -1,3 +1,4 @@
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -80,5 +81,25 @@ export class AppComponent implements OnInit {
 
     toggleForgot(): void {
         this.forgotPassword = !this.forgotPassword;
+    }
+
+    passwordResetSentSuccessfully: boolean = false
+
+    // QUESTION: HOW TO DEAL WITH THIS? WHAT IF IT GOES WRONG?
+
+    sendPasswordResetEmail(): void {
+        this.isLoading = true;        
+        
+        this.authService.sendPasswordResetEmail(this.authForm.value.email).subscribe((result: boolean) => {
+            this.isLoading = false;        
+            this.passwordResetSentSuccessfully = true;
+            // giv eit 5 seconds to display and then take it away
+            setTimeout(() => {
+                this.passwordResetSentSuccessfully = false;
+            }, 5000);
+        }, error => {
+            this.isLoading = false;        
+            this.errorMessage = `Error: ${error}`;
+        });
     }
 }

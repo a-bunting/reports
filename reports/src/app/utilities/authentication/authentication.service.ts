@@ -364,5 +364,14 @@ export class AuthenticationService implements OnInit {
         return newPass === newRepeat ? true : false;
     }
 
+    sendPasswordResetEmail(emailAddress: string): Observable<boolean> {
+        
+        return from(this.fAuth.sendPasswordResetEmail(emailAddress).then(() => {
+            return true;
+        }, error => {
+            return false;
+        }))
+    }
+
 
 }

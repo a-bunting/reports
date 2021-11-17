@@ -24,6 +24,12 @@ import { BugreportComponent } from './utilities/bugreport/bugreport.component';
 import { IntroComponent } from './utilities/intro/intro.component';
 import { PasswordChangeComponent } from './utilities/password-change/password-change.component';
 import { FormsModule } from '@angular/forms';
+import { AuthComponent } from './utilities/auth/auth.component';
+import { PrivacyComponent } from './utilities/privacy/privacy.component';
+import { TermsComponent } from './utilities/terms/terms.component';
+import { PasswordResetComponent } from './utilities/modify-user-data/password-reset/password-reset.component';
+import { ModifyUserDataComponent } from './utilities/modify-user-data/modify-user-data.component';
+import { VerifyEmailComponent } from './utilities/modify-user-data/verify-email/verify-email.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +46,10 @@ import { FormsModule } from '@angular/forms';
     EditReportComponent,
     BugreportComponent,
     IntroComponent,
-    PasswordChangeComponent
+    PasswordChangeComponent, 
+    AuthComponent, 
+    PrivacyComponent, 
+    TermsComponent, PasswordResetComponent, ModifyUserDataComponent, VerifyEmailComponent
   ],
   imports: [
     BrowserModule,

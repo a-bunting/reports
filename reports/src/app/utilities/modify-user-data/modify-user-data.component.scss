@@ -1,0 +1,15 @@
+.modify-user-data {
+
+    width: 50%;
+    font-size: 3rem;
+    font-weight: bold;
+    padding: 4rem 6rem;
+    border: .2rem solid white;
+    background-color: var(--color-style-main);
+    background-image: linear-gradient(to bottom right, var(--color-style-main) 30%, var(--color-style-dark));
+    box-shadow: 0 .4rem .8rem rgba(black, .5);
+    margin: 5rem auto;
+    text-align: center;
+    border-radius: 1rem 2rem;
+
+}

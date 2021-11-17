@@ -1,0 +1,18 @@
+<ng-container [ngSwitch]="mode">
+
+    <ng-container *ngSwitchCase="'resetPassword'">
+        <app-password-reset></app-password-reset>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'verifyEmail'">
+        <app-verify-email></app-verify-email>
+    </ng-container>
+
+    <ng-container *ngSwitchDefault>
+        <div class="modify-user-data">
+            This page is reserved for those who are invited to view it ✋⛔😱
+        </div>
+    </ng-container>
+
+
+</ng-container>
