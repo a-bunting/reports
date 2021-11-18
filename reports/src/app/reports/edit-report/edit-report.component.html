@@ -62,15 +62,15 @@
 <!-- global variables, things which are the same for each student... -->
 <div class="reports__variable-section">
 
-    <div class="reports__variable--description">
-        These values will apply to all the generated reports.
-    </div>  
-
-    <div class="reports__variable--description">
+    <div class="reports__variable--description" *ngIf="showVariables()">
         These values are individualised to each user. Select the column that matches the data needed for each variable.
     </div>
 
-    <div class="reports__variable--description">
+    <div class="reports__variable--description" *ngIf="showGlobals()">
+        These values will apply to all the generated reports.
+    </div>  
+
+    <div class="reports__variable--description" *ngIf="showTests()">
         These values are used the test whether sentence stems apply to each user in turn. Select the column that matches the data needed for each variable.
     </div>
     
@@ -115,6 +115,11 @@
                 <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
             </select>
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
+             <!--         
+            NOT FOR THIS RELEASE - NEEDS WORK IN THE SEMI-DEEP BACKEND TO ALLOW FOR THIS
+            <button class="reports__variable--convert-button tooltipped" (click)="convertToVariable(i)">
+                &Delta;<div class="tooltip">Convert this to a variable, so you can set individual values. To preset, put a value in the box before clicking this button!</div>
+            </button> -->
         </div>
     </div>
     
@@ -186,12 +191,15 @@
 
 
                                 <div class="reports__data--prepopulate" *ngIf="populateIndex === key; else displayKey">
-                                    
+                                    <!-- 
+                                    DEPRECTAED - No longer needed as groups are now more separate from the report (i.e. multiple groups on one report)
+                                    To perform this function, readd a group on the add group dropdown.
+
                                     <div class="reports__data--prepopulate-text">Prepopulate</div>
                                     Data from group:
                                     <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)">
                                         <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
-                                    </select>
+                                    </select> -->
                                     Copy a column:
                                     <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromColumn(key, $event.target.value)">
                                         <option value="{{ listKey }}" *ngFor="let listKey of report.keys" [disabled]="listKey === key">{{ listKey }}</option>
@@ -310,6 +318,9 @@
                 </td>
 
                 
+            </tr>
+            <tr>
+                <td class="reports__data--cell reports__data--add-student" colspan="100" (click)="addIndividualStudent()">Add student</td>
             </tr>
         </tbody>
     </table>

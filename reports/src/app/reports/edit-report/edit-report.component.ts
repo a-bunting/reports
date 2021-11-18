@@ -284,6 +284,10 @@ export class EditReportComponent implements OnInit {
             this.report.reports.forEach((repo: Report) => {
                 repo.templateId = "";
             })
+            // and reset the variables, which dont exist iof there is no template...
+            this.report.globals = [];
+            this.report.variables = [];
+            this.report.tests = [];
         }
         this.checkForChanges();
     }
@@ -691,29 +695,10 @@ export class EditReportComponent implements OnInit {
         this.checkForChanges();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
     deleteUserReport(reportId: number): void {
         this.report.reports.splice(reportId, 1);
     }
 
-
-
-
-    
-
-
-    // need works on keys
     /**
      * 
      * If you change the settings on a test variable this function will modify all relevant values...
@@ -744,16 +729,6 @@ export class EditReportComponent implements OnInit {
             })
         })
     }
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Checks whether a column has specific values it can take...
@@ -804,26 +779,9 @@ export class EditReportComponent implements OnInit {
         this.reportGenerationReady = this.reportsService.testExecutability(this.report);
     }
 
-
-    
-
-
-
-    
-
-
-    // need works on keys
     generateReports(): void {
         this.report = this.reportsService.generateBatchReports(this.report);
     }
-
-
-
-
-
-
-
-
 
     // functions to show the various sections or not...
     showTests(): boolean { return this.report ? this.report.tests ? this.report.tests.length > 0 ? true : false : false : false; }
@@ -852,28 +810,25 @@ export class EditReportComponent implements OnInit {
         })
     }
 
-
-
-
-
-
-
-    // need works on keys
-
-
-    populateDataFromKey(colName: string, key: string): void {
-        // get the columns/ data fields for this group...
-        this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
-            let groupData: Group = grp;
-            // set the values in the report
-            // need unique id on students else reordering will break this
-            // poor man solution for now.
-            this.report.reports.forEach((student: Report, index: number) => {
-                student['user'].data[colName] = groupData.students[index].data[key]; 
-            })
-            // add the key back into the keys database...
-        })
-    }
+    /**
+     * deprecated
+     * No longer needed since how groups got added changed.
+     * @param toCol 
+     * @param fromCol 
+     */
+    // populateDataFromKey(colName: string, key: string): void {
+    //     // get the columns/ data fields for this group...
+    //     this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
+    //         let groupData: Group = grp;
+    //         // set the values in the report
+    //         // need unique id on students else reordering will break this
+    //         // poor man solution for now.
+    //         this.report.reports.forEach((student: Report, index: number) => {
+    //             student['user'].data[colName] = groupData.students[index].data[key]; 
+    //         })
+    //         // add the key back into the keys database...
+    //     })
+    // }
 
     populateDataFromColumn(toCol: string, fromCol: string): void {
         this.report.reports.forEach((student: Report, index: number) => {
@@ -886,18 +841,6 @@ export class EditReportComponent implements OnInit {
             student['user'].data[key] = value;
         })
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Copies the report text into the clipboard
@@ -1067,7 +1010,48 @@ export class EditReportComponent implements OnInit {
         // }
     } 
 
-    
+    addIndividualStudent(): void {
+        // get a new id for this unknown student
+        let newUserId: string = this.groupService.generateRandomId();
+        // create a report object
+        let newReport: Report = {
+            userId: newUserId, 
+            templateId: this.report.templateId ? this.report.templateId : "",
+            user: {
+                id: newUserId, 
+                data: {}
+            },
+            report: "",
+            generated: null
+        }
+        // add data fields onto the user from another previous user - this means where data is stored but not displayed this user has access
+        for(const [key] of Object.entries(this.report.reports[this.report.reports.length - 1].user.data)) {
+            newReport.user.data[key] = "";
+        }
+        // and then push into the reports...
+        this.report.reports.push(newReport);
+    }
+
+    /**
+     * NOTE: This function does nothing yet, but will be implemented if a sentenceservice overhaul takes place.
+     * In the databace g| and v| will select which variable set to come from, and irrespective of what is sent as userdata there
+     * is no link between the report setup and the sentence service.
+     * 
+     * @param globalIndex 
+     */
+    // convertToVariable(globalIndex: number) : void {
+    //     let global: GlobalValues = this.report.globals[globalIndex];
+    //     // create a new variale object
+    //     let newVariable: VariableValues = {
+    //         identifier: global.identifier, 
+    //         key: "", 
+    //         value: global.value, 
+    //         options: global.options
+    //     }
+    //     // push onto the variables array and pop from the globals.
+    //     this.report.variables.push(newVariable);
+    //     this.report.globals.splice(globalIndex, 1);
+    // }
 
     printReportObject(): void {
         console.log(this.report);

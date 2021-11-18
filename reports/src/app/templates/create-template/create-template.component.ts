@@ -80,7 +80,10 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     loadTemplate(id: string | undefined): void {
         if(id !== undefined) {
 
+            console.log(id);
+            
             const templateData: Template = this.templateService.getTemplate(id);
+            console.log(templateData);
             // and use the data to populate the template...
             this.templateCharacters.min = templateData.characters.min;
             this.templateCharacters.max = templateData.characters.max;

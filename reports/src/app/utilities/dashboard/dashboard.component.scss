@@ -132,7 +132,7 @@
         }
     }
 
-    &__info, &__tips, &__tutorials, &__reports {
+    &__info, &__tips, &__tutorials, &__reports, &__password {
         background-color: var(--color-style-juxtapose);
         border-radius: 1rem;
         margin: 1rem;
@@ -154,6 +154,14 @@
 
     &__info {
         // grid-column: 1 / 2;
+    }
+
+    &__password {
+        display: flex;
+        flex-direction: column;
+        button {
+            align-self: center;
+        }
     }
     
     &__tips {

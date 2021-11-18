@@ -77,6 +77,27 @@
             border-bottom: 2px solid rgba(0,0,0,0.1);
         }
 
+        &--convert-button {
+            padding: .2rem .7rem;
+            border-radius: .5rem;
+            box-shadow: 0 .2rem .4rem rgba(black, .5);
+            display: flex;
+            align-self: center;
+            justify-content: center;
+            background-color: var(--color-style-main);
+            transition: all .2s;
+            font-size: 1.4rem;
+            border: .2rem solid transparent;
+            
+            &:hover {
+                cursor: pointer;
+                color: white;
+                border: .2rem solid white;
+                box-shadow: 0 .4rem .6rem rgba(black, .7);
+                background-color: var(--color-style-juxtapose);
+            }
+        }
+
         margin-bottom: .5rem;
 
         &--name {
@@ -101,7 +122,10 @@
             max-width: 25rem;
             font-size: 1.2rem;
             padding: .5rem 1rem;
+            margin-left: auto;
+            margin-right: 1rem;
         }
+
     }
 
     &__key {
@@ -358,6 +382,14 @@
             &--hidden {
                 font-size: 1.2rem;
                 width: 6rem;
+            }
+        }
+
+        &--add-student {
+            transition: all .4s;
+            &:hover {
+                cursor: pointer;
+                letter-spacing: .3rem;
             }
         }
 

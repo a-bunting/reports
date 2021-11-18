@@ -250,8 +250,12 @@ export class AuthenticationService implements OnInit {
      autoLogout(expirationDuration: number) {
          this.logoutTimer = setInterval(() => {
              if(this.keepAlive) {
+                 let time: number = 0;
+                 console.log("activating keep alive");
                  // if keepalive is true then refresh the token and the userdata...
                  firebase.auth().currentUser.getIdToken(true).then((result: string) => {
+                        console.log(`New token: ${result.slice(0, 15)} : ${time} mins`);
+
                         const newUser: User = new User(
                             this.user.value.email,
                             this.user.value.id,
@@ -265,13 +269,14 @@ export class AuthenticationService implements OnInit {
                             new Date(new Date().getTime() + (3600 * 1000))
                         );
 
+                        time += 1;
                         this.user.next(newUser);
                  });
              } else {
                  clearInterval(this.logoutTimer);
                  this.logout();
              }
-         }, 36000000);//new Date(this.user.value.tokenExpiration).getTime() + 3600001);
+         }, 60000);//new Date(this.user.value.tokenExpiration).getTime() + 3600001);
      }
 
     /**
