@@ -78,12 +78,8 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
      * @param id 
      */
     loadTemplate(id: string | undefined): void {
-        if(id !== undefined) {
-
-            console.log(id);
-            
+        if(id !== undefined) {            
             const templateData: Template = this.templateService.getTemplate(id);
-            console.log(templateData);
             // and use the data to populate the template...
             this.templateCharacters.min = templateData.characters.min;
             this.templateCharacters.max = templateData.characters.max;
@@ -99,6 +95,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.templateUpdated = false;
             this.templateSaved = true;
             this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
+            this.exampleSentence.report = this.sentenceService.stripVariables(this.exampleSentence.report);
         }
     }
     
@@ -237,7 +234,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
     }
 
-    exampleSentence: {report: string[]; options: number} = {report: [""], options: 0};
+    exampleSentence: {report: string; options: number} = {report: "", options: 0};
 
     deleteElement(elementId: number): void {
         this.templateRoutes.splice(elementId, 1);
@@ -285,8 +282,12 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         // up to here, all ids printed in the form id1/id2/id3 etc...
         this.templateRoutes[elementId][index+1] = id;
         this.templateRoutes[elementId].length = index + 2;
+
         // generate an example sentence            
         this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
+        this.exampleSentence.report = this.sentenceService.stripVariables(this.exampleSentence.report);
+
+        // console.log(`Stripping: ${this.sentenceService.stripVariables(this.exampleSentence.report)}`);
 
         // finally set the viewdata
         if(idCopy === ("" || "allOptInclusive")) {

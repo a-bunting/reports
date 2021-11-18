@@ -593,7 +593,7 @@ export class SentencesService {
      * 
      * @param routeArray 
      */
-    generateCompoundReport(routeArray: [string[]], select: number = 1): {report: string[], options: number} {
+    generateCompoundReport(routeArray: [string[]], select: number = 1): {report: string, options: number} {
         // this function takes a route with options such as id1/id2/id3 etc and translates it into a report.
         let sentenceOptions: {report: string[], options: number} = {report: [""], options: 1};
         let optionCalculator: number = 1;
@@ -619,10 +619,8 @@ export class SentencesService {
                 }
             })
         })
-        // set the otpions
-        sentenceOptions.options = optionCalculator;
         // return
-        return sentenceOptions;
+        return { report: sentenceOptions.report.join('').trim(), options: optionCalculator };
     }
 
     // test1: [number[]] = [[4, 5, 4, 5]];
@@ -1056,7 +1054,23 @@ export class SentencesService {
     testValueValidation(value: string, test: Test): boolean {
         return test.test.validityFunction(value);
     }
-}
 
-// backup db
-//[{"subcategories":[{"name":"Intro","starter":false,"subcategories":[{"subcategories":[{"subcategories":[{"endpoint":true,"name":"1","subcategories":[{"name":"New","id":"gcj3p"}],"id":"X5Up6","sentence":["."]}],"name":"Short","sentence":[],"id":"xkvmt"},{"id":"hYLfU","sentence":[],"name":"Medium","starter":false,"tests":[],"subcategories":[{"tests":[{"name":"Grade Change","values":{"value":"<-2","name":"Expression"}}],"id":"ucK6b","name":"Not as well","meta":-2,"endpoint":true,"sentence":[", not achieving quite as well as (LAST GRADE PERIOD)."]},{"meta":0,"endpoint":true,"id":"7wrSS","sentence":[", achieving just as well as (LAST GRADE PERIOD)."],"tests":[{"values":{"name":"Expression","value":"<=1,>=-1"},"name":"Grade Change"},{"name":"Grade Level","values":{"name":"Grade Level (%age)","value":"90-100"}}],"name":"As well"},{"meta":2,"endpoint":true,"id":"I9i0H","name":"Better","tests":[{"name":"Grade Change","values":{"name":"Expression","value":">=2"}}],"sentence":[", achieving better than (LAST GRADE PERIOD)."]},{"tests":[{"values":{"name":"Expression","value":">=5"},"name":"Grade Change"}],"id":"PHEla","name":"Much better","sentence":[", achieving far better than ${gd|[him/her/their]}$ did in (LAST GRADE PERIOD)."],"meta":20,"endpoint":true}]},{"name":"Long","id":"zaAkK","sentence":[],"subcategories":[{"name":"1","sentence":["where (GENDER) achieved a (LAST GRADE PERIOD GRADE)."],"id":"neFow","endpoint":true}]}],"starter":true,"name":"Grade","id":"7B4IX","sentence":["${v|Forename}$ ${v|Surname}$ has earned themselves [1] ${v|Grade}$ grade in ${g|Subject Name}$ this ${g|Time Period[semester,term]}$"],"endpoint":true},{"starter":true,"id":"nn4gC","sentence":["${v|Forename}$ ${v|Surname}$ has this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$  learned about ${g|Topics Learned}$.","${v|Forename}$ ${v|Surname}$ has learned about ${g|Topics Learned}$ this ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"],"name":"Learning","subcategories":[]},{"id":"Jq1gA","name":"Basic (Jq1gA)","sentence":["This is a report of ${v|Forename}$ ${v|Surname}$'s progress throughout the last ${g|Time Period[semester,term]}$ in ${g|Subject Name}$"],"subcategories":[]}],"tests":[],"id":"7hYZS","sentence":[" "]},{"sentence":[" "],"endpoint":true,"subcategories":[{"id":"wO91f","name":"What they did well (Skill 1)","subcategories":[{"sentence":["."],"id":"ollxx","name":"Short\n\n"},{"id":"91aZr","name":"Medium","subcategories":[{"name":"Very Good","tests":[{"name":"Skill Level","values":{"value":"90-100","name":"Skill Level (%age)"}}],"sentence":[", which has been a particular strength of ${gn|his/hers/theirs}$ throughout the course.",", demonstrating a high level of success throughout the course."],"id":"eiIJm"},{"sentence":[", showing an  [excellent/good/] application of this throughout the course.",", an important skill that has been a continual strength of ${gn|his/hers/theirs}$ throughout the course."],"name":"Improved","id":"ETijC","tests":[{"values":{"name":"Skill Level (%age)","value":"70-89"},"name":"Skill Level"}]},{"sentence":[", an important skill ${gn|he/she/they}$ will continue to use in ${g|Subject Name}$.",", a skill that in ${g|Subject Name}$ we will come back to frequently."],"id":"p8YXT","name":"General"}]}],"sentence":["I have been particularly impressed this ${g|Time Period[semester,term]}$ with ${v|Forename}$'s ability at ${g|Good Skill (1)}$","${v|Forename}$ has impressed me this ${g|Time Period[semester,term]}$ with ${gn|his/her/their}$ ability at ${v|Good Skill (1)}$"],"starter":true},{"name":"What they need to improve (Improve 1)","id":"Y6CyE","subcategories":[{"name":"Short","id":"X8Jln","sentence":["."]},{"name":"Medium","id":"4UwxH"},{"name":"Long","id":"i9Ztr"}],"starter":true,"sentence":["Next ${g|Time Period}$, ${v|Forename}$ should try to focus on improving ${gn|his/her/their}$ ${v|Improve Skill (1)}$ skills","Moving into next ${g|Time Period}$ it would be nice to see ${v|Forename}$ focus more on ${gn|his/her/their}$ ${v|Improve Skill (1)}$ skills","One weakness ${v|Forename}$ has demonstrated this ${g|Time Period}$ is in her ${v|Improve Skill (1)}$ skills"]}],"id":"7ZAK2","name":"Skill Success or Improvement"},{"name":"Finish","id":"0Tn5b","subcategories":[{"starter":false,"id":"la0FA","subcategories":[{"tests":[{"name":"Next Stage","values":{"value":"","options":["Leaving school","Staying in this course","Course is over","Graduating"],"name":"Student Movement"}}],"id":"gIwdJ","name":"Good luck in new school","sentence":["I wish ${v|Forename}$ the best of luck in ${gn|his/her/their}$ new school in the coming ${g|Time Period[semester,term]}$","I [sincerely,] hope ${v|Forename}$ finds success as ${gn|he/she/they}$ move from ${g|School Name[user.school]}$ in the coming ${g|Time Period[semester,term]}$.","I hope that in the coming ${g|Time Period[semester,term]}$, ${v|Forename}$ finds success and happiness at ${gn|his/her/their}$ new school.","I hope the upcoming move is a success for ${v|Forename}$ and ${gn|he/she/they}$ find success in their new school."]},{"tests":[{"values":{"value":"Staying in this course","name":"Student Movement","options":["Leaving school","Staying in this course","Course is over","Graduating"]},"name":"Next Stage"},{"values":{"value":"90-100","name":"Grade Level (%age)"},"name":"Grade Level"}],"name":"Staying in the class","id":"rDDuU","sentence":["I look forward to continuing to teach ${v|Forename}$ next ${g|Time Period[semester,term]}$.","I am excited to see what ${v|Forename}$ can achieve next ${g|Time Period[semester,term]}$."]},{"tests":[{"values":{"name":"Student Movement","value":"Course is over","options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"]},"name":"Next Stage"}],"name":"Course is finished","id":"LwPBg"},{"tests":[{"values":{"name":"Student Movement","options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"],"value":"Graduating"},"name":"Next Stage"}],"id":"LqMJh","name":"Student Graduating"},{"tests":[{"name":"Next Stage","values":{"options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"],"value":"I am leaving","name":"Student Movement"}},{"name":"Effort","values":{"name":"Effort Level","options":["No effort","Very little effort","Acceptable effort","Good effort","High level of effort"],"value":"Good effort"}}],"id":"zELoC","sentence":["As I move on next ${g|Time Period[semester,term]}$, I [very much/] hope ${v|Forename}$ continues to put so much effort into ${gn|his/her/their}$ studies."],"name":"I am leaving","subcategories":[]},{"name":"Pleasure!","tests":[{"values":{"name":"Maximum Effort Level","options":["No effort","Very little effort","Acceptable effort","Good effort","High level of effort"],"value":"High level of effort"},"name":"Effort"},{"values":{"value":"Course is over","options":["Leaving school","Staying in this course","Course is over","Graduating","I am leaving"],"name":"Student Movement"},"name":"Next Stage"}],"id":"RUvZO","sentence":["It has been a pleasure to have taught ${v|Forename}$ this ${g|Time Period}$ and I wish ${gn|him/her/them}$ the best of luck in the future.","I have thoroughly enjoyed teaching ${v|Forename}$ this ${g|Time Period}$ and wish ${gn|him/her/them}$ the best of luck in the future."]}],"name":"Pleasantries"}],"sentence":[" "],"tests":[],"starter":true}],"id":"FFnsi"}]
+    /**
+     * A helper function to strip off any ${g|v|[]}$ and leave the name intact
+     * @param report 
+     */
+    stripVariables(report: string): string {
+        // first if there is a (notation) then escape it so it works properly...
+        // then get to replacing text!W
+        let strReplace = new RegExp('\\$\\{([vgn]{1,2}\\|+([^\\}\\[]*)+(\\[.*?])?)\\}\\$', 'gi');
+        let regExData: string[];
+
+        while((regExData = strReplace.exec(report)) !== null) {
+            let replaceStr: string = regExData[3] ? regExData[3].split(',').join(' or ') : regExData[2];
+            report = report.replace(regExData[0], '<span class="create-template__highlight">'+replaceStr+'</span>');
+            strReplace.lastIndex = 0;
+        }
+
+        return report;
+    }
+}

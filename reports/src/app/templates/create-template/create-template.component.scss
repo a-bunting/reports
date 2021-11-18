@@ -21,21 +21,26 @@
         border-radius: 1rem; 
         // display: grid;
         // grid-template: max-content / minmax(min-content, max-content);
-        // row-gap: .2rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
         row-gap: .5rem;
     }
 
     &__builder {
         padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
     }
 
     &__example-text {
         padding: 1rem 2rem;
         font-size: 1.5rem;
+        display: inline-block;
+    }
+
+    &__highlight {
+        font-weight: bold;
+        color: red;
     }
 
     &__dragbox {

@@ -3,6 +3,7 @@
     background-color: rgba(255, 255, 255, .6);
     border-radius: 1rem;
     min-height: 8rem;
+    box-shadow: 0 .2rem .4rem rgba(black, .5);
 
     &__load-failure {
         padding: 2rem;
@@ -22,7 +23,7 @@
 
 .group {
     display: grid;
-    grid-template-columns: 1fr max-content max-content 2rem;
+    grid-template-columns: 1fr minmax(11rem, max-content) max-content 2rem;
     align-items: baseline;
 
     padding: .5rem 2rem;
