@@ -984,30 +984,7 @@ export class EditReportComponent implements OnInit {
                 this.report.tests[i].values[o].key === name ? keys.push(this.report.tests[i].values[o].identifier) : null;
             }
         }
-
         return keys.filter((value: string, index: number, restOfArray: string[]) => restOfArray.indexOf(value) === index);
-
-
-        // if(varIndex !== -1) {
-        //     // add it to the array.
-        //     keys.push(this.report.variables[varIndex].identifier);
-        // } else {
-        //     // see if its a test variables...
-        //     let testVarResult: number[] = [-1, -1];
-
-        //     testVarResult[0] = this.report.tests.findIndex((test: TestValues) => {
-        //         testVarResult[1] = test.values.findIndex((testValues: TestIndividualValue) => testValues.key === name );
-        //         return testVarResult[1] > -1;
-        //     })
-
-        //     if(testVarResult[0] !== -1) {
-        //         console.log(name, this.report.tests[testVarResult[0]].values[testVarResult[1]].identifier);
-        //         return this.report.tests[testVarResult[0]].values[testVarResult[1]].identifier;
-        //     } else {
-        //         // not found!
-        //         return undefined;
-        //     }
-        // }
     } 
 
     addIndividualStudent(): void {
@@ -1025,8 +1002,10 @@ export class EditReportComponent implements OnInit {
             generated: null
         }
         // add data fields onto the user from another previous user - this means where data is stored but not displayed this user has access
-        for(const [key] of Object.entries(this.report.reports[this.report.reports.length - 1].user.data)) {
-            newReport.user.data[key] = "";
+        if(this.report.reports.length > 0) {
+            for(const [key] of Object.entries(this.report.reports[this.report.reports.length - 1].user.data)) { newReport.user.data[key] = ""; }
+        } else {
+            for(const key of this.report.keys) { newReport.user.data[key] = ""; }
         }
         // and then push into the reports...
         this.report.reports.push(newReport);

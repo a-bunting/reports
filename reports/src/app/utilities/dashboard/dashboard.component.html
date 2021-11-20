@@ -4,6 +4,8 @@
 
 <div class="dashboard__grid">
 
+    <button (click)="refreshToken()">Refresh token manually</button>
+
     <div class="dashboard__user">
         <div class="dashboard__title">Profile Information</div>
         <div class="dashboard__data">
@@ -46,9 +48,25 @@
             </div>
 
             <div class="dashboard__password">
-               <!-- <app-password-change></app-password-change> -->
-                <p>To modify your password click the button below and check your email for a password change link.</p>
-                <button class="input__button u__margin-top--medium">Click me to change your password</button>
+                <div class="loading" *ngIf="passwordResetLoading">
+                    <app-loading-spinner></app-loading-spinner>
+                </div>
+
+
+                <ng-container [ngSwitch]="passwordResetSentSuccessfully">
+
+                    <ng-container *ngSwitchCase="false">
+                        <p>To modify your password click the button below and check your email for a password change link.</p>
+                        <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to change your password" }}</button>      
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="true">
+                        <p>An email has been sent to your registered email with instructions on how to change your password.</p>
+                    </ng-container>
+
+                </ng-container>
+
+               
             </div>
 
             <div class="dashboard__tips">

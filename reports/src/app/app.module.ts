@@ -49,7 +49,7 @@ import { VerifyEmailComponent } from './utilities/modify-user-data/verify-email/
     PasswordChangeComponent, 
     AuthComponent, 
     PrivacyComponent, 
-    TermsComponent, PasswordResetComponent, ModifyUserDataComponent, VerifyEmailComponent
+    TermsComponent
   ],
   imports: [
     BrowserModule,

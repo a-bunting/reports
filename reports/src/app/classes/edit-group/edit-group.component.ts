@@ -101,9 +101,8 @@ export class EditGroupComponent implements OnInit {
      * @param key 
      * @param input 
      */
-     userValueChange(groupId: number, studentId: string, key: string, input: FocusEvent | KeyboardEvent) {
-        const reference: HTMLElement = <HTMLElement>input.target;
-        const newValue = reference.innerText.split("\n");
+     userValueChange(groupId: number, studentId: string, key: string, input: string) {
+        const newValue = input.split("\n");
         const studentIndex: number = this.getIndexPositionById(studentId, groupId);
 
         if(studentIndex !== -1) {

@@ -108,10 +108,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     replaceTriggered: boolean = false;
     replaceWorking: boolean = false;
+    advancedMode: boolean = false;
 
-    triggerReplace(): void {
-        this.replaceTriggered = true;
-    }
+    triggerReplace(): void { this.replaceTriggered = true; }
+    triggerAdvanced(): void { this.advancedMode = !this.advancedMode }
 
     cancelTemplateReplacement(): void {
         this.replaceTriggered = false;

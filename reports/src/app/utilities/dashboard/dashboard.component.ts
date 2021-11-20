@@ -30,7 +30,8 @@ export class DashboardComponent implements OnInit {
         private templatesService: TemplatesService, 
         private sentenceService: SentencesService,
         private reportService: ReportsService, 
-        private titleService: Title
+        private titleService: Title, 
+        private authService: AuthenticationService
     ) {}
     
     ngOnInit(): void {
@@ -119,6 +120,26 @@ export class DashboardComponent implements OnInit {
             console.log(`Update failed: ${error}`);
         })
 
+    }
+
+    passwordResetLoading: boolean = false;
+    passwordResetSentSuccessfully: boolean = false;
+    passwordResetFail: number = 0;
+
+    sendPasswordResetEmail(): void {
+        this.passwordResetLoading = true;       
+                
+        this.authService.sendPasswordResetEmail(this.user.email).subscribe(() => {
+            this.passwordResetLoading = false;        
+            this.passwordResetSentSuccessfully = true;
+        }, error => {
+            this.passwordResetLoading = false;        
+            this.passwordResetSentSuccessfully = false;
+        });
+    }
+
+    refreshToken(): void {
+        this.AuthService.manualTokenRefresh();
     }
 
 }

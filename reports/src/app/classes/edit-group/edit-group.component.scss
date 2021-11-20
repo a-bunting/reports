@@ -256,9 +256,20 @@
         }
     }
 
-    input {
+    input[type="checkbox"] {
         display: none;
     }
+
+    &__input {
+        width: 100%;
+        padding: .5rem 2rem;
+        background-color: rgba(white, .3);
+        border-radius: 1rem 2rem;
+        box-shadow: 0 .2rem .4rem rgba(black, .4);
+        font-size: 1.4rem;
+        letter-spacing: .3rem;
+    }
+    
 
     input:checked ~ .group__data {
         visibility: visible;

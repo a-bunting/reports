@@ -23,7 +23,7 @@ html {
     box-sizing: border-box;
     font-size: 62.5%;
     font-family: 'Open Sans', sans-serif;
-
+    
     @media screen and (max-width: 1200px) { font-size: 50.0%; }
     @media screen and (max-width: 1015px) { font-size: 37.5%; }
 }
@@ -34,19 +34,22 @@ body {
     max-width: 95vw;
     margin: 0 auto;
     background-image:   linear-gradient(to top left, transparent, var(--color-style-juxtapose)),
-                        linear-gradient(to bottom right, var(--color-style-light), var(--color-style-dark));
+    linear-gradient(to bottom right, var(--color-style-light), var(--color-style-dark));
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .component-intro {
     display: flex;
-    align-items: center;
-    padding-bottom: 1.5rem;
+    align-items: flex-start;
+    padding-bottom: 2rem;
+    letter-spacing: .15rem;
 
     &__title {
-        font-size: 3rem;
-        letter-spacing: .1rem;
-        margin: 0 2rem;
+        font-family: 'Bitter', serif;
+        font-size: 2.8rem;
+        font-weight: bold;
+        margin: 0 2rem 0 2rem;
     }
 
     &__description {
@@ -54,12 +57,15 @@ body {
         font-size: 1.4rem;
         font-weight: 400;
         line-height: 2rem;
-        letter-spacing: .15rem;
         hyphens: auto;
 
         p:not(:last-child) {
             margin-bottom: 1.5rem;
         }
+    }
+
+    ul > li {
+        line-height: 2rem;
     }
 
     &__buttons {
@@ -76,13 +82,15 @@ body {
             border: .2rem solid transparent;
             text-align: center;
             font-size: 1.4rem;
+            box-shadow: 0 .2rem .4rem rgba(black, .3);
+            min-width: 15rem;
             
             &:hover {
                 border: .2rem solid white;
                 color: white;
                 background-color: var(--color-style-juxtapose);
                 cursor: pointer;
-                box-shadow: 0 .2rem .4rem rgba(black, .5);
+                box-shadow: 0 .4rem .6rem rgba(black, .6);
                 transform: translateY(-.2rem);
             }
         }
@@ -159,6 +167,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10000;
 }
 
 

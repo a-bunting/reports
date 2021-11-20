@@ -24,9 +24,11 @@
     <div class="users-list__user" *ngFor="let user of userList; let i = index">
         <div class="users-list__name">{{user.name}}</div>
         <div class="users-list__email">{{user.email}}</div>
+        <div class="users-list__paid-until">Last Payment</div>
         <div class="users-list__controls">
             <div class="users-list__control" [class.users-list__control--enabled]="user.admin === true" (click)="modifyAdminStatus(user.email, user.admin, $event)">Admin</div>
             <div class="users-list__control" [class.users-list__control--enabled]="user.manager === true" (click)="modifyManagerStatus(user.email, user.manager, $event)">Manager</div>
+            <div class="users-list__control" [class.users-list__control--enabled]="user.member === true" (click)="modifyMemberStatus(user.email, $event)">Member</div>
         </div>
     </div>
 </div>

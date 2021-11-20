@@ -22,12 +22,17 @@ export class PasswordResetComponent implements OnInit {
 
     ngOnInit(): void {
         this.oobCode = this.activatedRoute.snapshot.queryParams['oobCode'];
+        console.log(this.oobCode);
     }
 
     newPassword: string = "";
     newPasswordRepeat: string;
+    errorMessage: string = "this is the error...";
 
-    updatePassword(): void {
+    /**
+     * Updates the password
+     */
+    updatePassword(): void {        
         if(this.oobCode && (this.newPassword === this.newPasswordRepeat)) {
             // set isloading to true;
             this.isLoading = true;
@@ -35,12 +40,16 @@ export class PasswordResetComponent implements OnInit {
             this.fAuth.confirmPasswordReset(this.oobCode, this.newPassword).then(() => {
                 // success, navigate to the main page??
                 this.isLoading = false;
-                this.router.navigate(['/', 'passResetSuccess']);
+                this.router.navigate(['']);
             }, error => {
                 this.isLoading = false;
-                this.router.navigate(['/', 'passResetNoSuccess'])
+                this.errorMessage = error;
             })
         }
+    }
+
+    removeErrorMessage(): void {
+        this.errorMessage = undefined;
     }
 
 }

@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
     }
 
     logout() {
-        this.authService.logout().pipe(take(1)).subscribe(result => {
+        this.authService.logout().pipe(take(1)).subscribe(() => {
             console.log("logged out");
         }, error => {
             console.log(`Error logging out: ${error.message}`);
@@ -84,15 +84,12 @@ export class AppComponent implements OnInit {
     }
 
     passwordResetSentSuccessfully: boolean = false
-
-    // QUESTION: HOW TO DEAL WITH THIS? WHAT IF IT GOES WRONG?
+    emailAddress: string;
 
     sendPasswordResetEmail(): void {
         this.isLoading = true;       
-        
-        let email: string = document.getElementById('email').innerText;
-        
-        this.authService.sendPasswordResetEmail(email).subscribe((result: boolean) => {
+                
+        this.authService.sendPasswordResetEmail(this.emailAddress).subscribe((result: boolean) => {
             this.isLoading = false;        
             this.passwordResetSentSuccessfully = true;
             // giv eit 5 seconds to display and then take it away
