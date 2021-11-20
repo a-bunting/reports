@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { User } from './user.model';
 import { sentence } from 'src/app/services/sentences.service';
-import { async } from 'rxjs/internal/scheduler/async';
 
 export interface AuthResponseData {
     kind: string, idToken: string, email: string, 
@@ -35,7 +34,6 @@ export class AuthenticationService implements OnInit {
                 }
 
     ngOnInit(): void {
-
 
         this.fAuth.onAuthStateChanged((user) => {
             if(user) {
@@ -249,12 +247,9 @@ export class AuthenticationService implements OnInit {
 
      autoLogout(expirationDuration: number) {
          this.logoutTimer = setInterval(() => {
-             if(this.keepAlive) {
-                 let time: number = 0;
-                 console.log("activating keep alive");
+            //  if(this.keepAlive) {
                  // if keepalive is true then refresh the token and the userdata...
                  firebase.auth().currentUser.getIdToken(true).then((result: string) => {
-                        console.log(`New token: ${result.slice(0, 15)} : ${time} mins`);
 
                         const newUser: User = new User(
                             this.user.value.email,
@@ -269,14 +264,25 @@ export class AuthenticationService implements OnInit {
                             new Date(new Date().getTime() + (3600 * 1000))
                         );
 
-                        time += 1;
                         this.user.next(newUser);
                  });
-             } else {
-                 clearInterval(this.logoutTimer);
-                 this.logout();
-             }
-         }, 60000);//new Date(this.user.value.tokenExpiration).getTime() + 3600001);
+            //  } else {
+            //      clearInterval(this.logoutTimer);
+            //      this.logout();
+            //  }
+         }, 3600000);
+     }
+
+     manualTokenRefresh(): void {
+         console.log(`Called...`);
+         
+        //  firebase.auth().currentUser.getIdToken(true).then((result: string) => {
+         firebase.auth().currentUser.getIdToken(true).then((result: string) => {
+            console.log(this.user.value);
+            console.log(result.substring(0, 20));
+        }, error => {
+            console.log(error);
+        });
      }
 
     /**
@@ -375,10 +381,10 @@ export class AuthenticationService implements OnInit {
      * @returns 
      */
     sendPasswordResetEmail(emailAddress: string): Observable<boolean> {
-        //
         return from(this.fAuth.sendPasswordResetEmail(emailAddress).then(() => {
             return true;
         }, error => {
+            console.log(`Password reset not sent: ${error}`);
             return false;
         }))
     }
