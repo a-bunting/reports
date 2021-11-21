@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { GroupsService, Group, Student } from 'src/app/services/groups.service';
 import { TemplatesService, Template } from 'src/app/services/templates.service';
 import { GlobalValues, Report, ReportsService, ReportTemplate, TestIndividualValue, TestValues, VariableValues } from 'src/app/services/reports.service';
@@ -16,7 +16,7 @@ import { DocumentReference } from '@angular/fire/firestore';
   templateUrl: './edit-report.component.html',
   styleUrls: ['./edit-report.component.scss']
 })
-export class EditReportComponent implements OnInit {
+export class EditReportComponent implements OnInit, OnDestroy {
 
     // group data
     groups: Group[] = [];
@@ -84,8 +84,9 @@ export class EditReportComponent implements OnInit {
             e.target.toggleAttribute('stuck', e.intersectionRatio < 1)
         }, { threshold: [1] });
         this.sticky.observe(document.getElementsByClassName('sticky').item(0));
-
-        
+    }
+    
+    ngOnDestroy(): void {
     }
 
     /**
