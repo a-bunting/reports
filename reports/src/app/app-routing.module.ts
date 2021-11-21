@@ -14,29 +14,33 @@ import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';
 import { IntroComponent } from './utilities/intro/intro.component';
 import { AuthComponent } from "./utilities/auth/auth.component";
+import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found.component';
+
+const titleNamePrexif: string = "ReportZone"
 
 const routes: Routes = [
-    {path: '', component: IntroComponent},
-    {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], children: [
-        {path: 'edit-report', component: EditReportComponent},
-        {path: 'edit-report/:id', component: EditReportComponent}
+    {path: '', component: IntroComponent, data: { title: titleNamePrexif }},
+    {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Reports` }, children: [
+        {path: 'edit-report', component: EditReportComponent, data: { title: `${titleNamePrexif} - Edit Report` }},
+        {path: 'edit-report/:id', component: EditReportComponent, data: { title: `${titleNamePrexif} - Edit Report` }}
     ]},
-    {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
-    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard], children: [
-        {path: 'create-template', component: CreateTemplateComponent},
-        {path: 'create-template/:id', component: CreateTemplateComponent}
+    {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Dashboard` }},
+    {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Templates` }, children: [
+        {path: 'create-template', component: CreateTemplateComponent, data: { title: `${titleNamePrexif} - Create Template` }},
+        {path: 'create-template/:id', component: CreateTemplateComponent, data: { title: `${titleNamePrexif} - Create Template` }}
     ]},
-    {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard], children: [
-        {path: 'create-group', component: CreateGroupComponent},
-        {path: '', component: EditGroupComponent}
+    {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Classes` }, children: [
+        {path: 'create-group', component: CreateGroupComponent, data: { title: `${titleNamePrexif} - Create Class` }},
+        {path: '', component: EditGroupComponent, data: { title: `${titleNamePrexif} - Classes` }}
     ]},
-    {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard]},
-    {path: 'register', component: AuthComponent},
-    {path: 'terms', component: TermsComponent},
-    {path: 'privacy', component: PrivacyComponent},
+    {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Database` }},
+    {path: 'register', component: AuthComponent, data: { title: `${titleNamePrexif} - Register` }},
+    {path: 'terms', component: TermsComponent, data: { title: `${titleNamePrexif} - Terms and Conditions` }},
+    {path: 'privacy', component: PrivacyComponent, data: { title: `${titleNamePrexif} - Privacy Policy` }},
     {path: 'fb', loadChildren: () => import('./utilities/modify-user-data/verification.module').then(m => m.VerificationModule)},
     {path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)},
-    {path: 'join', loadChildren: () => import('./utilities/join/join.module').then(m => m.JoinModule)}
+    {path: 'join', loadChildren: () => import('./utilities/join/join.module').then(m => m.JoinModule)}, 
+    {path: '**', component: PageNotFoundComponent, data: { title: `${titleNamePrexif} - Page Not Found` }}
 ];
 
 @NgModule({

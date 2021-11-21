@@ -30,6 +30,7 @@ import { TermsComponent } from './utilities/terms/terms.component';
 import { PasswordResetComponent } from './utilities/modify-user-data/password-reset/password-reset.component';
 import { ModifyUserDataComponent } from './utilities/modify-user-data/modify-user-data.component';
 import { VerifyEmailComponent } from './utilities/modify-user-data/verify-email/verify-email.component';
+import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,7 @@ import { VerifyEmailComponent } from './utilities/modify-user-data/verify-email/
     PasswordChangeComponent, 
     AuthComponent, 
     PrivacyComponent, 
-    TermsComponent
+    TermsComponent, PageNotFoundComponent
   ],
   imports: [
     BrowserModule,

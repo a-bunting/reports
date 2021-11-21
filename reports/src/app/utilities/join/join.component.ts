@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { IPayPalConfig, ICreateOrderRequest } from 'ngx-paypal';
 
 @Component({
@@ -12,11 +11,10 @@ export class JoinComponent implements OnInit {
     public payPalConfig?: IPayPalConfig;
     showPaymentPane: boolean = false;
 
-    constructor(private titleService: Title) { 
+    constructor() { 
     }
 
     ngOnInit(): void {
-        this.titleService.setTitle(`Reports - Join Up!`)
     }
 
     showSuccess: boolean = false;

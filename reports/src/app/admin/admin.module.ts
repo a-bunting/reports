@@ -8,11 +8,13 @@ import { AdminBugReportsComponent } from "./admin-bug-reports/admin-bug-reports.
 import { AuthGuard } from "../utilities/authentication/auth-guard.guard";
 import { AdminGuard } from "../utilities/authentication/admin.guard";
 
+const titleNamePrexif: string = "ReportZone"
+
 const routes: Routes = [
-    {path: '', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], children: [
-        {path: 'sentences', component: AdminSentencesComponent},
-        {path: 'users', component: AdminUsersComponent},
-        {path: 'bugreports', component: AdminBugReportsComponent}
+    {path: '', component: AdminComponent, canActivate: [AuthGuard, AdminGuard], data: { title: `${titleNamePrexif} - Admin Area` }, children: [
+        {path: 'sentences', component: AdminSentencesComponent, data: { title: `${titleNamePrexif} - Admin Sentence DB` }},
+        {path: 'users', component: AdminUsersComponent, data: { title: `${titleNamePrexif} - Admin Users Area` }},
+        {path: 'bugreports', component: AdminBugReportsComponent, data: { title: `${titleNamePrexif} - Admin Bug Reports` }}
     ]}
 ]
 

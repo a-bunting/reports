@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-admin',
@@ -8,10 +7,9 @@ import { Title } from '@angular/platform-browser';
 })
 export class AdminComponent implements OnInit {
 
-  constructor(private titleService: Title) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.titleService.setTitle(`Reports - Admin Area`);
   }
 
 }

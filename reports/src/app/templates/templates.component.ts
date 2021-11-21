@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { Template, TemplatesService } from '../services/templates.service';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
@@ -15,11 +14,10 @@ export class TemplatesComponent implements OnInit {
     user: User;
     isLoading: boolean = false;
 
-    constructor(private templateService: TemplatesService, private auth: AuthenticationService, private titleService: Title) {}
+    constructor(private templateService: TemplatesService, private auth: AuthenticationService) {}
 
     ngOnInit(): void {
         this.isLoading = true;
-        this.titleService.setTitle(`Reports - Templates`)
     
         // get the user details and then the templates when this has loaded...
         this.auth.user.subscribe((user: User) => {

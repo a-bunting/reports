@@ -1,0 +1,10 @@
+<div class="fourohfour">
+    <p>This page doesnt exist 😟</p>
+    <div class="buttons">
+        <button class="input__button" routerLink='/dashboard' *ngIf="user">Dashboard</button>
+        <button class="input__button" routerLink='' *ngIf="!user">Home Page</button>
+        <button class="input__button" routerLink='/register' *ngIf="!user">Register</button>
+    </div>
+
+
+</div>

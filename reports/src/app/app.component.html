@@ -84,7 +84,14 @@
     <div class="divider-line divider-line__thick u__margin-top--medium u__margin-bottom--medium"></div>
     
     <main class="main">
-        <router-outlet></router-outlet>
+        <router-outlet>
+            <div class="loadingroute" *ngIf="loadingMessage">
+                <div class="loadingroute__place">
+                    <div class="loadingroute__text">
+                    </div>
+                </div>
+            </div>
+        </router-outlet>
     </main>
     
     <div class="divider-line divider-line__thick u__margin-top--medium"></div>

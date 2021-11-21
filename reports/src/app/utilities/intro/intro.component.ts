@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -9,13 +8,11 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class IntroComponent implements OnInit {
 
-  constructor(private titleService: Title, private activatedRoute: ActivatedRoute) { }
+  constructor(private activatedRoute: ActivatedRoute) { }
 
     codeMessage: string;
 
-    ngOnInit(): void {
-        this.titleService.setTitle(`Reports`);
-        
+    ngOnInit(): void {      
         let code: string = this.activatedRoute.snapshot.queryParams['code'];
         
         // depending on the code display a message...

@@ -25,9 +25,9 @@ export class PasswordResetComponent implements OnInit {
         console.log(this.oobCode);
     }
 
-    newPassword: string = "";
+    newPassword: string;
     newPasswordRepeat: string;
-    errorMessage: string = "this is the error...";
+    errorMessage: string;
 
     /**
      * Updates the password

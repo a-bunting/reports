@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReportsService, ReportTemplate } from '../services/reports.service';
@@ -21,12 +20,10 @@ export class ReportsComponent implements OnInit {
     constructor(
         private reportsService: ReportsService, 
         private activeRouter: ActivatedRoute, 
-        private router: Router, 
-        private titleService: Title
+        private router: Router 
     ) { }
 
     ngOnInit(): void {
-        this.titleService.setTitle(`Reports - Load new report`)
         // load the reports into the menu
         this.reportsService.getReports().subscribe((data: ReportTemplate[]) => {
             this.reports = data;

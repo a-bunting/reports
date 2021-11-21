@@ -76,7 +76,7 @@ export class AuthenticationService implements OnInit {
 
             // when successful then authenticate
             const authenticate = this.handleAuthentication(
-                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, false, token.token 
+                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, 'password', false, token.token 
             );
 
             // set the sentences template with the users userid - this will be their own copy of the database.
@@ -116,10 +116,11 @@ export class AuthenticationService implements OnInit {
 
         const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
-            
+            console.log(result);
+
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
-                Promise.resolve(result.user), 
+                Promise.resolve(result), 
                 result.user.getIdTokenResult(),
                 userDocRef.ref.get()
             ]);
@@ -132,13 +133,14 @@ export class AuthenticationService implements OnInit {
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
 
             this.handleAuthentication(
-                user.email, 
-                user.uid,
+                user.user.email, 
+                user.user.uid,
                 userDataSnapshot.get('name'),
                 establishment,
                 admin,
                 manager, 
                 member,
+                user.additionalUserInfo.providerId,
                 autoUpdate,
                 tokenData.token 
             );
@@ -162,10 +164,11 @@ export class AuthenticationService implements OnInit {
         return this.fAuth.signInWithPopup(provider).then((result) => {
 
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
-            
+            console.log(result);
+
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
-                Promise.resolve(result.user), 
+                Promise.resolve(result), 
                 result.user.getIdTokenResult(),
                 userDocRef.ref.get()
             ]);
@@ -179,13 +182,14 @@ export class AuthenticationService implements OnInit {
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
 
             this.handleAuthentication(
-                user.email, 
-                user.uid,
-                user.displayName,
+                user.user.email, 
+                user.user.uid,
+                user.user.displayName,
                 establishment,
                 admin,
                 manager, 
                 member,
+                user.additionalUserInfo.providerId,
                 autoUpdate,
                 tokenData.token 
             );
@@ -219,6 +223,7 @@ export class AuthenticationService implements OnInit {
             admin: boolean;
             manager: boolean; 
             member: boolean;
+            provider: string;
             autoUpdateDb: boolean;
             _token: string;
             _tokenExpirationDate: string;
@@ -228,7 +233,7 @@ export class AuthenticationService implements OnInit {
             return;
         }
 
-        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.autoUpdateDb, userData._token, new Date(userData._tokenExpirationDate));
+        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.provider, userData.autoUpdateDb, userData._token, new Date(userData._tokenExpirationDate));
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
@@ -259,6 +264,7 @@ export class AuthenticationService implements OnInit {
                             this.user.value.admin,
                             this.user.value.manager,
                             this.user.value.member,
+                            this.user.value.provider,
                             this.user.value.autoUpdateDb,
                             result, 
                             new Date(new Date().getTime() + (3600 * 1000))
@@ -292,9 +298,9 @@ export class AuthenticationService implements OnInit {
      * @param token 
      * @param expiresIn 
      */
-    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, autoUpdateDb: boolean, token: string): void {
+    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, provider: string, autoUpdateDb: boolean, token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, autoUpdateDb, token, expirationDate);
+        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, token, expirationDate);
         this.autoLogout(3600 * 1000);
         this.user.next(user);
 

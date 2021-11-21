@@ -2,6 +2,7 @@ import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, NavigationEnd, RouteConfigLoadEnd, RouteConfigLoadStart, Router, RouterEvent } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
@@ -22,7 +23,59 @@ export class AppComponent implements OnInit {
     authForm: NgForm;
     forgotPassword: boolean = false;
 
-    constructor(private authService: AuthenticationService) {}
+    loadingMessage: boolean;
+    loaded: boolean;
+    loadingTimer: number;
+
+    constructor(
+        private authService: AuthenticationService, 
+        private router: Router, 
+        private activatedRoute: ActivatedRoute,
+        private titleService: Title
+    ) {
+        this.loadingMessage = false;
+        this.loaded = true;
+        
+        // for lazy loaded routes display a loading menu whilst loading...
+        router.events.subscribe((event: RouterEvent) => {
+            if(event instanceof RouteConfigLoadStart) {
+                let delay: number = 200;
+                this.loaded = false;
+                // if things load super fast, make sure the message doesnt fly up and flash at the user...
+                this.loadingTimer = setTimeout(() => {
+                    !this.loaded ? this.loadingMessage = true : this.loadingMessage = false;
+                }, delay);
+            } else if (event instanceof RouteConfigLoadEnd) {
+                // stop any loading messages
+                this.loadingMessage = false;
+                this.loaded = true;
+            } else if(event instanceof NavigationEnd) {
+                // reload the title...
+                let route: ActivatedRoute = this.getChild(this.activatedRoute);
+                // subscribe tot he observable and update the title...
+                route.data.subscribe((data: any) => {
+                    this.setPageTitle(data.title);
+                })
+            }
+        })
+    }
+
+    /**
+     * Recursive function tof ind the most child component open.
+     * @param activatedRoute 
+     * @returns 
+     */
+    getChild(activatedRoute: ActivatedRoute): ActivatedRoute {
+        if(activatedRoute.firstChild) {
+            return this.getChild(activatedRoute.firstChild);
+        } else {
+            return activatedRoute;
+        }
+    }
+
+    setPageTitle(titleString: string): void {
+        this.titleService.setTitle(titleString);
+    }
 
     ngOnInit() {
         this.authService.autoLogin();

@@ -4,7 +4,6 @@ import { AuthenticationService } from 'src/app/utilities/authentication/authenti
 import { DatabaseService } from '../services/database.service';
 import { TestsService, Test } from '../services/tests.service';
 import { SentencesService, sentence } from '../services/sentences.service';
-import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-sentences',
@@ -47,8 +46,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     constructor(private databaseService: DatabaseService, 
                 private auth: AuthenticationService, 
                 private testsService: TestsService,
-                private sentenceService: SentencesService, 
-                private titleService: Title
+                private sentenceService: SentencesService 
     ) {
         // get the user details...
         auth.user.subscribe((newUser: User) => {
@@ -60,7 +58,6 @@ export class SentencesComponent implements OnInit, OnDestroy {
      * On init get the database...
      */
     ngOnInit(): void {
-        this.titleService.setTitle(`Reports - Sentence Database`);
         this.isLoading = true;
 
         // get the sentence data from the database...

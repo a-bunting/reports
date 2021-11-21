@@ -6,8 +6,10 @@ import { AuthGuard } from "../authentication/auth-guard.guard";
 import { MemberGuard } from "../authentication/member.guard";
 import { NgxPayPalModule } from "ngx-paypal";
 
+const titleNamePrexif: string = "ReportZone"
+
 const routes: Routes = [
-    {path: '', component: JoinComponent, canActivate: [AuthGuard, MemberGuard]}
+    {path: '', component: JoinComponent, canActivate: [AuthGuard, MemberGuard], data: { title: `${titleNamePrexif} - Join ${titleNamePrexif}` }}
 ]
 
 @NgModule({

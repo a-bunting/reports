@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-classes',
@@ -8,9 +7,8 @@ import { Title } from '@angular/platform-browser';
 })
 export class ClassesComponent implements OnInit {
 
-    constructor(private titleService: Title) {}
+    constructor() {}
 
     ngOnInit(): void {
-        this.titleService.setTitle(`Reports - Classes`);
     }
 }
