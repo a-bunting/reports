@@ -151,7 +151,8 @@ export class ReportsService {
 
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
-        let variables: VariableValues[] = [];
+        let genderVariable: VariableValues = { identifier: "Gender", key: "", value: "", options: ["f", "m", "p"]};
+        let variables: VariableValues[] = [genderVariable];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let duplicates: string[] = [];
 
@@ -647,8 +648,8 @@ export class ReportsService {
         // gender transform...
         report = this.genderConversion(report, gender);
         // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
-        report = this.pickAWord(report);
-        report = this.anOrA(report);        
+        report = this.anOrA(report);   // must come before pickaword as the syntax for selection is the same, and if pick came first it will select anora     
+        report = this.pickAWord(report); // this should be the last of the [] notations as it selects the worths within the brackets as opposed to an action based upon the content [AnOrA], PICK An or A depending on the next letter for example.
         // finally remove the whitespace;
         report = this.removeWhiteSpace(report);
         return report;
@@ -732,7 +733,6 @@ export class ReportsService {
         let regExData: string[];        
         
         while((regExData = strReplace.exec(report)) !== null) {
-            // not quite working yet
             let choice: string = (regExData[1].trimStart())[0].toLowerCase() === ("a"||"e"||"i"||"o"||"u") || !isNaN(+regExData[1].trimStart()) ? "an" : "a";           
             let newStr: string = regExData[0].replace("[AnOrA]", choice);
             report = report.replace(regExData[0], newStr);

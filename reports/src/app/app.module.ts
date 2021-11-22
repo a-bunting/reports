@@ -14,7 +14,7 @@ import { AuthenticationService } from './utilities/authentication/authentication
 import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireAuthModule, PERSISTENCE } from '@angular/fire/auth';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { SentencesComponent } from './sentences/sentences.component';
@@ -27,9 +27,6 @@ import { FormsModule } from '@angular/forms';
 import { AuthComponent } from './utilities/auth/auth.component';
 import { PrivacyComponent } from './utilities/privacy/privacy.component';
 import { TermsComponent } from './utilities/terms/terms.component';
-import { PasswordResetComponent } from './utilities/modify-user-data/password-reset/password-reset.component';
-import { ModifyUserDataComponent } from './utilities/modify-user-data/modify-user-data.component';
-import { VerifyEmailComponent } from './utilities/modify-user-data/verify-email/verify-email.component';
 import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found.component';
 
 @NgModule({
@@ -50,7 +47,8 @@ import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found
     PasswordChangeComponent, 
     AuthComponent, 
     PrivacyComponent, 
-    TermsComponent, PageNotFoundComponent
+    TermsComponent, 
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -66,7 +64,8 @@ import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found
         AngularFireFunctions, 
         AngularFireAuthModule, 
         AngularFirestoreModule, 
-        Title
+        Title, 
+        { provide: PERSISTENCE, useValue: 'session' } // firebase persistence.
     ],
   bootstrap: [AppComponent]
 })

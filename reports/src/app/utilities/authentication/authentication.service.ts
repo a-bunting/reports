@@ -25,7 +25,7 @@ export interface AuthResponseData {
 
 export class AuthenticationService implements OnInit {
 
-    user = new BehaviorSubject<User>(null);
+    user = new BehaviorSubject<User>(null); 
     keepAlive: boolean = true; //for testing = true, but needs to persist somehow... localstorage settings?
 
     constructor(public firestore: AngularFirestore,
@@ -35,13 +35,15 @@ export class AuthenticationService implements OnInit {
 
     ngOnInit(): void {
 
-        this.fAuth.onAuthStateChanged((user) => {
-            if(user) {
-                console.log(user);
-            } else {
-                console.log(`Chnages detected but... no data!`);
-            }
-        });
+        this.fAuth.onIdTokenChanged((state) => {
+            console.log(`state change: `, state);
+        })
+
+        this.fAuth.onAuthStateChanged((state) => {
+            console.log(state);
+        })
+
+        
 
     }
 
@@ -116,7 +118,6 @@ export class AuthenticationService implements OnInit {
 
         const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
-            console.log(result);
 
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([

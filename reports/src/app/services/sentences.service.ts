@@ -453,7 +453,7 @@ export class SentencesService {
                                 })
                                 // any settings may also needed and should be added to the array
                                 // NOT SURE THIS WILL WORK...
-                                let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.name);
+                                let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.identifier);
                                 
                                 if("settings" in test) {
                                     newUserData.data['settings'] = tests[testIndex].settings.value;

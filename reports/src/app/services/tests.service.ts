@@ -156,7 +156,7 @@ export class TestsService {
                     });
                     return currentPassStatus;
                 } else {
-                    console.log(`Pattern error in test machine...`);
+                    console.log(`Pattern error in test machine... ${testPattern}`);
                     return false;
                 };
             }
@@ -229,7 +229,7 @@ export class TestsService {
                         return true;
                     } else return false;
                 } else {
-                    console.log(`Pattern error in test machine...`);
+                    console.log(`Pattern error in test machine... ${testPattern}`);
                     return false;
                 };
             }
@@ -302,7 +302,7 @@ export class TestsService {
                         return true;
                     } else return false;
                 } else {
-                    console.log(`Pattern error in test machine...`);
+                    console.log(`Pattern error in test machine... ${testPattern}`);
                     return false;
                 };
             }

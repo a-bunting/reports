@@ -76,18 +76,6 @@
     
     <!-- variables, things that needf a value for each student -->
     <div class="reports__variable-column" *ngIf="showVariables()">
-        <div class="reports__variable">
-            <div class="reports__variable--name">
-                Gender
-            </div>
-    
-            <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, 'Gender')" [disabled]="checkVariableAssignment('Gender')">
-                <option value="" disabled [selected]="!checkVariableAssignment('Gender')"></option>
-                <option value="Gender">* Add column *</option>
-                <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="option === 'Gender'">{{ option }}</option>
-            </select>
-        </div>
-    
         <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
             <div class="reports__variable--name">
                 {{ variable.identifier }}
