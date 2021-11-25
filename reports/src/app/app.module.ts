@@ -12,11 +12,11 @@ import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spi
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
 import { environment } from 'src/environments/environment';
-import { AngularFireModule } from '@angular/fire';
-import { AngularFireFunctions } from '@angular/fire/functions';
-import { AngularFireAuthModule, PERSISTENCE } from '@angular/fire/auth';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { AngularFireAuthModule, PERSISTENCE } from '@angular/fire/compat/auth';
 import { CreateGroupComponent } from './classes/create-group/create-group.component';
-import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { SentencesComponent } from './sentences/sentences.component';
 import { EditGroupComponent } from './classes/edit-group/edit-group.component';
 import { EditReportComponent } from './reports/edit-report/edit-report.component';

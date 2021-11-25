@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
-import firebase from 'firebase/app';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import firebase from 'firebase/compat/app';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { User } from './user.model';
@@ -393,7 +393,7 @@ export class AuthenticationService implements OnInit {
         }, error => {
             console.log(`Password reset not sent: ${error}`);
             return false;
-        }))
+        }));
     }
 
 }

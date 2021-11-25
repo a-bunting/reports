@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../utilities/authentication/user.model';
 import { sentence } from './sentences.service';
 import { Group } from 'src/app/services/groups.service';
