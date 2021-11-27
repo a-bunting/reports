@@ -164,7 +164,8 @@ export class ReportsService {
                 let typeMatches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
                 while(typeMatches = splitRegex.exec(option)) { 
-                    let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
+                    // doesnt work for g|Time Period[semester,term]
+                    let exists = duplicates.findIndex((temp: string) => temp == typeMatches[1]);
                     
                     // test if its already been identified and if not, push onto the array
                     if(exists === -1) {
@@ -178,7 +179,6 @@ export class ReportsService {
                         let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
                         let optionsMatches: RegExpExecArray;
                         let options: string[] = [];
-                        // let optionObject = {};
 
                         // and get the options, if any...
                         while(optionsMatches = optionsRegex.exec(data[1])) {

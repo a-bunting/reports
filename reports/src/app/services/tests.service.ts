@@ -392,8 +392,8 @@ export class TestsService {
                 name: "Grade Pattern",
                 description: "A pattern matched with a grade level can distinguish how a student has performed over time.", 
                 options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"], 
-                validityFunction: (): boolean => {
-                    return true;
+                validityFunction: (expression: string): boolean => {
+                    return ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"].includes(expression);;
                 }
             },
             variables: [
@@ -416,8 +416,8 @@ export class TestsService {
                 name: "Effort Pattern",
                 description: "A pattern matched with a effort level can distinguish well a student has worked over time.", 
                 options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"], 
-                validityFunction: (): boolean => {
-                    return true;
+                validityFunction: (expression: string): boolean => {
+                    return ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"].includes(expression);
                 }
             },
             variables: [
@@ -425,6 +425,52 @@ export class TestsService {
             ],
             calculateValueFunction: (userData: Student): string => {
                 return userData.data['patternEffort'];
+            },
+            testFunction: (valueToTest: string, testString: string): boolean => {
+                return valueToTest === testString;
+            }
+        }, 
+        {
+            name: "Behaviour", 
+            identifier: "behaviourTest",
+            settings: { name: "Behaviour", description: "What describes the students behaviour best?", options: [{ name: "Behaviour", options: {0: "Good", 1: "Chatty (OK)", 2: "Disruptive"}}]}, 
+            description: "This is a simple test of students behaviour, focused around how their behaviour impacts other students' learning.", 
+            test: {
+                name: "Behaviour",
+                description: "What best describes the students' behaviour in class?", 
+                options: ["Good", "Chatty", "Disruptive"], 
+                validityFunction: (expression: string): boolean => {
+                    return ["Good", "Chatty", "Disruptive"].includes(expression);
+                }
+            },
+            variables: [
+                { name: "Behaviour", identifier: "behaviourTest", description: "What word best describes the students' behaviour?"}
+            ],
+            calculateValueFunction: (userData: Student): string => {
+                return userData.data['behaviourTest'];
+            },
+            testFunction: (valueToTest: string, testString: string): boolean => {
+                return valueToTest === testString;
+            }
+        }, 
+        {
+            name: "Particiation", 
+            identifier: "participationTest",
+            settings: { name: "Particiation", description: "How well does the student participate in class?", options: [{ name: "Particiation", options: {0: "Frequent", 1: "Good", 2: "Occasional", 3: "None Participant"}}]}, 
+            description: "A test of students' level of participation within class (however you define participation!).", 
+            test: {
+                name: "Participation",
+                description: "What best describes the students' level of participation in class?", 
+                options: ["Frequent", "Good", "Occasional", "None Participant"], 
+                validityFunction: (expression: string): boolean => {
+                    return ["Frequent", "Good", "Occasional", "None Participant"].includes(expression);
+                }
+            },
+            variables: [
+                { name: "Participation", identifier: "participationTest", description: "What word best describes the students' level of participation in class?"}
+            ],
+            calculateValueFunction: (userData: Student): string => {
+                return userData.data['participationTest'];
             },
             testFunction: (valueToTest: string, testString: string): boolean => {
                 return valueToTest === testString;
