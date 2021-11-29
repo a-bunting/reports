@@ -1,0 +1,18 @@
+<div class="gallery">
+    
+    <div class="gallery__text">
+        How to use...
+    </div>
+
+    <div class="gallery__items">
+        <button class="gallery__item" (click)="setGalleryComponent('Templates')">Templates</button>
+        <button class="gallery__item" (click)="setGalleryComponent('Database')">Database</button>
+        <button class="gallery__item" (click)="setGalleryComponent('Reports')">Reports</button>
+    </div>
+
+    <div class="gallery__gallery">
+
+        <app-gallery-item [galleryDisplayName]="galleryItem"></app-gallery-item>
+
+    </div>
+</div>

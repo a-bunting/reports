@@ -57,17 +57,23 @@
                     A password reset email has been sent to the account specified. Please check this for further information.
                 </div>
 
-                <div class="header__login-text">Username</div>
-                <input type="email" id="email" name="email" class="header__login--input" [disabled]="isLoading" [(ngModel)]="emailAddress" ngModel required email>
-
-                <div class="header__login-text">Password (<span class="header__password-forgot" (click)="toggleForgot()">I forgot!</span>)</div>
-                <input  type="password" id="password" name="password" class="header__login--input" minLength="6" [disabled]="isLoading" *ngIf="!forgotPassword" ngModel required password>
+                <div class="header__newinput">
+                    <input type="email" id="email" name="email" class="header__newinput--input" [disabled]="isLoading" [(ngModel)]="emailAddress" placeholder=" " ngModel required email>
+                    <label for="email" class="header__newinput--label">Email</label>
+                </div>
+                <!-- <div class="header__login-text">Password (<span class="header__password-forgot" (click)="toggleForgot()">I forgot!</span>)</div> -->
+               
+                <div class="header__newinput">
+                    <input  type="password" id="password" name="password" class="header__newinput--input" minLength="6" [disabled]="isLoading" *ngIf="!forgotPassword" placeholder=" " ngModel required password>
+                    <label for="password" class="header__newinput--label">Password</label>
+                </div>
 
                 <button class="input__button" [disabled]="isLoading" *ngIf="!forgotPassword">Log In</button>
                 <button type="button" class="input__button" *ngIf="forgotPassword" (click)="sendPasswordResetEmail()">Send Password Reset Email</button>
                 
                 <div class="header__login-text">or</div>
                 <img src="../assets/btn_google_signin_light_normal_web.png" class="header__login--google" alt="Sign in with Google"  (click)="authService.GoogleAuth()">
+
             </div>
         </form>
         

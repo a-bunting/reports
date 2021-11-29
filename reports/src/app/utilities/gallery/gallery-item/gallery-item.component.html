@@ -1,0 +1,17 @@
+<div class="gallery-item">
+    <div class="gallery-item__title" *ngIf="getData('name')">
+        {{ getData('name') }}
+    </div>
+
+    <div class="gallery-item__brief" *ngIf="getData('brief')">
+        {{ getData('brief') }}
+    </div>
+    
+    <div class="gallery-item__video" *ngIf="getVideo()">
+        <iframe width="100%" [src]="getVideo()" title="YouTube - {{ getData('name') }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <div class="gallery-item__description" *ngIf="getData('description')">
+        {{ getData('description') }}
+    </div>
+</div>

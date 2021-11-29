@@ -201,8 +201,76 @@
             padding-bottom: 0rem;
             box-shadow: 0 .3rem .6rem rgba(black, .4);
         }
-
     }
+
+
+    &__newinput {
+
+        position: relative;
+        width: 20rem;
+        height: 3rem;
+        font-size: 1.6rem;
+
+        &:not(:last-of-type) {
+            margin-right: 5rem;
+        }
+
+        &--input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: .2rem solid var(--color-style-juxtapose);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            padding-right: 6rem;
+            background-color: rgba(white, .8);
+            transition: all .2s;
+            letter-spacing: .15rem;
+
+            &:hover {
+                border-color: var(--color-style-main);
+            }
+
+            &:focus {
+                border-color: var(--color-style-main);
+                outline: none;
+            }
+
+            &:not(:placeholder-shown) {
+                border-color: var(--color-style-main);
+            }
+        }
+
+        &--label {
+            position: absolute;
+            left: 1rem;
+            padding: 1.5rem .5rem;
+            color: black;
+            cursor: text;
+            transition: all .2s ease-in;
+            border-radius: 0 1rem 1rem 0;
+            border: .2rem solid transparent;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            width: 9.5rem;
+        }
+    }
+
+    &__newinput--input:focus ~ .header__newinput--label,
+    &__newinput--input:not(:placeholder-shown) ~ .header__newinput--label, 
+    &__newinput--input:-webkit-autofill ~ .header__newinput--label {
+        left: 15rem;
+        background-color: var(--color-style-juxtapose);
+        border: .2rem solid var(--color-style-main);
+        border-left: none;
+        color: white;
+        justify-content: center;
+    }
+
+
 
     &__password-forgot {
         text-decoration: underline;

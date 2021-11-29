@@ -28,6 +28,8 @@ import { AuthComponent } from './utilities/auth/auth.component';
 import { PrivacyComponent } from './utilities/privacy/privacy.component';
 import { TermsComponent } from './utilities/terms/terms.component';
 import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found.component';
+import { GalleryComponent } from './utilities/gallery/gallery.component';
+import { GalleryItemComponent } from './utilities/gallery/gallery-item/gallery-item.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +50,7 @@ import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found
     AuthComponent, 
     PrivacyComponent, 
     TermsComponent, 
-    PageNotFoundComponent
+    PageNotFoundComponent, GalleryComponent, GalleryItemComponent
   ],
   imports: [
     BrowserModule,
