@@ -16,7 +16,7 @@ export class EditGroupComponent implements OnInit {
     loadingFailure: boolean = false;
     user: User;
 
-    constructor(private groupsService: GroupsService, private auth: AuthenticationService, private groupService: GroupsService) { 
+    constructor(private groupsService: GroupsService, private auth: AuthenticationService) { 
         // get the user info...
         auth.user.subscribe((user: User) => {
             this.user = user;
@@ -33,7 +33,7 @@ export class EditGroupComponent implements OnInit {
     loadGroups(): void {
         this.isLoading = true;
         // subscribe to the load even in the group service which returns exactly one set of results.
-        this.groupService.getGroups().subscribe({
+        this.groupsService.getGroups().subscribe({
             next: (groups: Group[]) => {
                 this.groups = groups;
                 // set the updated fields to false;
@@ -116,7 +116,7 @@ export class EditGroupComponent implements OnInit {
      */
     addUser(groupIndex: number): void {
         // new user template
-        let newUserTemplate: Student = { id: this.groupService.generateRandomId(), data: {} };
+        let newUserTemplate: Student = { id: this.groupsService.generateRandomId(), data: {} };
         this.updatedData[groupIndex] = true;
 
         // add the keys to the new user in the right order...
@@ -182,16 +182,6 @@ export class EditGroupComponent implements OnInit {
         this.groups[groupIndex].students.forEach((row: Student) => {
             row.data[colName] = "";
         });
-        // let newData = [...this.groups];
-
-        // // iterate over and add to each of the userdata...
-        // newData[groupIndex].students.forEach((row: Student) => {
-        //     row.data[colName] = "";
-        // });
-
-        // this.groups = newData;
-
-        console.log(this.groups);
     }
 
     /**
@@ -228,12 +218,11 @@ export class EditGroupComponent implements OnInit {
      */
     deleteGroupConfirm(groupIndex: number): void {
         this.deletingCurrent = true;
-        console.log(groupIndex, [...this.groups]);
 
         this.groupsService.deleteGroup(this.groups[groupIndex].id).subscribe({
-            next: (groupReturn: Group[]) => {
-                this.groups.splice(groupIndex, 1);
-                console.log('group return', groupReturn);
+            next: () => {
+                // get the groups back
+                this.groupsService.getGroups().subscribe((groups: Group[]) => { this.groups = groups; });
             }, 
             error: (error) => {
                 console.log(`Error: ${error.message}`);

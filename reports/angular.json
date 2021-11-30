@@ -2,7 +2,6 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
-  "defaulConfiguration": "development",
   "projects": {
     "reports": {
       "projectType": "application",
@@ -15,6 +14,7 @@
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
+
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
@@ -60,9 +60,20 @@
                   "maximumError": "10kb"
                 }
               ]
-            }
+            }, 
+            "development": {
+                "optimization": false,
+                "outputHashing": "all",
+                "sourceMap": true,
+                "namedChunks": true,
+                "extractLicenses": false,
+                "vendorChunk": true,
+                "buildOptimizer": false,
+                "budgets": []
+              }
           }
         },
+
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
@@ -71,8 +82,12 @@
           "configurations": {
             "production": {
               "browserTarget": "reports:build:production"
+            },
+            "development": {
+              "browserTarget": "reports:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

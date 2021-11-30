@@ -644,7 +644,6 @@ export class ReportsService {
      */
     substitutions(report: string, gender: "m" | "f" | "p"): string {
         report = this.sentenceCase(report);
-        report = this.repeatCharacterRemoval2(report);
         // gender transform...
         report = this.genderConversion(report, gender);
         // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
@@ -652,6 +651,7 @@ export class ReportsService {
         report = this.pickAWord(report); // this should be the last of the [] notations as it selects the worths within the brackets as opposed to an action based upon the content [AnOrA], PICK An or A depending on the next letter for example.
         // finally remove the whitespace;
         report = this.removeWhiteSpace(report);
+        report = this.repeatCharacterRemoval2(report);
         return report;
     }
 
@@ -791,19 +791,19 @@ export class ReportsService {
     }
 
     repeatCharacterRemoval2(report: string): string {
-        let regExComma: RegExp = new RegExp('[ ,]{2,}', 'gi');
-        let regExFS: RegExp = new RegExp(/(\.[\s]{1,}\.)/gm);
+        let regExComma: RegExp = new RegExp(/,[\s]{1,},/gm);
+        let regExFS: RegExp = new RegExp(/\.[\s]{1,}\./gm);
         
         let regExString: string[];
 
         while((regExString = regExComma.exec(report)) !== null) { report = report.replace(regExString[0], ', '); }
-        while((regExString = regExFS.exec(report)) !== null) { report = report.replace(regExString[0], '.'); }
+        while((regExString = regExFS.exec(report)) !== null) { report = report.replace(regExString[0], '.'); regExFS.lastIndex = 0; }
 
         return report;
     }
 
     repeatCharacterRemoval(report: string): string {
-        let chars: string[] = [',,','..',',.','.,'];
+        let chars: string[] = [',','.'];
         
         chars.forEach((char: string) => {
 

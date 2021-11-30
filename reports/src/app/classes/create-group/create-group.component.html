@@ -65,6 +65,9 @@
                     <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero" (blur)="userValueChange(row.id, user.key, $event)" (keyup.enter)="userValueChange(row.id, user.key, $event)" contenteditable="true">
                         {{ user.value }}
                     </td>
+                    <!-- PUT TEXT BOXES IN -->
+                    <!-- <input type="text" name="" id=""> -->
+
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(row.id)">&#10006; <div class="tooltip">Delete this user</div></div>
                     </td> 
