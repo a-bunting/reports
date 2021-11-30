@@ -46,14 +46,15 @@ export class CreateGroupComponent implements OnInit {
         group.students = students;
         group.keys = this.keys;
 
-        this.groupService.addGroup(group).subscribe((returnData: DocumentReference) => {
-            console.log(`Success: ID ${returnData.id}`);
-            this.groupId = returnData.id;
-        }, (error) => {
-            console.log(`Error: ${error.message}`);
-        }, () => {
-            this.dataSubmitting = false;
-        })
+        this.groupService.addGroup(group).subscribe({
+            next: (returnData: DocumentReference) => {
+                console.log(`Success: ID ${returnData.id}`);
+                this.groupId = returnData.id;
+        },  error: (error) => {
+                console.log(`Error: ${error.message}`);
+        },  complete: () => {
+                this.dataSubmitting = false;
+        }})
     }
 
     updateGroup(): void {
@@ -71,16 +72,17 @@ export class CreateGroupComponent implements OnInit {
         group.students = students;
         group.keys = this.keys;
 
-        this.groupService.updateGroup(group, this.groupId).subscribe(() => {
-            console.log(`Successfully modified data`);
-            this.dataUpdated = true;
-        }, (error) => {
-            console.log(`Error: ${error.message}`);
-        }, () => {
-            this.dataSubmitting = false;
-            this.dataUpdating = false;
-            this.dataChanged = false;
-        })
+        this.groupService.updateGroup(group, this.groupId).subscribe({
+            next: () => {
+                console.log(`Successfully modified data`);
+                this.dataUpdated = true;
+        },  error: (error) => {
+                console.log(`Error: ${error.message}`);
+        },  complete: () => {
+                this.dataSubmitting = false;
+                this.dataUpdating = false;
+                this.dataChanged = false;
+        }})
     }
 
     userInfo: string;
@@ -90,21 +92,32 @@ export class CreateGroupComponent implements OnInit {
         this.groupId = undefined;
         let data: string[];
 
-        // for now use testdata if none exists in the textbox
-        if(this.userInfo === "") {
-            // no test data in box, use variable testData
-            data = testData.split("\n");
-        } else {
+        // // for now use testdata if none exists in the textbox
+        // if(this.userInfo === "") {
+        //     // no test data in box, use variable testData
+        //     data = testData.split("\n");
+        // } else {
             // testdata exists in the box
-            data = this.userInfo.split("\n");
-        }
+        data = this.userInfo.split("\n");
+        // }
 
+        console.log(data);
+        
         // get data and split into individual elements
         let keys: string[] = [];
         
         // if there is a header row build a list of the keys to use for this dataset
         if(this.headerRow) {
             keys = data[0].split(",").map((a: string) => a.trim());
+
+            // check for duplicate key names and rename them...
+            keys.forEach((key: string, index: number) => {
+                let keyArray: string[] = [...keys];
+                keyArray.splice(index, 1); // remove the tested value...
+                let findIndex: number = keyArray.findIndex((t: string) => t === key);
+                // test if it is a duplicate elsewhere...
+                if(findIndex !== -1) { keys[index] = key + index; }
+            })
             data.splice(0, 1);
         } else {
             // create a set of keys which is just numbers...
@@ -115,11 +128,13 @@ export class CreateGroupComponent implements OnInit {
 
         // set keys globally to be accessed in the dom
         this.keys = keys;
+
         // iterate over the data and build a new array
         let newData = [];
         
         data.forEach((row: string) => {
             let newUserData = row.split(",");
+            // [message, message]
             let user = { id: this.groupService.generateRandomId(), data: {} };
 
             // user a for loop to ensure even if a value is not defined it exists as a blank in the array
@@ -132,7 +147,6 @@ export class CreateGroupComponent implements OnInit {
             newData.push(user);
         })
 
-        console.log(keys, newData);
         this.userData = newData;
     }
 

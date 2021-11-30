@@ -66,8 +66,7 @@ export class GroupsService {
                     this.groups.push(newData);
                 })
                 // set the data into local storage to make it quicker ot retrieve next time...
-                localStorage.setItem('groups-data', JSON.stringify(this.groups))
-
+                this.updateLocalStorage([...this.groups]);
                 return this.groups;
             }))
         }
@@ -84,7 +83,10 @@ export class GroupsService {
             this.groups = groups;
             // and then find the required file...
             let groupIndex: number = groups.findIndex((grp: Group) => grp.id === id);
-            return this.groups[groupIndex];
+            // if its an actual group return it...
+            if(groupIndex !== -1) {
+                return this.groups[groupIndex];
+            }
         }));
     }
 
@@ -94,16 +96,18 @@ export class GroupsService {
      */
     addGroup(newGroup: Group): Observable<any> {
         // call the database...
-        return this.db.createGroup(newGroup).pipe(take(1), tap((res: DocumentReference) => {
-            // add the id of the document to the group 
-            newGroup.id = res.id;
-            // add the new group to the groups array..
-            this.groups.push(newGroup);
-            // update the local storage
-            this.updateLocalStorage(this.groups);
-        }, error => {
-            console.log(`Error: ${error}`);
-        }))
+        return this.db.createGroup(newGroup).pipe(take(1), tap({
+            next: (res: DocumentReference) => {
+                // add the id of the document to the group 
+                newGroup.id = res.id;
+                // add the new group to the groups array..
+                this.groups.push(newGroup);
+                // update the local storage
+                this.updateLocalStorage([...this.groups]);
+            }, 
+            error: (error) => {
+                console.log(`Error: ${error}`);
+        }}))
     }
 
     /**
@@ -113,36 +117,39 @@ export class GroupsService {
      */
     updateGroup(group: Group, id: string): Observable<any> {
         // call the db
-        return this.db.modifyGroup(group, id).pipe(take(1), tap((res) => {
-            // success...
-            let index = this.groups.findIndex((grp: Group) => grp.id === id);
-            // if found then update local storage
-            if(index !== -1) {
-                this.groups[index] = { id: id, ...group};
-                this.updateLocalStorage(this.groups);
-            }
-        }, error => {
+        return this.db.modifyGroup(group, id).pipe(take(1), tap({
+            next: () => {
+                // success...
+                let index = this.groups.findIndex((grp: Group) => grp.id === id);
+                // if found then update local storage
+                if(index !== -1) {
+                    this.groups[index] = { id: id, ...group};
+                    this.updateLocalStorage([...this.groups]);
+                }
+        }, error: error => {
             console.log(`Error: ${error}`);
-        }))
+        }}))
     }
 
     /**
      * removes a group from the database...
      * @param id 
      */
-    deleteGroup(id: string): Observable<any> {
+    deleteGroup(id: string): Observable<Group[]> {
         // call the db
-        return this.db.deleteGroup(id).pipe(take(1), tap((res) => {
-            // success
-            let index = this.groups.findIndex((grp: Group) => grp.id === id);
-            // if found then update local storage
-            if(index !== -1) {
-                this.groups.splice(index, 1);
-                this.updateLocalStorage(this.groups);
-            }
-        }, error => {
-            console.log(`Error: ${error}`);
-        }))
+        return this.db.deleteGroup(id).pipe(take(1), tap({
+            next: () => {
+                // success
+                let index = this.groups.findIndex((grp: Group) => grp.id === id);
+                // if found then update local storage
+                if(index !== -1) {
+                    this.groups.splice(index, 1);
+                    this.updateLocalStorage([...this.groups]);
+                    return this.groups;
+                }
+        },  error: (error: any) => {
+                console.log(`Error: ${error}`);
+        }}))
     }
 
     /**
@@ -152,23 +159,6 @@ export class GroupsService {
      */
     updateLocalStorage(groups: Group[]): void {
         localStorage.setItem('groups-data', JSON.stringify(groups));
-    }
-
-    /**
-     * Update the database with new information.
-     * @param template 
-     * @param id 
-     * @returns 
-     */
-     updateDatabase(group: Group, id: string): Observable<any> {
-        // update the database.
-        return this.db.modifyGroup(group, id).pipe(take(1), tap((result) => {
-            // success...
-            return true;
-        }, error => {
-            console.log(`Error updating database: ${error}`);
-            return false;
-        }))
     }
 
     /**
