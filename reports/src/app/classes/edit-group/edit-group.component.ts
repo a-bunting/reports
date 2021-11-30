@@ -33,21 +33,22 @@ export class EditGroupComponent implements OnInit {
     loadGroups(): void {
         this.isLoading = true;
         // subscribe to the load even in the group service which returns exactly one set of results.
-        this.groupService.getGroups().subscribe((groups: Group[]) => {
-            this.groups = groups;
-            // set the updated fields to false;
-            for(let i = 0 ; i < groups.length ; i++) {
-                this.updatedData.push(false);
-                this.updatingData.push(false);
-            }
-            // set it to loaded...
-            this.loadingFailure = false;
-            this.isLoading = false;
-        }, (error) => {
-            console.log(`Error loading groups: ${error.message}`);
-            this.loadingFailure = true;
-            this.isLoading = false;
-        });
+        this.groupService.getGroups().subscribe({
+            next: (groups: Group[]) => {
+                this.groups = groups;
+                // set the updated fields to false;
+                for(let i = 0 ; i < groups.length ; i++) {
+                    this.updatedData.push(false);
+                    this.updatingData.push(false);
+                }
+                // set it to loaded...
+                this.loadingFailure = false;
+                this.isLoading = false;
+        },  error: (error) => {
+                console.log(`Error loading groups: ${error.message}`);
+                this.loadingFailure = true;
+                this.isLoading = false;
+        }});
     }
 
     updatedData: boolean[] = [];
@@ -227,15 +228,20 @@ export class EditGroupComponent implements OnInit {
      */
     deleteGroupConfirm(groupIndex: number): void {
         this.deletingCurrent = true;
+        console.log(groupIndex, [...this.groups]);
 
-        this.groupsService.deleteGroup(this.groups[groupIndex].id).subscribe(() => {
-            console.log("deletion complete");
-            this.groups.splice(groupIndex, 1);
-        }, error => {
-            console.log(`Error: ${error.message}`);
-        }, () => {
-            this.deletionConfirm = -1;
-            this.deletingCurrent = false;
+        this.groupsService.deleteGroup(this.groups[groupIndex].id).subscribe({
+            next: (groupReturn: Group[]) => {
+                this.groups.splice(groupIndex, 1);
+                console.log('group return', groupReturn);
+            }, 
+            error: (error) => {
+                console.log(`Error: ${error.message}`);
+            }, 
+            complete: () => {
+                this.deletionConfirm = -1;
+                this.deletingCurrent = false;
+            }
         })
     }
 
@@ -287,6 +293,10 @@ export class EditGroupComponent implements OnInit {
             returnValue = {...returnValue, ...newKey};
         })
         return returnValue;
+    }
+
+    getgroupdata(): void {
+        console.log(this.groupsService.groups, this.groups);
     }
 
 }
