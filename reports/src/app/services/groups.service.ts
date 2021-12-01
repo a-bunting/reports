@@ -137,6 +137,7 @@ export class GroupsService {
      */
     deleteGroup(id: string): Observable<Group[]> {
         // call the db
+        console.log(`1`,this.groups);
         return this.db.deleteGroup(id).pipe(take(1), tap({
             next: () => {
                 // success
@@ -145,8 +146,9 @@ export class GroupsService {
                 if(index !== -1) {
                     this.groups.splice(index, 1);
                     this.updateLocalStorage([...this.groups]);
-                    return this.groups;
                 }
+                console.log([...this.groups]);
+                return [...this.groups];
         },  error: (error: any) => {
                 console.log(`Error: ${error}`);
         }}))
