@@ -1,14 +1,11 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { DatabaseService } from 'src/app/services/database.service';
 import { Template, TemplateDB, TemplatesService } from 'src/app//services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { DocumentReference } from '@angular/fire/firestore';
-import { DocumentSnapshot } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 
@@ -29,7 +26,14 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
-    constructor(private router: ActivatedRoute, private navigation: Router, private templateService: TemplatesService, private sentenceService: SentencesService, private auth: AuthenticationService) { 
+    constructor(
+        private router: ActivatedRoute, 
+        private navigation: Router,
+        private templateService: TemplatesService, 
+        private sentenceService: SentencesService, 
+        private auth: AuthenticationService) 
+    { 
+        
     }
 
     paramObservable: Subscription;
