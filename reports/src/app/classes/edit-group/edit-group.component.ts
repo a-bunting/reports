@@ -284,8 +284,4 @@ export class EditGroupComponent implements OnInit {
         return returnValue;
     }
 
-    getgroupdata(): void {
-        console.log(this.groupsService.groups, this.groups);
-    }
-
 }

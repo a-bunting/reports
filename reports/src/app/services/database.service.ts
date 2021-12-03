@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
@@ -18,7 +17,7 @@ export class DatabaseService {
 
     private user: User;
 
-    constructor(private auth: AuthenticationService, private http: HttpClient, private firebase: AngularFirestore) { 
+    constructor(private auth: AuthenticationService, private firebase: AngularFirestore) { 
         // subscribe to the user details;
         auth.user.subscribe((user: User) => {
             this.user = user;
@@ -30,8 +29,9 @@ export class DatabaseService {
     statRead: number = 0;
     public getWrites(): number { return this.statWrite; }
     public getReads(): number { return this.statRead; }
-    readOperation(reads: number = 1): void { this.statRead+=reads; }
-    writeOperation(writes: number = 1): void { this.statWrite+=writes; }
+    // after a database change, refresh their token...
+    readOperation(reads: number = 1): void { this.statRead+=reads; this.auth.refreshToken().subscribe(); }
+    writeOperation(writes: number = 1): void { this.statWrite+=writes; this.auth.refreshToken().subscribe(); }
 
     // SENTENCES
     // database connections with angular firestore

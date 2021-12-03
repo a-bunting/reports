@@ -338,17 +338,18 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     deleteTemplate(): void {
         this.deletingTemplate = true;
-        this.templateService.deleteTemplate(this.templateId).subscribe((success: boolean) => {
-            // success... reload?
-            this.deletingTemplate = false;
-            // remove from the list
-            this.changeEmitter(true);
-            // reload this page to a blank version...
-            this.navigation.navigate(['templates/create-template']);
-        }, error => {
-            console.log(`Error deleting template: ${error}`);
-            this.deletingTemplate = false;
-        })
+        this.templateService.deleteTemplate(this.templateId).subscribe({
+            next : () => {
+                // success... reload?
+                this.deletingTemplate = false;
+                // remove from the list
+                this.changeEmitter(true);
+                // reload this page to a blank version...
+                this.navigation.navigate(['templates/create-template']);
+        },  error: (error) => {
+                console.log(`Error deleting template: ${error}`);
+                this.deletingTemplate = false;
+        }})
     }
 
     changeEmitter(deleted: boolean = false, created: boolean = false, name: string = this.templateName): void {

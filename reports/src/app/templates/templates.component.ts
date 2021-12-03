@@ -41,7 +41,8 @@ export class TemplatesComponent implements OnInit {
                 if(newId !== -1) {
                     this.templateChanged(newData, newId);
                 } else {
-                    this.templateAdded(newData);
+                    // this.templateAdded(newData);
+                    this.getTemplates();
                 }
         },  error: (error) => {
                 console.log(`Error: ${error.message}`);
@@ -71,11 +72,12 @@ export class TemplatesComponent implements OnInit {
         }
     }
 
-    templateAdded(data: {id: string, name: string, deleted: boolean, created: boolean}): void {
-        let newTemplate: Template = {
-            id: data.id, public: undefined, name: data.name, 
-            characters: {min: undefined, max: undefined}, template: undefined 
-        }
-        this.templates.push(newTemplate);
-    }
+    // deprecated...
+    // templateAdded(data: {id: string, name: string, deleted: boolean, created: boolean}): void {
+    //     let newTemplate: Template = {
+    //         id: data.id, public: undefined, name: data.name, 
+    //         characters: {min: undefined, max: undefined}, template: undefined 
+    //     }
+    //     this.templates.push(newTemplate);
+    // }
 }

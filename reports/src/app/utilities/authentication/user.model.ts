@@ -39,6 +39,11 @@ export class User {
         this.updateLocalStorage();
     }
 
+    set setExpirationTime(time: number) {
+        this._tokenExpirationDate = new Date(time);
+        this.updateLocalStorage();
+    }
+
     private updateLocalStorage(): void {
         localStorage.setItem('userData', JSON.stringify(this));
     }

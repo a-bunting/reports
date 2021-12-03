@@ -135,8 +135,4 @@ export class DashboardComponent implements OnInit {
         });
     }
 
-    refreshToken(): void {
-        this.AuthService.manualTokenRefresh();
-    }
-
 }

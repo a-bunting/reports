@@ -67,7 +67,7 @@ import { GalleryItemComponent } from './utilities/gallery/gallery-item/gallery-i
         AngularFireAuthModule, 
         AngularFirestoreModule, 
         Title, 
-        { provide: PERSISTENCE, useValue: 'session' } // firebase persistence.
+        { provide: PERSISTENCE, useValue: 'local' } // firebase persistence.
     ],
   bootstrap: [AppComponent]
 })

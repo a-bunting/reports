@@ -3,7 +3,7 @@ import firebase from 'firebase/compat/app';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, from, Observable } from 'rxjs';
+import { BehaviorSubject, from, map, Observable, switchMap, TimeoutError } from 'rxjs';
 import { User } from './user.model';
 import { sentence } from 'src/app/services/sentences.service';
 
@@ -240,57 +240,50 @@ export class AuthenticationService implements OnInit {
             this.user.next(loadedUser);
             // set the auto logout feature
             const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-            this.autoLogout(expirationDuration);
+            this.autoLogout();
         }
     }
 
 
+    private logoutTimer;
+    
     /**
      * Auto logout feature
      * @param expirationDuration Auto logs out user after this time
      */
-     private logoutTimer: number;
-
-     autoLogout(expirationDuration: number) {
-         this.logoutTimer = setInterval(() => {
-            //  if(this.keepAlive) {
-                 // if keepalive is true then refresh the token and the userdata...
-                 firebase.auth().currentUser.getIdToken(true).then((result: string) => {
-
-                        const newUser: User = new User(
-                            this.user.value.email,
-                            this.user.value.id,
-                            this.user.value.name,
-                            this.user.value.establishment,
-                            this.user.value.admin,
-                            this.user.value.manager,
-                            this.user.value.member,
-                            this.user.value.provider,
-                            this.user.value.autoUpdateDb,
-                            result, 
-                            new Date(new Date().getTime() + (3600 * 1000))
-                        );
-
-                        this.user.next(newUser);
-                 });
-            //  } else {
-            //      clearInterval(this.logoutTimer);
-            //      this.logout();
-            //  }
-         }, 3600000);
+     autoLogout() {
+        // make sure it is cleared... 
+        this.logoutTimer = undefined;
+        // set it...
+        this.logoutTimer = setInterval(() => {
+            clearInterval(this.logoutTimer);
+            this.logout();
+        }, 3600000);
      }
 
-     manualTokenRefresh(): void {
-         console.log(`Called...`);
-         
-        //  firebase.auth().currentUser.getIdToken(true).then((result: string) => {
-         firebase.auth().currentUser.getIdToken(true).then((result: string) => {
-            console.log(this.user.value);
-            console.log(result.substring(0, 20));
-        }, error => {
-            console.log(error);
-        });
-     }
+     // https://stackoverflow.com/questions/70066502/angularfire-getidtokentrue-not-refreshing-token
+     public refreshToken(): Observable<firebase.auth.IdTokenResult> {
+         return from(this.fAuth.currentUser).pipe(switchMap(usr => {
+            return from(usr.getIdTokenResult(true)).pipe(map(token => {
+                const newUser: User = new User(
+                    this.user.value.email,
+                    this.user.value.id,
+                    this.user.value.name,
+                    this.user.value.establishment,
+                    this.user.value.admin,
+                    this.user.value.manager,
+                    this.user.value.member,
+                    this.user.value.provider,
+                    this.user.value.autoUpdateDb,
+                    this.user.value.token, 
+                    new Date(+token.expirationTime)
+                );
+                this.autoLogout();
+                this.user.next(newUser);
+                return token;
+            }));
+        }));
+    }
 
     /**
      * Handles the authentication of the user and sets the user data
@@ -302,11 +295,8 @@ export class AuthenticationService implements OnInit {
     private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, provider: string, autoUpdateDb: boolean, token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
         const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, token, expirationDate);
-        this.autoLogout(3600 * 1000);
+        this.autoLogout();
         this.user.next(user);
-
-        // // get user data
-        // this.db.getUsers();
 
         // persistence using local storage
         localStorage.setItem('userData', JSON.stringify(user));
