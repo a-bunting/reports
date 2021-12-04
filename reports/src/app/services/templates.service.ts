@@ -48,6 +48,7 @@ export class TemplatesService {
             // set the data on the display
             return of(this.templates).pipe(take(1), tap(returnData => {
                 // return the data array...
+                console.log(returnData);
                 return returnData;
             }));
         } else {
