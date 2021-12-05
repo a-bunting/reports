@@ -619,18 +619,60 @@ export class ReportsService {
         // if we have any results...
         if(sentenceOptionsTested.length > 0) {
             // trim down to the sentences which match the character range...
-            sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
+            // sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
             // select a random value to pick at random a sentence from the options avaikable
-            let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
-            let reportUnSubstituted: string = sentenceOptionsTested[randomValueForSelect];
+            // let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
+            // let reportUnSubstituted: string = sentenceOptionsTested[randomValueForSelect];
     
             // now sub in values    
-            globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
-            variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
-            reportUnSubstituted = this.substitutions(reportUnSubstituted, gender);
-            
+            // globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
+            // variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
+            // reportUnSubstituted = this.substitutions(reportUnSubstituted, gender);
+
+            let finalSelections: string[] = []; // these are the reports that will fit the bill...
+            let notSelected: string[] = []; // these are the reports that will not fit the bill...
+
+            // gotta do all the reports to see which fit the size boundaires...
+            sentenceOptionsTested.forEach((reportIteration: string) => {
+            // now sub in values    
+                globals.forEach((global: GlobalValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'g\\|'+global.identifier, global.value); })
+                variables.forEach((variable: VariableValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
+                reportIteration = this.substitutions(reportIteration, gender);
+                // if its the right size add to the final array to choose from...
+                if(reportIteration.length > minCharacters && reportIteration.length < maxCharacters) {
+                    // its the right size, add to the array
+                    finalSelections.push(reportIteration);
+                } else {
+                    // its incorrect, so store it just in acse nothing else works...
+                    notSelected.push(reportIteration);
+                }
+            })
+
+            let randomValueForSelect: number;
+            let returnReport: string;
+
+            // test if any appropriate reports are availazble based upon character size, and if not find the closets in the not selected reports...
+            if(finalSelections.length === 0) {
+                console.log("unable to meet character length specs");
+                let closestIndex: number = 0;
+                let closestNumber: number = 10000;
+                let avg: number = (maxCharacters + minCharacters) * 0.5;
+                // iterate over all reports unused...
+                notSelected.forEach((report: string, index: number) => {
+                    let distance: number = Math.abs(report.length - avg);
+                    // if its closer than the current closest replace the index...
+                    if(distance < closestNumber) {
+                        closestIndex = index;
+                    }
+                })
+                returnReport = notSelected[closestIndex];
+            } else {
+                randomValueForSelect = Math.floor(Math.random() * finalSelections.length);
+                returnReport = finalSelections[randomValueForSelect];
+            }
+
             // return selected sentence
-            return reportUnSubstituted;
+            return returnReport;
         } else {
             return "";
         }
