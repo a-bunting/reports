@@ -4,6 +4,7 @@
     display: grid;
     grid-template: max-content max-content minmax(20rem, 1fr) / 1fr 1fr;
     margin: 0 8rem;
+    overflow-x: hidden;
 
     &__code {
         position: fixed;

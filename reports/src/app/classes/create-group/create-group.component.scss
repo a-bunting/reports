@@ -264,6 +264,29 @@
             font-weight: bold;
         }
     }
+
+    &__limiter-button {
+
+        font-size: 1.4rem;
+        text-align: center;
+        width: 20rem;
+        box-shadow: 0 .2rem .4rem rgba(black, .4);
+        background-color: var(--color-style-main);
+        transition: all .2s;
+        padding: .8rem 1.6rem;
+        border: .2rem solid transparent;
+        
+        &:hover, &--selected {
+            cursor: pointer;
+            color: white;
+            border: .2rem solid white;
+            box-shadow: 0 .2rem .4rem rgba(black, .7);
+            background-color: var(--color-style-juxtapose);
+        }
+
+        &:first-of-type { border-radius: 1rem 0 0 1rem; }
+        &:last-of-type { border-radius: 0 1rem 1rem 0; margin-right: 2rem; }
+    }
 }
 
 @keyframes fadeIn {

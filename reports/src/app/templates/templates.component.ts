@@ -25,25 +25,26 @@ export class TemplatesComponent implements OnInit {
                 (user: User) => {
                 this.user = user;
                 // once the user is loaded then data can be retrived
+                console.log("loading here ONCE");
                 this.getTemplates();
-        },  error: (error) => {
+            },  error: (error) => {
                 console.log(`Error: ${error.message}`);
                 this.isLoading = false;
-        }})
-        
-        // subscribe to the templates service in case this is changed...    
-        this.templateService.menuData.subscribe({
-            next: 
-                (newData: {id: string, name: string, deleted: boolean, created: boolean}) => {
-                const newId: number = this.templates.findIndex((element: Template) => element.id === newData.id);
-
-                // if its new add it, if it was found then 
-                if(newId !== -1) {
-                    this.templateChanged(newData, newId);
-                } else {
-                    // this.templateAdded(newData);
-                    this.getTemplates();
-                }
+            }})
+            
+            // subscribe to the templates service in case this is changed...    
+            this.templateService.menuData.subscribe({
+                next: (newData: {id: string, name: string, deleted: boolean, created: boolean}) => {
+                    const newId: number = this.templates.findIndex((element: Template) => element.id === newData.id);
+                    
+                    // if its new add it, if it was found then 
+                    if(newId !== -1) {
+                        this.templateChanged(newData, newId);
+                    } else {
+                        // this.templateAdded(newData);
+                        console.log("loading here TWICE");
+                        this.getTemplates();
+                    }
         },  error: (error) => {
                 console.log(`Error: ${error.message}`);
         }})

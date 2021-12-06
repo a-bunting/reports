@@ -30,8 +30,8 @@ export class DatabaseService {
     public getWrites(): number { return this.statWrite; }
     public getReads(): number { return this.statRead; }
     // after a database change, refresh their token...
-    readOperation(reads: number = 1): void { this.statRead+=reads; this.auth.refreshToken().subscribe(); }
-    writeOperation(writes: number = 1): void { this.statWrite+=writes; this.auth.refreshToken().subscribe(); }
+    readOperation(reads: number = 1): void { this.statRead+=reads; }
+    writeOperation(writes: number = 1): void { this.statWrite+=writes; }
 
     // SENTENCES
     // database connections with angular firestore

@@ -230,9 +230,8 @@ export class AuthenticationService implements OnInit {
             _tokenExpirationDate: string;
         } = JSON.parse(localStorage.getItem('userData'));
 
-        if(!userData) {
-            return;
-        }
+        // check if the userdata exists still.
+        if(!userData) { return; }
 
         const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.provider, userData.autoUpdateDb, userData._token, new Date(userData._tokenExpirationDate));
         
@@ -240,7 +239,12 @@ export class AuthenticationService implements OnInit {
             this.user.next(loadedUser);
             // set the auto logout feature
             const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-            this.autoLogout();
+            // check the keepalive...
+            if(this.keepAlive) {
+                 this.refreshKeepAlive();
+            } else {
+                this.refreshLogoutTimer();
+            }
         }
     }
 
@@ -249,9 +253,8 @@ export class AuthenticationService implements OnInit {
     
     /**
      * Auto logout feature
-     * @param expirationDuration Auto logs out user after this time
      */
-     autoLogout() {
+     refreshLogoutTimer() {
         // make sure it is cleared... 
         this.logoutTimer = undefined;
         // set it...
@@ -259,6 +262,19 @@ export class AuthenticationService implements OnInit {
             clearInterval(this.logoutTimer);
             this.logout();
         }, 3600000);
+     }
+
+     /**
+      * Every 30 mins refreshes the databse instance
+      */
+     refreshKeepAlive(): void {
+         // make sure it is cleared... 
+        this.logoutTimer = undefined;
+        // set it...
+        this.logoutTimer = setInterval(() => {
+            console.log("refreshing refresh timer");
+            this.refreshToken();
+        }, 1800000);
      }
 
      // https://stackoverflow.com/questions/70066502/angularfire-getidtokentrue-not-refreshing-token
@@ -278,7 +294,6 @@ export class AuthenticationService implements OnInit {
                     this.user.value.token, 
                     new Date(+token.expirationTime)
                 );
-                this.autoLogout();
                 this.user.next(newUser);
                 return token;
             }));
@@ -295,7 +310,12 @@ export class AuthenticationService implements OnInit {
     private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, provider: string, autoUpdateDb: boolean, token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
         const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, token, expirationDate);
-        this.autoLogout();
+        // set the keep alive or auto logut...
+        if(this.keepAlive) {
+            this.refreshKeepAlive();
+        } else {
+            this.refreshLogoutTimer();
+        }
         this.user.next(user);
 
         // persistence using local storage

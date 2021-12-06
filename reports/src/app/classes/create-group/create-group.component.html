@@ -15,6 +15,10 @@
             </div>
             <div class="create-group__text--submit">
                 <div class="create-group__text--header-check">
+                    <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === '\\t'" (click)="setDataSeparation('\\t')">Tab Seperated (Spreadsheets)</button>
+                    <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === '[,\\t]'" (click)="setDataSeparation('[,\\t]')">Tab and Comma (Powerteacher)</button>
+                    <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === ','" (click)="setDataSeparation(',')">Comma Seperated (Manual or CSV Input)</button>
+
                     <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>
                     <label for="groupInputHeaderBox">Top row is header text (recommended!)</label>
                 </div>

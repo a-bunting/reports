@@ -86,29 +86,28 @@ export class CreateGroupComponent implements OnInit {
     }
 
     userInfo: string;
+    separation: string = '\\t'; //default to tab separated...
+    separationRegEx: RegExp = new RegExp(this.separation);
+
+    setDataSeparation(sepIndicator: string): void {
+        this.separation = sepIndicator;
+        this.separationRegEx = new RegExp(''+sepIndicator);
+    }
 
     generateUserData() {
         this.userDataGenerated = true;
         this.groupId = undefined;
         let data: string[];
 
-        // // for now use testdata if none exists in the textbox
-        // if(this.userInfo === "") {
-        //     // no test data in box, use variable testData
-        //     data = testData.split("\n");
-        // } else {
-            // testdata exists in the box
         data = this.userInfo.split("\n");
-        // }
-
-        console.log(data);
         
         // get data and split into individual elements
         let keys: string[] = [];
         
         // if there is a header row build a list of the keys to use for this dataset
         if(this.headerRow) {
-            keys = data[0].split(",").map((a: string) => a.trim());
+            // keys = data[0].split(",").map((a: string) => a.trim());
+            keys = data[0].split(this.separationRegEx).map((a: string) => a.trim());
 
             // check for duplicate key names and rename them...
             keys.forEach((key: string, index: number) => {
@@ -121,7 +120,8 @@ export class CreateGroupComponent implements OnInit {
             data.splice(0, 1);
         } else {
             // create a set of keys which is just numbers...
-            data[0].split(",").forEach(() => {
+            // data[0].split(",").forEach(() => {
+            data[0].split(this.separationRegEx).forEach(() => {
                 keys.push(`Column ${keys.length + 1}`);
             })
         }
@@ -133,7 +133,8 @@ export class CreateGroupComponent implements OnInit {
         let newData = [];
         
         data.forEach((row: string) => {
-            let newUserData = row.split(",");
+            // let newUserData = row.split(",");
+            let newUserData = row.split(this.separationRegEx);
             // [message, message]
             let user = { id: this.groupService.generateRandomId(), data: {} };
 
