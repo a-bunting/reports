@@ -299,6 +299,8 @@ export class AuthenticationService implements OnInit {
                     this.user.value.token, 
                     new Date(token.expirationTime)
                 );
+                // set local storage
+                localStorage.setItem('userData', JSON.stringify(newUser));
                 this.user.next(newUser);
                 return token;
             }));
