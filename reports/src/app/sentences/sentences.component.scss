@@ -342,6 +342,7 @@
             border-radius: .4rem;
             padding: .2rem .4rem;
             letter-spacing: .1rem;
+            font-size: 1.4rem;
 
             &--long {
                 width: 16rem;
@@ -405,18 +406,20 @@
         &--test-inputs {
 
             margin-left: auto;
-
+            
             input {
                 width: 6rem;
                 border-radius: .4rem;
                 padding: .2rem .4rem;
                 letter-spacing: .1rem;
+                font-size: 1.4rem;
             }
-
+            
             select {
                 width: 6rem;
                 border-radius: .4rem;
                 padding: .2rem .4rem;
+                font-size: 1.4rem;
             }
         }
     }
