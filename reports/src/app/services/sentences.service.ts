@@ -52,19 +52,21 @@ export class SentencesService {
             }));
         } else {
             // no instance of the saved data so get a fresh version.
-            const docId = uid ? uid : 'template';
+            // const docId = uid ? uid : 'template';
+            const docId = 'template'; // all users use the template for now...
 
-            return this.databaseService.getSentences(docId).pipe(take(1), map(returnData => {
-                // add data to the sentenceData array...
-                // (this is an array as originally multiple database could be retrieved but then only one...)
-                this.sentenceData[0] = returnData.data();
-                // set the data into local storage to make it quicker ot retrieve next time...
-                localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
-                // and return
-                return this.sentenceData[0];
-            }, (error: any) => {
-                console.log(`Error retrieving data: ${error.message}`);
-            }));
+            return this.databaseService.getSentences(docId).pipe(take(1), tap({
+                next: (returnData) => {
+                    // add data to the sentenceData array...
+                    // (this is an array as originally multiple database could be retrieved but then only one...)
+                    this.sentenceData[0] = returnData.data();
+                    // set the data into local storage to make it quicker ot retrieve next time...
+                    localStorage.setItem('sentences-data', JSON.stringify(this.sentenceData));
+                    // and return
+                    return this.sentenceData[0];
+            }, error: (error: any) => {
+                    console.log(`Error retrieving data: ${error.message}`);
+            }}));
         }
     }
 

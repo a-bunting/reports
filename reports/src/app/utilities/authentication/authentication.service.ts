@@ -3,7 +3,7 @@ import firebase from 'firebase/compat/app';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, from, map, Observable, switchMap, TimeoutError } from 'rxjs';
+import { BehaviorSubject, from, map, Observable, switchMap, take, TimeoutError } from 'rxjs';
 import { User } from './user.model';
 import { sentence } from 'src/app/services/sentences.service';
 
@@ -55,7 +55,7 @@ export class AuthenticationService implements OnInit {
      * @param name 
      * @returns Observable
      */
-    signup(email: string, password: string, name: string, stayLoggedIn: boolean = false): Observable<any> {
+    signup(email: string, password: string, name: string, stayLoggedIn: boolean = true): Observable<any> {
 
         this.keepAlive = stayLoggedIn;
 
@@ -82,17 +82,21 @@ export class AuthenticationService implements OnInit {
             );
 
             // set the sentences template with the users userid - this will be their own copy of the database.
-            this.firestore.collection('sentences').doc(userCreation.user.uid).set(sentencesTemplate.data()).then(() => {
-                // set the data into local storage to make it quicker ot retrieve next time...
-                let sentenceData: sentence[] = [];
-                sentenceData[0] = sentencesTemplate.data();
-                localStorage.setItem('sentences-data', JSON.stringify(sentenceData));
-                // and authenticate
-                authenticate;
-            }, (error) => {
-                console.log(`There was an error in the creation of a new sentences template: ${error.message}`);
-                authenticate;
-            })
+            
+            // for NOW new users ONLY use the template...
+            
+            // this.firestore.collection('sentences').doc(userCreation.user.uid).set(sentencesTemplate.data()).then(() => {
+            //     // set the data into local storage to make it quicker ot retrieve next time...
+            //     let sentenceData: sentence[] = [];
+            //     sentenceData[0] = sentencesTemplate.data();
+            //     localStorage.setItem('sentences-data', JSON.stringify(sentenceData));
+            //     // and authenticate
+            //     authenticate;
+            // }, (error) => {
+            //     console.log(`There was an error in the creation of a new sentences template: ${error.message}`);
+            //     authenticate;
+            // })
+
         }, (error) => {
             console.log(`Some part of the user creation process failed: ${error.message}`);
         });
@@ -112,7 +116,7 @@ export class AuthenticationService implements OnInit {
      * @param password 
      * @returns Observable
      */
-    login3(email: string, password: string, stayLoggedIn: boolean = false): Observable<any> {
+    login3(email: string, password: string, stayLoggedIn: boolean = true): Observable<any> {
 
         this.keepAlive = stayLoggedIn;
 
@@ -270,17 +274,18 @@ export class AuthenticationService implements OnInit {
      refreshKeepAlive(): void {
          // make sure it is cleared... 
         this.logoutTimer = undefined;
+        console.log("keep alive active...");
         // set it...
         this.logoutTimer = setInterval(() => {
             console.log("refreshing refresh timer");
-            this.refreshToken();
-        }, 1800000);
+            this.refreshToken().subscribe((res) => {});
+        }, 1200000);
      }
 
      // https://stackoverflow.com/questions/70066502/angularfire-getidtokentrue-not-refreshing-token
      public refreshToken(): Observable<firebase.auth.IdTokenResult> {
-         return from(this.fAuth.currentUser).pipe(switchMap(usr => {
-            return from(usr.getIdTokenResult(true)).pipe(map(token => {
+         return from(this.fAuth.currentUser).pipe(take(1), switchMap(usr => {
+            return from(usr.getIdTokenResult(true)).pipe(take(1), map(token => {
                 const newUser: User = new User(
                     this.user.value.email,
                     this.user.value.id,
@@ -292,7 +297,7 @@ export class AuthenticationService implements OnInit {
                     this.user.value.provider,
                     this.user.value.autoUpdateDb,
                     this.user.value.token, 
-                    new Date(+token.expirationTime)
+                    new Date(token.expirationTime)
                 );
                 this.user.next(newUser);
                 return token;
@@ -311,6 +316,7 @@ export class AuthenticationService implements OnInit {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
         const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, token, expirationDate);
         // set the keep alive or auto logut...
+        console.log(this.keepAlive);
         if(this.keepAlive) {
             this.refreshKeepAlive();
         } else {

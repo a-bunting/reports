@@ -8,7 +8,8 @@
                 <img src="../assets/icons/home.svg" alt="Dashboard">
                 <span>Dashboard</span>
             </a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="sentences/">
+            <!-- is admin for now during testing -->
+            <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="sentences/">
                 <img src="../assets/icons/database.svg" alt="Sentences Database">
                 <span>Database</span>
             </a>
@@ -24,7 +25,8 @@
                 <img src="../assets/icons/file-text2.svg" alt="Reports">
                 <span>Reports</span>
             </a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="join/">
+            <!-- is admin for now during testing -->
+            <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="join/">
                 <img src="../assets/icons/user-plus.svg" alt="Go Pro">
                 <span>Go Pro</span>
             </a>

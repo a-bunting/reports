@@ -36,19 +36,19 @@ export class GalleryItemComponent implements OnInit {
             name: "Create Groups", 
             videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/C5fIQjc6XAU"),
             brief: "Creating groups is easy in Reports.zone. This guide will show you how to easily import your student data from a spreadsheet.",
-            description: undefined
+            description: "Groups will inevitably end up taking the longest time in ReportsZone and so there are several ways you can import data so its as easy as possible. This video will show you how you can use your spreadsheeted data and import it very easily into ReportsZone."
         },
         {
             name: "Import from Powerteacher", 
             videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/uGUb-w2067M"),
             brief: "This tutorial will help you move data from Powerteacher into Reports.zone.",
-            description: undefined
+            description: "Powerteacher is a very popular student management system used by schools worldwide. This tutorial will show you how you can take data from Powerschool and import it into ReportsZone."
         }, 
         {
             name: "Making Reports", 
             videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/m6HAw7_eoYA"),
             brief: "This tutorial will demonstrate how you can now use your groups and template data to produce reports for your students.",
-            description: undefined
+            description: "This tutorial will show you how to actually generate your reports now that you have created your student groups and templates."
         }
     ]
 
