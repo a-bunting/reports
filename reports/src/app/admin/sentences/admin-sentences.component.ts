@@ -92,15 +92,17 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     
             // const doc = docName ? docName : 'template';
             // this.databaseService.uploadSentences(doc, this.sentenceData[0]).subscribe(returnData => {
-            this.databaseService.uploadSentences('template', this.sentenceService.getCurrentSentenceData()[0]).subscribe(returnData => {
-                // changes comitted
-                this.isLoading = false;
-            }, error => {
-                // error occured, which means changes were not committed.
-                console.log(`Error reuploading to database: ${error.message}`);
-                this.databaseMismatch = true;
-                this.isLoading = false;
-            })
+            this.databaseService.uploadSentences('template', this.sentenceService.getCurrentSentenceData()[0]).subscribe({
+                next: () => {
+                    // changes comitted, now update the time the entry was updated so it can refresh old versions of the template in peoples caches...
+                    this.databaseService.updateTemplateData().subscribe({next: (success) => { console.log(success); }, error: err => { console.log(err); }}); // if it fails it fails, not to worry on the client side...
+                    this.isLoading = false;
+            },  error: (error) => {
+                    // error occured, which means changes were not committed.
+                    console.log(`Error reuploading to database: ${error.message}`);
+                    this.databaseMismatch = true;
+                    this.isLoading = false;
+            }})
         }
     }
 

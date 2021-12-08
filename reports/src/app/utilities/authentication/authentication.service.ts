@@ -204,9 +204,12 @@ export class AuthenticationService implements OnInit {
 
     logout(): Observable<any> {
         return from(this.fAuth.signOut().then(() => {
-            // localStorage.removeItem('userData');
-            // localStorage.removeItem('sentences-data');
-            localStorage.clear();
+            // remove all except the sentences database from memory
+            localStorage.removeItem('userData');
+            localStorage.removeItem('templates-data');
+            localStorage.removeItem('groups-data');
+            localStorage.removeItem('reports-data');
+            // logout...
             this.user.next(null);
             this.router.navigate(['/']);
         }).catch(error => {
@@ -241,8 +244,6 @@ export class AuthenticationService implements OnInit {
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
-            // set the auto logout feature
-            const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
             // check the keepalive...
             if(this.keepAlive) {
                  this.refreshKeepAlive();

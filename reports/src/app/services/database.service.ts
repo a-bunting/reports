@@ -46,6 +46,16 @@ export class DatabaseService {
         return from(this.firebase.collection('sentences').doc(docname).set(data));
     }
 
+    updateTemplateData(): Observable<any> {
+        this.writeOperation();
+        return from(this.firebase.collection('appdata').doc('onload').update({sentenceDbUpdated: new Date().getTime()}));
+    }
+
+    getAppData(): Observable<any> {
+        this.readOperation();
+        return from(this.firebase.collection('appdata').doc('onload').get());
+    }
+
     // USERNAME
     getUserName(uid: string): Observable<any> {
         this.readOperation();

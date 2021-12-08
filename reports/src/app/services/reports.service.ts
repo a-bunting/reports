@@ -1,4 +1,3 @@
-import { ConstantPool } from '@angular/compiler';
 import { Injectable, OnInit } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
@@ -164,6 +163,7 @@ export class ReportsService {
                 let typeMatches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
                 while(typeMatches = splitRegex.exec(option)) { 
+
                     // doesnt work for g|Time Period[semester,term]
                     let exists = duplicates.findIndex((temp: string) => temp == typeMatches[1]);
                     
@@ -171,6 +171,7 @@ export class ReportsService {
                     if(exists === -1) {
                         // duplicates array used to ensure no doubles...
                         duplicates.push(typeMatches[1]);
+                        console.log(duplicates);
 
                         // find if its a global or variable
                         let data: string[] = typeMatches[1].split('|');
@@ -863,3 +864,4 @@ export class ReportsService {
         return report;
     }
 }
+

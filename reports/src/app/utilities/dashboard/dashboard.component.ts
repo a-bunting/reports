@@ -8,6 +8,7 @@ import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
 import { DatabaseService } from 'src/app/services/database.service';
+import { DocumentSnapshot, QuerySnapshot } from 'rxfire/firestore/interfaces';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,6 +43,8 @@ export class DashboardComponent implements OnInit {
                 this.facility = this.user.establishment.name;
                 this.autoUpdateDb = this.user.autoUpdateDb;
 
+                this.loadAppDataOnInitialisation();
+
                 if(user.autoUpdateDb) {
                     this.forceLoadDataClick();
                 } else {
@@ -59,17 +62,39 @@ export class DashboardComponent implements OnInit {
         this.databaseStatusUpdating = true;
         this.reportsLoading = true;
         // force all databases to pull new data from the database.
-        this.forceLoadData(true).subscribe((result: [boolean, boolean, boolean, ReportTemplate[]]) => {
-            this.databaseStatus = result[0] && result[1] && result[2] && result[3] !== undefined;
-            this.databaseStatusUpdating = false;
-            this.reports = result[3].sort((a: ReportTemplate, b: ReportTemplate) => b.lastUpdated - a.lastUpdated).slice(0, 4);
-            this.reportsLoading = false;
-        }, error => {
-            console.log("Database Status Update Failed: " + error);
-            this.databaseStatus = false;
-            this.databaseStatusUpdating = false;
-        })
+        this.forceLoadData(true).subscribe({
+                next: (result: [boolean, boolean, boolean, ReportTemplate[]]) => {
+                    this.databaseStatus = result[0] && result[1] && result[2] && result[3] !== undefined;
+                    this.databaseStatusUpdating = false;
+                    this.reports = result[3].sort((a: ReportTemplate, b: ReportTemplate) => b.lastUpdated - a.lastUpdated).slice(0, 4);
+                    this.reportsLoading = false;
+        },      error: (error) => {
+                    console.log("Database Status Update Failed: " + error);
+                    this.databaseStatus = false;
+                    this.databaseStatusUpdating = false;
+        }})
 
+    }
+
+    loadAppDataOnInitialisation(): void {
+        this.db.getAppData().subscribe((appdata: DocumentSnapshot<any>) => {
+            let oldData: { sentenceDbUpdated: number } = JSON.parse(localStorage.getItem('appdata'));
+            let data: { sentenceDbUpdated: number } = appdata.data();
+
+            if(oldData) {
+                // check new vs old data
+                if(oldData.sentenceDbUpdated !== data.sentenceDbUpdated) {
+                    // database mismatch, update...
+                    this.sentenceService.getSentencesDatabase(this.user.id, true).pipe(take(1), map((result: sentence) => { return true; })).subscribe({});
+                    localStorage.setItem('appdata', JSON.stringify(data));
+                }
+            } else {
+                // no data so all needs updating!
+                this.sentenceService.getSentencesDatabase(this.user.id, true).pipe(take(1), map((result: sentence) => { return true; })).subscribe({});
+                localStorage.setItem('appdata', JSON.stringify(data));
+            }
+
+        })
     }
 
     forceLoadData(forced: boolean): Observable<[boolean, boolean, boolean, ReportTemplate[]]> {
