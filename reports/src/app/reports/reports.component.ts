@@ -60,15 +60,18 @@ export class ReportsComponent implements OnInit {
      */
     deleteFromDatabase(): void {
         console.log("here");
-        this.reportsService.deleteReport(this.reportId).subscribe((result: boolean) => {
-            // if(result) {
-                // i think getting here has implied success?
+        this.reportsService.deleteReport(this.reportId).subscribe({
+            next: (result: boolean) => {
                 console.log("report deleted");
                 this.router.navigate(['/reports']);
-            // }
-        }, error => {
-            console.log(`Report not deleted: ${error}`);
-        })
+        }, error: (error) => {
+                console.log(`Report not deleted: ${error}`);
+        }})
+    }
+
+    duplicateReport(): void {
+        console.log("duplicating");
+        this.reportsService.duplicateReport(this.reportId);
     }
 
     /**

@@ -88,13 +88,16 @@
                     <ng-container *ngSwitchCase="false">
 
                         <ng-container [ngSwitch]="user.provider">
-                            <ng-container *ngSwitchCase="password">
+                            <ng-container *ngSwitchCase="'password'">
                                 <p>To modify your password click the button below and check your email for a password change link.</p>
                                 <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to change your password" }}</button>      
                             </ng-container>
-                            <ng-container *ngSwitchDefault>
+                            <ng-container *ngSwitchCase="'google.com'">
                                 <p>If you would like to transfer your account to Report Zone from Google, click the button below and set your password!</p>
                                 <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to transfer account from Google" }}</button>      
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>
+                                <p>Oops! Something went wrong, but dont worry, its not going to affect your experience!</p>
                             </ng-container>
                         </ng-container>
                     </ng-container>

@@ -30,6 +30,7 @@ import { TermsComponent } from './utilities/terms/terms.component';
 import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found.component';
 import { GalleryComponent } from './utilities/gallery/gallery.component';
 import { GalleryItemComponent } from './utilities/gallery/gallery-item/gallery-item.component';
+import { StopwatchComponent } from './utilities/stopwatch/stopwatch.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,7 @@ import { GalleryItemComponent } from './utilities/gallery/gallery-item/gallery-i
     AuthComponent, 
     PrivacyComponent, 
     TermsComponent, 
-    PageNotFoundComponent, GalleryComponent, GalleryItemComponent
+    PageNotFoundComponent, GalleryComponent, GalleryItemComponent, StopwatchComponent
   ],
   imports: [
     BrowserModule,

@@ -56,7 +56,7 @@
     </div>
 
 <div class="divider-line divider-line__thin" *ngIf="showGlobals() || showVariables() || showTests()"></div>
-    <button (click)="printReportObject()">Print report object</button>
+    <!-- <button (click)="printReportObject()">Print report object</button> -->
 <div class="divider-line divider-line__thin" *ngIf="showGlobals() || showVariables() || showTests()"></div>
 
 <!-- global variables, things which are the same for each student... -->
@@ -237,77 +237,89 @@
                         </div>
                     </div>
                 </td>
-                <td class="reports__data--cell">Report Tools (inc Chars)</td>
-                <td class="reports__data--cell reports__data--report">Report</td>
+                <!-- <td class="reports__data--cell">Report Tools (inc Chars)</td> -->
+                <!-- <td class="reports__data--cell reports__data--report">Report</td> -->
             </tr>
         </thead>
 
         <tbody>
             <!-- user data -->
-            <tr class="reports__data--row reports__data--data" *ngFor="let individual of report.reports; let reportId = index">
-                <td class="reports__data--cell">
-                    <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this report">X</button>
-                </td>
-                <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
+            <ng-container *ngFor="let individual of report.reports; let reportId = index">
 
-                    <div *ngIf="!isColumnHidden(key)">
-                        <!-- if this is a section with options, display only the options  -->
-                        <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
-
-                        <ng-template #optionsBlock>
-                                <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)">
-                                    <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
-                                    <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
-                                </select>
-                        </ng-template>
-
-                        <ng-template #typeBlock>
-
-                            <div *ngIf="individual.user.data[key].length < 20; then inputSingle else inputArea"></div>
-                            
-                            <ng-template #inputSingle>
-                                <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}">
+                <tr class="reports__data--row reports__data--data"><!-- *ngFor="let individual of report.reports; let reportId = index"> -->
+                    <td class="reports__data--cell">
+                        <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this report">X</button>
+                    </td>
+                    <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
+    
+                        <div *ngIf="!isColumnHidden(key)">
+                            <!-- if this is a section with options, display only the options  -->
+                            <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
+    
+                            <ng-template #optionsBlock>
+                                    <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)">
+                                        <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
+                                        <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
+                                    </select>
                             </ng-template>
-
-                            <ng-template #inputArea>
-                                <textarea class="reports__input reports__input--textarea reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">{{ individual.user.data[key] }}</textarea>
+    
+                            <ng-template #typeBlock>
+    
+                                <div *ngIf="individual.user.data[key].length < 20; then inputSingle else inputArea"></div>
+                                
+                                <ng-template #inputSingle>
+                                    <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}">
+                                </ng-template>
+    
+                                <ng-template #inputArea>
+                                    <textarea class="reports__input reports__input--textarea reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">{{ individual.user.data[key] }}</textarea>
+                                </ng-template>
+                                
                             </ng-template>
-                            
-                        </ng-template>
-                    </div>
-                    <div *ngIf="isColumnHidden(key)">
-                        ...
-                    </div>
-
-                </td>
-
-                <td class="reports__data--cell reports__data--report-options">
-                    <span>{{individual.report.length}}</span>
-                    <button class="reports__data-buttons reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)">&#10008;</button>
-                    <button class="reports__data-buttons reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)">&#10557;</button>
-                    <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)">&#9851;</button>
-                    <button class="reports__data-buttons reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)">&#9998;</button>
-                </td>
-
-                <td class="reports__data--cell reports__data--report">
-                    
-                    <span *ngIf="reportIdToEdit !== reportId; then displayReport else editReport"></span>
-
-                    <ng-template #displayReport>
-                        <div class="tooltipped" (click)="copyReportText(reportId)">
-                            {{individual.report}} <div class="tooltip">Click to copy to clipboard</div>
                         </div>
-                    </ng-template>
+                        <div *ngIf="isColumnHidden(key)">
+                            ...
+                        </div>
+    
+                    </td>
+     
+                </tr>
 
-                    <ng-template #editReport>
-                        <!-- <textarea class="reports__input reports__input--textarea" (blur)="editReport(reportId, $event.target.value)"> -->
-                        <textarea class="reports__input reports__input--textarea" (blur)="editReportText(reportId, $event.target.value)">{{ individual.report }}</textarea>
-                    </ng-template>
+                <tr class="reports__data--row reports__data--report-row reports__data--data" *ngIf="individual.report">
 
-                </td>
+                    <td class="reports__data--cell" colspan="2"><b>Length: </b> {{individual.report.length}} chars</td>
+                    
+                    <td class="reports__data--cell reports__data--report-options">
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)">&#10008;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)">&#10557;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)">&#9998;</button>
+                    </td>
+
+                    <td class="reports__data--cell reports__data--report" colspan="100" >
+                            
+                        <span *ngIf="reportIdToEdit !== reportId; then displayReport else editReport"></span>
+
+                        <ng-template #displayReport>
+                            <div class="tooltipped" (click)="copyReportText(reportId)">
+                                {{individual.report}} <div class="tooltip">Click to copy to clipboard</div>
+                            </div>
+                        </ng-template>
+
+                        <ng-template #editReport>
+                            <!-- <textarea class="reports__input reports__input--textarea" (blur)="editReport(reportId, $event.target.value)"> -->
+                            <textarea class="reports__input reports__input--textarea" (blur)="editReportText(reportId, $event.target.value)">{{ individual.report }}</textarea>
+                        </ng-template>
+
+                    </td>
+
+
+                </tr>
 
                 
-            </tr>
+            </ng-container>
+            
+        
             <tr>
                 <td class="reports__data--cell reports__data--add-student" colspan="100" (click)="addIndividualStudent()">Add student</td>
             </tr>

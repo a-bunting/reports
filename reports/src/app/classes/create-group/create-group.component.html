@@ -11,12 +11,12 @@
         <div class="create-group__text">
             
             <div class="create-group__text--textbox">
-                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" [(ngModel)]="userInfo" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line."></textarea>
+                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" [(ngModel)]="userInfo" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line using comma notation."></textarea>
             </div>
             <div class="create-group__text--submit">
                 <div class="create-group__text--header-check">
                     <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === '\\t'" (click)="setDataSeparation('\\t')">Tab Seperated (Spreadsheets)</button>
-                    <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === '[,\\t]'" (click)="setDataSeparation('[,\\t]')">Tab and Comma (Powerteacher)</button>
+                    <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === '[,\\t]'" (click)="setDataSeparation('[,\\t]')">Tab and Comma (Powerteacher Export)</button>
                     <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === ','" (click)="setDataSeparation(',')">Comma Seperated (Manual or CSV Input)</button>
 
                     <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>

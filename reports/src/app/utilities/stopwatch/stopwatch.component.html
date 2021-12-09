@@ -1,0 +1,10 @@
+<div class="stopwatch" [class.stopwatch__transition]="seconds === 0 && minutes !== 0">
+    <div class="stopwatch__time">
+        {{ minutes | number: '2.0-0' }} : {{ seconds | number: '2.0-0' }}
+    </div>
+    <div class="stopwatch__buttons">
+        <div class="stopwatch__buttons--start" (click)="start()" *ngIf="!started">&#9205;</div>
+        <div class="stopwatch__buttons--pause" (click)="pause()" *ngIf="started">&#9208;</div>
+        <div class="stopwatch__buttons--restart" (click)="reset()">&#8635;</div>
+    </div>
+</div>

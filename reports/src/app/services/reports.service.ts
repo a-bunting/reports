@@ -157,21 +157,21 @@ export class ReportsService {
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
-            // this.sentenceService.generateSentenceOptions(section).forEach((option: {sentence: string, depth: number, delete: boolean}) => {
-            this.sentenceService.newTestSentenceOptionCreator(template.template).forEach((option: string) => {
+
+            this.sentenceService.newTestSentenceOptionCreator(template.template).forEach((option: string, index: number) => {
 
                 let typeMatches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
                 while(typeMatches = splitRegex.exec(option)) { 
 
-                    // doesnt work for g|Time Period[semester,term]
-                    let exists = duplicates.findIndex((temp: string) => temp == typeMatches[1]);
-                    
+                    // doesnt work for g|Time Period[semester,term] on one occasion, but on the rest of the occasions its fine...
+                    let exists = duplicates.findIndex((temp: string) => temp.normalize() === typeMatches[1].normalize());
+
                     // test if its already been identified and if not, push onto the array
                     if(exists === -1) {
-                        // duplicates array used to ensure no doubles...
+                        // duplicates array used to ensure no doubles... doesnt work for time period :S
+                        // console.log(index, typeMatches[1], option, typeMatches);
                         duplicates.push(typeMatches[1]);
-                        console.log(duplicates);
 
                         // find if its a global or variable
                         let data: string[] = typeMatches[1].split('|');
@@ -189,7 +189,6 @@ export class ReportsService {
                         // finally build the variable to put into the reports array
                         let newVariable: GlobalValues | VariableValues;
                         let identifier: string = data[1].split('[')[0];
-
 
                         switch(data[0]) {
                             case 'g':
@@ -351,6 +350,30 @@ export class ReportsService {
             return false;
         }));
     }
+
+    duplicateReport(id: string): void {
+        this.getReport(id).subscribe({
+            next: (report: ReportTemplate) => {
+                let newReport: ReportTemplate = { ...report };
+
+                newReport.name = 'Duplicate of ' + report.name;
+                newReport.id = "";
+                // and add to the db...
+                this.db.addNewReport(newReport).subscribe({
+                    next: (res: DocumentReference) => {
+                        newReport.id = res.id;
+                        // and add to the common reports list.
+                        this.reports.push(newReport);
+                        console.log("Duplciated");
+                    }, 
+                    error: (error) => {
+                        console.log("Could not duplicate report because of: " + error);
+                    }
+                });
+        },  error: (error) => {
+            console.log("Did not duplicate: " + error);
+        }})
+    } 
 
     /**
      * Create a new report object in the database, get the id...

@@ -23,7 +23,7 @@
         <div class="reports__header-buttons" *ngIf="!isLoading">
             <button class="reports__header-buttons reports__button" routerLink="/reports/edit-report" title="Create a new report set" (click)="generateNew()">New</button>
             <button class="reports__header-buttons reports__button" *ngIf="reportId" (click)="deleteFromDatabase()" title="Delete the currently loaded report.">Delete</button>
-            <button class="reports__header-buttons reports__button" *ngIf="reportId" title="Create a duplicate of the current report">Duplicate</button>
+            <button class="reports__header-buttons reports__button" *ngIf="reportId" (click)="duplicateReport()" title="Create a duplicate of the current report">Duplicate</button>
         </div>
     </div>
 </div>
