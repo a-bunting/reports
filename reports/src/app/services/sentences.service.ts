@@ -614,7 +614,7 @@ export class SentencesService {
             routeOptions.forEach((routePossibility: string[], index: number) => {
                 let exampleReports: {report: string, options: number} = this.generateExampleReport([routePossibility]);
                 // get the options calculation
-                optionCalculator *= exampleReports.options;
+                optionCalculator += exampleReports.options;
                 // select the random value for the report
                 if(selections.includes(index)) {
                     sentenceOptions.report.push(exampleReports.report);

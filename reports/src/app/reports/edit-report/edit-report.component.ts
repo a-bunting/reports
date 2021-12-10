@@ -295,18 +295,19 @@ export class EditReportComponent implements OnInit, OnDestroy {
      */
     loadReport(id: string): void {
         // get the report.
-        this.reportsService.getReport(id).subscribe((report: ReportTemplate) => {
-            this.report = report;
-            // set to not loading...
-            this.isLoading = false;
-            // check if we can make the report yet...
-            this.loadedGroup = this.report.groupId;
-            this.loadedTemplate = this.report.templateId;
-            this.loadTemplate(this.loadedTemplate);
-        }, error => {
-            this.isLoading = false;
-            console.log(`Error loading report with ID ${id}: ${error}`);
-        });
+        this.reportsService.getReport(id).subscribe({
+            next: (report: ReportTemplate) => {
+                this.report = report;
+                // set to not loading...
+                this.isLoading = false;
+                // check if we can make the report yet...
+                this.loadedGroup = this.report.groupId;
+                this.loadedTemplate = this.report.templateId;
+                this.loadTemplate(this.loadedTemplate);
+        },  error: (error) => {
+                this.isLoading = false;
+                console.log(`Error loading report with ID ${id}: ${error}`);
+        }});
     }
 
     /**
@@ -477,7 +478,6 @@ export class EditReportComponent implements OnInit, OnDestroy {
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
         }
-        console.log(this.report);
 
         this.checkForChanges();        
     }
@@ -571,21 +571,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
         this.report.reports[reportId].user.data[name] = input;
 
-        console.log(this.report.reports[reportId].user.data);
         this.checkForChanges();
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     hiddenColumns: string[] = [];
     addedColumns: string[] = [];
@@ -598,19 +585,19 @@ export class EditReportComponent implements OnInit, OnDestroy {
         this.hiddenColumns.push(key);
     }
 
-    /**
-     * Hides all the columns at once
-     */
-    hideAllColumns(): void {
-        this.hiddenColumns = this.report.keys;
-    }
+    // /**
+    //  * Hides all the columns at once
+    //  */
+    // hideAllColumns(): void {
+    //     this.hiddenColumns = this.report.keys;
+    // }
 
-    /**
-     * Shows all the columns...
-     */
-    showAllColumns(): void {
-        this.hiddenColumns = [];
-    }
+    // /**
+    //  * Shows all the columns...
+    //  */
+    // showAllColumns(): void {
+    //     this.hiddenColumns = [];
+    // }
 
     /**
      * Shows a hidden column
@@ -798,7 +785,6 @@ export class EditReportComponent implements OnInit, OnDestroy {
     getGroupData(): void {
         // get the columns/ data fields for this group...
         this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
-            console.log(this.report);
             let groupData: Group = grp;
             this.groupKeys = groupData.keys;
         })

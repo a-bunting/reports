@@ -6,7 +6,11 @@
 
     <div class="reports__settings">
 
-        <div class="reports__settings--flex">
+        <div class="reports__settings--flex" *ngIf="templates.length === 0">
+            You must <a routerLink='/templates/'> create a template </a> before you can generate reports.
+        </div>
+
+        <div class="reports__settings--flex" *ngIf="templates.length > 0 ">
 
             <div class="reports__settings--setting">
                 <div class="reports__settings--text">Reports Name</div>
@@ -47,7 +51,7 @@
             </div>
         </div>
         
-        <div class="reports__database-buttons">
+        <div class="reports__database-buttons" *ngIf="templates.length > 0 ">
             <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving" title="Save this new report to the database">{{ isSaving ? "Saving..." : "Save Report Set" }}</button>
             <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating" title="Click to update your report in the database">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
             <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Generate Reports" }}</button>
@@ -74,8 +78,8 @@
         These values are used the test whether sentence stems apply to each user in turn. Select the column that matches the data needed for each variable.
     </div>
     
-    <!-- variables, things that needf a value for each student -->
-    <div class="reports__variable-column" *ngIf="showVariables()">
+    <!-- variables, things that needs a value for each student -->
+    <div class="reports__variable-column reports__variable-column-short" *ngIf="showVariables()">
         <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
             <div class="reports__variable--name">
                 {{ variable.identifier }}
@@ -90,7 +94,7 @@
         </div>
     </div>
 
-    <div class="reports__variable-column" *ngIf="showGlobals()">
+    <div class="reports__variable-column reports__variable-column-short" *ngIf="showGlobals()">
         <div class="reports__variable" *ngFor="let variable of report.globals; let i = index">
             <div class="reports__variable--name">
                 {{ variable.identifier }}
@@ -112,14 +116,13 @@
     </div>
     
     <!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
-    <div class="reports__variable-column" *ngIf="showTests()">
+    <div class="reports__variable-column reports__variable-column-long" *ngIf="showTests()">
         <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
             <div class="reports__variable--multirow">
                 <div class="reports__variable--name">
                     {{ test.name }}
                 </div>
                 <div class="reports__variable--options" *ngIf="test.settings">
-                    <!-- <select name="testSettingsOption" id="testSettingsOption" (change)="testSettingsChange(test.identifier, $event.target.value)"> -->
                     <select class="reports__input reports__input--select" (change)="testSettingsChange(test.identifier, $event.target.value)">
                         <option value="" disabled selected>Select a {{ test.settings.name }}</option>
                         <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
@@ -134,7 +137,8 @@
                 <div class="reports__variable--options">
                     <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
                         <option value="" selected disabled></option>
-                        <option value="{{ subTestVariable.identifier }}">* Add column *</option>
+                        <!-- <option value="{{ subTestVariable.identifier }}">* Add column *</option> -->
+                        <option value="{{ subTestVariable.name }}">* Add column *</option>
                         <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="subTestVariable.key === option">{{ option }}</option>
                     </select>
                 </div>
@@ -147,18 +151,18 @@
 
 <div class="reports__data">
     <!-- Data table -->
-    <table class="reports__data--table" *ngIf="report.reports.length > 0">
+    <table class="reports__data--table">
     <!-- <table class="reports__data--table"> -->
         <thead>
             <tr class="reports__data--row reports__data--header">
 
                 <td class="reports__data--cell">
-                    <div class="reports__data--cell-header">
+                    <!-- <div class="reports__data--cell-header">
                         <div class="reports__data--cell-header-buttons">
                             <button class="reports__data-buttons reports__data-buttons--collapse-all tooltipped" (click)="hideAllColumns()">&#8647; <div class="tooltip">Collapse all except reports</div></button>
                             <button class="reports__data-buttons reports__data-buttons--show-all tooltipped" (click)="showAllColumns()">&#8649; <div class="tooltip">Show all columns</div></button>
                         </div>
-                    </div>
+                    </div> -->
                 </td>
 
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
@@ -180,15 +184,7 @@
 
 
                                 <div class="reports__data--prepopulate" *ngIf="populateIndex === key; else displayKey">
-                                    <!-- 
-                                    DEPRECTAED - No longer needed as groups are now more separate from the report (i.e. multiple groups on one report)
-                                    To perform this function, readd a group on the add group dropdown.
 
-                                    <div class="reports__data--prepopulate-text">Prepopulate</div>
-                                    Data from group:
-                                    <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromKey(key, $event.target.value)">
-                                        <option value="{{ grpKey }}" *ngFor="let grpKey of groupKeys">{{ grpKey }}</option>
-                                    </select> -->
                                     Copy a column:
                                     <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromColumn(key, $event.target.value)">
                                         <option value="{{ listKey }}" *ngFor="let listKey of report.keys" [disabled]="listKey === key">{{ listKey }}</option>
@@ -249,6 +245,7 @@
                 <tr class="reports__data--row reports__data--data"><!-- *ngFor="let individual of report.reports; let reportId = index"> -->
                     <td class="reports__data--cell">
                         <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this report">X</button>
+                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate Reports">&#9851;</button>
                     </td>
                     <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
     
@@ -257,7 +254,7 @@
                             <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
     
                             <ng-template #optionsBlock>
-                                    <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)">
+                                    <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">
                                         <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
                                         <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
                                     </select>
@@ -268,11 +265,13 @@
                                 <div *ngIf="individual.user.data[key].length < 20; then inputSingle else inputArea"></div>
                                 
                                 <ng-template #inputSingle>
-                                    <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}">
+                                    <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}" tabindex="{{ (report.reports.length * i) + reportId }}">
                                 </ng-template>
     
                                 <ng-template #inputArea>
-                                    <textarea class="reports__input reports__input--textarea reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)">{{ individual.user.data[key] }}</textarea>
+                                    <div class="reports__input--textarea reports__input--textarea-short">
+                                        <textarea class="reports__input reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">{{ individual.user.data[key] }}</textarea>
+                                    </div>
                                 </ng-template>
                                 
                             </ng-template>
@@ -308,7 +307,9 @@
 
                         <ng-template #editReport>
                             <!-- <textarea class="reports__input reports__input--textarea" (blur)="editReport(reportId, $event.target.value)"> -->
-                            <textarea class="reports__input reports__input--textarea" (blur)="editReportText(reportId, $event.target.value)">{{ individual.report }}</textarea>
+                            <div class="reports__input--textarea">
+                                <textarea class="reports__input" (blur)="editReportText(reportId, $event.target.value)">{{ individual.report }}</textarea>
+                            </div>
                         </ng-template>
 
                     </td>
