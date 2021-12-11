@@ -97,6 +97,7 @@ export class CreateGroupComponent implements OnInit {
     generateUserData() {
         this.userDataGenerated = true;
         this.groupId = undefined;
+        this.modifyData = false;
         let data: string[];
 
         data = this.userInfo.split("\n");
@@ -166,13 +167,15 @@ export class CreateGroupComponent implements OnInit {
      * @param key 
      * @param input 
      */
-    userValueChange(userId: string, key: string, input: FocusEvent | KeyboardEvent) {
-        const reference: HTMLElement = <HTMLElement>input.target;
-        const newValue = reference.innerText.split("\n");
+    userValueChange(userId: string, key: string, input: string) {
+        const newValue = input.split("\n");
         const userIndex: number = this.getIndexPositionById(userId);
-        this.userData[userIndex].data[key] = newValue[0];
-        this.dataUpdated = false;
-        this.dataChanged = true;
+
+        if(userIndex !== -1) {
+            this.userData[userIndex].data[key] = newValue[0];
+            this.dataUpdated = false;
+            this.dataChanged = true;
+        }
     }
 
     /**
@@ -282,6 +285,12 @@ export class CreateGroupComponent implements OnInit {
         })
 
         return returnValue;
+    }
+
+    modifyData: boolean = false;
+
+    modifyGroupData(): void {
+        this.modifyData = !this.modifyData;
     }
 
 }

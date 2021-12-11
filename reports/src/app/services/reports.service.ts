@@ -663,7 +663,7 @@ export class ReportsService {
                 variables.forEach((variable: VariableValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
                 reportIteration = this.substitutions(reportIteration, gender);
                 // if its the right size add to the final array to choose from...
-                if(reportIteration.length > minCharacters && reportIteration.length < maxCharacters) {
+                if(reportIteration.length >= minCharacters && reportIteration.length <= maxCharacters) {
                     // its the right size, add to the array
                     finalSelections.push(reportIteration);
                 } else {
@@ -677,16 +677,19 @@ export class ReportsService {
 
             // test if any appropriate reports are availazble based upon character size, and if not find the closets in the not selected reports...
             if(finalSelections.length === 0) {
-                console.log("unable to meet character length specs");
                 let closestIndex: number = 0;
                 let closestNumber: number = 10000;
                 let avg: number = (maxCharacters + minCharacters) * 0.5;
+                
+                // console.log("unable to meet character length specs: min " +minCharacters+ " / max: " + maxCharacters+ " / avg:" + avg);
                 // iterate over all reports unused...
                 notSelected.forEach((report: string, index: number) => {
                     let distance: number = Math.abs(report.length - avg);
+                    // console.log(distance);
                     // if its closer than the current closest replace the index...
                     if(distance < closestNumber) {
                         closestIndex = index;
+                        closestNumber = distance;
                     }
                 })
                 returnReport = notSelected[closestIndex];

@@ -52,8 +52,8 @@
                 <tbody>
                     <tr class="group__data--row group__data--data" *ngFor="let row of group.students; let s = index">
                         <!-- <td class="group__data--cell" *ngFor="let user of sortDataForDisplay(row.data, i) | keyvalue : returnZero" (blur)="userValueChange(i, row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(i, row.id, user.key, $event.target.value)" contenteditable="true"> -->
-                        <td class="group__data--cell" *ngFor="let user of sortDataForDisplay(row.data, i) | keyvalue : returnZero">
-                            <input class="group__input" (blur)="userValueChange(i, row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(i, row.id, user.key, $event.target.value)" value="{{ user.value }}">
+                        <td class="group__data--cell" *ngFor="let user of sortDataForDisplay(row.data, i) | keyvalue : returnZero; let ki = index">
+                            <input class="group__input" (blur)="userValueChange(i, row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(i, row.id, user.key, $event.target.value)" value="{{ user.value }}" tabindex="{{ (group.students.length * ki) + s }}">
                         </td>
                         <td class="group__data--cell">
                             <div class="group__data--buttons group__data--buttons-remove tooltipped" (click)="removeUser(i, s)">&#10006; <div class="tooltip">Delete this user</div></div>

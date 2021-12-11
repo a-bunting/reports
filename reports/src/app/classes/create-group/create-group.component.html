@@ -6,7 +6,7 @@
         </div>
     </div>
 
-    <div class="create-group__input">
+    <div class="create-group__input"  *ngIf="!userDataGenerated || modifyData">
 
         <div class="create-group__text">
             
@@ -20,7 +20,7 @@
                     <button class="create-group__limiter-button" [class.create-group__limiter-button--selected]="separation === ','" (click)="setDataSeparation(',')">Comma Seperated (Manual or CSV Input)</button>
 
                     <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>
-                    <label for="groupInputHeaderBox">Top row is header text (recommended!)</label>
+                    <label for="groupInputHeaderBox">Top row is header text</label>
                 </div>
                 <button class="create-group__text--submit--button create-group__text--submit--enabled" (click)="generateUserData()">Create Group</button>
             </div>
@@ -39,12 +39,13 @@
 
     <div class="create-group__controls" *ngIf="userDataGenerated">
         <div class="create-group__control-buttons">
+            <button class="create-group__text--submit--button create-group__text--submit--enabled" *ngIf="userData" (click)="modifyGroupData()">Modify Group Data</button>
             <button class="create-group__text--submit--button" [class.create-group__text--submit--enabled]="!dataSubmitting && groupname" *ngIf="userDataGenerated && !groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
             <button class="create-group__text--submit--button" [class.create-group__text--submit--enabled]="!dataSubmitting && groupname && !dataUpdated" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="userDataGenerated && groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
         </div>
         
         <div class="create-group__success" *ngIf="groupId">
-            Group '<span>{{ groupname }}</span>' (ID: <span>{{ groupId }}</span>) created with manager <span>{{ user.name }}</span>.
+            Group '<span>{{ groupname }}</span>' created.
         </div>
     </div>
 
@@ -66,11 +67,11 @@
             </thead>
             <tbody>
                 <tr class="create-group__data--row create-group__data--data" *ngFor="let row of userData; let i = index">
-                    <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero" (blur)="userValueChange(row.id, user.key, $event)" (keyup.enter)="userValueChange(row.id, user.key, $event)" contenteditable="true">
-                        {{ user.value }}
+                    <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero; let ki = index">
+                        <!-- {{ user.value }} -->
+                        <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ user.value }}" tabindex="{{ (userData.length * ki) + i }}">
                     </td>
                     <!-- PUT TEXT BOXES IN -->
-                    <!-- <input type="text" name="" id=""> -->
 
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(row.id)">&#10006; <div class="tooltip">Delete this user</div></div>

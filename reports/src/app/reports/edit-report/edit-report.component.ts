@@ -49,35 +49,35 @@ export class EditReportComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
+
         this.isLoading = true;
         // get the user info...
-        this.auth.user.subscribe((user: User) => {
-            // set the user id
-            this.isLoading = false;
-            this.user = user;
+        this.auth.user.subscribe((user: User) => { this.user = user; });
 
-            // load all data first - this is important to be done first so when the parameters fire
-            // the data is all there and able to be accessed.
-            this.loadData().subscribe(([groups, templates, sentences]) => {
+        // load all data first - this is important to be done first so when the parameters fire
+        // the data is all there and able to be accessed.
+        this.loadData().subscribe({
+            next: ([groups, templates, sentences]) => {
+                this.isLoading = false;
                 this.groups = groups;
                 this.templates = templates;
                 
                 // monitor the parameter id in the URL and if it changes reload the data...
-                this.paramObservable = this.activeRouter.params.subscribe((params: Params) => {
-                    let reportId: string = params.id;
-                    // set the id and load the template
-                    this.isLoading = true;
-                    // and load as appropriate...
-                    if(reportId !== undefined) {
-                        this.reportSaved = true;
-                        this.loadReport(reportId);
-                    } else {
-                        this.reportSaved = false;
-                        this.newReport();
-                    }
-                }, error => { console.log(`Error: ${error}`); });
-            }, error => { console.log(`Error: ${error}`); })
-        })
+                this.paramObservable = this.activeRouter.params.subscribe({
+                    next: (params: Params) => {
+                        let reportId: string = params.id;
+                        // set the id and load the template
+                        this.isLoading = true;
+                        // and load as appropriate...
+                        if(reportId !== undefined) {
+                            this.reportSaved = true;
+                            this.loadReport(reportId);
+                        } else {
+                            this.reportSaved = false;
+                            this.newReport();
+                        }
+                }, error: (error) => { console.log(`Error: ${error}`); }});
+        },  error: (error) => { console.log(`Error: ${error}`); }})
 
         // toggle different styloes for when things get stuck.
         this.sticky = new IntersectionObserver(([e]) => {
@@ -811,14 +811,26 @@ export class EditReportComponent implements OnInit, OnDestroy {
     // }
 
     populateDataFromColumn(toCol: string, fromCol: string): void {
+        let identifierName: string[] = this.getKeyFromName(toCol);
+
         this.report.reports.forEach((student: Report, index: number) => {
             student['user'].data[toCol] = student['user'].data[fromCol];
+            // add data to new column
+            identifierName.forEach((ident: string) => {
+                student['user'].data[ident] = student['user'].data[fromCol];;
+            })
         })
     }
-
+    
     populateDataFromTextOrOption(key: string, value: string): void {
+        let identifierName: string[] = this.getKeyFromName(key);
+        
         this.report.reports.forEach((student: Report, index: number) => {
             student['user'].data[key] = value;
+            // add data to new column
+            identifierName.forEach((ident: string) => {
+                student['user'].data[ident] = value;
+            })
         })
     }
 

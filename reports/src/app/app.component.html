@@ -15,7 +15,7 @@
             </a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="classes/">
                 <img src="../assets/icons/users.svg" alt="Groups">
-                <span>Groups</span>
+                <span>Classes</span>
             </a>
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="templates/">
                 <img src="../assets/icons/insert-template.svg" alt="Templates">
@@ -105,7 +105,7 @@
     <div class="divider-line divider-line__thick u__margin-top--medium"></div>
     
     <app-bugreport *ngIf="user"></app-bugreport>
-    <!-- <app-stopwatch></app-stopwatch> -->
+    <app-stopwatch></app-stopwatch>
     
     <footer class="footer">
         <p>Reports and everything within is copyright to !Bogo> (Alex Bunting) 2021. No parts may be reused for any purpose without express permission.</p>

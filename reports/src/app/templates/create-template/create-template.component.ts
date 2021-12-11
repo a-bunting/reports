@@ -45,15 +45,17 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.auth.user.subscribe((user: User) => {
             // set the user
             this.user = user;
+        });
 
-            // get the sentence database...
-            this.sentenceService.getSentencesDatabase(user.id).pipe(take(1)).subscribe((data: sentence) => {
+        // get the sentence database...
+        this.sentenceService.getSentencesDatabase(this.user.id).pipe(take(1)).subscribe({
+            next: (data: sentence) => {
                 const sentenceData: sentence[] = [data];
                 // set the data on the display
                 this.initialData = JSON.parse(JSON.stringify(sentenceData));
                 this.sentenceData = JSON.parse(JSON.stringify(sentenceData));
                 this.isLoading = false;
-    
+
                 // set an observable...
                 // subscribe to the parameter and if it changes then reload the information.
                 this.paramObservable = this.router.params.subscribe((params: Params) => {
@@ -65,10 +67,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                     this.templateId = params.id;
                     this.loadTemplate(this.templateId);
                 });
-            }, (error) => { console.log(`Error gathering the database: ${error.message}`); });
-
-        });
-
+        },  error: (error) => { console.log(`Error gathering the database: ${error.message}`); }});
         
     }
 
@@ -322,7 +321,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     canCreate(): boolean {
         if(this.templateSaved === false) {
             if(this.templateName !== "" && this.templateCharacters.min && this.templateCharacters.max) {
-                if(this.templateCharacters.min < this.templateCharacters.max) {
+                if(this.templateCharacters.min <= this.templateCharacters.max) {
                     if(this.templateRoutes) {
                         if(this.templateRoutes.length > 0) {
                             return false;

@@ -40,6 +40,16 @@
         margin-top: 2rem;
     }
 
+    &__datainput {
+        width: 100%;
+        padding: .5rem 2rem;
+        background-color: rgba(white, .3);
+        border-radius: 1rem 2rem;
+        box-shadow: 0 .2rem .4rem rgba(black, .4);
+        font-size: 1.4rem;
+        letter-spacing: .3rem;
+    }
+
     &__text {
         flex: 2;
         padding: .5rem 1rem;
@@ -113,6 +123,10 @@
                 transition: all .2s;
                 border: .2rem solid transparent;
                 font-size: 1.4rem;
+
+                &:not(:last-of-type) {
+                    margin-right: 1rem;
+                }
             }
             
             &--enabled {
@@ -128,6 +142,8 @@
             &--updated {
                 background-color: rgba(green, .5);
             }
+
+            
         }
     }
     
