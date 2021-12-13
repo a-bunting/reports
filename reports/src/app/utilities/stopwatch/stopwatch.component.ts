@@ -8,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 export class StopwatchComponent implements OnInit {
 
     hours: number = 0;
-    minutes: number = 21;
+    minutes: number = 10;
     seconds: number = 5;
 
     started: boolean = false;
