@@ -8,6 +8,7 @@ import { Group } from 'src/app/services/groups.service';
 import { TemplateDB } from '../services/templates.service';
 import { ReportTemplate } from './reports.service';
 import { BugReport } from '../utilities/bugreport/bugreport.component';
+import { DocumentReference } from 'rxfire/firestore/interfaces';
 
 @Injectable({
   providedIn: 'root'

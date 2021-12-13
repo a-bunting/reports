@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { DocumentReference } from 'rxfire/firestore/interfaces';
+import { Subscription, take, tap } from 'rxjs';
 import { ReportsService, ReportTemplate } from '../services/reports.service';
 
 @Component({
@@ -59,10 +60,9 @@ export class ReportsComponent implements OnInit {
      * Deletes this report from the database...
      */
     deleteFromDatabase(): void {
-        console.log("here");
         this.reportsService.deleteReport(this.reportId).subscribe({
             next: (result: boolean) => {
-                console.log("report deleted");
+                this.reportId = undefined;
                 this.router.navigate(['/reports']);
         }, error: (error) => {
                 console.log(`Report not deleted: ${error}`);
@@ -70,8 +70,21 @@ export class ReportsComponent implements OnInit {
     }
 
     duplicateReport(): void {
-        console.log("duplicating");
-        this.reportsService.duplicateReport(this.reportId);
+
+        let reportDuplicate: ReportTemplate;
+
+        this.reportsService.getReport(this.reportId).pipe(take(1)).subscribe({
+            next: (report: ReportTemplate) => {
+                reportDuplicate = { ...report };
+
+                // now add to the database...
+                this.reportsService.duplicateReport(reportDuplicate).subscribe({
+                    next: (newDoc: DocumentReference<any>) => {
+                        this.loadReport(newDoc.id);
+                    }
+                })
+            }
+        })
     }
 
     /**

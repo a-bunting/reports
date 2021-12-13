@@ -246,11 +246,12 @@
     }
 
     &__left, &__right {
-        flex: 1;
-
         *:hover  {
             color: black;
         }
     }
+
+    &__left { flex: 2; }
+    &__right { flex: 3; }
 }
 

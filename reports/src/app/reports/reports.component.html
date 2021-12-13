@@ -13,7 +13,7 @@
             <div class="reports__load-dropdown--element">Load Report</div>
             <div class="reports__load-dropdown--element">
                 <select name="loadreports" id="loadreports" class="reports__input reports__input--select" (change)="loadReport($event.target.value)">
-                    <option value="" selected disabled></option>
+                    <option value="" [selected]="!reportId" disabled></option>
                     <option value="{{ report.id }}" *ngFor="let report of reports; let i = index" [selected]="report.id === reportId">
                         {{ report.name }}
                     </option>

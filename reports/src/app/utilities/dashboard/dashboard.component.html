@@ -44,38 +44,20 @@
             <!-- <div class="dashboard__info">
                 <p>The dashboard is your login homepage - it will be your destination for all updates and things you need to do.</p>
             </div> -->
-
-            <div class="dashboard__reports">
-
-                <div class="loading" *ngIf="reportsLoading">
-                    <app-loading-spinner></app-loading-spinner>
-                </div>
-        
-                Here are the last reports you have been working on:
-        
-                <div class="dashboard__reports--report" *ngIf="!reports">
-                    You have no reports yet.
-                </div>
-
-                <div class="dashboard__reports--report" *ngFor="let report of reports; let i = index">
-                    <div class="dashboard__reports--button" routerLink="../reports/edit-report/{{ report.id }}">Load Report</div>
-                    <div class="dashboard__reports--name">{{ report.name }}</div>
-                    <div class="dashboard__reports--lastupd">Updated {{ report.lastUpdated | date:'medium' }}</div>
-                </div>
-                
-            </div>
-
-            <!-- <div class="dashboard__tips">
-                <p>Check out these tips to help you get the best of this website!</p>
-                <ul>
-                    <li>If you are new to this site I suggest you first set up your classes, then build your templates, then make your reports. Each page has instructions and/or a tutorial to help you.</li>
-                    <li>If you see a word surrounded by these operators ${{'{'}} skillName {{'}'}}$ it means that field can be used in a report. For example ${{'{'}} skillName {{'}'}}$ in a report might change to 'Alex Bunting'.</li>
-                    <li>Sometimes words will have a g| or a v| before it, i.e. ${{'{'}} g | skillName {{'}'}}$. In this case the g stands for global, and will be the same in all reports.</li>
-                    <li>If you want to premake some options, you can add them after the name in square brackets, i.e. ${{'{'}} g | skillName [graphing,tables,conclusions] {{'}'}}$. Users can usually add to these in their reports also.</li>
+            <div class="dashboard__info">
+                <strong>Get Started Quick Guide</strong>
+                <p class="u__margin-top--small">
+                    Getting started is easy, but if you want to go fast without watching any tutorials you should:
+                </p>
+                <ul class="u__margin-top--small">
+                    <li>Create your groups (the students who you need reports for)</li>
+                    <li>Create your templates (templates are the design of the report)</li>
+                    <li>Create your reports, using your group and template data</li>
                 </ul>
-            </div> -->
-        </div>
-        <div class="dashboard__right">
+                <p class="u__margin-top--small">
+                    The video tutorials are helpful if you get stuck!
+                </p>
+            </div>
 
             <div class="dashboard__password">
                 <div class="loading" *ngIf="passwordResetLoading">
@@ -109,6 +91,37 @@
                 </ng-container>
 
                
+            </div>
+            <!-- <div class="dashboard__tips">
+                <p>Check out these tips to help you get the best of this website!</p>
+                <ul>
+                    <li>If you are new to this site I suggest you first set up your classes, then build your templates, then make your reports. Each page has instructions and/or a tutorial to help you.</li>
+                    <li>If you see a word surrounded by these operators ${{'{'}} skillName {{'}'}}$ it means that field can be used in a report. For example ${{'{'}} skillName {{'}'}}$ in a report might change to 'Alex Bunting'.</li>
+                    <li>Sometimes words will have a g| or a v| before it, i.e. ${{'{'}} g | skillName {{'}'}}$. In this case the g stands for global, and will be the same in all reports.</li>
+                    <li>If you want to premake some options, you can add them after the name in square brackets, i.e. ${{'{'}} g | skillName [graphing,tables,conclusions] {{'}'}}$. Users can usually add to these in their reports also.</li>
+                </ul>
+            </div> -->
+        </div>
+        <div class="dashboard__right">
+
+            <div class="dashboard__reports">
+
+                <div class="loading" *ngIf="reportsLoading">
+                    <app-loading-spinner></app-loading-spinner>
+                </div>
+        
+                Here are the last reports you have been working on:
+        
+                <div class="dashboard__reports--report" *ngIf="!reports">
+                    You have no reports yet.
+                </div>
+
+                <div class="dashboard__reports--report" *ngFor="let report of reports; let i = index">
+                    <div class="dashboard__reports--button" routerLink="../reports/edit-report/{{ report.id }}">Load Report</div>
+                    <div class="dashboard__reports--name">{{ report.name }}</div>
+                    <div class="dashboard__reports--lastupd">Updated {{ report.lastUpdated | date:'medium' }}</div>
+                </div>
+                
             </div>
 
             <div class="dashboard__tutorials">

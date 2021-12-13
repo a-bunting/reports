@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
@@ -351,28 +351,24 @@ export class ReportsService {
         }));
     }
 
-    duplicateReport(id: string): void {
-        this.getReport(id).subscribe({
-            next: (report: ReportTemplate) => {
-                let newReport: ReportTemplate = { ...report };
+    duplicateReport(reportToDuplicate: ReportTemplate): Observable<any> {
 
-                newReport.name = 'Duplicate of ' + report.name;
-                newReport.id = "";
-                // and add to the db...
-                this.db.addNewReport(newReport).subscribe({
-                    next: (res: DocumentReference) => {
-                        newReport.id = res.id;
-                        // and add to the common reports list.
-                        this.reports.push(newReport);
-                        console.log("Duplciated");
-                    }, 
-                    error: (error) => {
-                        console.log("Could not duplicate report because of: " + error);
-                    }
-                });
-        },  error: (error) => {
-            console.log("Did not duplicate: " + error);
-        }})
+        reportToDuplicate.name = 'Duplicate of ' + reportToDuplicate.name;
+        reportToDuplicate.id = "";
+                
+        // and add to the db...
+        return this.db.addNewReport(reportToDuplicate).pipe(take(1), tap({
+            next: (res: DocumentReference<string>) => {
+                reportToDuplicate.id = res.id;
+                // and add to the common reports list.
+                this.reports.push(reportToDuplicate);
+                this.setlocalStorage(this.reports);
+                return res.id;
+            }, 
+            error: (error) => {
+                console.log("Could not duplicate report because of: " + error);
+            }
+        }));
     } 
 
     /**
