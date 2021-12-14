@@ -49,6 +49,12 @@ export class GalleryItemComponent implements OnInit {
             videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/m6HAw7_eoYA"),
             brief: "This tutorial will demonstrate how you can now use your groups and template data to produce reports for your students.",
             description: "This tutorial will show you how to actually generate your reports now that you have created your student groups and templates."
+        }, 
+        {
+            name: "Three Class Runthrough", 
+            videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/DJi75T8K5A4"),
+            brief: "In this video I create, from scratch, reports for threee whole classes in about 16 minutes.",
+            description: "In this video we will go through the whole process of report making, making some classes, templates and finally two sets of reports for students of different abilities throughout three of my classes. All in 16 minutes!"
         }
     ]
 

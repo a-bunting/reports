@@ -23,27 +23,27 @@
         </div>
     </div>
 
-    <div class="dashboard__database-status">
-        <div class="dashboard__db-status-indicator" [class.dashboard__db-status-indicator--green]="databaseStatus" [class.dashboard__db-status-indicator--red]="!databaseStatus">
-            {{ databaseStatusUpdating ? "Currently Updating" : databaseStatus ? "You are up to date!" : "Your database may need refreshing"}}
-        </div>
-
-        <div class="dashboard__db-force-update">
-            <button class="dashboard__db-force-update--button" (click)="forceLoadDataClick()" [disabled]="databaseStatus || databaseStatusUpdating">Force Database Update</button>
-        </div>
-
-    </div>
-
-    <div class="dashboard__db-set-autoupdate">
+    <!-- <div class="dashboard__db-set-autoupdate">
         <input type="checkbox" name="autoUpd" id="autoUpd" class="input__checkbox" [checked]="autoUpdateDb" [(ngModel)]="autoUpdateDb" (change)="modifyUserData('autoUpdateDb', autoUpdateDb)">
         <label for="autoUpd" class="input__checkbox--label">Auto Update on load</label>
-    </div>
+    </div> -->
 
     <div class="dashboard__flexbox">
         <div class="dashboard__left">
             <!-- <div class="dashboard__info">
                 <p>The dashboard is your login homepage - it will be your destination for all updates and things you need to do.</p>
             </div> -->
+
+            <div class="dashboard__database-status">
+                <div class="dashboard__db-status-indicator" [class.dashboard__db-status-indicator--green]="databaseStatus" [class.dashboard__db-status-indicator--red]="!databaseStatus">
+                    {{ databaseStatusUpdating ? "Currently Updating" : databaseStatus ? "You are up to date!" : "If some of your data looks a little out of date your database may need refreshing"}}
+                </div>
+        
+                <div class="dashboard__db-force-update">
+                    <button class="dashboard__db-force-update--button" (click)="forceLoadDataClick()" [disabled]="databaseStatus || databaseStatusUpdating">Force Database Update</button>
+                </div>
+            </div>
+
             <div class="dashboard__info">
                 <strong>Get Started Quick Guide</strong>
                 <p class="u__margin-top--small">
