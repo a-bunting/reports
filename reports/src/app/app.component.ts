@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
 
     loadingMessage: boolean;
     loaded: boolean;
-    loadingTimer: number;
+    loadingTimer;
 
     constructor(
         private authService: AuthenticationService, 
@@ -152,6 +152,17 @@ export class AppComponent implements OnInit {
         }, error => {
             this.isLoading = false;        
             this.errorMessage = `Error: ${error}`;
+        });
+    }
+
+    signInWithGoogle(): void {
+        // make it so the thing comes up...
+        this.isLoading = true;
+        // wait for a response...
+        this.authService.GoogleAuth().then((msg: boolean) => {
+            this.isLoading = false;
+        }, error => {
+            this.isLoading = false;
         });
     }
 }

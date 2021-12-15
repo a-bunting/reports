@@ -130,17 +130,19 @@ export class DashboardComponent implements OnInit {
 
     modifyUserData(fieldName: string, value: string | boolean): void {
         // set the user field in the database...
-        this.db.modifyUserData(this.user.id, {[fieldName]: value}).subscribe(() => {
-            // switch based upon the fields
-            
-            switch(fieldName) {
-                case 'name': this.user.setUsername = ''+value; break;
-                case 'autoUpdateDb': let v: boolean = value === true; this.user.setAutoUpdate = v; break;
-            }
+        this.db.modifyUserData(this.user.id, {[fieldName]: value}).subscribe({
+            next: () => {
+                // switch based upon the fields
+                
+                switch(fieldName) {
+                    case 'name': this.user.setUsername = ''+value; break;
+                    case 'establishment': this.user.establishment.name = ''+value; break;
+                    case 'autoUpdateDb': let v: boolean = value === true; this.user.setAutoUpdate = v; break;
+                }
 
-        }, error => {
+        }, error: (error) => {
             console.log(`Update failed: ${error}`);
-        })
+        }})
 
     }
 

@@ -165,11 +165,10 @@ export class AuthenticationService implements OnInit {
      * @param provider 
      * @returns 
      */
-    AuthLogin(provider) {
+    AuthLogin(provider): Promise<boolean> {
         return this.fAuth.signInWithPopup(provider).then((result) => {
 
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
-            console.log(result);
 
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
@@ -186,19 +185,41 @@ export class AuthenticationService implements OnInit {
             const member = tokenData.claims.member ? tokenData.claims.member : false;
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
 
-            this.handleAuthentication(
-                user.user.email, 
-                user.user.uid,
-                user.user.displayName,
-                establishment,
-                admin,
-                manager, 
-                member,
-                user.additionalUserInfo.providerId,
-                autoUpdate,
-                tokenData.token 
-            );
+            if(userDataSnapshot.data() === undefined) {
+                // user is new, and so needs a user profile...
+                const newUserEstablishmentProfile: { id: string, name: string } = {id: "freeagent", name: "Free Agent"};
+                // add user to the database and then handle auth...
+                this.firestore.collection('users').doc(user.user.uid).set({name: user.user.displayName, email: user.user.email, establishment: newUserEstablishmentProfile}).then((result) => {
+                    this.handleAuthentication(
+                        user.user.email, 
+                        user.user.uid,
+                        user.user.displayName,
+                        establishment,
+                        admin,
+                        manager, 
+                        member,
+                        user.additionalUserInfo.providerId,
+                        autoUpdate,
+                        tokenData.token 
+                    );
+                });
 
+            } else {
+                this.handleAuthentication(
+                    user.user.email, 
+                    user.user.uid,
+                    user.user.displayName,
+                    establishment,
+                    admin,
+                    manager, 
+                    member,
+                    user.additionalUserInfo.providerId,
+                    autoUpdate,
+                    tokenData.token 
+                );
+            }
+
+            return true;
         });
     }
 

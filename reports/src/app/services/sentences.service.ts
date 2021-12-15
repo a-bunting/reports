@@ -3,6 +3,8 @@ import { of, Observable } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { GroupsService, Student } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
+import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { User } from '../utilities/authentication/user.model';
 import { TestValues } from './reports.service';
 import { TemplateTest, Test, TestsService, TestVariable } from './tests.service';
 
@@ -33,14 +35,25 @@ export class SentencesService {
 
     // these do NOT need to be an array, but in a slow start everything got coded this way and so thats how it is!...
     sentenceData: sentence[] = [];
+    user: User;
 
-    constructor(private databaseService: DatabaseService, private testsService: TestsService, private groupService: GroupsService) { }
+    constructor(
+        private databaseService: DatabaseService, 
+        private testsService: TestsService, 
+        private groupService: GroupsService, 
+        private authService: AuthenticationService
+    )
+    { 
+        this.authService.user.subscribe((user: User) => {
+            this.user = user;
+        })
+    }
 
     /**
      * Gets the sentence data from memory or from the database and returns it as an observable...
      * @returns 
      */
-    getSentencesDatabase(uid?: string, forcedFromDatabase: boolean = false): Observable<sentence>{
+    getSentencesDatabase(dbId: string = 'template', forcedFromDatabase: boolean = false): Observable<sentence>{
         // check if there is an instance of the sentences database in localstorage...
         if(localStorage.getItem('sentences-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the sentence data...
@@ -52,8 +65,7 @@ export class SentencesService {
             }));
         } else {
             // no instance of the saved data so get a fresh version.
-            // const docId = uid ? uid : 'template';
-            const docId = 'template'; // all users use the template for now...
+            const docId = dbId === this.user.id ? 'template' : dbId;
 
             return this.databaseService.getSentences(docId).pipe(take(1), tap({
                 next: (returnData) => {

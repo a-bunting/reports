@@ -475,6 +475,52 @@ export class TestsService {
             testFunction: (valueToTest: string, testString: string): boolean => {
                 return valueToTest === testString;
             }
+        }, 
+        {
+            name: "Time Management", 
+            identifier: "timeManagementTest",
+            settings: { name: "Time Management", description: "How good are this students time management skills?", options: [{ name: "Time Management", options: {0: "Very Good", 1: "Good", 2: "Poor"}}]}, 
+            description: "A test of students time management skills.", 
+            test: {
+                name: "Time Management",
+                description: "What best describes the students' ability to manage their time?", 
+                options: ["Very Good", "Good", "Poor"], 
+                validityFunction: (expression: string): boolean => {
+                    return ["Very Good", "Good", "Poor"].includes(expression);
+                }
+            },
+            variables: [
+                { name: "Time Management", identifier: "timeManagementTest", description: "What word best describes the students' ability to manage their time?"}
+            ],
+            calculateValueFunction: (userData: Student): string => {
+                return userData.data['timeManagementTest'];
+            },
+            testFunction: (valueToTest: string, testString: string): boolean => {
+                return valueToTest === testString;
+            }
+        }, 
+        {
+            name: "Organisation", 
+            identifier: "organisationTest",
+            settings: { name: "Organisation", description: "How well organisated is this student?", options: [{ name: "Organisation", options: {0: "Excellent", 1: "Good", 2: "Poor",}}]}, 
+            description: "A test of students' organisational skills.", 
+            test: {
+                name: "Organisation",
+                description: "What word best describes the students' organisation of their learning?", 
+                options: ["Excellent", "Good", "Poor"], 
+                validityFunction: (expression: string): boolean => {
+                    return ["Excellent", "Good", "Poor"].includes(expression);
+                }
+            },
+            variables: [
+                { name: "Organisation", identifier: "organisationTest", description: "What word best describes the students' organisational abilities?"}
+            ],
+            calculateValueFunction: (userData: Student): string => {
+                return userData.data['organisationTest'];
+            },
+            testFunction: (valueToTest: string, testString: string): boolean => {
+                return valueToTest === testString;
+            }
         }
 
 

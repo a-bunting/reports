@@ -38,14 +38,6 @@
                 <img src="../assets/icons/exit.svg" alt="Logout">
                 <span>Logout</span>
             </a>
-            <!-- <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="dashboard/">Dashboard</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="sentences/">Database</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="classes/">Classes</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="templates/">Templates</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="reports/">Reports</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active" routerLink="join/">Go Pro</a>
-            <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active" routerLink="admin/">Admin</a>
-            <a class="header__menu--item" *ngIf="isAuthenticated" (click)="logout()">Logout</a> -->
         </nav>
 
         <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
@@ -74,7 +66,7 @@
                 <button type="button" class="input__button" *ngIf="forgotPassword" (click)="sendPasswordResetEmail()">Send Password Reset Email</button>
                 
                 <div class="header__login-text">or</div>
-                <img src="../assets/btn_google_signin_light_normal_web.png" class="header__login--google" alt="Sign in with Google"  (click)="authService.GoogleAuth()">
+                <img src="../assets/btn_google_signin_light_normal_web.png" class="header__login--google" alt="Sign in with Google"  (click)="signInWithGoogle()">
 
             </div>
         </form>

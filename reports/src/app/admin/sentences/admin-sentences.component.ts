@@ -60,16 +60,43 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
         this.isLoading = true;
 
         // get the sentence data from the database... force it to always take it from the database...
-        this.sentenceService.getSentencesDatabase('template', false).subscribe((data: sentence) => {
-            const sentenceData: sentence[] = [data];
-            // set the data on the display
-            this.initialData = JSON.parse(JSON.stringify(sentenceData));
-            this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
-            this.sentenceService.generateSentenceOptions(this.route);
-        }, (error) => {
-            console.log(`Error gathering the database: ${error.message}`);
-        }, () => {
-            this.isLoading = false;
+        this.sentenceService.getSentencesDatabase('dev', false).subscribe({
+            next:   (data: sentence) => {
+                const sentenceData: sentence[] = [data];
+                // set the data on the display
+                this.initialData = JSON.parse(JSON.stringify(sentenceData));
+                this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+                this.sentenceService.generateSentenceOptions(this.route);
+        },  error: (error) => {
+                console.log(`Error gathering the database: ${error.message}`);
+        }, complete: () => {
+                this.isLoading = false;
+        }})
+    }
+
+    /**
+     * Loads a named sentence database...
+     * @param dbName 
+     * @param force 
+     */
+    getSpecificDatabase(dbName: string, force: boolean = false): void {
+        this.isLoading = true;
+        // get the sentences
+        this.sentenceService.getSentencesDatabase(dbName, force).subscribe({
+            next: (data: sentence) => {
+                console.log("loaded " + dbName);
+                const sentenceData: sentence[] = [data];
+                // set the data on the display
+                this.initialData = JSON.parse(JSON.stringify(sentenceData));
+                this.viewData = this.sentenceService.getSentenceData(this.route, this.singleStreamDataView, this.selection);
+                this.sentenceService.generateSentenceOptions(this.route);
+            },
+            error: (error) => {
+                console.log(`Error retrieving ${dbName} database`);
+            },
+            complete: () => {
+                this.isLoading = false;
+            }
         })
     }
 
@@ -92,10 +119,12 @@ export class AdminSentencesComponent implements OnInit, OnDestroy {
     
             // const doc = docName ? docName : 'template';
             // this.databaseService.uploadSentences(doc, this.sentenceData[0]).subscribe(returnData => {
-            this.databaseService.uploadSentences('template', this.sentenceService.getCurrentSentenceData()[0]).subscribe({
+            this.databaseService.uploadSentences(docName, this.sentenceService.getCurrentSentenceData()[0]).subscribe({
                 next: () => {
                     // changes comitted, now update the time the entry was updated so it can refresh old versions of the template in peoples caches...
-                    this.databaseService.updateTemplateData().subscribe({next: (success) => { console.log(success); }, error: err => { console.log(err); }}); // if it fails it fails, not to worry on the client side...
+                    if(docName === "template") {
+                        this.databaseService.updateTemplateData().subscribe({next: (success) => { console.log(success); }, error: err => { console.log(err); }}); // if it fails it fails, not to worry on the client side...
+                    }
                     this.isLoading = false;
             },  error: (error) => {
                     // error occured, which means changes were not committed.

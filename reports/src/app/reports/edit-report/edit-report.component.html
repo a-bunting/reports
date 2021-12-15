@@ -66,20 +66,20 @@
 <!-- global variables, things which are the same for each student... -->
 <div class="reports__variable-section">
 
-    <div class="reports__variable--description" *ngIf="showVariables()">
+    <div class="reports__variable--description">
         These values are individualised to each user. Select the column that matches the data needed for each variable.
     </div>
 
-    <div class="reports__variable--description" *ngIf="showGlobals()">
+    <div class="reports__variable--description">
         These values will apply to all the generated reports.
     </div>  
 
-    <div class="reports__variable--description" *ngIf="showTests()">
+    <div class="reports__variable--description">
         These values are used the test whether sentence stems apply to each user in turn. Select the column that matches the data needed for each variable.
     </div>
     
     <!-- variables, things that needs a value for each student -->
-    <div class="reports__variable-column reports__variable-column-short" *ngIf="showVariables()">
+    <div class="reports__variable-column reports__variable-column-short" *ngIf="showVariables(); else noVariables">
         <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
             <div class="reports__variable--name">
                 {{ variable.identifier }}
@@ -94,7 +94,13 @@
         </div>
     </div>
 
-    <div class="reports__variable-column reports__variable-column-short" *ngIf="showGlobals()">
+    <ng-template #noVariables>
+        <div class="reports__variable-column reports__variable-column-short reports__variable-column-empty">
+            There are currently no variables required for this report set.
+        </div>
+    </ng-template>
+
+    <div class="reports__variable-column reports__variable-column-short" *ngIf="showGlobals(); else noGlobals">
         <div class="reports__variable" *ngFor="let variable of report.globals; let i = index">
             <div class="reports__variable--name">
                 {{ variable.identifier }}
@@ -114,9 +120,15 @@
             </button> -->
         </div>
     </div>
+
+    <ng-template #noGlobals>
+        <div class="reports__variable-column reports__variable-column-short reports__variable-column-empty">
+            There are currently no global variables required for this report set.
+        </div>
+    </ng-template>
     
     <!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
-    <div class="reports__variable-column reports__variable-column-long" *ngIf="showTests()">
+    <div class="reports__variable-column reports__variable-column-long" *ngIf="showTests(); else noTests">
         <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
             <div class="reports__variable--multirow">
                 <div class="reports__variable--name">
@@ -145,6 +157,12 @@
             </div>
         </div>
     </div>
+
+    <ng-template #noTests>
+        <div class="reports__variable-column reports__variable-column-short reports__variable-column-empty">
+            There are currently no tests added to this report set, and so no data is currently required.
+        </div>
+    </ng-template>
 </div>
 
 <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="showGlobals() || showVariables() || showTests()"></div>

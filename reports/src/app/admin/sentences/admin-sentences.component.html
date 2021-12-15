@@ -10,7 +10,10 @@
         <button class="admin-sentences__control-bar--control" [class.admin-sentences__control-bar--control-selected]="autosave" (click)="autosaveToggle()">AutoSave ({{ autosave ? "Enabled" : "Disabled" }})</button>
         <button class="admin-sentences__control-bar--control" [class.admin-sentences__control-bar--control-selected]="singleStreamDataView" (click)="setFullDataView()">Data View ({{ singleStreamDataView ? "Single" : "Full" }})</button>
         <button class="admin-sentences__control-bar--control" [disabled]="autosave || (!autosave && !unsavedChanges)" (click)="saveChanges()">Save Data Locally</button>
-        <button class="admin-sentences__control-bar--control" [disabled]="!databaseMismatch" (click)="reUploadToFirebase()">{{ isLoading ? "Communicating with Database..." : "Commit to Database" }}</button>
+        <button class="admin-sentences__control-bar--control" (click)="getSpecificDatabase('template', true)">Load Template</button>
+        <button class="admin-sentences__control-bar--control" (click)="getSpecificDatabase('dev', true)">Load Dev</button>
+        <button class="admin-sentences__control-bar--control" [disabled]="!databaseMismatch" (click)="reUploadToFirebase('dev')">{{ isLoading ? "Communicating with Database..." : "Save as Dev" }}</button>
+        <button class="admin-sentences__control-bar--control" [disabled]="!databaseMismatch" (click)="reUploadToFirebase('template')">{{ isLoading ? "Communicating with Database..." : "Commit to Template" }}</button>
     </div>
     <div class="admin-sentences__memory">
         <button class="admin-sentences__control-bar--control" [disabled]="undoChain.length === 0" (click)="undoLastChange()">

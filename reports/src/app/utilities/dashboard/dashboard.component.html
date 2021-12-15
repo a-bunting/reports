@@ -13,13 +13,13 @@
                     <input type="text" name="userNameInput" id="userNameInput" (blur)="modifyUserData('name', username)" (keyup.enter)="modifyUserData('name', username)" [(ngModel)]="username">
                 </div>
             </div>
-            
+<!--             
             <div class="dashboard__data--item">
                 <div class="dashboard__data--text">Establishment</div>
                 <div class="dashboard__data--input">
-                    <input type="text" name="establishmentInput" id="establishmentInput" [(ngModel)]="facility">
+                    <input type="text" name="establishmentInput" id="establishmentInput"  (blur)="modifyUserData('establishment.name', facility)" (keyup.enter)="modifyUserData('establishment.name', facility)" [(ngModel)]="facility">
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
