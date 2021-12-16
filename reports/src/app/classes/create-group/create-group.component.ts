@@ -16,6 +16,7 @@ export class CreateGroupComponent implements OnInit {
     userData: Student[];
     user: User;
     groupname: string;
+    groupDescription: string;
     userDataGenerated: boolean = false;
     dataSubmitting: boolean = false;
     dataUpdating: boolean = false; // data is currently being updated...

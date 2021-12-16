@@ -4,6 +4,10 @@
         <div class="create-group__group-name--input">
             <input type="text" name="groupNameText" id="groupNameText" [(ngModel)]="groupname">
         </div>
+        <div class="create-group__group-name--text">Group Description (optional)</div>
+        <div class="create-group__group-name--input">
+            <input type="text" name="groupDescriptionText" id="groupDescriptionText" [(ngModel)]="groupDescription">
+        </div>
     </div>
 
     <div class="create-group__input"  *ngIf="!userDataGenerated || modifyData">

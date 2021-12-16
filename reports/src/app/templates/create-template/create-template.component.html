@@ -22,10 +22,10 @@
 
         <div class="create-template__element" *ngFor="let templateSegment of templateRoutes; let t = index" (drag)="dragPositionChange(t)" draggable="true">
             <div class="create-template__dragbox" *ngIf="dragging" (drop)="dropPosition()" (dragover)="allowDrop($event)" value="{{t}}"></div>
-
+<!-- 
             <div *ngIf="templateSegment[0] === 'newParagraph'">
                 <div class="create-template__element--paragraph">Paragraph</div>
-            </div>
+            </div> -->
 
             <div *ngIf="templateSegment[0] !== 'newParagraph'">
                 <select name="test" id="test" class="create-template__element--select" *ngFor="let sentenceStem of viewData[t]; let s = index" (change)="updateElementRoute(t, s, $event.target.value)">
@@ -50,7 +50,7 @@
         <div class="create-template__buttons">
             Add: 
             <div class="create-template__new" (click)="addElement()">Sentence</div>
-            <div class="create-template__new" (click)="addParagraph()">P</div>
+            <!-- <div class="create-template__new" (click)="addParagraph()">P</div> -->
         </div>
     </div>
     

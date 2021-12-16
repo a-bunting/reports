@@ -7,11 +7,12 @@
         background-color: var(--color-style-juxtapose);
         padding: .5rem 1rem;
         letter-spacing: .15rem;
-        width: 55rem;
+        width: 61rem;
 
-        display: flex;
+        display: grid;
+        grid-template-columns: max-content 30rem;
         align-items: center;
-        justify-content: space-between;
+        row-gap: .5rem;
 
         &--text {
             font-weight: bold;
