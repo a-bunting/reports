@@ -58,6 +58,7 @@ export class EditGroupComponent implements OnInit {
 
         let group: Group = { 
             name: this.groups[groupIndex].name, 
+            description: this.groups[groupIndex].description,
             keys: this.groups[groupIndex].keys, 
             managers: this.groups[groupIndex].managers, 
             students: []
@@ -237,14 +238,14 @@ export class EditGroupComponent implements OnInit {
     /**
      * Checks to see if the name of the group hasbeen changed and adjusts the visiblity
      * of the button accoridnly.
+     * 
+     * deprecated - update group button works for this too
+     * 
      * @param groupIndex 
      * @param input 
      */
-    checkNameChange(groupIndex: number, input: KeyboardEvent): void {
-        const reference: HTMLElement = <HTMLElement>input.target;
-        const newValue = reference.innerText.split("\n");
-        
-        if(this.groups[groupIndex].name !== newValue[0]) {
+    checkNameChange(groupIndex: number, input: string): void {
+        if(this.groups[groupIndex].name !== input) {
             document.getElementById('nameButton' + groupIndex).style.display = "inline-block";
         } else {
             document.getElementById('nameButton' + groupIndex).style.display = "none";
@@ -255,14 +256,21 @@ export class EditGroupComponent implements OnInit {
      * Commits the name change to the group. Doesnt update the database...
      * @param groupIndex 
      */
-    commitNameChange(groupIndex: number): void {
+    commitNameChange(groupIndex: number, newVal: string): void {
         // get the vaue and commit
-        const newValue: string[] = document.getElementById('grpId' + groupIndex).innerText.split("\n");
-        this.groups[groupIndex].name = newValue[0];
+        // const newValue: string[] = document.getElementById('grpId' + groupIndex).innerText.split("\n");
+        // this.groups[groupIndex].name = newValue[0];
+        this.groups[groupIndex].name = newVal;
         // flag for db update
         this.updatedData[groupIndex] = true;
         // hide the save button
-        document.getElementById('nameButton' + groupIndex).style.display = "none";
+        // document.getElementById('nameButton' + groupIndex).style.display = "none";
+    }
+
+    commitDescriptionChange(groupIndex: number, newVal: string) : void {
+        console.log(groupIndex, newVal);
+        this.groups[groupIndex].description = newVal;
+        this.updatedData[groupIndex] = true;
     }
 
     /**

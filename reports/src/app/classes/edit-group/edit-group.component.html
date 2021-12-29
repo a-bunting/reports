@@ -11,9 +11,12 @@
     <div class="group" *ngFor="let group of groups; let i = index">
 
         <div class="group__name">
-            <div class="group__name--name" id="grpId{{i}}" (keyup)="checkNameChange(i, $event)" (keyup.enter)="commitNameChange(i)" contenteditable="true">{{ group.name }}</div>
+            <!-- <div class="group__name--name" id="grpId{{i}}" (keyup)="checkNameChange(i, $event)" (keyup.enter)="commitNameChange(i)" contenteditable="true">{{ group.name }}</div> -->
+            <input type="text" class="input__text group__name--name" id="grpId{{i}}" (blur)="commitNameChange(i, $event.target.value)" (keyup.enter)="commitNameChange(i, $event.target.value)" value="{{ group.name }}">
+            <!-- <div class="group__name--description" id="descId{{i}}" contenteditable="true">{{ group.description ? group.description : "" }}</div> -->
+            <input type="text" class="input__text group__name--description" id="descId{{i}}" (blur)="commitDescriptionChange(i, $event.target.value)" (keyup.enter)="commitDescriptionChange(i, $event.target.value)" value="{{ group.description ? group.description : '' }}" placeholder="Group Description">
             <div *ngIf="deletionConfirm !== i">
-                <button class="group__button--button group__button--enabled group__button--hidden" id="nameButton{{i}}" (click)="commitNameChange(i)">Save Name Change</button>
+                <!-- <button class="group__button--button group__button--enabled group__button--hidden" id="nameButton{{i}}" (click)="commitNameChange(i)">Save Name Change</button> -->
                 <button class="group__button--button group__button--enabled" (click)="addUser(i)">Add Student</button>
                 <button class="group__button--button group__button--update" [class.group__button--enabled]="updatedData[i]" [class.group__button--updated]="updatingData[i]" (click)="updateGroup(i)" [disabled]="!updatedData[i]">{{ !updatingData[i] ? "Update Group" : "Updating Data..." }}</button>
             </div>

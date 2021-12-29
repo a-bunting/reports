@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { DocumentData, DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { DatabaseService } from './database.service';
 
 export interface Group {
-    name: string, id? : string, keys: string[]; managers: string[], students: Student[]
+    name: string, id? : string, description?: string; keys: string[]; managers: string[], students: Student[]
 }
 
 export interface Student {
@@ -137,7 +137,6 @@ export class GroupsService {
      */
     deleteGroup(id: string): Observable<Group[]> {
         // call the db
-        console.log(`1`,this.groups);
         return this.db.deleteGroup(id).pipe(take(1), tap({
             next: () => {
                 // success

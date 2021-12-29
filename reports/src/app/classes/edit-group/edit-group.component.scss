@@ -24,6 +24,7 @@
 .group {
     display: grid;
     grid-template-columns: 1fr minmax(11rem, max-content) max-content 2rem;
+    // grid-template-columns: minmax(11rem, max-content) 1fr max-content 2rem;
     align-items: baseline;
 
     padding: .5rem 2rem;
@@ -54,9 +55,15 @@
         display: flex;
         justify-content: space-between;
         align-items: baseline;
+        column-gap: 1rem;
 
         &--name {
             padding-right: 1rem;
+            flex: 1;
+        }
+
+        &--description {
+            flex: 3;
         }
     }
     

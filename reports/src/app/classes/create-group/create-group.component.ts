@@ -16,7 +16,7 @@ export class CreateGroupComponent implements OnInit {
     userData: Student[];
     user: User;
     groupname: string;
-    groupDescription: string;
+    groupDescription: string = "";
     userDataGenerated: boolean = false;
     dataSubmitting: boolean = false;
     dataUpdating: boolean = false; // data is currently being updated...
@@ -35,7 +35,7 @@ export class CreateGroupComponent implements OnInit {
 
     createGroup(): void {
         this.dataSubmitting = true;
-        let group: Group = { name: this.groupname, keys: [], managers: [], students: []};
+        let group: Group = { name: this.groupname, description: this.groupDescription, keys: [], managers: [], students: []};
         let managers: string[] = [this.user.id];
         let students: Student[] = [];
 
@@ -292,6 +292,21 @@ export class CreateGroupComponent implements OnInit {
 
     modifyGroupData(): void {
         this.modifyData = !this.modifyData;
+    }
+
+    createNewGroup(): void {
+        this.userData = undefined;
+        this.userInfo = undefined;
+        this.groupDescription = undefined;
+        this.groupname = undefined;
+        this.keys = undefined;
+        this.modifyData = false;
+        this.userDataGenerated = false;
+        this.dataSubmitting = false;
+        this.dataUpdating = false; // data is currently being updated...
+        this.dataUpdated = false; // data has been saved since updating (databe is up to dtae)
+        this.dataChanged = false;
+        this.groupId;
     }
 
 }
