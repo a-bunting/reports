@@ -29,6 +29,7 @@
             <div class="users-list__control" [class.users-list__control--enabled]="user.admin === true" (click)="modifyAdminStatus(user.email, user.admin, $event)">Admin</div>
             <div class="users-list__control" [class.users-list__control--enabled]="user.manager === true" (click)="modifyManagerStatus(user.email, user.manager, $event)">Manager</div>
             <div class="users-list__control" [class.users-list__control--enabled]="user.member === true" (click)="modifyMemberStatus(user.email, $event)">Member</div>
+            <div class="users-list__control" (click)="becomeUser(user.email, user.id)">Become User</div>
         </div>
     </div>
 </div>

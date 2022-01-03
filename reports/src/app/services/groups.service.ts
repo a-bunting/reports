@@ -27,7 +27,7 @@ export class GroupsService {
     * (either from local storage or the database...)
     * @returns 
    */
-    getGroups(forcedFromDatabase: boolean = false): Observable<Group[]> {
+    getGroups(forcedFromDatabase: boolean = false, uid?: string): Observable<Group[]> {
         this.groups = [];
         // check if there is an instance of the groups database in localstorage...
         if(localStorage.getItem('groups-data') !== null && forcedFromDatabase === false) {

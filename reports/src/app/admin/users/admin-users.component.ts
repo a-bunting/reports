@@ -5,7 +5,12 @@ import { map, mergeMap, take } from 'rxjs/operators';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { ConsoleService } from 'src/app/admin/services/console.service';
-import { Observable } from 'rxjs';
+import { Observable, zip } from 'rxjs';
+import { sentence, SentencesService } from 'src/app/services/sentences.service';
+import { TemplatesService } from 'src/app/services/templates.service';
+import { Group, GroupsService } from 'src/app/services/groups.service';
+import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
+import { Template } from '@angular/compiler/src/render3/r3_ast';
 
 export interface FirebaseUser {
     name: string; email: string; admin: boolean; manager: boolean;
@@ -27,7 +32,12 @@ export class AdminUsersComponent implements OnInit {
     constructor(private auth: AuthenticationService,
                 private firebase: AngularFirestore, 
                 private fFunctions: AngularFireFunctions,
-                private console: ConsoleService) { }
+                private console: ConsoleService,
+                private sentenceService: SentencesService,
+                private templateService: TemplatesService, 
+                private groupService: GroupsService, 
+                private reportService: ReportsService            
+    ) { }
 
     ngOnInit(): void {
         // subscribe to the user authentication information.  
@@ -206,5 +216,14 @@ export class AdminUsersComponent implements OnInit {
             return this.modifyUserData(email, 'manager', false);
         }));
     }    
+
+    becomeUser(email: string, uid: string): Observable<[sentence, Template[], Group[], ReportTemplate[]]> {
+        let getSentenceDb = this.sentenceService.getSentencesDatabase(uid, true).pipe(take(1), map((result: sentence) => { return true; }));  
+        let getTemplateDb = this.templateService.getTemplates(uid, true).pipe(take(1), map((result: Template[]) => { return true; }));
+        let getGroupsDb = this.groupService.getGroups(uid, true).pipe(take(1), map((result: Group[]) => { return true; }));
+        let getReportsDb = this.reportService.getReports(uid, true).pipe(take(1), map((result: Group[]) => { return true; }));
+        
+        return zip(getSentenceDb, getTemplateDb, getGroupsDb, getReportsDb);
+    }
 
 }
