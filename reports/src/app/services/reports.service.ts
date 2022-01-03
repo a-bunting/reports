@@ -70,7 +70,7 @@ export class ReportsService {
      * todo: add local storage;
      * @returns 
      */
-    getReports(forcedFromDatabase: boolean = false): Observable<ReportTemplate[]> {
+    getReports(forcedFromDatabase: boolean = false, uid?: string): Observable<ReportTemplate[]> {
         this.reports = [];
 
         // if the data exists locally, grab it!
@@ -82,7 +82,9 @@ export class ReportsService {
             return of(this.reports).pipe(take(1), tap(returnData => { return returnData; }));
         } else {
             // get from the DB
-            return this.db.getReports().pipe(take(1), map((queryResults: QuerySnapshot<ReportTemplate>) => {
+            const userId: string = uid ?? undefined;
+
+            return this.db.getReports(userId).pipe(take(1), map((queryResults: QuerySnapshot<ReportTemplate>) => {
                 let reportsNew: ReportTemplate[] = [];
                 // build the rpeorts...
                 queryResults.forEach((report: DocumentSnapshot<ReportTemplate>) => {
@@ -158,14 +160,16 @@ export class ReportsService {
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
 
-            this.sentenceService.newTestSentenceOptionCreator(template.template).forEach((option: string, index: number) => {
+            let testOptions = this.sentenceService.newTestSentenceOptionCreator(template.template);
+
+            testOptions.forEach((option: string, index: number) => {
 
                 let typeMatches: RegExpExecArray;
                 // get the values form the sentence that are between ${brackets}$ and put them in values
                 while(typeMatches = splitRegex.exec(option)) { 
 
                     // doesnt work for g|Time Period[semester,term] on one occasion, but on the rest of the occasions its fine...
-                    let exists = duplicates.findIndex((temp: string) => temp.normalize() === typeMatches[1].normalize());
+                    let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
 
                     // test if its already been identified and if not, push onto the array
                     if(exists === -1) {
@@ -205,6 +209,7 @@ export class ReportsService {
                     }
                 }
             })
+
         })
 
         // return both arrays...
@@ -213,6 +218,8 @@ export class ReportsService {
 
     generateTests(template: Template): TestValues[] {
         let testVals: TestValues[] = [];
+
+        console.log("doing tests");
 
         template.template.forEach((template: string[]) => {
             // get the sentence data
@@ -279,6 +286,9 @@ export class ReportsService {
                 })
             })
         })
+
+        console.log("doing tests end");
+
         // and return lol :(
         return testVals;
     }

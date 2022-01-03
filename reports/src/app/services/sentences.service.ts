@@ -423,18 +423,18 @@ export class SentencesService {
         let finalOptions: string[][] = [];
         
         // iterate over each part of the route...
-        fullRoute.forEach((route: string[]) => {
-            
+        fullRoute.forEach((route: string[], i1: number) => {
+
             let textArrays: string[][] = [];
             let data: sentence[] = this.sentenceData;
 
-            route.forEach((unSplitRoute: string) => {
+            route.forEach((unSplitRoute: string, i2: number) => {
     
                 // split the route by / bars...
                 let splitRoutes: string[] = unSplitRoute.split('/');
                 let routeData: string[][] = [];
     
-                splitRoutes.forEach((routeId: string) => {
+                splitRoutes.forEach((routeId: string, i3:number) => {
     
                     // THIS IS ALL CHECKING TESTS AGAINST USER DATA
                     // find out if this route is applicable to the user with any tests that might be happening.

@@ -1,19 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFirestore, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/compat/firestore';
+import { AngularFirestore, DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/compat/firestore';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
-import { map, mergeMap, take } from 'rxjs/operators';
+import { tap, map, mergeMap, take } from 'rxjs/operators';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { ConsoleService } from 'src/app/admin/services/console.service';
 import { Observable, zip } from 'rxjs';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
-import { TemplatesService } from 'src/app/services/templates.service';
+import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { Group, GroupsService } from 'src/app/services/groups.service';
 import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
-import { Template } from '@angular/compiler/src/render3/r3_ast';
 
 export interface FirebaseUser {
-    name: string; email: string; admin: boolean; manager: boolean;
+    id: string, name: string; email: string; admin: boolean; manager: boolean;
 }
 
 @Component({
@@ -53,8 +52,9 @@ export class AdminUsersComponent implements OnInit {
         this.loading = true;
 
         this.firebase.collection('users').get().pipe(take(1)).subscribe((userData: QuerySnapshot<any>) => {
-            userData.docs.forEach((user: any) => {
+            userData.docs.forEach((user: DocumentSnapshot<any>) => {
                 users.push({
+                    id: user.id,
                     name: user.data().name,
                     email: user.data().email,
                     admin: user.data().admin ? true : false,
@@ -217,11 +217,20 @@ export class AdminUsersComponent implements OnInit {
         }));
     }    
 
-    becomeUser(email: string, uid: string): Observable<[sentence, Template[], Group[], ReportTemplate[]]> {
-        let getSentenceDb = this.sentenceService.getSentencesDatabase(uid, true).pipe(take(1), map((result: sentence) => { return true; }));  
-        let getTemplateDb = this.templateService.getTemplates(uid, true).pipe(take(1), map((result: Template[]) => { return true; }));
-        let getGroupsDb = this.groupService.getGroups(uid, true).pipe(take(1), map((result: Group[]) => { return true; }));
-        let getReportsDb = this.reportService.getReports(uid, true).pipe(take(1), map((result: Group[]) => { return true; }));
+    becomeUser(email: string, uid: string): void {
+        this.downloadUserProfile(uid).subscribe({
+            next: (result: [sentence, Template[], Group[], ReportTemplate[]]) => {
+                console.log("You are now user " + uid);
+            }
+        });
+
+    }
+
+    downloadUserProfile(uid: string): Observable<[sentence, Template[], Group[], ReportTemplate[]]> {
+        let getSentenceDb = this.sentenceService.getSentencesDatabase('template', true).pipe(take(1), map((result: sentence) => { return result; }));  
+        let getTemplateDb = this.templateService.getTemplates(true, uid).pipe(take(1), map((result: Template[]) => { return result; }));
+        let getGroupsDb = this.groupService.getGroups(true, uid).pipe(take(1), map((result: Group[]) => { return result; }));
+        let getReportsDb = this.reportService.getReports(true, uid).pipe(take(1), map((result: ReportTemplate[]) => { return result; }));
         
         return zip(getSentenceDb, getTemplateDb, getGroupsDb, getReportsDb);
     }

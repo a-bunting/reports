@@ -40,7 +40,9 @@ export class GroupsService {
             }));      
         } else {
             // need to retrive the data from the database...
-            return this.db.getGroups().pipe(take(1), map((returnData: QuerySnapshot<any>) => {
+            const userId: string = uid ?? undefined;
+
+            return this.db.getGroups(userId).pipe(take(1), map((returnData: QuerySnapshot<any>) => {
                 // Iterate through the groups to see up the group data.
                 returnData.forEach((grp: DocumentData) => {
                     let newData: Group = grp.data();

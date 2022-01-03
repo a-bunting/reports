@@ -60,11 +60,14 @@
     </div>
 
 <div class="divider-line divider-line__thin" *ngIf="showGlobals() || showVariables() || showTests()"></div>
-    <!-- <button (click)="printReportObject()">Print report object</button> -->
 <div class="divider-line divider-line__thin" *ngIf="showGlobals() || showVariables() || showTests()"></div>
 
 <!-- global variables, things which are the same for each student... -->
 <div class="reports__variable-section">
+
+    <div class="loading" *ngIf="processingReport">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
 
     <div class="reports__variable--description">
         These values are individualised to each user. Select the column that matches the data needed for each variable.

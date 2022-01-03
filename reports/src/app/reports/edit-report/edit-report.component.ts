@@ -265,34 +265,74 @@ export class EditReportComponent implements OnInit, OnDestroy {
     relatedTests: TemplateTest[] = [];
 
     loadTemplate(templateId: string): void {
-        // get the index
-        let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
-        // and if it exists then load...
-        if(index !== -1) {
-            // set the report id
-            this.report.templateId = templateId;
-            this.loadedTemplate = templateId;
-            // set the template id on each of the users (in the future potentially each student may have different template ids)
-            this.report.reports.forEach((repo: Report) => {
-                repo.templateId = templateId;
-            })
-            // get the template and proces the variables required...
-            const template: Template = this.templatesService.getTemplate(templateId);
-            this.processTemplate(template);
-        } else {
-            // the template may have been deleted, what now?
-            this.report.templateId = "";
-            this.loadedTemplate = "";
-            // set the template id on each of the users (in the future potentially each student may have different template ids)
-            this.report.reports.forEach((repo: Report) => {
-                repo.templateId = "";
-            })
-            // and reset the variables, which dont exist iof there is no template...
-            this.report.globals = [];
-            this.report.variables = [];
-            this.report.tests = [];
-        }
-        this.checkForChanges();
+        this.processingReport = true;
+
+        new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                // get the index
+                let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
+                // and if it exists then load...
+                if(index !== -1) {
+                    // set the report id
+                    this.report.templateId = templateId;
+                    this.loadedTemplate = templateId;
+                    // set the template id on each of the users (in the future potentially each student may have different template ids)
+                    this.report.reports.forEach((repo: Report) => {
+                        repo.templateId = templateId;
+                    })
+                    // get the template and proces the variables required...
+                    const template: Template = this.templatesService.getTemplate(templateId);
+                    this.processTemplate(template);
+                } else {
+                    // the template may have been deleted, what now?
+                    this.report.templateId = "";
+                    this.loadedTemplate = "";
+                    // set the template id on each of the users (in the future potentially each student may have different template ids)
+                    this.report.reports.forEach((repo: Report) => {
+                        repo.templateId = "";
+                    })
+                    // and reset the variables, which dont exist iof there is no template...
+                    this.report.globals = [];
+                    this.report.variables = [];
+                    this.report.tests = [];
+                }
+                // then resolve;
+                resolve();
+            }, 0);
+        }).then(() => {
+            this.processingReport = false;
+            this.checkForChanges();
+        })
+
+        // // get the index
+        // let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
+        // // and if it exists then load...
+        // if(index !== -1) {
+        //     // set the report id
+        //     this.report.templateId = templateId;
+        //     this.loadedTemplate = templateId;
+        //     // set the template id on each of the users (in the future potentially each student may have different template ids)
+        //     this.report.reports.forEach((repo: Report) => {
+        //         repo.templateId = templateId;
+        //     })
+        //     // get the template and proces the variables required...
+        //     const template: Template = this.templatesService.getTemplate(templateId);
+        //     this.processTemplate(template);
+        // } else {
+        //     // the template may have been deleted, what now?
+        //     this.report.templateId = "";
+        //     this.loadedTemplate = "";
+        //     // set the template id on each of the users (in the future potentially each student may have different template ids)
+        //     this.report.reports.forEach((repo: Report) => {
+        //         repo.templateId = "";
+        //     })
+        //     // and reset the variables, which dont exist iof there is no template...
+        //     this.report.globals = [];
+        //     this.report.variables = [];
+        //     this.report.tests = [];
+        // }
+        // this.processingReport = false;
+        // this.checkForChanges();
     }
 
     loadedReport: ReportTemplate; // the saved version of the report to check for changes against
@@ -330,6 +370,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     report: ReportTemplate = <ReportTemplate>{};
     reportId: string;
 
+    processingReport: boolean = false;
+
     /**
      * Check if all data is available to parse the group into a report
      */
@@ -355,6 +397,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 newGlobals.push(this.mergeGlobals(this.report.globals[variableIndex], variable));
             }
         })
+
         // variables
         variables[1].forEach((variable: VariableValues) => {
             let variableIndex: number = this.report.variables.findIndex((temp: GlobalValues) => temp.identifier === variable.identifier);
@@ -367,6 +410,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 newVariables.push(this.mergeVariables(this.report.variables[variableIndex], variable));
             }
         })
+
         // tests
         tests.forEach((test: TestValues) => {
             let testIndex: number = this.report.tests.findIndex((temp: TestValues) => test.identifier === temp.identifier);

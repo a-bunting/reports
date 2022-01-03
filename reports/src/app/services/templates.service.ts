@@ -39,7 +39,7 @@ export class TemplatesService {
      * (either from local storage or the database...)
      * @returns 
      */
-    getTemplates(forcedFromDatabase: boolean = false): Observable<Template[]> {    
+    getTemplates(forcedFromDatabase: boolean = false, uid?: string): Observable<Template[]> {    
         this.templates = [];
         // check local sotrage first...
         if(localStorage.getItem('templates-data') !== null && forcedFromDatabase === false) {
@@ -52,7 +52,9 @@ export class TemplatesService {
             }));
         } else {
             // no local sotrage available so retrieve from databse...
-            return this.db.getTemplates().pipe(take(1), map((resultsArray: QuerySnapshot<any>) => {
+            const userId: string = uid ?? undefined;
+
+            return this.db.getTemplates(userId).pipe(take(1), map((resultsArray: QuerySnapshot<any>) => {
                 resultsArray.forEach((template: DocumentSnapshot<TemplateDB>) => {
                     let temp: TemplateDB = template.data();
                     let routes: [string[]] = [[]];

@@ -73,9 +73,10 @@ export class DatabaseService {
      * Get all the groups this user is a part of
      * @returns Observable<QuerySnapshot<any>> to subscribe to...
      */
-    getGroups(): Observable<any> {
+    getGroups(uid?: string): Observable<any> {
         this.readOperation();
-        return this.firebase.collection('group', grp => grp.where('managers', 'array-contains', this.user.id)).get();
+        const userId: string = uid ?? this.user.id;
+        return this.firebase.collection('group', grp => grp.where('managers', 'array-contains', userId)).get();
     }
 
     createGroup(data: Group): Observable<any> {
@@ -94,9 +95,10 @@ export class DatabaseService {
     }
 
     // TEMPLATES
-    getTemplates(): Observable<any> {
+    getTemplates(uid?: string): Observable<any> {
         this.readOperation();
-        return this.firebase.collection('templates', template => template.where('manager', '==', this.user.id) || template.where('open','==', true)).get();
+        const userId: string = uid ?? this.user.id;
+        return this.firebase.collection('templates', template => template.where('manager', '==', userId) || template.where('open','==', true)).get();
     }
 
     
@@ -121,9 +123,10 @@ export class DatabaseService {
     }
 
     // REPORTS //
-    getReports(): Observable<any> {
+    getReports(uid?: string): Observable<any> {
         this.readOperation();
-        return this.firebase.collection('reports', report => report.where('manager', '==', this.user.id)).get();
+        const userId: string = uid ?? this.user.id;
+        return this.firebase.collection('reports', report => report.where('manager', '==', userId)).get();
     }
 
     getReport(id: string): Observable<any> {
