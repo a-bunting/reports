@@ -3,7 +3,7 @@
     position: fixed;
     bottom: 1rem;
     left: 1rem;
-    border-radius: 1rem 2rem;
+    border-radius: 1rem 1rem 2rem 2rem;
     transition: all .2s;
     box-shadow: 0 .2rem .4rem black;
     z-index: 10000;
@@ -19,7 +19,6 @@
         font-size: 1.4rem;
         border: .2rem solid transparent;
         transition: all .2s;
-        border-radius: 1rem 2rem;
 
         &:hover {
             cursor: pointer;
@@ -28,6 +27,11 @@
             transform: translateY(-.3rem);
             box-shadow: 0 .2rem .4rem black;
         }
+
+        &:not(:last-of-type) { margin-right: 1rem; }
+
+        &--left { border-radius: 1rem 2rem; }
+        &--right { border-radius: 2rem 1rem; }
     }
 
     &__report {

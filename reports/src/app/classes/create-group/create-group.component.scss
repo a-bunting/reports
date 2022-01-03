@@ -17,6 +17,12 @@
         &--text {
             font-weight: bold;
             padding: .8rem .5rem;
+            display: flex;
+            justify-content: space-between;
+
+            & > .tooltipped {
+                margin-left: .5rem;
+            }
         }
         &--input {
             margin-left: 1rem;

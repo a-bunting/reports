@@ -1,9 +1,21 @@
 <div class="create-template__form">
 
-    <div class="create-template__label">Name</div>
+    <div class="create-template__label">
+        Name
+        <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="helpFlag">
+            <div class="tooltip">This is the name given to this template. It is what you will select on your report to link this template to the students you are writing reports for.</div>
+        </div>
+    </div>
     <input class="create-template__input create-template__input--name" (keyup)="checkForUpdates()" (keyup)="changeEmitter()" id="templateName" [(ngModel)]="templateName">
 
-    <div class="create-template__label">Character Limit</div>
+    
+
+    <div class="create-template__label">
+        Character Limit
+        <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="helpFlag">
+            <div class="tooltip">This is the character range of the reports made with this template. If you select a range between 500 and 700 for example, the report generator will try its best to build a report within this range. If this cant be accomplished, it will pick a report which is as close as possible to the range.</div>
+        </div>
+    </div>
     <div class="create-template__characters">
         <input type="number" class="create-template__input create-template__input--number" (keyup)="checkForUpdates()" id="charMin" [(ngModel)]="templateCharacters.min" placeholder="from">
         <span>to</span>
@@ -15,7 +27,11 @@
 
 <div class="create-template__structure">
     
-    <div class="create-template__label">Template Structure <span *ngIf="dragging">(Hit escape or drop to stop reordering)</span></div>
+    <div class="create-template__label">Template Structure 
+        <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="helpFlag">
+            <div class="tooltip">This is the actual structure for your report. Every sentence you add will be another thing said about the student. For example if you select an Intro, then every student who has a report made for them with this template will have an introduction, with their own data being used to customise it.</div>
+        </div>
+        <span *ngIf="dragging">(Hit escape or drop to stop reordering)</span></div>
     <!-- // structural elements go here... -->
     
     <div class="create-template__builder">
@@ -40,6 +56,10 @@
                         </span>
                     </option>
                 </select>
+            </div>
+
+            <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="helpFlag">
+                <div class="tooltip">Select the route you think will produce the desired report for your students. An example of this can be seen at the bottom of this page. Note that if you select <b>** all options include **</b> it means all of the options on the drop down may be used, but not their subcategories. If you select <b>** End **</b> then none of the subcategories will be used.</div>
             </div>
 
             <div class="create-template__element--delete" (click)="deleteElement(t)">
@@ -71,7 +91,9 @@
 
     <div class="create-template__label">Example</div>
     <div class="create-template__example--description">
-        <p>This is an example report that would be created from this template.</p> <!--There are a minimum of <b>{{ exampleSentence.options }}</b> potential report combinations for this template.</p> --> 
+        <p>
+            This is an example report that would be created from this template. <span *ngIf="helpFlag">This is only a sample of what your template might look like as a report. Note that there are many other options your reports may look like, and not all will read the same. Some reports have different wording options, and some will depend upon the students grades. Genders may be male, female or plural as well, so this is only a very generic example.</span>
+        </p> <!--There are a minimum of <b>{{ exampleSentence.options }}</b> potential report combinations for this template.</p> --> 
     </div>
     <div class="create-template__example-text" [innerHTML]="exampleSentence.report"></div>
 </div>

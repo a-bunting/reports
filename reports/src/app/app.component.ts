@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, RouteConfigLoadEnd, RouteConfigLoadStart, Router, RouterEvent } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { CustomService } from './services/custom.service';
 import { AuthenticationService } from './utilities/authentication/authentication.service';
 import { User } from './utilities/authentication/user.model';
 
@@ -27,11 +28,14 @@ export class AppComponent implements OnInit {
     loaded: boolean;
     loadingTimer;
 
+    helpFlag: boolean;
+
     constructor(
         private authService: AuthenticationService, 
         private router: Router, 
         private activatedRoute: ActivatedRoute,
-        private titleService: Title
+        private titleService: Title, 
+        public customService: CustomService
     ) {
         this.loadingMessage = false;
         this.loaded = true;
@@ -57,6 +61,10 @@ export class AppComponent implements OnInit {
                     this.setPageTitle(data.title);
                 })
             }
+        })
+
+        customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
+            this.helpFlag = newFlag;
         })
     }
 

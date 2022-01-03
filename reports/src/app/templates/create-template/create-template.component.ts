@@ -7,6 +7,7 @@ import { DocumentReference } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { CustomService } from 'src/app/services/custom.service';
 
 
 @Component({
@@ -26,14 +27,20 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     templateName: string = "";
     templateCharacters: {min: number, max: number} = {min: 1, max: 500};
 
+    helpFlag: boolean;
+
     constructor(
         private router: ActivatedRoute, 
         private navigation: Router,
         private templateService: TemplatesService, 
         private sentenceService: SentencesService, 
-        private auth: AuthenticationService) 
+        private auth: AuthenticationService,
+        public customService: CustomService
+    ) 
     { 
-        
+        customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
+            this.helpFlag = newFlag;
+        })
     }
 
     paramObservable: Subscription;

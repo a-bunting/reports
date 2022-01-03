@@ -1,6 +1,7 @@
 <div class="bugreport">
 
-    <button class="bugreport__submit-button" *ngIf="!reportActive" (click)="submitReportToggle(true)">{{ submitted ? "Noted, anything else?" : "Problems or Suggestions" }}</button>
+    <button class="bugreport__submit-button bugreport__submit-button--left" *ngIf="!reportActive" (click)="submitReportToggle(true)">{{ submitted ? "Noted, anything else?" : "Problems or Suggestions" }}</button>
+    <button class="bugreport__submit-button bugreport__submit-button--right" *ngIf="!reportActive" (click)="toggleHelpMode()">{{ helpFlag ? "Disable Help Mode" : "Enable Help Mode" }}</button>
     
     <div class="bugreport__report" *ngIf="reportActive">
         

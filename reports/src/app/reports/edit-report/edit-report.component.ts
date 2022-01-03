@@ -10,6 +10,7 @@ import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from 'src/app/services/tests.service';
 import { DocumentReference } from '@angular/fire/firestore';
+import { CustomService } from 'src/app/services/custom.service';
 
 @Component({
   selector: 'app-edit-report',
@@ -36,6 +37,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     // view booleans
     isLoading: boolean = false;
+    customTooltips: boolean;
 
     constructor(
         private auth: AuthenticationService, 
@@ -45,8 +47,14 @@ export class EditReportComponent implements OnInit, OnDestroy {
         private groupService: GroupsService, 
         private templatesService: TemplatesService, 
         private sentenceService: SentencesService, 
-        private testsService: TestsService 
-    ) { }
+        private testsService: TestsService,
+        private customService: CustomService
+    ) { 
+        customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
+            this.customTooltips = newFlag;
+            console.log(newFlag);
+        })
+    }
 
     ngOnInit(): void {
 
@@ -339,13 +347,25 @@ export class EditReportComponent implements OnInit, OnDestroy {
         variables[0].forEach((variable: GlobalValues) => {
             let variableIndex: number = this.report.globals.findIndex((temp: GlobalValues) => temp.identifier === variable.identifier);
             // if the index isnt found on the already loaded global variables then add it, it isnt already there.
-            variableIndex === -1 ? newGlobals.push(variable) : newGlobals.push(this.report.globals[variableIndex]);
+            if(variableIndex === -1) {
+                // the variable has not been found and should be added... simple
+                newGlobals.push(variable);
+            } else {
+                // the variable is already present, merge any new information into the old data...
+                newGlobals.push(this.mergeGlobals(this.report.globals[variableIndex], variable));
+            }
         })
         // variables
         variables[1].forEach((variable: VariableValues) => {
             let variableIndex: number = this.report.variables.findIndex((temp: GlobalValues) => temp.identifier === variable.identifier);
             // if the index isnt found on the already loaded variable variables then add it, it isnt already there.
-            variableIndex === -1 ? newVariables.push(variable) : newVariables.push(this.report.variables[variableIndex]);
+            if(variableIndex === -1) {
+                // the variable has not been found and should be added... simple
+                newVariables.push(variable);
+            } else {
+                // the variable is already present, merge any new information into the old data...
+                newVariables.push(this.mergeVariables(this.report.variables[variableIndex], variable));
+            }
         })
         // tests
         tests.forEach((test: TestValues) => {
@@ -357,7 +377,41 @@ export class EditReportComponent implements OnInit, OnDestroy {
         this.report.globals = newGlobals;
         this.report.variables = newVariables;
         this.report.tests = newTests;
+    }
 
+    /**
+     * merges two variables to provide the ability to update visual cues like tooltips onto older reports.
+     * @param oldVar 
+     * @param newVar 
+     * @returns 
+     */
+    mergeVariables(oldVar: VariableValues, newVar: VariableValues): VariableValues {
+        // new data overwrites old data in the variable, UNLESS it changes the users data generation.
+        let retVar: VariableValues = {
+            identifier: oldVar.identifier, 
+            key: oldVar.key, 
+            options: oldVar.options ?? newVar.options, 
+            value: oldVar.value, 
+            tooltip: newVar.tooltip ?? undefined
+        };
+        return retVar;
+    }
+
+    /**
+     * Same as mergeVariables but allows for global values to be merged...
+     * @param oldVar 
+     * @param newVar 
+     * @returns 
+     */
+    mergeGlobals(oldVar: GlobalValues, newVar: GlobalValues): GlobalValues {
+        // new data overwrites old data in the variable, UNLESS it changes the users data generation.
+        let retVar: GlobalValues = {
+            identifier: oldVar.identifier, 
+            options: oldVar.options ?? newVar.options, 
+            value: oldVar.value, 
+            tooltip: newVar.tooltip ?? undefined
+        };
+        return retVar;
     }
 
     //DEALING WITH VARIABLES
@@ -423,11 +477,6 @@ export class EditReportComponent implements OnInit, OnDestroy {
             this.addedColumns.push(toIdentifier);
         }
 
-        // asign to students...
-        this.report.reports.forEach((user: Report) => {
-            user.user.data[assignIdentifier] = user.user.data[toIdentifier] ? user.user.data[toIdentifier] : "";
-        })
-
         // now assign tot he new column...
         let varIndex: number = this.report.variables.findIndex((temp: VariableValues) => temp.identifier.toLowerCase() === assignIdentifier.toLowerCase());
         // if found assign it...
@@ -442,6 +491,31 @@ export class EditReportComponent implements OnInit, OnDestroy {
             let newVar: VariableValues = { identifier: assignIdentifier, key: toIdentifier, value: "", options: ['m','f','p'] };
             this.report.variables.push(newVar);
         }
+
+        // get any options◘
+        let options: string[] = this.getOptions(toIdentifier);
+
+        // asign to students...
+        this.report.reports.forEach((user: Report) => {
+
+            let userDataMatch: boolean = false;
+            
+            if(user.user.data[toIdentifier]) {
+                // measure up against the options and take a best guess at a replacement
+                // asd this is mostly going to be for GRADES or GENDER use only the first character of the string...
+                options.forEach((option: string) => {
+                    if((user.user.data[toIdentifier].substring(0, 1) === option.substring(0, 1)) && userDataMatch === false) {
+                        // assume this works....
+                        user.user.data[assignIdentifier] = option;
+                        userDataMatch = true;
+                    }
+                })
+                userDataMatch === false ? (user.user.data[assignIdentifier] = user.user.data[toIdentifier] ? user.user.data[toIdentifier] : "") : null;
+            } else {
+                // otherwise just set to an empty value...
+                user.user.data[assignIdentifier] = "";
+            }
+        })
         this.checkForChanges();
     }
 
@@ -716,7 +790,27 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * @param key 
      * @returns 
      */
-    testOptionsExist(key: string): boolean {
+    // testOptionsExist(key: string): boolean {
+    //     let returnValue: boolean = false; // return -1 if there is no set of test options associated with this.
+    //     // iterate over the tests
+    //     this.report.tests.forEach((test: TestValues, testIndex: number) => {
+    //         // iterate over the values and find the key associated with it if applicable
+    //         test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
+    //             // if the key is identical to the column key then return the index.
+    //             if(temp.key === key) { 
+    //                 returnValue = true; 
+    //             }
+    //         })
+    //     })
+    //     return returnValue;
+    // }
+
+    /**
+     * Checks whether a column has specific values it can take...
+     * @param key 
+     * @returns 
+     */
+     optionsExist(key: string): boolean {
         let returnValue: boolean = false; // return -1 if there is no set of test options associated with this.
         // iterate over the tests
         this.report.tests.forEach((test: TestValues, testIndex: number) => {
@@ -728,6 +822,13 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 }
             })
         })
+        // iterate over the variables..
+        this.report.variables.forEach((test: VariableValues) => {
+            // iterate over the values and find the key associated with it if applicable
+            if(test.key === key && test.options.length > 0) {
+                returnValue = true;
+            }
+        })
         return returnValue;
     }
 
@@ -736,8 +837,23 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * @param key 
      * @returns 
      */
-    getTestOptions(key: string): string[] {
-        let returnValue: string[] = []; // return -1 if there is no set of test options associated with this.
+    // getTestOptions(key: string): string[] {
+    //     let returnValue: string[] = []; // return -1 if there is no set of test options associated with this.
+    //     // iterate over the tests
+    //     this.report.tests.forEach((test: TestValues, testIndex: number) => {
+    //         // iterate over the values and find the key associated with it if applicable
+    //         test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
+    //             // if the key is identical to the column key then return the index.
+    //             if(temp.key === key) { 
+    //                 returnValue = temp.options.slice().reverse(); 
+    //             }
+    //         })
+    //     })
+    //     return returnValue;
+    // }
+
+    getOptions(key: string): string[] {
+        let returnValue: string[]; // return -1 if there is no set of test options associated with this.
         // iterate over the tests
         this.report.tests.forEach((test: TestValues, testIndex: number) => {
             // iterate over the values and find the key associated with it if applicable
@@ -748,6 +864,15 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 }
             })
         })
+        // and the variables if test has yielded nothing...
+        if(returnValue === undefined) {
+            this.report.variables.forEach((test: VariableValues, testIndex: number) => {
+                // iterate over the values and find the key associated with it if applicable
+                if(test.key === key) {
+                    returnValue = test.options.slice().reverse();
+                }
+            })
+        }
         return returnValue;
     }
 
@@ -779,15 +904,20 @@ export class EditReportComponent implements OnInit, OnDestroy {
     populateSelect(key: string): void {
         this.populateIndex ? (this.populateIndex === key ? this.populateIndex = undefined : this.populateIndex = key) : this.populateIndex = key;
         // load the group data for this bunch...
-        this.getGroupData();
+        // this.getGroupData();
     }
 
-    getGroupData(): void {
-        // get the columns/ data fields for this group...
-        this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
-            let groupData: Group = grp;
-            this.groupKeys = groupData.keys;
-        })
+    // deprecated
+    // getGroupData(): void {
+    //     // get the columns/ data fields for this group...
+    //     this.groupService.getGroup(this.report.groupId).subscribe((grp: Group) => {
+    //         let groupData: Group = grp;
+    //         this.groupKeys = groupData.keys;
+    //     })
+    // }
+
+    reportTextboxOrTextarea(data: string, length: number): boolean {
+        return data === undefined ? false : data.length <= length;
     }
 
     /**

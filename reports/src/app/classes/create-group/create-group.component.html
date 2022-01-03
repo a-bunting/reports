@@ -1,10 +1,20 @@
 <div class="create-group">
     <div class="create-group__group-name">
-        <div class="create-group__group-name--text">New group name</div>
+        <div class="create-group__group-name--text">
+            New group name
+            <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="helpFlag">
+                <div class="tooltip">This is the name you will use to import these students into the main reports. As a suggestion you should make it somewhat descriptive, so in the future you remember who they are (I.E AP Block 4 2021-2022).</div>
+            </div>
+        </div>
         <div class="create-group__group-name--input">
             <input type="text" name="groupNameText" id="groupNameText" [(ngModel)]="groupname">
         </div>
-        <div class="create-group__group-name--text">Group Description</div>
+        <div class="create-group__group-name--text">
+            Group Description
+            <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="helpFlag">
+                <div class="tooltip">This is an optional field, and can be useful if you have multiple templates for the same group, i.e. one set of reports for the high achieving students and one for the lower.</div>
+            </div>
+        </div>
         <div class="create-group__group-name--input">
             <input type="text" name="groupDescriptionText" id="groupDescriptionText" [(ngModel)]="groupDescription" placeholder="Optional Description">
         </div>

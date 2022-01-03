@@ -57,6 +57,12 @@
                 <p class="u__margin-top--small">
                     The video tutorials are helpful if you get stuck!
                 </p>
+                <button class="input__button u__margin-top--large" (click)="customService.toggleGreaterTooltips()">
+                    {{ tooltipMode ? 
+                        "Disable tooltip mode again!" :
+                        "For extra tips, click me to enable 'Help Mode' which gives a few extra tooltips throughout the app to help you."
+                    }}
+                </button>
             </div>
 
             <div class="dashboard__password">

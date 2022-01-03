@@ -109,11 +109,19 @@
 
         &--name {
             font-size: 1.2rem;
+            margin-right: .5rem;
+            display: flex;
+            justify-content: space-between;
+
+            & > .tooltipped {
+                margin-left: .5rem;
+            }
         }
 
         &--options {
             margin-top: .3rem;
             text-align: right;
+            display: flex;
         }
 
         &--multirow {

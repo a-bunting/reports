@@ -9,6 +9,7 @@ import { map, take } from 'rxjs/operators';
 import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { DocumentSnapshot, QuerySnapshot } from 'rxfire/firestore/interfaces';
+import { CustomService } from 'src/app/services/custom.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +23,7 @@ export class DashboardComponent implements OnInit {
     facility: string;
     autoUpdateDb: boolean;
     reports: ReportTemplate[];
+    tooltipMode: boolean;
 
     constructor(
         private db: DatabaseService,
@@ -30,8 +32,13 @@ export class DashboardComponent implements OnInit {
         private templatesService: TemplatesService, 
         private sentenceService: SentencesService,
         private reportService: ReportsService, 
-        private authService: AuthenticationService
-    ) {}
+        private authService: AuthenticationService,
+        public customService: CustomService
+    ) {
+        customService.greaterTooltipsFlag.subscribe((tooltipFlag: boolean) => {
+            this.tooltipMode = tooltipFlag;
+        })
+    }
     
     ngOnInit(): void {
         // get user data...

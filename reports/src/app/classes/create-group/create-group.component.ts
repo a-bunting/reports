@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
+import { CustomService } from 'src/app/services/custom.service';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
@@ -24,9 +25,19 @@ export class CreateGroupComponent implements OnInit {
     dataChanged: boolean = false;
     groupId: string; // if the class has been created this will be populated with the database id.
 
-    constructor(private groupService: GroupsService, private auth: AuthenticationService) { 
+    helpFlag: boolean;
+
+    constructor(
+        private groupService: GroupsService, 
+        private auth: AuthenticationService,
+        public customService: CustomService    
+    ) { 
         auth.user.subscribe((user: User) => {
             this.user = user;
+        })
+
+        customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
+            this.helpFlag = newFlag;
         })
     }
 

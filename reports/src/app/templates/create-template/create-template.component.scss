@@ -106,6 +106,13 @@
         &:hover {
             cursor: move;
         }
+
+        & > .tooltipped {
+            background-color: var(--color-style-juxtapose);
+            margin-left: .5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+        }
     }
 
     &__buttons {
@@ -181,6 +188,8 @@
     &__label {
         font-weight: bold;
         font-size: 1.6rem;
+        display: flex;
+        justify-content: space-between;
     }
 
     &__characters {

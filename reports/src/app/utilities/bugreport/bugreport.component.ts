@@ -4,7 +4,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { User } from '../authentication/user.model';
 import { DocumentReference } from '@angular/fire/firestore';
-import { ThrowStmt } from '@angular/compiler';
+import { CustomService } from 'src/app/services/custom.service';
 
 export interface BugReport {
     category: string;
@@ -30,12 +30,23 @@ export class BugreportComponent implements OnInit {
     problemRegarding:string = "current";
 
     user: User;
+    helpFlag: boolean;
 
-    constructor(private auth: AuthenticationService, private db: DatabaseService, private  router: ActivatedRoute) { 
+    constructor(
+        private auth: AuthenticationService, 
+        private db: DatabaseService, 
+        private router: ActivatedRoute, 
+        private customService: CustomService
+    ) 
+    { 
         this.auth.user.subscribe((user: User) => {
             // set the user id
             this.user = user;
         });
+
+        customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
+            this.helpFlag = newFlag;
+        })
     }
 
     ngOnInit(): void {
@@ -71,6 +82,10 @@ export class BugreportComponent implements OnInit {
             this.submitting = false;
         })
 
+    }
+
+    toggleHelpMode(): void {
+        this.customService.toggleGreaterTooltips();
     }
 
 }

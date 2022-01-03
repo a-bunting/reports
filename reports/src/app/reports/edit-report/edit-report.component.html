@@ -84,6 +84,10 @@
             <div class="reports__variable--name">
                 {{ variable.identifier }}
             </div>
+
+            <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="variable.tooltip">
+                <div class="tooltip">{{ variable.tooltip }}</div>
+            </div>
     
             <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)" title="Select the column from your data that will be the source for the '{{ variable.identifier }}' data.">
                 <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
@@ -91,6 +95,10 @@
                 <!-- <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option> -->
                 <option value="{{ option }}" *ngFor="let option of report.keys; let index = index" [selected]="variable.identifier === option" [selected]="option === variable.key">{{ option }}</option>
             </select>
+
+            <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
+                <div class="tooltip">From this dropdown select the column in your data which represents this variable. For example for 'Forename' select the column in your data which has the students Forenames.</div>
+            </div>
         </div>
     </div>
 
@@ -105,6 +113,10 @@
             <div class="reports__variable--name">
                 {{ variable.identifier }}
             </div>
+
+            <div class="reports__variable--tooltip" *ngIf="variable.tooltip !== undefined">
+                {{ variable.tooltip }}
+            </div>
     
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
             <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
@@ -113,7 +125,12 @@
                 <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
             </select>
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
-             <!--         
+            
+            <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
+                <div class="tooltip">This value will apply to all of your students, so you dont need to set it for each of them! If you do need to change this for a few students you can edit the report manually.</div>
+            </div>
+            
+            <!--         
             NOT FOR THIS RELEASE - NEEDS WORK IN THE SEMI-DEEP BACKEND TO ALLOW FOR THIS
             <button class="reports__variable--convert-button tooltipped" (click)="convertToVariable(i)">
                 &Delta;<div class="tooltip">Convert this to a variable, so you can set individual values. To preset, put a value in the box before clicking this button!</div>
@@ -133,6 +150,10 @@
             <div class="reports__variable--multirow">
                 <div class="reports__variable--name">
                     {{ test.name }}
+
+                    <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
+                        <div class="tooltip">This dropdown should be set to whatever describes the test best, so for example if you grade in the American, A+ to F system, select "American (A-D and F)" from the list and it will compare grades based upon this scale.</div>
+                    </div>
                 </div>
                 <div class="reports__variable--options" *ngIf="test.settings">
                     <select class="reports__input reports__input--select" (change)="testSettingsChange(test.identifier, $event.target.value)">
@@ -145,6 +166,10 @@
             <div class="reports__variable--multirow reports__variable--wrap-prevention" *ngFor="let subTestVariable of test.values; let s = index">
                 <div class="reports__variable--name">
                     {{ subTestVariable.name }}
+
+                    <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
+                        <div class="tooltip">From this dropdown select the column in your data which represents this variable. For example if it requires the 'Current Grade' then select the column in your data which has the students Current Grade.</div>
+                    </div>
                 </div>
                 <div class="reports__variable--options">
                     <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
@@ -208,12 +233,12 @@
                                         <option value="{{ listKey }}" *ngFor="let listKey of report.keys" [disabled]="listKey === key">{{ listKey }}</option>
                                     </select>
                                     Or set all to:
-                                    <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
+                                    <div *ngIf="optionsExist(key); then optionsBlock else typeBlock"></div>
                                     
                                     <ng-template #optionsBlock>
                                         <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromTextOrOption(key, $event.target.value)">
                                             <option disabled></option>
-                                            <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index">{{ option }}</option>
+                                            <option value="{{option}}" *ngFor="let option of getOptions(key); let optionIndex = index">{{ option }}</option>
                                         </select>
                                     </ng-template>
 
@@ -269,18 +294,26 @@
     
                         <div *ngIf="!isColumnHidden(key)">
                             <!-- if this is a section with options, display only the options  -->
-                            <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
+                            <div *ngIf="optionsExist(key); then optionsBlock else typeBlock"></div>
+    
+                            <ng-template #optionsBlock>
+                                    <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">
+                                        <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
+                                        <option value="{{option}}" *ngFor="let option of getOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
+                                    </select>
+                            </ng-template>
+                            <!-- <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
     
                             <ng-template #optionsBlock>
                                     <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">
                                         <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
                                         <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
                                     </select>
-                            </ng-template>
+                            </ng-template> -->
     
                             <ng-template #typeBlock>
     
-                                <div *ngIf="individual.user.data[key].length < 20; then inputSingle else inputArea"></div>
+                                <div *ngIf="reportTextboxOrTextarea(individual.user.data[key], 20); then inputSingle else inputArea"></div>
                                 
                                 <ng-template #inputSingle>
                                     <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}" tabindex="{{ (report.reports.length * i) + reportId }}">

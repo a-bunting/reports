@@ -31,11 +31,11 @@ export interface Report {
 }
 
 export interface GlobalValues {
-    identifier: string; value: string; options: string[]
+    identifier: string; value: string; options: string[], tooltip?: string
 }
 
 export interface VariableValues {
-    identifier: string, key: string, value: string, options: string[]
+    identifier: string, key: string, value: string, options: string[], tooltip?: string
 }
 
 export interface TestValues { 
@@ -150,7 +150,7 @@ export class ReportsService {
 
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
-        let genderVariable: VariableValues = { identifier: "Gender", key: "", value: "", options: ["f", "m", "p"]};
+        let genderVariable: VariableValues = { identifier: "Gender", key: "", value: "", options: ["Female", "Male", "Plural/Other"], tooltip: "Optional: Do not assign this to a column and your reports will be gender neutral."};
         let variables: VariableValues[] = [genderVariable];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let duplicates: string[] = [];
@@ -206,6 +206,7 @@ export class ReportsService {
                 }
             })
         })
+
         // return both arrays...
         return [globals, variables];
     }
@@ -622,9 +623,11 @@ export class ReportsService {
      */
     generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
 
+        console.log(report);
+
         // get the gender if it exists...
         let genderIndex: number = variables.findIndex((test: TestIndividualValue) => test.identifier === "Gender");
-        let gender: "m"|"f"|"p" = "p";
+        let gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "Plural/Other";
         // if it exists then reassign else leave it as p (plural!)
         if(genderIndex !== -1) {
             gender = report.user.data[variables[genderIndex].key];
@@ -707,7 +710,7 @@ export class ReportsService {
      * @param report 
      * @returns 
      */
-    substitutions(report: string, gender: "m" | "f" | "p"): string {
+    substitutions(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P"): string {
         report = this.sentenceCase(report);
         // gender transform...
         report = this.genderConversion(report, gender);
@@ -748,9 +751,9 @@ export class ReportsService {
      * @param gender 
      * @returns 
      */
-    genderConversion(report: string, gender: "m"|"f"|"p"): string {
-        let genderUnique: string = gender.toLowerCase();
-        let genderIndex: number = (genderUnique === "m" ? 0 : genderUnique === "f" ? 1 : 2);
+    genderConversion(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "p"): string {
+        let genderUnique: string = gender.toLowerCase(); // default to plural
+        let genderIndex: number = (genderUnique ===( "male" || "m") ? 0 : genderUnique === ("female" || "f") ? 1 : 2);
         let strReplace = new RegExp('\\$\\{(gn\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
         // wil;l this only work once??????? :S
