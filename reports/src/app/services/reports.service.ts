@@ -156,56 +156,67 @@ export class ReportsService {
         let variables: VariableValues[] = [genderVariable];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let duplicates: string[] = [];
+        
+        let testOptions = this.sentenceService.newTestSentenceOptionCreatorSelectFlatArray(template.template);     
+        
+        let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
+        let noHitMax: number = 100;
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {
-
-            let testOptions = this.sentenceService.newTestSentenceOptionCreator(template.template);
+            // loop through each potential sentence to check for variables...
+            // no hit counts to noHitMax and if no new variables are detected in that period then it skips trying to rest.
+            // this is to speed up huge templates!
+            let noHitIterations: number = 0;
 
             testOptions.forEach((option: string, index: number) => {
 
-                let typeMatches: RegExpExecArray;
-                // get the values form the sentence that are between ${brackets}$ and put them in values
-                while(typeMatches = splitRegex.exec(option)) { 
+                if(noHitIterations < noHitMax) {
+                    let typeMatches: RegExpExecArray;
+                    // get the values form the sentence that are between ${brackets}$ and put them in values
+                    while(typeMatches = splitRegex.exec(option)) { 
+    
+                        // doesnt work for g|Time Period[semester,term] on one occasion, but on the rest of the occasions its fine...
+                        let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
+    
+                        // test if its already been identified and if not, push onto the array
+                        if(exists === -1) {
+                            // duplicates array used to ensure no doubles... doesnt work for time period :S
+                            // console.log(index, typeMatches[1], option, typeMatches);
+                            duplicates.push(typeMatches[1]);
+    
+                            // find if its a global or variable
+                            let data: string[] = typeMatches[1].split('|');
+    
+                            // get any options options (surrounded by [ ] separated by ,)
+                            let optionsMatches: RegExpExecArray;
+                            let options: string[] = [];
+    
+                            // and get the options, if any...
+                            while(optionsMatches = optionsRegex.exec(data[1])) {
+                                options = optionsMatches[1].split(',');
+                            }
+    
+                            // finally build the variable to put into the reports array
+                            let newVariable: GlobalValues | VariableValues;
+                            let identifier: string = data[1].split('[')[0];
+    
+                            switch(data[0]) {
+                                case 'g':
+                                    // this is a global values
+                                    newVariable = { identifier: identifier, value: "", options: options};
+                                    globals.push(newVariable);
+                                    break;
+                                case 'v':
+                                    // this is a variable value (assume no |, or should I add v|??)
+                                    newVariable = { identifier: identifier, key: "", value: "", options: options};
+                                    variables.push(newVariable);
+                                    break;
+                            }
 
-                    // doesnt work for g|Time Period[semester,term] on one occasion, but on the rest of the occasions its fine...
-                    let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
+                            noHitIterations = 0;
 
-                    // test if its already been identified and if not, push onto the array
-                    if(exists === -1) {
-                        // duplicates array used to ensure no doubles... doesnt work for time period :S
-                        // console.log(index, typeMatches[1], option, typeMatches);
-                        duplicates.push(typeMatches[1]);
-
-                        // find if its a global or variable
-                        let data: string[] = typeMatches[1].split('|');
-
-                        // get any options options (surrounded by [ ] separated by ,)
-                        let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
-                        let optionsMatches: RegExpExecArray;
-                        let options: string[] = [];
-
-                        // and get the options, if any...
-                        while(optionsMatches = optionsRegex.exec(data[1])) {
-                            options = optionsMatches[1].split(',');
-                        }
-
-                        // finally build the variable to put into the reports array
-                        let newVariable: GlobalValues | VariableValues;
-                        let identifier: string = data[1].split('[')[0];
-
-                        switch(data[0]) {
-                            case 'g':
-                                // this is a global values
-                                newVariable = { identifier: identifier, value: "", options: options};
-                                globals.push(newVariable);
-                                break;
-                            case 'v':
-                                // this is a variable value (assume no |, or should I add v|??)
-                                newVariable = { identifier: identifier, key: "", value: "", options: options};
-                                variables.push(newVariable);
-                                break;
-                        }
+                        } else { noHitIterations++; }
                     }
                 }
             })
@@ -633,8 +644,6 @@ export class ReportsService {
      */
     generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
 
-        console.log(report);
-
         // get the gender if it exists...
         let genderIndex: number = variables.findIndex((test: TestIndividualValue) => test.identifier === "Gender");
         let gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "Plural/Other";
@@ -647,20 +656,10 @@ export class ReportsService {
         let template: Template = this.templateService.getTemplate(report.templateId);
         let minCharacters: number = template.characters.min;
         let maxCharacters: number = template.characters.max;
-        let sentenceOptionsTested: string[] = this.sentenceService.newTestSentenceOptionCreator(template.template, report.user, tests);
+        let sentenceOptionsTested: string[] = this.sentenceService.newTestSentenceOptionCreatorSelectSentences(template.template, report.user, tests);
 
         // if we have any results...
         if(sentenceOptionsTested.length > 0) {
-            // trim down to the sentences which match the character range...
-            // sentenceOptionsTested.filter((sentence: string) => sentence.length >= minCharacters && sentence.length <= maxCharacters);
-            // select a random value to pick at random a sentence from the options avaikable
-            // let randomValueForSelect: number = Math.floor(Math.random() * sentenceOptionsTested.length);
-            // let reportUnSubstituted: string = sentenceOptionsTested[randomValueForSelect];
-    
-            // now sub in values    
-            // globals.forEach((global: GlobalValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'g\\|'+global.identifier, global.value); })
-            // variables.forEach((variable: VariableValues) => { reportUnSubstituted = this.valuesSubstitute(reportUnSubstituted, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
-            // reportUnSubstituted = this.substitutions(reportUnSubstituted, gender);
 
             let finalSelections: string[] = []; // these are the reports that will fit the bill...
             let notSelected: string[] = []; // these are the reports that will not fit the bill...
@@ -668,7 +667,7 @@ export class ReportsService {
             // gotta do all the reports to see which fit the size boundaires... this might hurt computationally but the subs need to be made first to check length...
             sentenceOptionsTested.forEach((reportIteration: string) => {
             // now sub in values    
-                globals.forEach((global: GlobalValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'g\\|'+global.identifier, global.value); })
+                globals.forEach((global: GlobalValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'g\\|'+global.identifier, global.value.trim()); })
                 variables.forEach((variable: VariableValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
                 reportIteration = this.substitutions(reportIteration, gender);
                 // if its the right size add to the final array to choose from...
@@ -763,7 +762,7 @@ export class ReportsService {
      */
     genderConversion(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "p"): string {
         let genderUnique: string = gender.toLowerCase(); // default to plural
-        let genderIndex: number = (genderUnique ===( "male" || "m") ? 0 : genderUnique === ("female" || "f") ? 1 : 2);
+        let genderIndex: number = (genderUnique === ("male" || "m") ? 0 : genderUnique === ("female" || "f") ? 1 : 2);
         let strReplace = new RegExp('\\$\\{(gn\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
         // wil;l this only work once??????? :S

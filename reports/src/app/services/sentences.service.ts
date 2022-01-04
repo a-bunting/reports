@@ -418,7 +418,25 @@ export class SentencesService {
     }
 
 
-    newTestSentenceOptionCreator(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[] {
+    // these are the functions which retrieve sentence data.
+
+    newTestSentenceOptionCreatorSelectFlatArray(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[] {
+        let options: string[][] = this.newTestSentenceOptionCreator(fullRoute, userData, tests);
+        // flatten all options
+        let flattened: string[] = options.map((str: string[]) => str.join(''));
+        return flattened;
+    }
+
+    newTestSentenceOptionCreatorSelectSentences(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[] {
+        let options: string[][] = this.newTestSentenceOptionCreator(fullRoute, userData, tests);
+        // now to find all the sentence options by a cartesian transform on the data...
+        let returnArray: string[][] = this.cartesianProduct(options);
+        // and iterate over joining all the strings up for an array of options
+        let finalSentences: string[] = returnArray.map((str: string[]) => str.join(''));
+        return finalSentences;
+    }
+
+    newTestSentenceOptionCreator(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[][] {
 
         let finalOptions: string[][] = [];
         
@@ -528,13 +546,9 @@ export class SentencesService {
 
         // weed out empty arrays
         let newArray: string[][] = finalOptions.filter((temp: string[]) => temp.length > 0 && /\S/.test(temp[0]));
-        // now to find all the sentence options by a cartesian transform on the data...
-        let returnArray: string[][] = this.cartesianProduct(newArray);
-        // and iterate over joining all the strings up for an array of options
-        let finalSentences: string[] = returnArray.map((str: string[]) => str.join(''));
 
-        // and return all options :)
-        return finalSentences;
+        // and return
+        return newArray;
     }
 
 
@@ -652,7 +666,10 @@ export class SentencesService {
      * @param route 
      * @returns 
      */
+    carprodcount: number = 0;
     cartesianProduct(route: string[][]): string[][] {
+        console.log(`cartesian product ${this.carprodcount}`);
+        this.carprodcount++;
         // check if the length of the route is equal to 0, and if it is just return a blank array        
         if (route.length === 0) {
             return [];

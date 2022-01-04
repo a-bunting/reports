@@ -31,6 +31,7 @@ import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found
 import { GalleryComponent } from './utilities/gallery/gallery.component';
 import { GalleryItemComponent } from './utilities/gallery/gallery-item/gallery-item.component';
 import { StopwatchComponent } from './utilities/stopwatch/stopwatch.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import { StopwatchComponent } from './utilities/stopwatch/stopwatch.component';
         AngularFireAuthModule, 
         AngularFirestoreModule, 
         Title, 
-        { provide: PERSISTENCE, useValue: 'local' } // firebase persistence.
+        { provide: PERSISTENCE, useValue: 'local' }, // firebase persistence.
+        { provide: LocationStrategy, useClass: HashLocationStrategy }
     ],
   bootstrap: [AppComponent]
 })

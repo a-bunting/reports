@@ -930,7 +930,18 @@ export class EditReportComponent implements OnInit, OnDestroy {
     }
 
     generateReports(): void {
-        this.report = this.reportsService.generateBatchReports(this.report);
+        // this.report = this.reportsService.generateBatchReports(this.report);
+        this.processingReport = true;
+
+        new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                this.report = this.reportsService.generateBatchReports(this.report);
+                // then resolve;
+                resolve();
+            }, 0);
+        }).then(() => {
+            this.processingReport = false;
+        })
     }
 
     // functions to show the various sections or not...
