@@ -160,7 +160,7 @@ export class ReportsService {
         let testOptions = this.sentenceService.newTestSentenceOptionCreatorSelectFlatArray(template.template);     
         
         let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
-        let noHitMax: number = 100;
+        let noHitMax: number = 2500;
 
         // look through the template for any globals that might be needed...
         template.template.forEach((section: string[]) => {

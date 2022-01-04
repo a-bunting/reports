@@ -668,7 +668,6 @@ export class SentencesService {
      */
     carprodcount: number = 0;
     cartesianProduct(route: string[][]): string[][] {
-        console.log(`cartesian product ${this.carprodcount}`);
         this.carprodcount++;
         // check if the length of the route is equal to 0, and if it is just return a blank array        
         if (route.length === 0) {

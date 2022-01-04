@@ -25,7 +25,6 @@ export class TemplatesComponent implements OnInit {
                 (user: User) => {
                 this.user = user;
                 // once the user is loaded then data can be retrived
-                console.log("loading here ONCE");
         },  error: (error) => {
                 console.log(`Error: ${error.message}`);
                 this.isLoading = false;
