@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DocumentData, DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
+import { CustomService } from './custom.service';
 import { DatabaseService } from './database.service';
 
 export interface Group {
@@ -20,7 +21,7 @@ export class GroupsService {
 
     groups: Group[] = [];
 
-    constructor(private db: DatabaseService) { }
+    constructor(private db: DatabaseService, private customService: CustomService) { }
 
     /**
     * Get the best version of the groups and return it
@@ -35,6 +36,8 @@ export class GroupsService {
             this.groups = JSON.parse(localStorage.getItem('groups-data'));               
             // set the data on the display
             return of(this.groups).pipe(take(1), tap(returnData => {
+                // set the current number of groups...
+                this.customService.setNumberOfGroups(returnData.length);
                 // return the data array...
                 return returnData;
             }));      
@@ -69,6 +72,7 @@ export class GroupsService {
                 })
                 // set the data into local storage to make it quicker ot retrieve next time...
                 this.updateLocalStorage([...this.groups]);
+                // and return
                 return this.groups;
             }))
         }
@@ -161,6 +165,8 @@ export class GroupsService {
      * @param templates 
      */
     updateLocalStorage(groups: Group[]): void {
+        // set the current number of groups...
+        this.customService.setNumberOfGroups(groups.length);
         localStorage.setItem('groups-data', JSON.stringify(groups));
     }
 

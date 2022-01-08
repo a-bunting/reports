@@ -1086,7 +1086,14 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * @param reportId 
      */
     regenerateIndividualReport(reportId: number): void {
-        this.report.reports[reportId].report = this.reportsService.generateIndividualReports(this.report.reports[reportId], this.report.globals, this.report.variables, this.report.tests);
+        const newReport: string = this.reportsService.generateIndividualReports(this.report.reports[reportId], this.report.globals, this.report.variables, this.report.tests);
+
+        if(newReport !== "") {
+            this.report.reports[reportId].report = newReport;
+            this.report.reports[reportId].generated ? this.report.reports[reportId].generated.push(new Date().getTime()) : this.report.reports[reportId].generated = [new Date().getTime()];
+
+        }
+        
     }
 
     saveIndividualReport(reportId: number): void {

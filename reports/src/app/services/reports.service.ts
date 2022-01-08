@@ -6,6 +6,7 @@ import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
+import { CustomService } from './custom.service';
 import { sentence, SentencesService } from './sentences.service';
 import { Template, TemplatesService } from './templates.service';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './tests.service';
@@ -27,7 +28,7 @@ export interface FBReportTemplate {
 }
 
 export interface Report {
-    userId: string, user: Student; templateId: string; report: string; generated: number;
+    userId: string, user: Student; templateId: string; report: string; generated: number[];
 }
 
 export interface GlobalValues {
@@ -61,7 +62,8 @@ export class ReportsService {
         private testsService: TestsService,
         private groupsService: GroupsService, 
         private templateService: TemplatesService,
-        private auth: AuthenticationService
+        private auth: AuthenticationService,
+        private customService: CustomService
     ) { 
     }
 
@@ -79,7 +81,13 @@ export class ReportsService {
             this.reports = JSON.parse(localStorage.getItem('reports-data'));               
             // set the data on the display
             // and return the data array...
-            return of(this.reports).pipe(take(1), tap(returnData => { return returnData; }));
+            return of(this.reports).pipe(take(1), tap((returnData: ReportTemplate[]) => { 
+                // set the current number of reports...
+                this.customService.setNumberOfReports(returnData.length);
+                // calculate recent reports...
+                this.customService.setNumberOfReportsGenerated(this.calculateRecentReports(returnData));
+                return returnData; 
+            }));
         } else {
             // get from the DB
             const userId: string = uid ?? undefined;
@@ -99,6 +107,8 @@ export class ReportsService {
                 })
                 // set the variable
                 this.reports = reportsNew;
+                // calculate recent reports...
+                this.customService.setNumberOfReportsGenerated(this.calculateRecentReports(reportsNew));
                 // set the local sotrage
                 this.setlocalStorage(this.reports);
                 return reportsNew;
@@ -114,6 +124,8 @@ export class ReportsService {
      * @param reports 
      */
     setlocalStorage(reports: ReportTemplate[]): void {
+        // set the number of reports...
+        this.customService.setNumberOfReports(reports.length);
         localStorage.setItem('reports-data', JSON.stringify(reports));
     }
 
@@ -230,8 +242,6 @@ export class ReportsService {
     generateTests(template: Template): TestValues[] {
         let testVals: TestValues[] = [];
 
-        console.log("doing tests");
-
         template.template.forEach((template: string[]) => {
             // get the sentence data
             let testData: [sentence[]][] = this.sentenceService.getCompoundSentenceData(template, true, ['tests']);
@@ -297,8 +307,6 @@ export class ReportsService {
                 })
             })
         })
-
-        console.log("doing tests end");
 
         // and return lol :(
         return testVals;
@@ -627,13 +635,17 @@ export class ReportsService {
         reportDocument.reports.forEach((individualReport: Report) => {
             // generate a report for this user...
             individualReport.report = this.generateIndividualReports(individualReport, globalVariables, variableVariables, testVariables);
+            // if the report is valid then update the reports generated counter...
+            if(individualReport.report !== "") {
+                individualReport.generated ? individualReport.generated.push(new Date().getTime()) : individualReport.generated = [new Date().getTime()];
+                // increment the reports generated...
+                this.customService.incrementNumberOfReportsGenerated(1);
+            }
         })
 
         // return the original modified reportdocument.
         return reportDocument;
     }
-
-
 
     /**
      * Takes a single report interface object and uses data from the template to generate a report...
@@ -643,6 +655,11 @@ export class ReportsService {
      * @returns 
      */
     generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
+
+        // check if we are allowed to generate any more reports, and if not return now...
+        if(!this.customService.allowReportGenerate()) {
+            return "";
+        }
 
         // get the gender if it exists...
         let genderIndex: number = variables.findIndex((test: TestIndividualValue) => test.identifier === "Gender");
@@ -705,7 +722,6 @@ export class ReportsService {
                 randomValueForSelect = Math.floor(Math.random() * finalSelections.length);
                 returnReport = finalSelections[randomValueForSelect];
             }
-
             // return selected sentence
             return returnReport;
         } else {
@@ -896,6 +912,44 @@ export class ReportsService {
         })
         
         return report;
+    }
+
+    /**
+     * Calculates all reports generated over a time period..
+     * @param reportSet 
+     * @returns 
+     */
+    calculateRecentReports(reportSet: ReportTemplate[]): number {
+        // calculate recent reports...
+        let totalRecentReports: number = 0;
+        // iterate over all reports...
+        reportSet.forEach((report: ReportTemplate) => {
+            totalRecentReports += this.calculateIndividualRecentReports(report);
+        })
+        // console.log(totalRecentReports);
+        return totalRecentReports;
+    }
+
+    /**
+     * Calculates and returns the number of report sgenerated within the trial time period for one set of reports.....
+     * @param report 
+     * @returns 
+     */
+    calculateIndividualRecentReports(report: ReportTemplate): number {
+        let recent: number = 0;
+        const timeLimit: number = new Date().getTime() - (this.customService.getNumberOfReportsGeneratedTimeFrame() * 1000 * 60 * 60 * 24);
+        // calculate all reports generated within this time limit...
+        for(let i = 0; i < report.reports.length; i++) {            
+            let repo: Report = report.reports[i];
+            if(repo.hasOwnProperty('generated')) {
+                // and if its recent increment the counter, filter out all the expired timestamps...
+                repo.generated = repo.generated.filter((timestamp: number) => timestamp > timeLimit);
+                recent += repo.generated.length;  
+            }
+        }
+        // console.log(report, timeLimit, new Date().getTime());
+        // return the number of reports generated within this time limit.
+        return recent;
     }
 }
 

@@ -15,22 +15,25 @@ import { EditReportComponent } from './reports/edit-report/edit-report.component
 import { IntroComponent } from './utilities/intro/intro.component';
 import { AuthComponent } from "./utilities/auth/auth.component";
 import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found.component';
+import { TemplatesGuard } from './utilities/guards/templates.guard';
+import { GroupsGuard } from './utilities/guards/groups.guard';
+import { ReportsGuard } from './utilities/guards/reports.guard';
 
 const titleNamePrexif: string = "ReportZone"
 
 const routes: Routes = [
     {path: '', component: IntroComponent, data: { title: titleNamePrexif }},
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Reports` }, children: [
-        {path: 'edit-report', component: EditReportComponent, data: { title: `${titleNamePrexif} - Edit Report` }},
+        {path: 'edit-report', component: EditReportComponent, canActivate: [ReportsGuard], data: { title: `${titleNamePrexif} - Edit Report` }},
         {path: 'edit-report/:id', component: EditReportComponent, data: { title: `${titleNamePrexif} - Edit Report` }}
     ]},
     {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Dashboard` }},
     {path: 'templates', component: TemplatesComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Templates` }, children: [
-        {path: 'create-template', component: CreateTemplateComponent, data: { title: `${titleNamePrexif} - Create Template` }},
+        {path: 'create-template', component: CreateTemplateComponent, canActivate: [TemplatesGuard], data: { title: `${titleNamePrexif} - Create Template` }},
         {path: 'create-template/:id', component: CreateTemplateComponent, data: { title: `${titleNamePrexif} - Create Template` }}
     ]},
     {path: 'classes', component: ClassesComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Classes` }, children: [
-        {path: 'create-group', component: CreateGroupComponent, data: { title: `${titleNamePrexif} - Create Class` }},
+        {path: 'create-group', component: CreateGroupComponent, canActivate: [GroupsGuard], data: { title: `${titleNamePrexif} - Create Class` }},
         {path: '', component: EditGroupComponent, data: { title: `${titleNamePrexif} - Classes` }}
     ]},
     {path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Database` }},

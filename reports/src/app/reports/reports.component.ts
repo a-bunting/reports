@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DocumentReference } from 'rxfire/firestore/interfaces';
 import { Subscription, take, tap } from 'rxjs';
+import { CustomService } from '../services/custom.service';
 import { ReportsService, ReportTemplate } from '../services/reports.service';
 
 @Component({
@@ -21,18 +22,20 @@ export class ReportsComponent implements OnInit {
     constructor(
         private reportsService: ReportsService, 
         private activeRouter: ActivatedRoute, 
-        private router: Router 
+        private router: Router, 
+        public customService: CustomService
     ) { }
 
     ngOnInit(): void {
         // load the reports into the menu
-        this.reportsService.getReports().subscribe((data: ReportTemplate[]) => {
-            this.reports = data;
-            this.isLoading = false;
-        }, error => {
-            this.isLoading = false;
-            console.log(`Error: ${error}`);
-        })
+        this.reportsService.getReports().subscribe({
+            next: (data: ReportTemplate[]) => {
+                this.reports = data;
+                this.isLoading = false;
+        },  error: (error) => {
+                this.isLoading = false;
+                console.log(`Error: ${error}`);
+        }})
         this.initiateParameterWatcher();
     }
 

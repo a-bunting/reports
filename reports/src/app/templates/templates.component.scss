@@ -73,4 +73,25 @@
     &__editor {
         flex: 1;
     }
+
+    &__join-text {
+        padding: 1.5rem 3rem;
+        text-align: center;
+        letter-spacing: .15rem;
+        line-height: 2rem;
+        color: var(--color-style-dark);
+
+        a {
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all .2s;
+    
+            &:hover {
+                color: var(--color-style-main);
+                text-shadow: 0 0 .2rem black;
+                cursor: pointer;
+            }
+        }
+    }
 }

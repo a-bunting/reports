@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CustomService } from '../services/custom.service';
 import { Template, TemplatesService } from '../services/templates.service';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
@@ -14,7 +15,11 @@ export class TemplatesComponent implements OnInit {
     user: User;
     isLoading: boolean = false;
 
-    constructor(private templateService: TemplatesService, private auth: AuthenticationService) {}
+    constructor(
+        private templateService: TemplatesService, 
+        private auth: AuthenticationService,
+        public customService: CustomService
+    ) {}
 
     ngOnInit(): void {
         this.isLoading = true;

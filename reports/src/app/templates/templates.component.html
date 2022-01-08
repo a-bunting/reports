@@ -24,10 +24,19 @@
             </div>
         </div>
         
-        <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="!isLoading && templates.length > 0"></div>
+        <div [ngSwitch]="customService.allowTemplateCreation()">
+            <div *ngSwitchCase="true">
+                <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="!isLoading && templates.length > 0 && customService.allowTemplateCreation()"></div>
+                <!-- this is the template create button -->
+                <div class="templates__template-create u__margin-top--medium" routerLink="create-template/">Create New Template</div>
+            </div>
+            <div *ngSwitchCase="false">
+                <div class="templates__join-text">
+                    <a routerLink="/join">In order to create more templates, you will need to become a full member of ReportsZone. Click here to sign up.</a>
+                </div>
+            </div>
+        </div>
 
-        <!-- this is the template create button -->
-        <div class="templates__template-create u__margin-top--medium" routerLink="create-template/">Create New Template</div>
     </div>
     
     <!-- the template editor/creator -->

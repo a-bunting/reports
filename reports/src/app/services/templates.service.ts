@@ -4,6 +4,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { AuthenticationService } from '../utilities/authentication/authentication.service';
 import { User } from '../utilities/authentication/user.model';
+import { CustomService } from './custom.service';
 import { DatabaseService } from './database.service';
 
 export interface TemplateDB {
@@ -27,7 +28,11 @@ export class TemplatesService {
     menuData: Subject<{id: string, name: string, deleted: boolean, created: boolean}> = new Subject<{id: undefined, name: undefined, deleted: undefined, created: undefined}>();
     templates: Template[] = [];
 
-    constructor(private auth: AuthenticationService, private db: DatabaseService) { 
+    constructor(
+        private auth: AuthenticationService, 
+        private db: DatabaseService,
+        private customService: CustomService
+        ) { 
          // subscribe to the user details;
          auth.user.subscribe((user: User) => {
             this.user = user;
@@ -47,6 +52,8 @@ export class TemplatesService {
             this.templates = JSON.parse(localStorage.getItem('templates-data'));               
             // set the data on the display
             return of(this.templates).pipe(take(1), tap(returnData => {
+                // set the current number of templates...
+                this.customService.setNumberOfTemplates(returnData.length);
                 // return the data array...
                 return returnData;
             }));
@@ -78,9 +85,7 @@ export class TemplatesService {
                     // and add to the templayte object
                     this.templates.push(newTemplate);
                 });
-                // set the data into local storage to make it quicker ot retrieve next time...
-                localStorage.setItem('templates-data', JSON.stringify(this.templates))
-    
+                this.updateLocalStorage(this.templates);
                 return this.templates;
             }))
         }
@@ -179,6 +184,8 @@ export class TemplatesService {
      * @param templates 
      */
     updateLocalStorage(templates: Template[]): void {
+        // set the current number of templates...
+        this.customService.setNumberOfTemplates(templates.length);
         localStorage.setItem('templates-data', JSON.stringify(templates));
     }
 

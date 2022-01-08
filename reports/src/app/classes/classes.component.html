@@ -3,9 +3,15 @@
     <h4 class="component-intro__description">
         These are the groups of students you will be generating reports for. You can set up your class with any data you might need in your report.
     </h4>
-    <div class="component-intro__buttons">
-        <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="create-group/">Create New Group</div>
-        <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="/classes/" [routerLinkActiveOptions]="{ exact: true }">Edit Groups</div>
+    <div [ngSwitch]="customService.allowGroupCreation()">
+        <div class="component-intro__buttons" *ngSwitchCase="true">
+            <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="create-group/">Create New Group</div>
+            <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="/classes/" [routerLinkActiveOptions]="{ exact: true }">Edit Groups</div>
+        </div>
+        <div class="component-intro__buttons" *ngSwitchCase="false">
+            <div class="component-intro__buttons--button" routerLink="/join">Join up to create more groups</div>
+            <div class="component-intro__buttons--button" routerLinkActive="link-active" routerLink="/classes/" [routerLinkActiveOptions]="{ exact: true }">Edit Groups</div>
+        </div>
     </div>
 </div>
 
