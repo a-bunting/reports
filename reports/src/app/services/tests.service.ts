@@ -438,9 +438,9 @@ export class TestsService {
             test: {
                 name: "Behaviour",
                 description: "What best describes the students' behaviour in class?", 
-                options: ["Good", "Chatty", "Disruptive"], 
+                options: ["Good", "Chatty (OK)", "Disruptive"], 
                 validityFunction: (expression: string): boolean => {
-                    return ["Good", "Chatty", "Disruptive"].includes(expression);
+                    return ["Good", "Chatty (OK)", "Disruptive"].includes(expression);
                 }
             },
             variables: [
@@ -450,6 +450,7 @@ export class TestsService {
                 return userData.data['behaviourTest'];
             },
             testFunction: (valueToTest: string, testString: string): boolean => {
+                console.log(valueToTest, testString);
                 return valueToTest === testString;
             }
         }, 
