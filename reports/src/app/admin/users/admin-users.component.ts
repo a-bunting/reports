@@ -3,13 +3,14 @@ import { AngularFirestore, DocumentSnapshot, QueryDocumentSnapshot, QuerySnapsho
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { tap, map, mergeMap, take } from 'rxjs/operators';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
+import { AuthenticationService, Transaction } from 'src/app/utilities/authentication/authentication.service';
 import { ConsoleService } from 'src/app/admin/services/console.service';
 import { Observable, zip } from 'rxjs';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { Group, GroupsService } from 'src/app/services/groups.service';
-import { Report, ReportsService, ReportTemplate } from 'src/app/services/reports.service';
+import { ReportsService, ReportTemplate } from 'src/app/services/reports.service';
+import { DatabaseService } from 'src/app/services/database.service';
 
 export interface FirebaseUser {
     id: string, name: string; email: string; admin: boolean; manager: boolean;
@@ -35,7 +36,8 @@ export class AdminUsersComponent implements OnInit {
                 private sentenceService: SentencesService,
                 private templateService: TemplatesService, 
                 private groupService: GroupsService, 
-                private reportService: ReportsService            
+                private reportService: ReportsService, 
+                private db: DatabaseService         
     ) { }
 
     ngOnInit(): void {
@@ -95,7 +97,7 @@ export class AdminUsersComponent implements OnInit {
         }
     }
 
-    modifyUserData(userEmail: string, key: string, value: string | boolean | number): Observable<any> {
+    modifyUserData(userEmail: string, key: string, value: string | boolean | number | Transaction[]): Observable<any> {
         const obs = this.firebase.collection('users', ref => ref.where('email', '==', userEmail)).get();
 
         return obs.pipe(take(1), map((result: QuerySnapshot<any>) => {
@@ -109,7 +111,7 @@ export class AdminUsersComponent implements OnInit {
         }));
     }
 
-    modifyUserLists(userEmail: string, key: string, value: string | boolean | number): void {
+    modifyUserLists(userEmail: string, key: string, value: string | boolean | number | Transaction[]): void {
         // run through the arrays twice to find the value. Emails only appear once so this can be broken when found.
         // maybe not perfect, but good enough for the small use case.
         // the full user list
@@ -215,7 +217,19 @@ export class AdminUsersComponent implements OnInit {
         return removeManagerRole({ email: email }).pipe(take(1), mergeMap(() => {
             return this.modifyUserData(email, 'manager', false);
         }));
-    }    
+    }
+
+    addTime(uid: string, valueAddedDays: number): Observable<any> {
+        // add time to the user
+        const currentTime: number = new Date().getTime();
+        let transaction: Transaction = { cost: 0, timestamp: currentTime, validUntil: currentTime + (valueAddedDays * 1000 * 24 * 60 * 60) };
+        // and add
+        return this.db.addUserTransactionData(uid, transaction).pipe(take(1), map((result) => {
+                console.log(result);
+            }
+        ))
+        
+    }
 
     becomeUser(email: string, uid: string): void {
         this.downloadUserProfile(uid).subscribe({

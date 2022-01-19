@@ -1,16 +1,21 @@
 import { Injectable, OnInit } from '@angular/core';
 import firebase from 'firebase/compat/app';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
+import { AngularFirestore, AngularFirestoreDocument, DocumentData, DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, map, Observable, switchMap, take, TimeoutError } from 'rxjs';
 import { User } from './user.model';
 import { sentence } from 'src/app/services/sentences.service';
 
-export interface AuthResponseData {
-    kind: string, idToken: string, email: string, 
-    refreshToken: string, expiresIn: string , localId: string, 
-    registered?: boolean
+// does this do anything?
+// export interface AuthResponseData {
+//     kind: string, idToken: string, email: string, 
+//     refreshToken: string, expiresIn: string , localId: string, 
+//     registered?: boolean
+// }
+
+export interface Transaction {
+    timestamp: number; validUntil: number; cost: number;
 }
 
 @Injectable({
@@ -35,13 +40,13 @@ export class AuthenticationService implements OnInit {
 
     ngOnInit(): void {
 
-        this.fAuth.onIdTokenChanged((state) => {
-            console.log(`state change: `, state);
-        })
+        // this.fAuth.onIdTokenChanged((state) => {
+        //     console.log(`state change: `, state);
+        // })
 
-        this.fAuth.onAuthStateChanged((state) => {
-            console.log(state);
-        })
+        // this.fAuth.onAuthStateChanged((state) => {
+        //     console.log(state);
+        // })
 
         
 
@@ -78,7 +83,7 @@ export class AuthenticationService implements OnInit {
 
             // when successful then authenticate
             const authenticate = this.handleAuthentication(
-                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, 'password', false, token.token 
+                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, 'password', false, [], token.token 
             );
 
             // set the sentences template with the users userid - this will be their own copy of the database.
@@ -122,21 +127,26 @@ export class AuthenticationService implements OnInit {
 
         const signIn = this.fAuth.signInWithEmailAndPassword(email, password).then((result) => {
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
+            const userTransRef = this.firestore.collection('users').doc(result.user.uid).collection('transactionHistory');
 
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
                 Promise.resolve(result), 
                 result.user.getIdTokenResult(),
-                userDocRef.ref.get()
+                userDocRef.ref.get(), 
+                userTransRef.ref.get()
             ]);
-        }).then(([user, tokenData, userDataSnapshot]) => {
+        }).then(([user, tokenData, userDataSnapshot, userTransReference]) => {
 
             const establishment = userDataSnapshot.get('establishment') ? userDataSnapshot.get('establishment') : {id: "freeagent", name: "Free Agent" };
             const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
             const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
-            const member = tokenData.claims.member ? tokenData.claims.member : false;
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
+            const transactions: Transaction[] = [];
 
+            // set the transactions...
+            userTransReference.forEach((doc: DocumentSnapshot<Transaction>) => {  transactions.push(doc.data()); })
+            
             this.handleAuthentication(
                 user.user.email, 
                 user.user.uid,
@@ -144,9 +154,10 @@ export class AuthenticationService implements OnInit {
                 establishment,
                 admin,
                 manager, 
-                member,
+                this.isMember(transactions),
                 user.additionalUserInfo.providerId,
                 autoUpdate,
+                transactions,
                 tokenData.token 
             );
         })
@@ -169,22 +180,27 @@ export class AuthenticationService implements OnInit {
         return this.fAuth.signInWithPopup(provider).then((result) => {
 
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
-
+            const userTransRef = this.firestore.collection('users').doc(result.user.uid).collection('transactionHistory');
+            
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
                 Promise.resolve(result), 
                 result.user.getIdTokenResult(),
-                userDocRef.ref.get()
+                userDocRef.ref.get(),
+                userTransRef.ref.get()
             ]);
-
-        }).then(([user, tokenData, userDataSnapshot]) => {
-
+            
+        }).then(([user, tokenData, userDataSnapshot, userTransReference]) => {
+            
             const establishment = userDataSnapshot.get('establishment') ? userDataSnapshot.get('establishment') : {id: "freeagent", name: "Free Agent" };
             const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
             const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
-            const member = tokenData.claims.member ? tokenData.claims.member : false;
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
-
+            let transactions: Transaction[] = [];
+            
+            // set the transactions...
+            userTransReference.forEach((doc: DocumentSnapshot<Transaction>) => {  transactions.push(doc.data()); })
+            
             if(userDataSnapshot.data() === undefined) {
                 // user is new, and so needs a user profile...
                 const newUserEstablishmentProfile: { id: string, name: string } = {id: "freeagent", name: "Free Agent"};
@@ -197,27 +213,29 @@ export class AuthenticationService implements OnInit {
                         establishment,
                         admin,
                         manager, 
-                        member,
+                        this.isMember(transactions),
                         user.additionalUserInfo.providerId,
                         autoUpdate,
+                        transactions,
+                        tokenData.token 
+                        );
+                    });
+                    
+                } else {
+                    this.handleAuthentication(
+                        user.user.email, 
+                        user.user.uid,
+                        user.user.displayName,
+                        establishment,
+                        admin,
+                        manager, 
+                        this.isMember(transactions),
+                        user.additionalUserInfo.providerId,
+                        autoUpdate,
+                        transactions,
                         tokenData.token 
                     );
-                });
-
-            } else {
-                this.handleAuthentication(
-                    user.user.email, 
-                    user.user.uid,
-                    user.user.displayName,
-                    establishment,
-                    admin,
-                    manager, 
-                    member,
-                    user.additionalUserInfo.providerId,
-                    autoUpdate,
-                    tokenData.token 
-                );
-            }
+                }
 
             return true;
         });
@@ -254,6 +272,7 @@ export class AuthenticationService implements OnInit {
             member: boolean;
             provider: string;
             autoUpdateDb: boolean;
+            transactionHistory: Transaction[];
             _token: string;
             _tokenExpirationDate: string;
         } = JSON.parse(localStorage.getItem('userData'));
@@ -261,7 +280,7 @@ export class AuthenticationService implements OnInit {
         // check if the userdata exists still.
         if(!userData) { return; }
 
-        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.provider, userData.autoUpdateDb, userData._token, new Date(userData._tokenExpirationDate));
+        const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.provider, userData.autoUpdateDb, userData.transactionHistory, userData._token, new Date(userData._tokenExpirationDate));
         
         if(loadedUser.token) {
             this.user.next(loadedUser);
@@ -315,9 +334,10 @@ export class AuthenticationService implements OnInit {
                     this.user.value.establishment,
                     this.user.value.admin,
                     this.user.value.manager,
-                    this.user.value.member,
+                    this.isMember(this.user.value.transactionHistory),
                     this.user.value.provider,
                     this.user.value.autoUpdateDb,
+                    this.user.value.transactionHistory,
                     this.user.value.token, 
                     new Date(token.expirationTime)
                 );
@@ -336,9 +356,9 @@ export class AuthenticationService implements OnInit {
      * @param token 
      * @param expiresIn 
      */
-    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, provider: string, autoUpdateDb: boolean, token: string): void {
+    private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, provider: string, autoUpdateDb: boolean, transactionHistory: Transaction[], token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, token, expirationDate);
+        const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, transactionHistory, token, expirationDate);
         // set the keep alive or auto logut...
         console.log(this.keepAlive);
         if(this.keepAlive) {
@@ -434,6 +454,22 @@ export class AuthenticationService implements OnInit {
             console.log(`Password reset not sent: ${error}`);
             return false;
         }));
+    }
+
+    /**
+     * Uses the users transaction history to determine if the user is a member or not...
+     * @param transactionHistory 
+     */
+    isMember(transactionHistory: Transaction[]): boolean {
+        const loginTime: number = new Date().getTime();
+        // iterate over the transactions until you find one which has an expiration in the future, otherwise return false...
+        for(let i = transactionHistory.length - 1 ; i >= 0 ; i--) {
+            if(transactionHistory[i].validUntil > loginTime) {
+                // return true as soon as its found...
+                return true;
+            }
+        }
+        return false;
     }
 
 }

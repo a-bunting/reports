@@ -18,7 +18,7 @@ export class MemberGuard implements CanActivate {
           return this.authService.user.pipe(take(1), map(user => {
               // if the user is a member, manager or admin this is allowed...
             //   const permission = !user.member && !user.manager && !user.admin;
-              const permission = !user.member;
+              const permission = user.member;
               if(permission) {
                   return true;
               }

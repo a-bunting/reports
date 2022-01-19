@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, zip } from 'rxjs';
 import { User } from '../authentication/user.model';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { AuthenticationService, Transaction } from '../authentication/authentication.service';
 import { GroupsService, Group } from 'src/app/services/groups.service';
 import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
@@ -167,6 +167,20 @@ export class DashboardComponent implements OnInit {
             this.passwordResetLoading = false;        
             this.passwordResetSentSuccessfully = false;
         });
+    }
+
+    /**
+     * Returns an array for the number of icons on the trial box
+     * @param numbers 
+     * @returns 
+     */
+    generateIcons(numbers: number): number[] {
+        return Array(numbers).fill(1);
+    }
+
+    getMembershipExpiryDate(): number {
+        let expiryTime: number = this.user.getMembershipExpiryTime();
+        return expiryTime;
     }
 
 }

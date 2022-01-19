@@ -922,34 +922,20 @@ export class ReportsService {
     calculateRecentReports(reportSet: ReportTemplate[]): number {
         // calculate recent reports...
         let totalRecentReports: number = 0;
+        const timeLimit: number = new Date().getTime() - (this.customService.getNumberOfReportsGeneratedTimeFrame() * 1000 * 60 * 60 * 24);
         // iterate over all reports...
         reportSet.forEach((report: ReportTemplate) => {
-            totalRecentReports += this.calculateIndividualRecentReports(report);
-        })
-        // console.log(totalRecentReports);
-        return totalRecentReports;
-    }
-
-    /**
-     * Calculates and returns the number of report sgenerated within the trial time period for one set of reports.....
-     * @param report 
-     * @returns 
-     */
-    calculateIndividualRecentReports(report: ReportTemplate): number {
-        let recent: number = 0;
-        const timeLimit: number = new Date().getTime() - (this.customService.getNumberOfReportsGeneratedTimeFrame() * 1000 * 60 * 60 * 24);
-        // calculate all reports generated within this time limit...
-        for(let i = 0; i < report.reports.length; i++) {            
-            let repo: Report = report.reports[i];
-            if(repo.hasOwnProperty('generated')) {
-                // and if its recent increment the counter, filter out all the expired timestamps...
-                repo.generated = repo.generated.filter((timestamp: number) => timestamp > timeLimit);
-                recent += repo.generated.length;  
+            // for each report find out how many were generated within the time limit.
+            for(let i = 0; i < report.reports.length; i++) {     
+                let repo: Report = report.reports[i];
+                if(repo.hasOwnProperty('generated')) {
+                    // and if its recent increment the counter, filter out all the expired timestamps...
+                    repo.generated = repo.generated.filter((timestamp: number) => timestamp > timeLimit);
+                    totalRecentReports += repo.generated.length;  
+                }
             }
-        }
-        // console.log(report, timeLimit, new Date().getTime());
-        // return the number of reports generated within this time limit.
-        return recent;
+        })
+        return totalRecentReports;
     }
 }
 

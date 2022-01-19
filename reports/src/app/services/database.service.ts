@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
-import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { AuthenticationService, Transaction } from '../utilities/authentication/authentication.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../utilities/authentication/user.model';
 import { sentence } from './sentences.service';
@@ -66,6 +66,11 @@ export class DatabaseService {
     modifyUserData(userid: string, data: {}): Observable<any> {
         this.writeOperation();
         return from(this.firebase.collection('users').doc(userid).update(data));
+    }
+
+    addUserTransactionData(userid: string, transactionData: Transaction): Observable<any> {
+        this.writeOperation();
+        return from(this.firebase.collection('users').doc(userid).collection('transactionHistory').add(transactionData));
     }
 
     // GROUPS

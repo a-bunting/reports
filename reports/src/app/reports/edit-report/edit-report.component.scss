@@ -279,6 +279,11 @@
 
         &--report-regenerate {
             background-color: green;
+
+            &:disabled {
+                background-color: lightgray;
+                cursor: not-allowed;
+            }
         }
 
         &--report-edit {

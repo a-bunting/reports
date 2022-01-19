@@ -17,7 +17,7 @@ export class CustomService {
     reportsGenerated: number = 0;
 
     // max values for trials
-    groupMax: number = 200;
+    groupMax: number = 9;
     templateMax: number = 300;
     reportsMax: number = 300;
     reportsGeneratedWithinTimeframe: number = 50000;
@@ -40,19 +40,23 @@ export class CustomService {
     // set and get number of groups...
     setNumberOfGroups(val: number, inc?: number): void { this.groupQuantity = !inc ? val : val + inc; }
     getNumberOfGroups(): number { return this.groupQuantity; }
+    getMaxNumberOfGroups(): number { return this.groupMax; }
     public allowGroupCreation(): boolean { return this.groupQuantity < this.groupMax || this.user.member }
     // set and get number of templates...
     setNumberOfTemplates(val: number, inc?: number): void { this.templateQuantity = !inc ? val : val + inc; }
     getNumberOfTemplates(): number { return this.templateQuantity; }
+    getMaxNumberOfTemplates(): number { return this.templateMax; }
     public allowTemplateCreation(): boolean { return this.templateQuantity < this.templateMax || this.user.member}
     // set and get number of reports...
     setNumberOfReports(val: number, inc?: number): void { this.reportsQuantity = !inc ? val : val + inc; }
     getNumberOfReports(): number { return this.reportsQuantity; }
+    getMaxNumberOfReports(): number { return this.reportsMax; }
     public allowReportCreation(): boolean { return this.reportsQuantity < this.reportsMax || this.user.member}
     // set and get number of reports generated...
     setNumberOfReportsGenerated(val: number, inc?: number): void { this.reportsGenerated = !inc ? val : val + inc; }
     incrementNumberOfReportsGenerated(inc: number): void { this.reportsGenerated++; }
     getNumberOfReportsGenerated(): number { return this.reportsGenerated; }
+    getMaxNumberOfReportsGenerated(): number { return this.reportsGeneratedWithinTimeframe; }
     getNumberOfReportsGeneratedTimeFrame(): number { return this.reportsGeneratedTimeframeDays; }
 
     // reports on whether within the timeframe more or less reports have been generated as is allowed...

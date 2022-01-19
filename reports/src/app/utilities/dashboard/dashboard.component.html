@@ -130,6 +130,71 @@
                 
             </div>
 
+            <div class="dashboard__member" *ngIf="user.member">
+                <div class="dashboard__member--text">
+                    You are a full member of ReportZone until {{ getMembershipExpiryDate() | date:'EEEE, MMMM d, y, HH:mm:ss'  }}. Thanks for your support!
+                </div>
+            </div>
+
+            <div class="dashboard__trial" *ngIf="user.member">
+                <div class="dashboard__trial--text">
+                    You are currently using a trial version of ReportZone. These are your quota allowances and current usage. To join and unlock all possibilities, please <a routerLink='/join'>join today</a>!
+                </div>
+                <div class="dashboard__trial--data">
+                    <div class="dashboard__trial--data-point">
+                        <div class="dashboard__trial--data-point--text">Groups Created</div>
+
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfGroups()).length < 10">
+                            <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfGroups())">&nbsp;</div>
+                            <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfGroups())">&nbsp;</div>
+                        </div>
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfGroups()).length >= 10">
+                            <div class="dashboard__trial--data-point--used dashboard__trial--data-point--used--long">{{ generateIcons(customService.getNumberOfGroups()).length }} used</div>
+                            <div class="dashboard__trial--data-point--unused dashboard__trial--data-point--used--long">{{ generateIcons(customService.getMaxNumberOfGroups()).length - generateIcons(customService.getNumberOfGroups()).length }} remain</div>
+                        </div>
+
+                    </div>
+                    <div class="dashboard__trial--data-point">
+                        <div class="dashboard__trial--data-point--text">Templates Created</div>
+                        
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfTemplates()).length < 10">
+                            <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfTemplates())">&nbsp;</div>
+                            <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfTemplates())">&nbsp;</div>
+                        </div>
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfTemplates()).length >= 10">
+                            <div class="dashboard__trial--data-point--used dashboard__trial--data-point--used--long">{{ generateIcons(customService.getNumberOfTemplates()).length }} used</div>
+                            <div class="dashboard__trial--data-point--unused dashboard__trial--data-point--used--long">{{ generateIcons(customService.getMaxNumberOfTemplates()).length - generateIcons(customService.getNumberOfTemplates()).length }} remain</div>
+                        </div>
+
+                    </div>
+                    <div class="dashboard__trial--data-point">
+                        <div class="dashboard__trial--data-point--text">Reports Created</div>
+                        
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfReports()).length < 10">
+                            <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfReports())">&nbsp;</div>
+                            <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfReports())">&nbsp;</div>
+                        </div>
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfReports()).length >= 10">
+                            <div class="dashboard__trial--data-point--used dashboard__trial--data-point--used--long">{{ generateIcons(customService.getNumberOfReports()).length }} used</div>
+                            <div class="dashboard__trial--data-point--unused dashboard__trial--data-point--used--long">{{ generateIcons(customService.getMaxNumberOfReports()).length - generateIcons(customService.getNumberOfReports()).length }} remain</div>
+                        </div>
+
+                    </div>
+                    <div class="dashboard__trial--data-point">
+                        <div class="dashboard__trial--data-point--text">Reports Created</div>
+                        
+                        <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfReportsGenerated()).length < 10">
+                            <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfReportsGenerated())">&nbsp;</div>
+                            <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfReportsGenerated())">&nbsp;</div>
+                        </div>
+                        <div class="dashboard__trial--data-point--value">
+                            <div class="dashboard__trial--data-point--used dashboard__trial--data-point--used--long">{{ generateIcons(customService.getNumberOfReportsGenerated()).length }} used</div>
+                            <div class="dashboard__trial--data-point--unused dashboard__trial--data-point--used--long">{{ generateIcons(customService.getMaxNumberOfReportsGenerated()).length - generateIcons(customService.getNumberOfReportsGenerated()).length }} remain</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="dashboard__tutorials">
                 <app-gallery></app-gallery>
             </div>

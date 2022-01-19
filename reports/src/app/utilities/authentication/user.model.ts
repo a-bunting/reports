@@ -1,4 +1,9 @@
+import { Transaction } from "./authentication.service";
+
 export class User {
+
+    init: number;
+
     constructor(
         public email: string, 
         public id: string, 
@@ -9,9 +14,12 @@ export class User {
         public member: boolean,
         public provider: string,
         public autoUpdateDb: boolean,
+        public transactionHistory: Transaction[],
         private _token: string, 
         private _tokenExpirationDate: Date
-    ) {}
+    ) {
+        this.init = new Date().getTime();
+    }
 
     get token(): string {
         if(!this._tokenExpirationDate || new Date() > this._tokenExpirationDate) {
@@ -46,6 +54,21 @@ export class User {
 
     private updateLocalStorage(): void {
         localStorage.setItem('userData', JSON.stringify(this));
+    }
+
+    
+    public getMembershipExpiryTime(): number {
+        let expiryTime: number;
+        let timePurchase: number = 0;
+        // add up all the ms left on all the payments made
+        this.transactionHistory.forEach((transaction: Transaction) => {
+            if(transaction.validUntil > this.init) {
+                timePurchase += transaction.validUntil - this.init;
+            }
+        })
+        expiryTime = timePurchase + this.init;
+        // return the time remaining on the membership in ms.
+        return expiryTime ?? 0;
     }
     
 }

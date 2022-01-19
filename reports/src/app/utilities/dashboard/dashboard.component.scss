@@ -134,7 +134,7 @@
         }
     }
 
-    &__info, &__tips, &__tutorials, &__reports, &__password {
+    &__info, &__tips, &__tutorials, &__reports, &__password, &__trial, &__member {
         background-color: var(--color-style-juxtapose);
         border-radius: 1rem;
         margin: 1rem;
@@ -253,5 +253,77 @@
 
     &__left { flex: 2; }
     &__right { flex: 3; }
+
+    &__trial {
+
+        &:hover {
+            a {
+                color: var(--color-style-juxtapose);
+            }
+        }
+
+        &--text {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: .1rem solid rgba(black, .4);
+        
+            a {
+                text-decoration: none;
+                color: var(--color-style-main);
+                font-weight: bold;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        &--data {
+            display: grid;
+            column-gap: 7rem;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        &--data-point {
+
+            display: flex;
+            justify-content: space-between;
+            
+            &:not(:last-of-type) {
+                margin-bottom: .3rem;
+            }
+
+            &--text {
+            }
+            &--value {
+                display: flex;
+            }
+
+            &--used, &--unused {
+                width: 1rem;
+                border-radius: 1rem;
+                transition: all .1s;
+
+                &:hover {
+                    cursor: default;
+                    transform: scale(1.1);
+                    box-shadow: 0 0 .3rem var(--color-style-juxtapose);
+                }
+
+                &--long { 
+                    font-size: 1rem;
+                    width: auto; 
+                    text-align: center; 
+                    font-weight: bold;
+                    padding: 0rem .6rem; 
+                }
+                &:not(:last-of-type) { margin-right: .1rem; }
+            }
+
+            &--used { background-color: blueviolet;}
+            &--unused { background-color: green;}
+        }
+
+    }
 }
 

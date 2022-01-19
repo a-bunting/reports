@@ -240,14 +240,14 @@
                                     <div *ngIf="optionsExist(key); then optionsBlock else typeBlock"></div>
                                     
                                     <ng-template #optionsBlock>
-                                        <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromTextOrOption(key, $event.target.value)">
+                                        <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromTextOrOption(key, $event.target.value)" title="Prepopulate data with value {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">
                                             <option disabled></option>
                                             <option value="{{option}}" *ngFor="let option of getOptions(key); let optionIndex = index">{{ option }}</option>
                                         </select>
                                     </ng-template>
 
                                     <ng-template #typeBlock>
-                                        <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="populateDataFromTextOrOption(key, $event.target.value)">
+                                        <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="populateDataFromTextOrOption(key, $event.target.value)" title="Prepopulate data with value {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member" placeholder="{{ !user.member ? 'member only' : '' }}">
                                     </ng-template>
                                 </div>
 
@@ -291,8 +291,8 @@
 
                 <tr class="reports__data--row reports__data--data"><!-- *ngFor="let individual of report.reports; let reportId = index"> -->
                     <td class="reports__data--cell">
-                        <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this report">X</button>
-                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate Reports">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this user">X</button>
+                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">&#9851;</button>
                     </td>
                     <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
     
@@ -344,10 +344,10 @@
                     <td class="reports__data--cell" colspan="2"><b>Length: </b> {{individual.report.length}} chars</td>
                     
                     <td class="reports__data--cell reports__data--report-options">
-                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)">&#10008;</button>
-                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)">&#10557;</button>
-                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)">&#9851;</button>
-                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)">&#9998;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)" title="Remove this user">&#10008;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)" title="Remove this user">&#10557;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate this report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)" title="Manually edit report.">&#9998;</button>
                     </td>
 
                     <td class="reports__data--cell reports__data--report" colspan="100" >
