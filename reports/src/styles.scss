@@ -9,8 +9,8 @@
     --color-style-juxtapose: #e63946;
 
     // the main colours for the fonts
-    --color-font-main: rgba(0, 0, 0, .9); 
-    --color-test: blue;  
+    --color-font-main: rgba(0, 0, 0, .9);
+    --color-test: blue;
 }
 
 *, *::before, *::after {
@@ -23,7 +23,7 @@ html {
     box-sizing: border-box;
     font-size: 62.5%;
     font-family: 'Open Sans', sans-serif;
-    
+
     @media screen and (max-width: 1200px) { font-size: 50.0%; }
     @media screen and (max-width: 1015px) { font-size: 37.5%; }
 }
@@ -83,7 +83,7 @@ body {
             font-size: 1.4rem;
             box-shadow: 0 .2rem .4rem rgba(black, .3);
             min-width: 15rem;
-            
+
             &:hover {
                 border: .2rem solid white;
                 color: white;
@@ -100,7 +100,7 @@ body {
     border: 2px solid var(--color-style-light);
     background-color: var(--color-style-juxtapose) !important;
     color: var(--color-style-light) !important;
-    
+
     &__menu {
         border-top: none;
     }
@@ -108,9 +108,9 @@ body {
 
 .divider-line {
     width: 100%;
-    background-image: linear-gradient(  to right, 
+    background-image: linear-gradient(  to right,
                                         transparent 0%,
-                                        var(--color-style-dark) 50%, 
+                                        var(--color-style-dark) 50%,
                                         transparent 100%);
     background-size: cover;
     background-repeat: no-repeat;
@@ -193,10 +193,10 @@ body {
 .input__checkbox {
     visibility: hidden;
     display: none;
-    
+
     &--label {
         font-size: 1.4rem;
-        
+
         &::before {
             content: "\2718";
             color: red;
@@ -211,9 +211,9 @@ body {
         &:hover {
             cursor: pointer;
         }
-        
+
     }
-    
+
     &:checked {
         + .input__checkbox--label {
             &::before {
@@ -246,13 +246,17 @@ body {
 }
 
 .input__text {
-        padding: .8rem 1.4rem;
-        background-color: white;
-        border-radius: 1rem 2rem;
-        box-shadow: 0 .2rem .4rem rgba(black, .4);
-        font-size: 1.4rem;
-        background-color: rgba(white, .3);
-        width: 100%;
+    padding: .8rem 1.4rem;
+    background-color: white;
+    border-radius: 1rem 2rem;
+    box-shadow: 0 .2rem .4rem rgba(black, .4);
+    font-size: 1.4rem;
+    background-color: rgba(white, .3);
+    width: 100%;
+
+    &--short {
+      width: 50%;
+    }
 }
 
 

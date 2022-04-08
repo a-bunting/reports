@@ -50,7 +50,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="reports__database-buttons" *ngIf="templates.length > 0 ">
             <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving" title="Save this new report to the database">{{ isSaving ? "Saving..." : "Save Report Set" }}</button>
             <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating" title="Click to update your report in the database">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
@@ -76,12 +76,16 @@
 
     <div class="reports__variable--description">
         These values will apply to all the generated reports.
-    </div>  
+    </div>
 
     <div class="reports__variable--description">
         These values are used the test whether sentence stems apply to each user in turn. Select the column that matches the data needed for each variable.
     </div>
-    
+
+    <div class="reports__variable--description">
+        This is the default behaviour for how names are dealt with within your report.
+    </div>
+
     <!-- variables, things that needs a value for each student -->
     <div class="reports__variable-column reports__variable-column-short" *ngIf="showVariables(); else noVariables">
         <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
@@ -92,7 +96,7 @@
             <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="variable.tooltip">
                 <div class="tooltip">{{ variable.tooltip }}</div>
             </div>
-    
+
             <select class="reports__input reports__input--select" (change)="assignVariableColumn($event.target.value, variable.identifier)" [disabled]="checkVariableAssignment(variable.identifier)" title="Select the column from your data that will be the source for the '{{ variable.identifier }}' data.">
                 <option value="" [selected]="variable.key === '' || variable.key === undefined" disabled></option>
                 <option value="{{ variable.identifier }}">* Add column *</option>
@@ -121,7 +125,7 @@
             <div class="reports__variable--tooltip" *ngIf="variable.tooltip !== undefined">
                 {{ variable.tooltip }}
             </div>
-    
+
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options.length === 0"  (blur)="assignGlobalValue(variable.identifier, $event.target.value)" (keyup.enter)="assignGlobalValue(variable.identifier, $event.target.value)" value="{{variable.value}}">
             <select class="reports__input reports__input--select" (change)="assignGlobalValue(variable.identifier, $event.target.value)" *ngIf="variable.options.length > 0 && variable.options[variable.options.length-1] !== ''">
                 <option value="" [selected]="variable.value === ''" disabled></option>
@@ -129,12 +133,12 @@
                 <option value="{{ option }}" *ngFor="let option of variable.options; let index = index" [selected]="option === variable.value">{{ option }}</option>
             </select>
             <input type="text" class="reports__input reports__input--text" *ngIf="variable.options[variable.options.length-1] === ''"  (blur)="addGlobalOption(variable.identifier, $event.target.value)" (keyup.enter)="addGlobalOption(variable.identifier, $event.target.value)">
-            
+
             <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
                 <div class="tooltip">This value will apply to all of your students, so you dont need to set it for each of them! If you do need to change this for a few students you can edit the report manually.</div>
             </div>
-            
-            <!--         
+
+            <!--
             NOT FOR THIS RELEASE - NEEDS WORK IN THE SEMI-DEEP BACKEND TO ALLOW FOR THIS
             <button class="reports__variable--convert-button tooltipped" (click)="convertToVariable(i)">
                 &Delta;<div class="tooltip">Convert this to a variable, so you can set individual values. To preset, put a value in the box before clicking this button!</div>
@@ -147,12 +151,12 @@
             There are currently no global variables required for this report set.
         </div>
     </ng-template>
-    
+
     <!-- tests, things that look at student data and filter sentence opportunities in relation to this -->
     <div class="reports__variable-column reports__variable-column-long" *ngIf="showTests(); else noTests">
         <div class="reports__variable" *ngFor="let test of report.tests; let t = index">
             <div class="reports__variable--multirow">
-                <div class="reports__variable--name">
+                <div class="reports__variable--name reports__variable--name-bold">
                     {{ test.name }}
 
                     <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
@@ -160,13 +164,13 @@
                     </div>
                 </div>
                 <div class="reports__variable--options" *ngIf="test.settings">
-                    <select class="reports__input reports__input--select" (change)="testSettingsChange(test.identifier, $event.target.value)">
+                    <select class="reports__input reports__input--short reports__input--select" (change)="testSettingsChange(test.identifier, $event.target.value)">
                         <option value="" disabled selected>Select a {{ test.settings.name }}</option>
                         <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
                     </select>
                 </div>
             </div>
-    
+
             <div class="reports__variable--multirow reports__variable--wrap-prevention" *ngFor="let subTestVariable of test.values; let s = index">
                 <div class="reports__variable--name">
                     {{ subTestVariable.name }}
@@ -176,7 +180,7 @@
                     </div>
                 </div>
                 <div class="reports__variable--options">
-                    <select class="reports__input reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
+                    <select class="reports__input reports__input--short reports__input--select" (change)="assignTestVariableColumn($event.target.value, subTestVariable.identifier, test.identifier)" [disabled]="checkTestVariableAssignment(subTestVariable.identifier, test.identifier)">
                         <option value="" selected disabled></option>
                         <!-- <option value="{{ subTestVariable.identifier }}">* Add column *</option> -->
                         <option value="{{ subTestVariable.name }}">* Add column *</option>
@@ -192,6 +196,50 @@
             There are currently no tests added to this report set, and so no data is currently required.
         </div>
     </ng-template>
+
+    <!-- NAMES - How names are dealt with within reports. Set to default behaviour... -->
+    <div class="reports__variable-column reports__variable-column-short">
+      <div class="reports__variable">
+        <div class="reports__variable--name">First Time Name Used</div>
+        <div class="reports__variable--tooltip tooltipped tooltip__generic">
+          <div class="tooltip">This is how the name will be displayed the first time it is used. For specific key parts of a name, type 'FORENAME', 'SURNAME' or 'NICKNAME'. For example typing 'SURNAME, FORENAME' would yield 'Smith, John' in the first usage on the report.</div>
+        </div>
+        <input type="text" class="reports__input reports__input--text">
+      </div>
+      <div class="reports__variable">
+        <div class="reports__variable--name">Subsequent Times Name Used</div>
+        <div class="reports__variable--tooltip tooltipped tooltip__generic">
+          <div class="tooltip">This is how the name will be displayed everytime except for the first time it is used. For specific key parts of a name, type 'FORENAME', 'SURNAME' or 'NICKNAME'. For example typing 'SURNAME, FORENAME' would yield 'Smith, John' in the first usage on the report.</div>
+        </div>
+        <input type="text" class="reports__input reports__input--text">
+      </div>
+      <div class="reports__variable">
+        <div class="reports__variable--name">Names to start sentences</div>
+        <div class="reports__variable--tooltip tooltipped tooltip__generic">
+          <div class="tooltip">How are names used to start sentences? Do you use the name, the gender or do you want this to be random. For example selecting name might yield, 'John had a good...', gender might yield 'They had a good...' and random might be one or the other.</div>
+        </div>
+        <input type="checkbox" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceName"><label class="input__checkbox--label" for="NameStartSentenceName">Name</label>
+        <input type="checkbox" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceGender"><label class="input__checkbox--label" for="NameStartSentenceGender">Gender</label>
+        <input type="checkbox" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceRandom"><label class="input__checkbox--label" for="NameStartSentenceRandom">Random</label>
+      </div>
+      <div class="reports__variable">
+        <div class="reports__variable--name">Names use mid sentence</div>
+        <div class="reports__variable--tooltip tooltipped tooltip__generic">
+          <div class="tooltip">How are names used in the middle of sentences? Do you use the name, the gender or do you want this to be random. For example selecting name might yiel, 'John had a good...', gender might yield 'They had a good...' and random might be one or the other.</div>
+        </div>
+        <input type="checkbox" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceName"><label class="input__checkbox--label" for="NameMidSentenceName">Name</label>
+        <input type="checkbox" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceGender"><label class="input__checkbox--label" for="NameMidSentenceGender">Gender</label>
+        <input type="checkbox" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceRandom"><label class="input__checkbox--label" for="NameMidSentenceRandom">Random</label>
+      </div>
+      <div class="reports__variable">
+        <div class="reports__variable--name">Options</div>
+        <input type="checkbox" class="input__checkbox" name="NameOptions" id="NameMultiplePerSentence"><label class="input__checkbox--label" for="NameMultiplePerSentence">Allow repeating name in a single sentence.</label>
+        <div class="reports__variable--tooltip tooltipped tooltip__generic">
+          <div class="tooltip">Can their name be used multiple times in a sentence? If set to OFF all names appearing midsentence will change to gender, 'John has done well, and John has made friends' becomes 'John has done well, and he has made friends'.</div>
+        </div>
+      </div>
+    </div>
+
 </div>
 
 <div class="divider-line divider-line__thin u__margin-top--medium" *ngIf="showGlobals() || showVariables() || showTests()"></div>
@@ -215,7 +263,7 @@
                 <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
                     <div class="reports__data--cell-header--dragging" value="{{ key }}" (drop)="drop()" (dragover)="allowDrop($event)" *ngIf="dragging"></div>
                     <div class="reports__data--cell-header">
-                        
+
                         <!-- the make up of the table headers -->
                         <div class="reports__data--cell-header-buttons">
                             <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteColumn(key)" *ngIf="!isColumnHidden(key)" title="Delete column">&#10008;</button>
@@ -226,8 +274,8 @@
                         </div>
 
                         <div class="reports__data--cell-header-detail">
-                                
-                            <div class="reports__data--cell-header-key" *ngIf="!isColumnHidden(key)"> 
+
+                            <div class="reports__data--cell-header-key" *ngIf="!isColumnHidden(key)">
 
 
                                 <div class="reports__data--prepopulate" *ngIf="populateIndex === key; else displayKey">
@@ -238,7 +286,7 @@
                                     </select>
                                     Or set all to:
                                     <div *ngIf="optionsExist(key); then optionsBlock else typeBlock"></div>
-                                    
+
                                     <ng-template #optionsBlock>
                                         <select class="reports__input reports__input--select reports__input--table" (change)="populateDataFromTextOrOption(key, $event.target.value)" title="Prepopulate data with value {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">
                                             <option disabled></option>
@@ -251,7 +299,7 @@
                                     </ng-template>
                                 </div>
 
-                                <ng-template #displayKey> 
+                                <ng-template #displayKey>
                                     <div class="reports__key" (click)="sortColumn(key)">{{ key }} </div>
                                 </ng-template>
 
@@ -295,11 +343,11 @@
                         <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">&#9851;</button>
                     </td>
                     <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
-    
+
                         <div *ngIf="!isColumnHidden(key)">
                             <!-- if this is a section with options, display only the options  -->
                             <div *ngIf="optionsExist(key); then optionsBlock else typeBlock"></div>
-    
+
                             <ng-template #optionsBlock>
                                     <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">
                                         <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
@@ -307,42 +355,42 @@
                                     </select>
                             </ng-template>
                             <!-- <div *ngIf="testOptionsExist(key); then optionsBlock else typeBlock"></div>
-    
+
                             <ng-template #optionsBlock>
                                     <select class="reports__input reports__input--select reports__input--table" (change)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">
                                         <option disabled [selected]="individual.user.data[key] === '' || individual.user.data[key] === undefined"></option>
                                         <option value="{{option}}" *ngFor="let option of getTestOptions(key); let optionIndex = index" [selected]="option === individual.user.data[key]">{{ option }}</option>
                                     </select>
                             </ng-template> -->
-    
+
                             <ng-template #typeBlock>
-    
+
                                 <div *ngIf="reportTextboxOrTextarea(individual.user.data[key], 20); then inputSingle else inputArea"></div>
-                                
+
                                 <ng-template #inputSingle>
                                     <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" value="{{ individual.user.data[key] }}" tabindex="{{ (report.reports.length * i) + reportId }}">
                                 </ng-template>
-    
+
                                 <ng-template #inputArea>
                                     <div class="reports__input--textarea reports__input--textarea-short">
                                         <textarea class="reports__input reports__input--table" (keyup.enter)="valueChange2(reportId, key, $event.target.value)" (blur)="valueChange2(reportId, key, $event.target.value)" tabindex="{{ (report.reports.length * i) + reportId }}">{{ individual.user.data[key] }}</textarea>
                                     </div>
                                 </ng-template>
-                                
+
                             </ng-template>
                         </div>
                         <div *ngIf="isColumnHidden(key)">
                             ...
                         </div>
-    
+
                     </td>
-     
+
                 </tr>
 
                 <tr class="reports__data--row reports__data--report-row reports__data--data" *ngIf="individual.report">
 
                     <td class="reports__data--cell" colspan="2"><b>Length: </b> {{individual.report.length}} chars</td>
-                    
+
                     <td class="reports__data--cell reports__data--report-options">
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)" title="Remove this user">&#10008;</button>
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)" title="Remove this user">&#10557;</button>
@@ -351,7 +399,7 @@
                     </td>
 
                     <td class="reports__data--cell reports__data--report" colspan="100" >
-                            
+
                         <span *ngIf="reportIdToEdit !== reportId; then displayReport else editReport"></span>
 
                         <ng-template #displayReport>
@@ -372,10 +420,10 @@
 
                 </tr>
 
-                
+
             </ng-container>
-            
-        
+
+
             <tr>
                 <td class="reports__data--cell reports__data--add-student" colspan="100" (click)="addIndividualStudent()">Add student</td>
             </tr>
