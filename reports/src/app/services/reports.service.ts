@@ -13,15 +13,19 @@ import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './t
 
 export interface ReportTemplate {
     id: string; name: string; manager: string; templateId: string; groupId: string; lastUpdated: number;
-    variables: VariableValues[]; globals: GlobalValues[]; tests: TestValues[];
+    variables: VariableValues[]; globals: GlobalValues[]; tests: TestValues[]; names: ReportNamingConvention;
     keys: string[];
     reports: Report[];
+}
+
+export interface ReportNamingConvention {
+  firstTime: string; otherTimes: string; startSentences: string; midSentence: string; allowRepeats: boolean;
 }
 
 export interface FBReportTemplate {
     id: string; name: string; manager: string;  templateId: string; groupId: string;
     variables: any; lastUpdated: number;
-    globals: any; 
+    globals: any; names: ReportNamingConvention;
     tests: any;
     keys: string[];
     reports: Report[];
@@ -39,12 +43,12 @@ export interface VariableValues {
     identifier: string, key: string, value: string, options: string[], tooltip?: string
 }
 
-export interface TestValues { 
+export interface TestValues {
     name: string, identifier: string, settings?: { name: string; value: TestOptions; options: TestOptions[] }, values: TestIndividualValue[]
 }
 
-export interface TestIndividualValue { 
-    identifier: string; name: string; key: string; value: string, options: string[] 
+export interface TestIndividualValue {
+    identifier: string; name: string; key: string; value: string, options: string[]
 }
 
 @Injectable({
@@ -60,17 +64,17 @@ export class ReportsService {
         private db: DatabaseService,
         private sentenceService: SentencesService,
         private testsService: TestsService,
-        private groupsService: GroupsService, 
+        private groupsService: GroupsService,
         private templateService: TemplatesService,
         private auth: AuthenticationService,
         private customService: CustomService
-    ) { 
+    ) {
     }
 
     /**
      * Retrieves all user reports from the database...
      * todo: add local storage;
-     * @returns 
+     * @returns
      */
     getReports(forcedFromDatabase: boolean = false, uid?: string): Observable<ReportTemplate[]> {
         this.reports = [];
@@ -78,15 +82,15 @@ export class ReportsService {
         // if the data exists locally, grab it!
         if(localStorage.getItem('reports-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the templates data...
-            this.reports = JSON.parse(localStorage.getItem('reports-data'));               
+            this.reports = JSON.parse(localStorage.getItem('reports-data'));
             // set the data on the display
             // and return the data array...
-            return of(this.reports).pipe(take(1), tap((returnData: ReportTemplate[]) => { 
+            return of(this.reports).pipe(take(1), tap((returnData: ReportTemplate[]) => {
                 // set the current number of reports...
                 this.customService.setNumberOfReports(returnData.length);
                 // calculate recent reports...
                 this.customService.setNumberOfReportsGenerated(this.calculateRecentReports(returnData));
-                return returnData; 
+                return returnData;
             }));
         } else {
             // get from the DB
@@ -120,8 +124,8 @@ export class ReportsService {
 
     /**
      * stores the data in the local storage
-     * 
-     * @param reports 
+     *
+     * @param reports
      */
     setlocalStorage(reports: ReportTemplate[]): void {
         // set the number of reports...
@@ -131,8 +135,8 @@ export class ReportsService {
 
     /**
      * Gets an individual report.
-     * @param id 
-     * @returns 
+     * @param id
+     * @returns
      */
     getReport(id: string): Observable<ReportTemplate> {
         if(this.reports.length === 0) {
@@ -149,10 +153,10 @@ export class ReportsService {
         }
     }
 
-    /** 
+    /**
      * Returns a single report from the database...
-     * @param id 
-     * @returns 
+     * @param id
+     * @returns
      */
     returnReport(id: string): ReportTemplate {
         let reportIndex = this.reports.findIndex((repo: ReportTemplate) => repo.id === id);
@@ -168,9 +172,9 @@ export class ReportsService {
         let variables: VariableValues[] = [genderVariable];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let duplicates: string[] = [];
-        
-        let testOptions = this.sentenceService.newTestSentenceOptionCreatorSelectFlatArray(template.template);     
-        
+
+        let testOptions = this.sentenceService.newTestSentenceOptionCreatorSelectFlatArray(template.template);
+
         let optionsRegex: RegExp = new RegExp('\\[(.*?)\\]', 'g');
         let noHitMax: number = 2500;
 
@@ -186,33 +190,33 @@ export class ReportsService {
                 if(noHitIterations < noHitMax) {
                     let typeMatches: RegExpExecArray;
                     // get the values form the sentence that are between ${brackets}$ and put them in values
-                    while(typeMatches = splitRegex.exec(option)) { 
-    
+                    while(typeMatches = splitRegex.exec(option)) {
+
                         // doesnt work for g|Time Period[semester,term] on one occasion, but on the rest of the occasions its fine...
                         let exists = duplicates.findIndex((temp: string) => temp === typeMatches[1]);
-    
+
                         // test if its already been identified and if not, push onto the array
                         if(exists === -1) {
                             // duplicates array used to ensure no doubles... doesnt work for time period :S
                             // console.log(index, typeMatches[1], option, typeMatches);
                             duplicates.push(typeMatches[1]);
-    
+
                             // find if its a global or variable
                             let data: string[] = typeMatches[1].split('|');
-    
+
                             // get any options options (surrounded by [ ] separated by ,)
                             let optionsMatches: RegExpExecArray;
                             let options: string[] = [];
-    
+
                             // and get the options, if any...
                             while(optionsMatches = optionsRegex.exec(data[1])) {
                                 options = optionsMatches[1].split(',');
                             }
-    
+
                             // finally build the variable to put into the reports array
                             let newVariable: GlobalValues | VariableValues;
                             let identifier: string = data[1].split('[')[0];
-    
+
                             switch(data[0]) {
                                 case 'g':
                                     // this is a global values
@@ -249,7 +253,7 @@ export class ReportsService {
             testData.forEach((individualOption: [sentence[]]) => {
                 // and iterate
                 individualOption.forEach((temp: sentence[]) => {
-                    // iterate over the results... again!!               
+                    // iterate over the results... again!!
                     temp.forEach((templateInfo: sentence) => {
                         // if tests exist...
                         if(templateInfo.tests) {
@@ -259,17 +263,17 @@ export class ReportsService {
                                 const testIndex = testVals.findIndex((t: TestValues) => test.identifier === t.identifier);
                                 // if not there, add it...
                                 if(testIndex === -1) {
-                                    
+
                                     // get the test we are intersted in...
                                     let newTest: Test = this.testsService.getTest(test.identifier);
                                     let testValues: TestValues = {name: test.name, identifier: test.identifier, values: []};
 
                                     // if default settings are required then set those up here...
                                     if("settings" in newTest) {
-                                        let settings: { name: string; value: TestOptions; options: TestOptions[] } = 
+                                        let settings: { name: string; value: TestOptions; options: TestOptions[] } =
                                         {
                                             name: newTest.settings.name,
-                                            value: { name: "", options: {}}, 
+                                            value: { name: "", options: {}},
                                             options: newTest.settings.options
                                         }
                                         // default options apply...
@@ -292,8 +296,8 @@ export class ReportsService {
                                             {
                                                 identifier: test.identifier,
                                                 name: test.name,
-                                                key: "", 
-                                                value: "", 
+                                                key: "",
+                                                value: "",
                                                 options: testOptions ? testOptions : []
                                             }
                                         )
@@ -316,9 +320,9 @@ export class ReportsService {
 
     /**
      * Updates the report object in the database...
-     * @param report 
-     * @param reportId 
-     * @returns 
+     * @param report
+     * @param reportId
+     * @returns
      */
     updateReport(report: ReportTemplate, reportId: string): Observable<boolean> {
         // first convert the variables into maps so firebase supports the data type...
@@ -361,8 +365,8 @@ export class ReportsService {
 
     /**
      * Deletes a report from the database...
-     * @param id 
-     * @returns 
+     * @param id
+     * @returns
      */
     deleteReport(id: string): Observable<boolean> {
         return this.db.deleteReport(id).pipe(take(1), tap(() => {
@@ -385,7 +389,7 @@ export class ReportsService {
 
         reportToDuplicate.name = 'Duplicate of ' + reportToDuplicate.name;
         reportToDuplicate.id = "";
-                
+
         // and add to the db...
         return this.db.addNewReport(reportToDuplicate).pipe(take(1), tap({
             next: (res: DocumentReference<string>) => {
@@ -394,17 +398,17 @@ export class ReportsService {
                 this.reports.push(reportToDuplicate);
                 this.setlocalStorage(this.reports);
                 return res.id;
-            }, 
+            },
             error: (error) => {
                 console.log("Could not duplicate report because of: " + error);
             }
         }));
-    } 
+    }
 
     /**
      * Create a new report object in the database, get the id...
-     * @param report 
-     * @returns 
+     * @param report
+     * @returns
      */
     createReport(report: ReportTemplate): Observable<DocumentReference> {
          // first convert the variables into maps so firebase supports the data type...
@@ -440,11 +444,11 @@ export class ReportsService {
 
     /**
      * Ridiculous multidimensional support sheninigans...
-     * @param report 
-     * @returns 
+     * @param report
+     * @returns
      */
     convertBackToArrays(report: FBReportTemplate): ReportTemplate {
-        // do the template arrays first...    
+        // do the template arrays first...
         // let templateArray = Object.values(report.reports[0].template.template);
         // let newTemplateArray: [string[]] = [[]];
         // // and sub routes...
@@ -480,7 +484,7 @@ export class ReportsService {
 
         // now do the tests...
         let testsObject: TestValues[] = Object.values(report.tests);
-        
+
         testsObject.forEach((test: TestValues, i: number) => {
 
             let valuesArray: TestIndividualValue[] = Object.values(test.values);
@@ -493,19 +497,20 @@ export class ReportsService {
 
             test.values = valuesArray;
         });
-        
-        // rebuild the report...        
+
+        // rebuild the report...
         let newReport: ReportTemplate = {
             name: report.name,
-            groupId: report.groupId, 
+            groupId: report.groupId,
             templateId: report.templateId,
             id: report.id,
             manager: report.manager,
             variables: newVariables,
             globals: newGlobals,
             tests: testsObject,
+            names: report.names,
             keys: report.keys,
-            reports: report.reports, 
+            reports: report.reports,
             lastUpdated: report.lastUpdated
         }
 
@@ -514,11 +519,11 @@ export class ReportsService {
 
     /**
      * The point of this is to convert the entirety of the tests array into an object
-     * 
+     *
      * This is aid its storage on firebase which does not support multidimensional arrays.
-     * 
-     * @param tests 
-     * @returns 
+     *
+     * @param tests
+     * @returns
      */
     convertTestValuesToObjectArray(tests: TestValues[]): any {
         let returnObject: any = {};
@@ -622,8 +627,8 @@ export class ReportsService {
 
     /**
      * Takes a report documnet and converts all reports into readable progress reports.
-     * @param reportDocument 
-     * @returns 
+     * @param reportDocument
+     * @returns
      */
     generateBatchReports(reportDocument: ReportTemplate): ReportTemplate {
         // this is where the magic happens :-)
@@ -650,9 +655,9 @@ export class ReportsService {
     /**
      * Takes a single report interface object and uses data from the template to generate a report...
      * gender defaults to they/them/their if no gender is submitted.
-     * @param report 
-     * @param reportDocument 
-     * @returns 
+     * @param report
+     * @param reportDocument
+     * @returns
      */
     generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
 
@@ -668,7 +673,7 @@ export class ReportsService {
         if(genderIndex !== -1) {
             gender = report.user.data[variables[genderIndex].key];
         }
-        
+
         // first we need a sentence structure generated for this template.
         let template: Template = this.templateService.getTemplate(report.templateId);
         let minCharacters: number = template.characters.min;
@@ -683,7 +688,7 @@ export class ReportsService {
 
             // gotta do all the reports to see which fit the size boundaires... this might hurt computationally but the subs need to be made first to check length...
             sentenceOptionsTested.forEach((reportIteration: string) => {
-            // now sub in values    
+            // now sub in values
                 globals.forEach((global: GlobalValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'g\\|'+global.identifier, global.value.trim()); })
                 variables.forEach((variable: VariableValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
                 reportIteration = this.substitutions(reportIteration, gender);
@@ -705,7 +710,7 @@ export class ReportsService {
                 let closestIndex: number = 0;
                 let closestNumber: number = 10000;
                 let avg: number = (maxCharacters + minCharacters) * 0.5;
-                
+
                 // console.log("unable to meet character length specs: min " +minCharacters+ " / max: " + maxCharacters+ " / avg:" + avg);
                 // iterate over all reports unused...
                 notSelected.forEach((report: string, index: number) => {
@@ -732,15 +737,15 @@ export class ReportsService {
     /**
      * Runs the grammar check functions.
      * Sometimes this is not going to be super smart.
-     * @param report 
-     * @returns 
+     * @param report
+     * @returns
      */
     substitutions(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P"): string {
         report = this.sentenceCase(report);
         // gender transform...
         report = this.genderConversion(report, gender);
         // optional words - must come after grammar check as the style of writing i the same and pickaword will choos eat random
-        report = this.anOrA(report);   // must come before pickaword as the syntax for selection is the same, and if pick came first it will select anora     
+        report = this.anOrA(report);   // must come before pickaword as the syntax for selection is the same, and if pick came first it will select anora
         report = this.pickAWord(report); // this should be the last of the [] notations as it selects the worths within the brackets as opposed to an action based upon the content [AnOrA], PICK An or A depending on the next letter for example.
         // finally remove the whitespace;
         report = this.removeWhiteSpace(report);
@@ -750,10 +755,10 @@ export class ReportsService {
 
     /**
      * Substitutes variables into the text...
-     * @param report 
-     * @param substitution 
-     * @param value 
-     * @returns 
+     * @param report
+     * @param substitution
+     * @param value
+     * @returns
      */
     valuesSubstitute(report: string, substitution: string, value: string): string {
         // first if there is a (notation) then escape it so it works properly...
@@ -772,9 +777,9 @@ export class ReportsService {
 
     /**
      * Dea with gender values...
-     * @param report 
-     * @param gender 
-     * @returns 
+     * @param report
+     * @param gender
+     * @returns
      */
     genderConversion(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "p"): string {
         let genderUnique: string = gender.toLowerCase(); // default to plural
@@ -796,8 +801,8 @@ export class ReportsService {
     /**
      * If multiple optionsal words exist in a bracket notation [this/that]
      * then this function will randomly select one of the words.
-     * @param report 
-     * @returns 
+     * @param report
+     * @returns
      */
     pickAWord(report: string): string {
         let strReplace = new RegExp('\\[(.*?)\\]', 'gi');
@@ -818,15 +823,15 @@ export class ReportsService {
      * Is it an AN or an A.
      * RULES: If the next word is a CONSONANT then its A, if its a VOWEL then its AN.
      * 90% of the time this will be followed by a grade!
-     * @param report 
-     * @returns 
+     * @param report
+     * @returns
      */
     anOrA(report: string): string {
         let strReplace = new RegExp('\\[AnOrA\\]+(.*)?', 'gi');
-        let regExData: string[];        
-        
+        let regExData: string[];
+
         while((regExData = strReplace.exec(report)) !== null) {
-            let choice: string = (regExData[1].trimStart())[0].toLowerCase() === ("a"||"e"||"i"||"o"||"u") || !isNaN(+regExData[1].trimStart()) ? "an" : "a";           
+            let choice: string = (regExData[1].trimStart())[0].toLowerCase() === ("a"||"e"||"i"||"o"||"u") || !isNaN(+regExData[1].trimStart()) ? "an" : "a";
             let newStr: string = regExData[0].replace("[AnOrA]", choice);
             report = report.replace(regExData[0], newStr);
             strReplace.lastIndex = 0;
@@ -836,12 +841,12 @@ export class ReportsService {
 
     /**
      * Tidies up any sentence case issues.
-     * - Put a . at the end if there isnt one. 
+     * - Put a . at the end if there isnt one.
      * - Put a space after a . and capitalise the first letter
      * - Capitalise the first letter of the whoole thing.
-     * 
-     * @param report 
-     * @returns 
+     *
+     * @param report
+     * @returns
      */
     sentenceCase(report: string): string {
         let uppered: string = report;
@@ -860,8 +865,8 @@ export class ReportsService {
      * Removes whitespace at the start and end of the text
      * strips any double whitespaces
      * removes whitespace right before a , or a .
-     * @param report 
-     * @returns 
+     * @param report
+     * @returns
      */
     removeWhiteSpace(report: string): string {
         // get rid of multiple whitespaces...
@@ -873,7 +878,7 @@ export class ReportsService {
         sentences.forEach((sentence: string) => {
             // then split into commas...
             let sections: string[] = sentence.split(',');
-            
+
             sections.forEach((section: string, i: number) => {
                 section.trim();
                 // if its the end of the sentence use a full stop, optherwise use a comma and space...
@@ -886,7 +891,7 @@ export class ReportsService {
     repeatCharacterRemoval2(report: string): string {
         let regExComma: RegExp = new RegExp(/,[\s]{1,},/gm);
         let regExFS: RegExp = new RegExp(/\.[\s]{1,}\./gm);
-        
+
         let regExString: string[];
 
         while((regExString = regExComma.exec(report)) !== null) { report = report.replace(regExString[0], ', '); }
@@ -897,7 +902,7 @@ export class ReportsService {
 
     repeatCharacterRemoval(report: string): string {
         let chars: string[] = [',','.'];
-        
+
         chars.forEach((char: string) => {
 
             let regEx: RegExp = new RegExp('['+char+']{2,10}', 'gi');
@@ -910,14 +915,14 @@ export class ReportsService {
 
 
         })
-        
+
         return report;
     }
 
     /**
      * Calculates all reports generated over a time period..
-     * @param reportSet 
-     * @returns 
+     * @param reportSet
+     * @returns
      */
     calculateRecentReports(reportSet: ReportTemplate[]): number {
         // calculate recent reports...
@@ -926,12 +931,12 @@ export class ReportsService {
         // iterate over all reports...
         reportSet.forEach((report: ReportTemplate) => {
             // for each report find out how many were generated within the time limit.
-            for(let i = 0; i < report.reports.length; i++) {     
+            for(let i = 0; i < report.reports.length; i++) {
                 let repo: Report = report.reports[i];
                 if(repo.hasOwnProperty('generated')) {
                     // and if its recent increment the counter, filter out all the expired timestamps...
                     repo.generated = repo.generated.filter((timestamp: number) => timestamp > timeLimit);
-                    totalRecentReports += repo.generated.length;  
+                    totalRecentReports += repo.generated.length;
                 }
             }
         })

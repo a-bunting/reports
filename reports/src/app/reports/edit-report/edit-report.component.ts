@@ -40,16 +40,16 @@ export class EditReportComponent implements OnInit, OnDestroy {
     customTooltips: boolean;
 
     constructor(
-        private auth: AuthenticationService, 
-        private activeRouter: ActivatedRoute, 
-        private router: Router, 
-        private reportsService: ReportsService, 
-        private groupService: GroupsService, 
-        private templatesService: TemplatesService, 
-        private sentenceService: SentencesService, 
+        private auth: AuthenticationService,
+        private activeRouter: ActivatedRoute,
+        private router: Router,
+        private reportsService: ReportsService,
+        private groupService: GroupsService,
+        private templatesService: TemplatesService,
+        private sentenceService: SentencesService,
         private testsService: TestsService,
         private customService: CustomService
-    ) { 
+    ) {
         customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
             this.customTooltips = newFlag;
             console.log(newFlag);
@@ -69,7 +69,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 this.isLoading = false;
                 this.groups = groups;
                 this.templates = templates;
-                
+
                 // monitor the parameter id in the URL and if it changes reload the data...
                 this.paramObservable = this.activeRouter.params.subscribe({
                     next: (params: Params) => {
@@ -93,13 +93,13 @@ export class EditReportComponent implements OnInit, OnDestroy {
         }, { threshold: [1] });
         this.sticky.observe(document.getElementsByClassName('sticky').item(0));
     }
-    
+
     ngOnDestroy(): void {
     }
 
     /**
      * listen for the escape key press to make any tempory changes go away!
-     * @param event 
+     * @param event
      */
     @HostListener('document:keydown.escape', ['$event']) onEscapeKeyPress(event: KeyboardEvent) {
         this.dragging = false;
@@ -152,7 +152,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Load all required data, including groups and templates data...
-     * @returns 
+     * @returns
      */
     loadData(): Observable<[Group[], Template[], sentence]> {
         // load groups and templates concurrently then act
@@ -198,7 +198,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 // get the keys and remove duplicated
                 keys = [...keys, ...data.keys].filter((value: string, index: number, restOfArray: string[]) => restOfArray.indexOf(value) === index);
             });
-        }); 
+        });
 
         // add any new keys... assume keys with the same value are the same thing
         keys.forEach((key: string) => {
@@ -214,15 +214,15 @@ export class EditReportComponent implements OnInit, OnDestroy {
         students.forEach((student: Student) => {
             // find if the student already existsw...
             const studentIndex: number = this.report.reports.findIndex((report: Report) => report.user.id === student.id);
-            
+
             // if not add them...
             if(studentIndex === -1) {
                 // not found this student yet so its a new addition...
                 const newReport: Report = {
-                    userId: student.id, 
-                    user: student, 
-                    templateId: repoTemplate.id, 
-                    report: "", 
+                    userId: student.id,
+                    user: student,
+                    templateId: repoTemplate.id,
+                    report: "",
                     generated: undefined
                 }
                 // checka all the keys have a value for this user and if not set it as blank...
@@ -251,7 +251,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                     }
                 })
             }
-        })  
+        })
 
         // and clear the textbox, and close the rmenu...
         document.getElementsByName("selectGroups").forEach((checkBox: HTMLInputElement) => {
@@ -303,48 +303,19 @@ export class EditReportComponent implements OnInit, OnDestroy {
             this.processingReport = false;
             this.checkForChanges();
         })
-
-        // // get the index
-        // let index: number = this.templates.findIndex((temp: Template) => temp.id === templateId);
-        // // and if it exists then load...
-        // if(index !== -1) {
-        //     // set the report id
-        //     this.report.templateId = templateId;
-        //     this.loadedTemplate = templateId;
-        //     // set the template id on each of the users (in the future potentially each student may have different template ids)
-        //     this.report.reports.forEach((repo: Report) => {
-        //         repo.templateId = templateId;
-        //     })
-        //     // get the template and proces the variables required...
-        //     const template: Template = this.templatesService.getTemplate(templateId);
-        //     this.processTemplate(template);
-        // } else {
-        //     // the template may have been deleted, what now?
-        //     this.report.templateId = "";
-        //     this.loadedTemplate = "";
-        //     // set the template id on each of the users (in the future potentially each student may have different template ids)
-        //     this.report.reports.forEach((repo: Report) => {
-        //         repo.templateId = "";
-        //     })
-        //     // and reset the variables, which dont exist iof there is no template...
-        //     this.report.globals = [];
-        //     this.report.variables = [];
-        //     this.report.tests = [];
-        // }
-        // this.processingReport = false;
-        // this.checkForChanges();
     }
 
     loadedReport: ReportTemplate; // the saved version of the report to check for changes against
 
     /**
      * Load an report set.
-     * @param id 
+     * @param id
      */
     loadReport(id: string): void {
         // get the report.
         this.reportsService.getReport(id).subscribe({
             next: (report: ReportTemplate) => {
+              console.log(report);
                 this.report = report;
                 // set to not loading...
                 this.isLoading = false;
@@ -363,7 +334,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
      */
     newReport(): void {
         this.isLoading = false;
-        this.report = {id: "", groupId: "", templateId: "", name: "", lastUpdated: Date.now(), manager: this.user.id, variables: [], globals: [], tests: [], keys: [], reports: []};
+        this.report = {id: "", groupId: "", templateId: "", name: "", lastUpdated: Date.now(), manager: this.user.id, variables: [], globals: [], tests: [], names: { firstTime: 'Forename Surname', otherTimes: 'Forename', startSentences: 'Either', midSentence: 'Either', allowRepeats: false }, keys: [], reports: []};
         this.loadedGroup = undefined;
     }
 
@@ -379,7 +350,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
         // get the variables...
         let variables: [GlobalValues[], VariableValues[]] = this.reportsService.generateVariables(template);
         let tests: TestValues[] = this.reportsService.generateTests(template);
-        
+
         // if the variables are already defined we dont want to overwrite them.
         // globals
         let newGlobals: GlobalValues[] = [];
@@ -425,17 +396,17 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * merges two variables to provide the ability to update visual cues like tooltips onto older reports.
-     * @param oldVar 
-     * @param newVar 
-     * @returns 
+     * @param oldVar
+     * @param newVar
+     * @returns
      */
     mergeVariables(oldVar: VariableValues, newVar: VariableValues): VariableValues {
         // new data overwrites old data in the variable, UNLESS it changes the users data generation.
         let retVar: VariableValues = {
-            identifier: oldVar.identifier, 
-            key: oldVar.key, 
-            options: oldVar.options ?? newVar.options, 
-            value: oldVar.value, 
+            identifier: oldVar.identifier,
+            key: oldVar.key,
+            options: oldVar.options ?? newVar.options,
+            value: oldVar.value,
             tooltip: newVar.tooltip ?? undefined
         };
         return retVar;
@@ -443,16 +414,16 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Same as mergeVariables but allows for global values to be merged...
-     * @param oldVar 
-     * @param newVar 
-     * @returns 
+     * @param oldVar
+     * @param newVar
+     * @returns
      */
     mergeGlobals(oldVar: GlobalValues, newVar: GlobalValues): GlobalValues {
         // new data overwrites old data in the variable, UNLESS it changes the users data generation.
         let retVar: GlobalValues = {
-            identifier: oldVar.identifier, 
-            options: oldVar.options ?? newVar.options, 
-            value: oldVar.value, 
+            identifier: oldVar.identifier,
+            options: oldVar.options ?? newVar.options,
+            value: oldVar.value,
             tooltip: newVar.tooltip ?? undefined
         };
         return retVar;
@@ -461,8 +432,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     //DEALING WITH VARIABLES
     /**
      * Assigns a value toa global variable - i.e. something that is the same for each student.
-     * @param identifier 
-     * @param value 
+     * @param identifier
+     * @param value
      */
     assignGlobalValue(identifier: string, value: string): void {
         // find the global int he report structure.
@@ -482,8 +453,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Add an option to a predefined list of options...
-     * @param identifier 
-     * @param value 
+     * @param identifier
+     * @param value
      */
     addGlobalOption(identifier: string, value: string): void {
         // find the global int he report structure.
@@ -507,8 +478,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     // need works on keys
     /**
      * Assings a variable to a column of data...
-     * @param toIdentifier 
-     * @param assignIdentifier 
+     * @param toIdentifier
+     * @param assignIdentifier
      */
     assignVariableColumn(toIdentifier: string, assignIdentifier: string) : void {
         // toIdentifier is the column to assign this to...
@@ -530,7 +501,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
             // it went wrong, who knows what to do?
             // I SHOULD ALEX, SO PUT SOMETHING HERE ONE DAY??
             console.log("Failed to assign to variable");
-            
+
             // why is this randomyl here??? :S
             let newVar: VariableValues = { identifier: assignIdentifier, key: toIdentifier, value: "", options: ['m','f','p'] };
             this.report.variables.push(newVar);
@@ -543,7 +514,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
         this.report.reports.forEach((user: Report) => {
 
             let userDataMatch: boolean = false;
-            
+
             if(user.user.data[toIdentifier]) {
                 // measure up against the options and take a best guess at a replacement
                 // asd this is mostly going to be for GRADES or GENDER use only the first character of the string...
@@ -566,8 +537,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
      /**
      * Assings a variable to a column of data for a test variable
      * SAME AS ABOVE FUNCTION BUT FOR TESTS...
-     * @param toIdentifier 
-     * @param assignIdentifier 
+     * @param toIdentifier
+     * @param assignIdentifier
      */
     assignTestVariableColumn(toIdentifier: string, assignIdentifier: string, testName: string) : void {
         // toIdentifier is the column to assign this to...
@@ -597,12 +568,16 @@ export class EditReportComponent implements OnInit, OnDestroy {
             console.log("Failed to assign to variable");
         }
 
-        this.checkForChanges();        
+        this.checkForChanges();
+    }
+
+    assignNameData(element: string, value: string): void {
+      console.log(element, value);
     }
 
     /**
      * Remove the assignment of a variable
-     * @param varIdentifier 
+     * @param varIdentifier
      */
     removeVariableAssignment(varIdentifier: string): void {
         // get the index
@@ -616,7 +591,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Remove the assignment of a test variable
-     * @param varIdentifier 
+     * @param varIdentifier
      */
     removeTestVariableAssignment(varIdentifier: string, testName: string): void {
         // get the index
@@ -634,8 +609,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Checks to see if a variable has been assigned to a column yet.
-     * @param identifier 
-     * @returns 
+     * @param identifier
+     * @returns
      */
     checkVariableAssignment(identifier: string): boolean {
         // find the variable index...
@@ -649,9 +624,9 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Checks to see if a test variable has been assigned to a column yet.
-     * @param identifier 
-     * @param testName 
-     * @returns 
+     * @param identifier
+     * @param testName
+     * @returns
      */
     checkTestVariableAssignment(identifier: string, testName: string): boolean {
         // find the variable index...
@@ -667,7 +642,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
 
 
-    
+
 
 
     // need works on keys
@@ -675,9 +650,9 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * Set a value on the data table...
      * Adds it to the report array...
      * This does NOT change the class list...
-     * @param reportId 
-     * @param key 
-     * @param input 
+     * @param reportId
+     * @param key
+     * @param input
      */
     valueChange2(reportId: number, name: string, input: string): void {
 
@@ -697,7 +672,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Hides a column with the given key name...
-     * @param key 
+     * @param key
      */
     hideColumn(key: string): void {
         this.hiddenColumns.push(key);
@@ -719,7 +694,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Shows a hidden column
-     * @param key 
+     * @param key
      */
     showColumn(key: string): void {
         let index: number = this.hiddenColumns.findIndex((str: string) => str === key);
@@ -738,9 +713,9 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * Tests if a column was added, or whether it was part of the class data.
      * Kind of deprecated as persistence is hard and maybe not all class data is relevant.
      * Maybe an option to add data back in?
-     * 
-     * @param colName 
-     * @returns 
+     *
+     * @param colName
+     * @returns
      */
     wasColumnAdded(colName: string): boolean {
         return this.addedColumns.findIndex((str: string) => str === colName) === -1 ? false : true;
@@ -749,19 +724,19 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
 
 
-    
 
 
 
-    
+
+
 
 
     // need works on keys
     /**
      * Deletes a column that has been created in the reports section.
      * Cannot delete columns of data which ahs been pre entered.
-     * 
-     * @param key 
+     *
+     * @param key
      */
     deleteColumn(key: string): void {
         let findIndex: number = this.report.keys.findIndex((keys: string) => keys === key);
@@ -799,12 +774,12 @@ export class EditReportComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * 
+     *
      * If you change the settings on a test variable this function will modify all relevant values...
      * This will need a warning as it will delete data...
-     * 
-     * @param testName 
-     * @param value 
+     *
+     * @param testName
+     * @param value
      */
     testSettingsChange(testName: string, value: string): void {
         let test: Test = this.testsService.getTest(testName);
@@ -831,8 +806,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Checks whether a column has specific values it can take...
-     * @param key 
-     * @returns 
+     * @param key
+     * @returns
      */
     // testOptionsExist(key: string): boolean {
     //     let returnValue: boolean = false; // return -1 if there is no set of test options associated with this.
@@ -841,8 +816,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     //         // iterate over the values and find the key associated with it if applicable
     //         test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
     //             // if the key is identical to the column key then return the index.
-    //             if(temp.key === key) { 
-    //                 returnValue = true; 
+    //             if(temp.key === key) {
+    //                 returnValue = true;
     //             }
     //         })
     //     })
@@ -851,8 +826,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Checks whether a column has specific values it can take...
-     * @param key 
-     * @returns 
+     * @param key
+     * @returns
      */
      optionsExist(key: string): boolean {
         let returnValue: boolean = false; // return -1 if there is no set of test options associated with this.
@@ -861,8 +836,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
             // iterate over the values and find the key associated with it if applicable
             test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
                 // if the key is identical to the column key then return the index.
-                if(temp.key === key) { 
-                    returnValue = true; 
+                if(temp.key === key) {
+                    returnValue = true;
                 }
             })
         })
@@ -878,8 +853,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Returns the options for a particular test...
-     * @param key 
-     * @returns 
+     * @param key
+     * @returns
      */
     // getTestOptions(key: string): string[] {
     //     let returnValue: string[] = []; // return -1 if there is no set of test options associated with this.
@@ -888,8 +863,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     //         // iterate over the values and find the key associated with it if applicable
     //         test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
     //             // if the key is identical to the column key then return the index.
-    //             if(temp.key === key) { 
-    //                 returnValue = temp.options.slice().reverse(); 
+    //             if(temp.key === key) {
+    //                 returnValue = temp.options.slice().reverse();
     //             }
     //         })
     //     })
@@ -903,8 +878,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
             // iterate over the values and find the key associated with it if applicable
             test.values.forEach((temp: TestIndividualValue, valueIndex: number) => {
                 // if the key is identical to the column key then return the index.
-                if(temp.key === key) { 
-                    returnValue = temp.options.slice().reverse(); 
+                if(temp.key === key) {
+                    returnValue = temp.options.slice().reverse();
                 }
             })
         })
@@ -954,7 +929,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * toggle populate index...
-     * @param key 
+     * @param key
      */
     populateSelect(key: string): void {
         this.populateIndex ? (this.populateIndex === key ? this.populateIndex = undefined : this.populateIndex = key) : this.populateIndex = key;
@@ -978,8 +953,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     /**
      * deprecated
      * No longer needed since how groups got added changed.
-     * @param toCol 
-     * @param fromCol 
+     * @param toCol
+     * @param fromCol
      */
     // populateDataFromKey(colName: string, key: string): void {
     //     // get the columns/ data fields for this group...
@@ -989,7 +964,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
     //         // need unique id on students else reordering will break this
     //         // poor man solution for now.
     //         this.report.reports.forEach((student: Report, index: number) => {
-    //             student['user'].data[colName] = groupData.students[index].data[key]; 
+    //             student['user'].data[colName] = groupData.students[index].data[key];
     //         })
     //         // add the key back into the keys database...
     //     })
@@ -1006,10 +981,10 @@ export class EditReportComponent implements OnInit, OnDestroy {
             })
         })
     }
-    
+
     populateDataFromTextOrOption(key: string, value: string): void {
         let identifierName: string[] = this.getKeyFromName(key);
-        
+
         this.report.reports.forEach((student: Report, index: number) => {
             student['user'].data[key] = value;
             // add data to new column
@@ -1021,7 +996,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Copies the report text into the clipboard
-     * @param reportId 
+     * @param reportId
      */
     copyReportText(reportId: number): void {
         let text: string = this.report.reports[reportId].report;
@@ -1075,7 +1050,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Removes a report from the user.
-     * @param reportId 
+     * @param reportId
      */
     deleteIndividualReport(reportId: number): void {
         this.report.reports[reportId].report = "";
@@ -1083,7 +1058,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Creates a new version of the report for this user.
-     * @param reportId 
+     * @param reportId
      */
     regenerateIndividualReport(reportId: number): void {
         const newReport: string = this.reportsService.generateIndividualReports(this.report.reports[reportId], this.report.globals, this.report.variables, this.report.tests);
@@ -1093,13 +1068,13 @@ export class EditReportComponent implements OnInit, OnDestroy {
             this.report.reports[reportId].generated ? this.report.reports[reportId].generated.push(new Date().getTime()) : this.report.reports[reportId].generated = [new Date().getTime()];
 
         }
-        
+
     }
 
     saveIndividualReport(reportId: number): void {
         // see if any reports have already been saved...
         let reportFound: boolean = this.report.keys.includes("Saved Report");
-    
+
         if(reportFound) {
             this.report.reports[reportId].user.data['Saved Report'] = this.report.reports[reportId].report;
         } else {
@@ -1118,7 +1093,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Allows this report to be individually edited.
-     * @param reportId 
+     * @param reportId
      */
     editIndividualReport(reportId: number): void {
         this.reportIdToEdit === reportId ? this.reportIdToEdit = -1 :  this.reportIdToEdit = reportId;
@@ -1126,8 +1101,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Edits the text of a report...
-     * @param reportId 
-     * @param newText 
+     * @param reportId
+     * @param newText
      */
     editReportText(reportId: number, newText: string): void {
         this.report.reports[reportId].report = newText;
@@ -1138,7 +1113,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     /**
      * Sorts a column by key.
-     * @param key 
+     * @param key
      */
     sortColumn(key: string): void {
         this.report.reports.sort((a: Report, b: Report) => {
@@ -1156,7 +1131,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
     getKeyFromName(name: string): string[] {
         let keys: string[] = [];
         // test the variables first to see if its a variable...
-        
+
         for(let i = 0 ; i < this.report.variables.length ; i++) {
             this.report.variables[i].key === name ? keys.push(this.report.variables[i].identifier) : null;
         }
@@ -1169,17 +1144,17 @@ export class EditReportComponent implements OnInit, OnDestroy {
             }
         }
         return keys.filter((value: string, index: number, restOfArray: string[]) => restOfArray.indexOf(value) === index);
-    } 
+    }
 
     addIndividualStudent(): void {
         // get a new id for this unknown student
         let newUserId: string = this.groupService.generateRandomId();
         // create a report object
         let newReport: Report = {
-            userId: newUserId, 
+            userId: newUserId,
             templateId: this.report.templateId ? this.report.templateId : "",
             user: {
-                id: newUserId, 
+                id: newUserId,
                 data: {}
             },
             report: "",
@@ -1199,16 +1174,16 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * NOTE: This function does nothing yet, but will be implemented if a sentenceservice overhaul takes place.
      * In the databace g| and v| will select which variable set to come from, and irrespective of what is sent as userdata there
      * is no link between the report setup and the sentence service.
-     * 
-     * @param globalIndex 
+     *
+     * @param globalIndex
      */
     // convertToVariable(globalIndex: number) : void {
     //     let global: GlobalValues = this.report.globals[globalIndex];
     //     // create a new variale object
     //     let newVariable: VariableValues = {
-    //         identifier: global.identifier, 
-    //         key: "", 
-    //         value: global.value, 
+    //         identifier: global.identifier,
+    //         key: "",
+    //         value: global.value,
     //         options: global.options
     //     }
     //     // push onto the variables array and pop from the globals.
