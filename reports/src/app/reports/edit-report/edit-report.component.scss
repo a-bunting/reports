@@ -130,6 +130,12 @@
             }
         }
 
+        &--required {
+          transition: all .2s;
+          text-decoration: underline;
+          font-weight: bold;
+        }
+
         &--name-bold {
           font-weight: bold;
         }

@@ -89,8 +89,8 @@
     <!-- variables, things that needs a value for each student -->
     <div class="reports__variable-column reports__variable-column-short" *ngIf="showVariables(); else noVariables">
         <div class="reports__variable" *ngFor="let variable of report.variables; let i = index">
-            <div class="reports__variable--name">
-                {{ variable.identifier }}
+            <div class="reports__variable--name" [class.reports__variable--required]="!variable.optional && !variable.key">
+                {{ variable.identifier }}<span *ngIf="!variable.optional">&nbsp;*</span>
             </div>
 
             <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="variable.tooltip">
@@ -204,36 +204,36 @@
         <div class="reports__variable--tooltip tooltipped tooltip__generic">
           <div class="tooltip">This is how the name will be displayed the first time it is used. For specific key parts of a name, type 'FORENAME', 'SURNAME' or 'NICKNAME'. For example typing 'SURNAME, FORENAME' would yield 'Smith, John' in the first usage on the report.</div>
         </div>
-        <input type="text" class="reports__input reports__input--text" value="Forename Surname" (keyup)="assignNameData('firstUsage', $event.target.value)">
+        <input type="text" class="reports__input reports__input--text" value="{{ report.names.firstTime }}" (keyup)="assignNameData('firstUsage', $event.target.value)">
       </div>
       <div class="reports__variable">
         <div class="reports__variable--name">Subsequent Times Name Used</div>
         <div class="reports__variable--tooltip tooltipped tooltip__generic">
           <div class="tooltip">This is how the name will be displayed everytime except for the first time it is used. For specific key parts of a name, type 'FORENAME', 'SURNAME' or 'NICKNAME'. For example typing 'SURNAME, FORENAME' would yield 'Smith, John' in the first usage on the report.</div>
         </div>
-        <input type="text" class="reports__input reports__input--text" value="Forename" (keyup)="assignNameData('nthUsage', $event.target.value)">
+        <input type="text" class="reports__input reports__input--text" value="{{ report.names.otherTimes }}" (keyup)="assignNameData('nthUsage', $event.target.value)">
       </div>
       <div class="reports__variable">
         <div class="reports__variable--name">Names to start sentences</div>
         <div class="reports__variable--tooltip tooltipped tooltip__generic">
           <div class="tooltip">How are names used to start sentences? Do you use the name, the gender or do you want this to be random. For example selecting name might yield, 'John had a good...', gender might yield 'They had a good...' and random might be one or the other.</div>
         </div>
-        <input type="radio" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceName" (change)="assignNameData('radioStart', 'name')" checked><label class="input__checkbox--label" for="NameStartSentenceName">Name</label>
-        <input type="radio" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceGender" (change)="assignNameData('radioStart', 'gender')"><label class="input__checkbox--label" for="NameStartSentenceGender">Gender</label>
-        <input type="radio" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceEither" (change)="assignNameData('radioStart', 'either')"><label class="input__checkbox--label" for="NameStartSentenceEither">Either</label>
+        <input type="radio" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceName" (change)="assignNameData('radioStart', 'name')" [checked]="report.names.startSentences === 'name'"><label class="input__checkbox--label" for="NameStartSentenceName">Name</label>
+        <input type="radio" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceGender" (change)="assignNameData('radioStart', 'gender')" [checked]="report.names.startSentences === 'gender'"><label class="input__checkbox--label" for="NameStartSentenceGender">Gender</label>
+        <input type="radio" class="input__checkbox" name="NameStartSentence" id="NameStartSentenceEither" (change)="assignNameData('radioStart', 'either')" [checked]="report.names.startSentences === 'either'"><label class="input__checkbox--label" for="NameStartSentenceEither">Either</label>
       </div>
       <div class="reports__variable">
         <div class="reports__variable--name">Names use mid sentence</div>
         <div class="reports__variable--tooltip tooltipped tooltip__generic">
           <div class="tooltip">How are names used in the middle of sentences? Do you use the name, the gender or do you want this to be random. For example selecting name might yiel, 'John had a good...', gender might yield 'They had a good...' and either might be one or the other.</div>
         </div>
-        <input type="radio" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceName" (change)="assignNameData('radioMid', 'name')"><label class="input__checkbox--label" for="NameMidSentenceName">Name</label>
-        <input type="radio" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceGender" (change)="assignNameData('radioMid', 'gender')" checked><label class="input__checkbox--label" for="NameMidSentenceGender">Gender</label>
-        <input type="radio" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceEither" (change)="assignNameData('radioMid', 'either')"><label class="input__checkbox--label" for="NameMidSentenceEither">Either</label>
+        <input type="radio" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceName" (change)="assignNameData('radioMid', 'name')" [checked]="report.names.midSentence === 'name'"><label class="input__checkbox--label" for="NameMidSentenceName">Name</label>
+        <input type="radio" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceGender" (change)="assignNameData('radioMid', 'gender')" [checked]="report.names.midSentence === 'gender'"><label class="input__checkbox--label" for="NameMidSentenceGender">Gender</label>
+        <input type="radio" class="input__checkbox" name="NameMidSentence" id="NameMidSentenceEither" (change)="assignNameData('radioMid', 'either')" [checked]="report.names.midSentence === 'either'"><label class="input__checkbox--label" for="NameMidSentenceEither">Either</label>
       </div>
       <div class="reports__variable">
         <div class="reports__variable--name">Options</div>
-        <input type="checkbox" class="input__checkbox" name="NameOptions" id="NameMultiplePerSentence" (change)="assignNameData('optMultiple', $event.target.checked)"><label class="input__checkbox--label" for="NameMultiplePerSentence">Allow repeating name in a single sentence.</label>
+        <input type="checkbox" class="input__checkbox" name="NameOptions" id="NameMultiplePerSentence" (change)="assignNameData('optMultiple', $event.target.checked)" [checked]="report.names.allowRepeats"><label class="input__checkbox--label" for="NameMultiplePerSentence">Allow repeating name in a single sentence.</label>
         <div class="reports__variable--tooltip tooltipped tooltip__generic">
           <div class="tooltip">Can their name be used multiple times in a sentence? If set to OFF all names appearing midsentence will change to gender, 'John has done well, and John has made friends' becomes 'John has done well, and he has made friends'.</div>
         </div>

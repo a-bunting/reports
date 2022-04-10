@@ -40,7 +40,7 @@ export interface GlobalValues {
 }
 
 export interface VariableValues {
-    identifier: string, key: string, value: string, options: string[], tooltip?: string
+    identifier: string, key: string, value: string, options: string[], tooltip?: string, optional: boolean
 }
 
 export interface TestValues {
@@ -168,8 +168,11 @@ export class ReportsService {
 
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
-        let genderVariable: VariableValues = { identifier: "Gender", key: "", value: "", options: ["Female", "Male", "Plural/Other"], tooltip: "Optional: Do not assign this to a column and your reports will be gender neutral."};
-        let variables: VariableValues[] = [genderVariable];
+        let genderVariable: VariableValues = { identifier: "Gender", key: "", value: "", optional: true, options: ["Female", "Male", "Plural/Other"], tooltip: "Optional: Do not assign this to a column and your reports will be gender neutral."};
+        let forenameVariable: VariableValues = { identifier: "Forename", key: "", value: "", optional: true, options: [], tooltip: "Optional: If you want to include students forenames in the reports you will need to assign this."};
+        let surnameVariable: VariableValues = { identifier: "Surname", key: "", value: "", optional: true, options: [], tooltip: "Optional: If you want to include students surnames in the reports you will need to assign this."};
+        let nicknameVariable: VariableValues = { identifier: "Nickname", key: "", value: "", optional: true, options: [], tooltip: "Optional: If you want to include students nicknames in the reports you will need to assign this."};
+        let variables: VariableValues[] = [genderVariable, forenameVariable, surnameVariable, nicknameVariable];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let duplicates: string[] = [];
 
@@ -215,17 +218,17 @@ export class ReportsService {
 
                             // finally build the variable to put into the reports array
                             let newVariable: GlobalValues | VariableValues;
-                            let identifier: string = data[1].split('[')[0];
+                            let identifier: string = data.length === 2 ? data[1].split('[')[0] : data[0];
 
                             switch(data[0]) {
                                 case 'g':
                                     // this is a global values
-                                    newVariable = { identifier: identifier, value: "", options: options};
+                                    newVariable = { identifier: identifier, value: "", options: options, optional: false};
                                     globals.push(newVariable);
                                     break;
                                 case 'v':
                                     // this is a variable value (assume no |, or should I add v|??)
-                                    newVariable = { identifier: identifier, key: "", value: "", options: options};
+                                    newVariable = { identifier: identifier, key: "", value: "", options: options, optional: false};
                                     variables.push(newVariable);
                                     break;
                             }
@@ -635,11 +638,12 @@ export class ReportsService {
         let globalVariables: GlobalValues[] = reportDocument.globals;
         let variableVariables: VariableValues[] = reportDocument.variables;
         let testVariables: TestValues[] = reportDocument.tests;
+        let namesOptions: ReportNamingConvention = reportDocument.names;
 
         // ITERATE Over all reports...
         reportDocument.reports.forEach((individualReport: Report) => {
             // generate a report for this user...
-            individualReport.report = this.generateIndividualReports(individualReport, globalVariables, variableVariables, testVariables);
+            individualReport.report = this.generateIndividualReports(individualReport, globalVariables, variableVariables, testVariables, namesOptions);
             // if the report is valid then update the reports generated counter...
             if(individualReport.report !== "") {
                 individualReport.generated ? individualReport.generated.push(new Date().getTime()) : individualReport.generated = [new Date().getTime()];
@@ -659,7 +663,7 @@ export class ReportsService {
      * @param reportDocument
      * @returns
      */
-    generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[]): string {
+    generateIndividualReports(report: Report, globals: GlobalValues[], variables: VariableValues[], tests: TestValues[], names: ReportNamingConvention): string {
 
         // check if we are allowed to generate any more reports, and if not return now...
         if(!this.customService.allowReportGenerate()) {
@@ -667,7 +671,7 @@ export class ReportsService {
         }
 
         // get the gender if it exists...
-        let genderIndex: number = variables.findIndex((test: TestIndividualValue) => test.identifier === "Gender");
+        let genderIndex: number = variables.findIndex((test: VariableValues) => test.identifier === "Gender");
         let gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "Plural/Other";
         // if it exists then reassign else leave it as p (plural!)
         if(genderIndex !== -1) {
@@ -691,6 +695,7 @@ export class ReportsService {
             // now sub in values
                 globals.forEach((global: GlobalValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'g\\|'+global.identifier, global.value.trim()); })
                 variables.forEach((variable: VariableValues) => { reportIteration = this.valuesSubstitute(reportIteration, 'v\\|'+variable.identifier, report.user.data[variable.key]); })
+                reportIteration = this.substituteNames(reportIteration, names, report.user.data, gender);
                 reportIteration = this.substitutions(reportIteration, gender);
                 // if its the right size add to the final array to choose from...
                 if(reportIteration.length >= minCharacters && reportIteration.length <= maxCharacters) {
@@ -773,6 +778,63 @@ export class ReportsService {
         }
 
         return report;
+    }
+
+    /**
+     * Substitutes names into the report based upon naming conventions selected by the user
+     * This function will
+     * - Split into sentences and change the first value of ${Name}$ to whatever is required.
+     * - ... and subsequent ones to whatever is required, or allowed.
+     * @param report
+     * @param namingConventions
+     * @param userData
+     * @returns
+     */
+    substituteNames(report: string, namingConventions: ReportNamingConvention, userData: {}, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "p"): string {
+
+      let regEx: RegExp = new RegExp('\'(.*?)\'', 'gi');
+      let firstInstance: Set<string> = new Set([...namingConventions.firstTime.split(regEx)].filter((str: string) => str !== ''));
+      let otherInstance: Set<string> = new Set([...namingConventions.otherTimes.split(regEx)].filter((str: string) => str !== ''));
+
+      // for the first incidence select as appropriate and replace...
+      let firstReplacement: string = '';
+      let subsequentReplacement: string = '';
+      let genderReplacement: string = gender.charAt(0).toLowerCase() === 'm' ? 'He' : gender.charAt(0).toLowerCase() === 'f' ? 'She' : 'They';
+
+      // generate the text for both the first and subsequent appearances of the name
+      firstInstance.forEach((str: string) => { if(userData[str]) { firstReplacement += userData[str]; } else { firstReplacement += str; } });
+      otherInstance.forEach((str: string) => { if(userData[str]) { subsequentReplacement += userData[str]; } else { subsequentReplacement += str; } });
+
+      // change only the first instance of tghe name
+      report = report.replace('${Name}$', firstReplacement);
+
+      // split into sentences....
+      let sentences: string[] = report.split('.');
+
+      console.log(subsequentReplacement, genderReplacement);
+
+      // iterate over the sentences and replace where required...
+      for(let i = 0 ; i < sentences.length ; i++) {
+        // if i is 0 this is the first sentence and has been dealt with.
+        // it is isnt 0 then deal witht he first occurence of the name in the sentence
+        if(i !== 0) {
+
+          switch(namingConventions.startSentences.toLowerCase()) {
+            case 'name': sentences[i] = sentences[i].replace('${Name}$', subsequentReplacement); break;
+            case 'gender': sentences[i] = sentences[i].replace('${Name}$', genderReplacement); break;
+            case 'default': sentences[i] = sentences[i].replace('${Name}$', Math.random() < 0.5 ? subsequentReplacement : genderReplacement); break;
+          }
+        }
+
+
+
+
+        // console.log(firstReplacement);
+        // sentence.replace('${Name}$', )
+      }
+
+
+      return report;
     }
 
     /**

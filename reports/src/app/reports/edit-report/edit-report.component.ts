@@ -407,7 +407,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
             key: oldVar.key,
             options: oldVar.options ?? newVar.options,
             value: oldVar.value,
-            tooltip: newVar.tooltip ?? undefined
+            tooltip: newVar.tooltip ?? undefined,
+            optional: newVar.optional
         };
         return retVar;
     }
@@ -503,7 +504,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
             console.log("Failed to assign to variable");
 
             // why is this randomyl here??? :S
-            let newVar: VariableValues = { identifier: assignIdentifier, key: toIdentifier, value: "", options: ['m','f','p'] };
+            let newVar: VariableValues = { identifier: assignIdentifier, key: toIdentifier, value: "", options: ['m','f','p'], optional: true };
             this.report.variables.push(newVar);
         }
 
@@ -572,7 +573,16 @@ export class EditReportComponent implements OnInit, OnDestroy {
     }
 
     assignNameData(element: string, value: string): void {
-      console.log(element, value);
+
+      switch(element) {
+        case 'firstUsage': this.report.names.firstTime = value; break;
+        case 'nthUsage': this.report.names.otherTimes = value; break;
+        case 'radioStart': this.report.names.startSentences = value; break;
+        case 'radioMid': this.report.names.midSentence = value; break;
+        case 'optMultiple': this.report.names.allowRepeats = !!value; break;
+      }
+
+      this.checkForChanges();
     }
 
     /**
@@ -1061,7 +1071,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * @param reportId
      */
     regenerateIndividualReport(reportId: number): void {
-        const newReport: string = this.reportsService.generateIndividualReports(this.report.reports[reportId], this.report.globals, this.report.variables, this.report.tests);
+        const newReport: string = this.reportsService.generateIndividualReports(this.report.reports[reportId], this.report.globals, this.report.variables, this.report.tests, this.report.names);
 
         if(newReport !== "") {
             this.report.reports[reportId].report = newReport;
