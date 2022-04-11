@@ -241,7 +241,14 @@ body {
             transform: translateY(-.3rem);
             background-color: var(--color-style-juxtapose);
             box-shadow: 0 .4rem .8rem rgba(black, .7);
+          }
         }
+
+        &:active {
+          &:not(:disabled) {
+            transform: translateY(-.1rem);
+            box-shadow: 0 .3rem .6rem rgba(black, .8);
+      }
     }
 }
 

@@ -297,6 +297,9 @@
                                     <ng-template #typeBlock>
                                         <input class="reports__input reports__input--text reports__input--table" (keyup.enter)="populateDataFromTextOrOption(key, $event.target.value)" title="Prepopulate data with value {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member" placeholder="{{ !user.member ? 'member only' : '' }}">
                                     </ng-template>
+
+                                    <button class="input__button" (click)="generateOptionSet(key)" *ngIf="!doesKeyHaveOptions(key) && isKeyAssignedToVariable(key)">Create options from entered values</button>
+                                    <button class="input__button" (click)="removeOptionSet(key)" *ngIf="doesKeyHaveOptions(key) && isKeyAssignedToVariable(key)">Remove drop down boxes</button>
                                 </div>
 
                                 <ng-template #displayKey>

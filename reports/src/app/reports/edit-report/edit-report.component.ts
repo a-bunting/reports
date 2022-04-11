@@ -315,7 +315,10 @@ export class EditReportComponent implements OnInit, OnDestroy {
         // get the report.
         this.reportsService.getReport(id).subscribe({
             next: (report: ReportTemplate) => {
-              console.log(report);
+
+              // as names were added after, check if this report has a names component and if not add a default...
+              if(!report.names) { report.names = { firstTime: "'Forename', 'Surname'", otherTimes: "'Forename'", startSentences: 'Either', midSentence: 'Either', allowRepeats: false }; }
+
                 this.report = report;
                 // set to not loading...
                 this.isLoading = false;
@@ -334,7 +337,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
      */
     newReport(): void {
         this.isLoading = false;
-        this.report = {id: "", groupId: "", templateId: "", name: "", lastUpdated: Date.now(), manager: this.user.id, variables: [], globals: [], tests: [], names: { firstTime: 'Forename Surname', otherTimes: 'Forename', startSentences: 'Either', midSentence: 'Either', allowRepeats: false }, keys: [], reports: []};
+        this.report = {id: "", groupId: "", templateId: "", name: "", lastUpdated: Date.now(), manager: this.user.id, variables: [], globals: [], tests: [], names: { firstTime: "'Forename', 'Surname'", otherTimes: "'Forename'", startSentences: 'Either', midSentence: 'Either', allowRepeats: false }, keys: [], reports: []};
         this.loadedGroup = undefined;
     }
 
@@ -575,14 +578,46 @@ export class EditReportComponent implements OnInit, OnDestroy {
     assignNameData(element: string, value: string): void {
 
       switch(element) {
-        case 'firstUsage': this.report.names.firstTime = value; break;
-        case 'nthUsage': this.report.names.otherTimes = value; break;
+        case 'firstUsage': this.report.names.firstTime = value; this.checkNameVariablesExist(value); break;
+        case 'nthUsage': this.report.names.otherTimes = value; this.checkNameVariablesExist(value); break;
         case 'radioStart': this.report.names.startSentences = value; break;
         case 'radioMid': this.report.names.midSentence = value; break;
         case 'optMultiple': this.report.names.allowRepeats = !!value; break;
       }
 
       this.checkForChanges();
+    }
+
+    variableAdditional: VariableValues[] = [];
+
+    checkNameVariablesExist(names: string): void {
+      let vars: VariableValues[] = this.report.variables;
+      let regEx: RegExp = new RegExp('\'([a-zA-Z^\W]*?)\'', 'gi');
+      let namesString: Set<string> = new Set(names.split(regEx).filter((str: string) => str.replace(/[^\w]*/, '') !== '')); // not perfect, but good enough for 'Forename', 'surname'
+
+      // remove all of these variables from the main array
+      this.variableAdditional.forEach((variable: VariableValues) => {
+        let indexVal: number = this.report.variables.findIndex((val: VariableValues) => val.identifier === variable.identifier);
+
+        if(indexVal !== -1) {
+          this.report.variables.splice(indexVal, 1);
+        }
+      })
+
+      let tempVariableStorage: VariableValues = JSON.parse(JSON.stringify(this.variableAdditional));
+      this.variableAdditional = [];
+
+      // loop over each of the added variables
+      namesString.forEach((str: string) => {
+        let index: number = vars.findIndex((variable: VariableValues) => variable.identifier === str);
+
+        if(index === -1) {
+          const newVar: VariableValues = { identifier: str, key: '', value: '', options: [], optional: false };
+          this.variableAdditional.push(newVar);
+        }
+      })
+
+
     }
 
     /**
@@ -859,6 +894,60 @@ export class EditReportComponent implements OnInit, OnDestroy {
             }
         })
         return returnValue;
+    }
+
+    /**
+     * Converts a columns from text boxes to option boxes.
+     * @param key
+     */
+    generateOptionSet(key: string): void {
+      let options: string[] = [];
+
+      for(let i = 0 ; i < this.report.reports.length ; i++) {
+        let report: Report = this.report.reports[i];
+        let data: string = report.user.data[key];
+        let alreadyUsed: boolean = !!options.find((tmp: string) => tmp === data);
+
+        if(!alreadyUsed && data !== '') options.push(data);
+      }
+
+      // find the variable this relates to...
+      let varIndex: number = this.report.variables.findIndex((variable: VariableValues) => variable.key === key);
+
+      if(varIndex !== -1) this.report.variables[varIndex].options = options;
+    }
+
+    /**
+     * Converts a column from an option set to text boxes
+     * @param key
+     */
+    removeOptionSet(key: string): void {
+      // find the variable this relates to...
+      let varIndex: number = this.report.variables.findIndex((variable: VariableValues) => variable.key === key);
+      if(varIndex !== -1) this.report.variables[varIndex].options = [];
+    }
+
+    /**
+     * Checks whether or not a key has options attached to it.
+     * @param key
+     * @returns
+     */
+    doesKeyHaveOptions(key: string): boolean {
+      // find the variable this relates to...
+      let varIndex: number = this.report.variables.findIndex((variable: VariableValues) => variable.key === key);
+      if (varIndex !== -1) return this.report.variables[varIndex].options.length > 0;
+      return false;
+    }
+
+    /**
+     * Finds if they key has been assigned to any variable at all.
+     * @param key
+     * @returns
+     */
+    isKeyAssignedToVariable(key: string): boolean {
+      // find the variable this relates to...
+      let varIndex: number = this.report.variables.findIndex((variable: VariableValues) => variable.key === key);
+      return varIndex !== -1 ? true : false;
     }
 
     /**

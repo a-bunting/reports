@@ -810,31 +810,52 @@ export class ReportsService {
 
       // split into sentences....
       let sentences: string[] = report.split('.');
-
-      console.log(subsequentReplacement, genderReplacement);
+      const replaceRegex: RegExp = new RegExp('\\$\\{(Name\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
       // iterate over the sentences and replace where required...
       for(let i = 0 ; i < sentences.length ; i++) {
+
+        let nameUsed: boolean = false;
         // if i is 0 this is the first sentence and has been dealt with.
         // it is isnt 0 then deal witht he first occurence of the name in the sentence
         if(i !== 0) {
-
           switch(namingConventions.startSentences.toLowerCase()) {
-            case 'name': sentences[i] = sentences[i].replace('${Name}$', subsequentReplacement); break;
-            case 'gender': sentences[i] = sentences[i].replace('${Name}$', genderReplacement); break;
-            case 'default': sentences[i] = sentences[i].replace('${Name}$', Math.random() < 0.5 ? subsequentReplacement : genderReplacement); break;
+            case 'name': sentences[i] = sentences[i].replace('${Name}$', subsequentReplacement); nameUsed = true; break;
+            case 'gender': sentences[i] = sentences[i].replace('${Name}$', genderReplacement);  break;
+            case 'either': sentences[i] = sentences[i].replace('${Name}$', Math.random() < 0.5 ? subsequentReplacement : genderReplacement); break;
           }
         }
 
+        // then deal with the rest of them...
+        switch(namingConventions.midSentence.toLowerCase()) {
+          case 'name': {
+            // repeats of using name may or may not be allowed...
+            if(namingConventions.allowRepeats || !nameUsed) {
+              sentences[i] = sentences[i].replace(replaceRegex, subsequentReplacement);
+              nameUsed = true;
+            } else {
+              sentences[i] = sentences[i].replace(replaceRegex, genderReplacement.toLowerCase());
+            }
+            break;
+          }
+          case 'either': {
+            let choice: number = Math.random();
 
-
-
-        // console.log(firstReplacement);
-        // sentence.replace('${Name}$', )
+            // repeats of using name may or may not be allowed...
+            if((namingConventions.allowRepeats || !nameUsed) && choice >= 0.5) {
+              sentences[i] = sentences[i].replace(replaceRegex, subsequentReplacement);
+              nameUsed = true;
+            } else {
+              // sentences[i] = sentences[i].replace(replaceRegex, genderReplacement.toLowerCase());
+              sentences[i] = this.genderConversion(sentences[i], gender, 'Name');
+            }
+            break;
+          }
+          case 'gender': sentences[i] = sentences[i].replace(replaceRegex, genderReplacement.toLowerCase()); break;
+        }
       }
 
-
-      return report;
+      return sentences.join('. ');
     }
 
     /**
@@ -843,10 +864,10 @@ export class ReportsService {
      * @param gender
      * @returns
      */
-    genderConversion(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "p"): string {
+    genderConversion(report: string, gender: "Male" | "Female" | "Plural/Other" | "m" | "f" | "p" | "M" | "F" | "P" = "p", leadWord: string = 'gn'): string {
         let genderUnique: string = gender.toLowerCase(); // default to plural
         let genderIndex: number = (genderUnique === ("male" || "m") ? 0 : genderUnique === ("female" || "f") ? 1 : 2);
-        let strReplace = new RegExp('\\$\\{(gn\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
+        let strReplace = new RegExp('\\$\\{('+leadWord+'\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
         // wil;l this only work once??????? :S
         let regexData: string[];
