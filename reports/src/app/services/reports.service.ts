@@ -169,10 +169,7 @@ export class ReportsService {
     generateVariables(template: Template): [GlobalValues[], VariableValues[]] {
         let globals: GlobalValues[] = [];
         let genderVariable: VariableValues = { identifier: "Gender", key: "", value: "", optional: true, options: ["Female", "Male", "Plural/Other"], tooltip: "Optional: Do not assign this to a column and your reports will be gender neutral."};
-        let forenameVariable: VariableValues = { identifier: "Forename", key: "", value: "", optional: true, options: [], tooltip: "Optional: If you want to include students forenames in the reports you will need to assign this."};
-        let surnameVariable: VariableValues = { identifier: "Surname", key: "", value: "", optional: true, options: [], tooltip: "Optional: If you want to include students surnames in the reports you will need to assign this."};
-        let nicknameVariable: VariableValues = { identifier: "Nickname", key: "", value: "", optional: true, options: [], tooltip: "Optional: If you want to include students nicknames in the reports you will need to assign this."};
-        let variables: VariableValues[] = [genderVariable, forenameVariable, surnameVariable, nicknameVariable];
+        let variables: VariableValues[] = [genderVariable];
         let splitRegex: RegExp = new RegExp('\\$\\{(.*?)\\}\\$', 'g');
         let duplicates: string[] = [];
 
@@ -785,6 +782,9 @@ export class ReportsService {
      * This function will
      * - Split into sentences and change the first value of ${Name}$ to whatever is required.
      * - ... and subsequent ones to whatever is required, or allowed.
+     *
+     * LEFT TO DO IS TO TAKE THE MIDDLE BIT AND NOT ADD A SPACE IF ITS *'s with a *
+     *
      * @param report
      * @param namingConventions
      * @param userData
@@ -799,60 +799,68 @@ export class ReportsService {
       // for the first incidence select as appropriate and replace...
       let firstReplacement: string = '';
       let subsequentReplacement: string = '';
-      let genderReplacement: string = gender.charAt(0).toLowerCase() === 'm' ? 'He' : gender.charAt(0).toLowerCase() === 'f' ? 'She' : 'They';
 
       // generate the text for both the first and subsequent appearances of the name
       firstInstance.forEach((str: string) => { if(userData[str]) { firstReplacement += userData[str]; } else { firstReplacement += str; } });
       otherInstance.forEach((str: string) => { if(userData[str]) { subsequentReplacement += userData[str]; } else { subsequentReplacement += str; } });
 
       // change only the first instance of tghe name
-      report = report.replace('${Name}$', firstReplacement);
+      report = report.replace('${Name||//}$', firstReplacement);
 
       // split into sentences....
       let sentences: string[] = report.split('.');
-      const replaceRegex: RegExp = new RegExp('\\$\\{(Name\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
+      const replaceRegex: RegExp = new RegExp('\\$\\{(Name\\|(.*?)\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
-      // iterate over the sentences and replace where required...
+      let genderUnique: string = gender.toLowerCase(); // default to plural
+      let genderIndex: number = (genderUnique === ("male" || "m") ? 0 : genderUnique === ("female" || "f") ? 1 : 2);
+
       for(let i = 0 ; i < sentences.length ; i++) {
 
+        let regexData: string[];
         let nameUsed: boolean = false;
-        // if i is 0 this is the first sentence and has been dealt with.
-        // it is isnt 0 then deal witht he first occurence of the name in the sentence
-        if(i !== 0) {
-          switch(namingConventions.startSentences.toLowerCase()) {
-            case 'name': sentences[i] = sentences[i].replace('${Name}$', subsequentReplacement); nameUsed = true; break;
-            case 'gender': sentences[i] = sentences[i].replace('${Name}$', genderReplacement);  break;
-            case 'either': sentences[i] = sentences[i].replace('${Name}$', Math.random() < 0.5 ? subsequentReplacement : genderReplacement); break;
+
+        // loops over ewach incidence of the regex being found...
+        while((regexData = replaceRegex.exec(sentences[i])) !== null) {
+
+          // if i is 0 this is the first sentence and has been dealt with.
+          // it is isnt 0 then deal witht he first occurence of the name in the sentence
+          if(i !== 0) {
+            switch(namingConventions.startSentences.toLowerCase()) {
+              case 'name': sentences[i] = sentences[i].replace(regexData[0], subsequentReplacement + (regexData[2] !== '' ? ` ${regexData[2]}` : '')); nameUsed = true; break;
+              case 'gender': sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);  break;
+              case 'either': sentences[i] = sentences[i].replace(regexData[0], Math.random() < 0.5 ? subsequentReplacement + regexData[2] : regexData[genderIndex + 3]); break;
+            }
           }
+
+          // if i is 0 this is the first sentences[i] and has been dealt with.
+          // it is isnt 0 then deal witht he first occurence of the name in the sentences[i]
+          switch(namingConventions.midSentence.toLowerCase()) {
+            case 'name': {
+              // repeats of using name may or may not be allowed...
+              if(namingConventions.allowRepeats || !nameUsed) {
+                sentences[i] = sentences[i].replace(regexData[0], subsequentReplacement + (regexData[2] !== '' ? ` ${regexData[2]}` : '')); nameUsed = true;
+              } else {
+                sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);
+              }
+              break;
+            }
+            case 'either': {
+              let choice: number = Math.random();
+
+              // repeats of using name may or may not be allowed...
+              if((namingConventions.allowRepeats || !nameUsed) && choice >= 0.5) {
+                sentences[i] = sentences[i].replace(regexData[0], subsequentReplacement + (regexData[2] !== '' ? ` ${regexData[2]}` : ''));
+                nameUsed = true;
+              } else {
+                sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);
+              }
+              break;
+            }
+            case 'gender': sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);  break;
+          }
+
         }
 
-        // then deal with the rest of them...
-        switch(namingConventions.midSentence.toLowerCase()) {
-          case 'name': {
-            // repeats of using name may or may not be allowed...
-            if(namingConventions.allowRepeats || !nameUsed) {
-              sentences[i] = sentences[i].replace(replaceRegex, subsequentReplacement);
-              nameUsed = true;
-            } else {
-              sentences[i] = sentences[i].replace(replaceRegex, genderReplacement.toLowerCase());
-            }
-            break;
-          }
-          case 'either': {
-            let choice: number = Math.random();
-
-            // repeats of using name may or may not be allowed...
-            if((namingConventions.allowRepeats || !nameUsed) && choice >= 0.5) {
-              sentences[i] = sentences[i].replace(replaceRegex, subsequentReplacement);
-              nameUsed = true;
-            } else {
-              // sentences[i] = sentences[i].replace(replaceRegex, genderReplacement.toLowerCase());
-              sentences[i] = this.genderConversion(sentences[i], gender, 'Name');
-            }
-            break;
-          }
-          case 'gender': sentences[i] = sentences[i].replace(replaceRegex, genderReplacement.toLowerCase()); break;
-        }
       }
 
       return sentences.join('. ');
@@ -869,7 +877,6 @@ export class ReportsService {
         let genderIndex: number = (genderUnique === ("male" || "m") ? 0 : genderUnique === ("female" || "f") ? 1 : 2);
         let strReplace = new RegExp('\\$\\{('+leadWord+'\\|(.*?)/(.*?)/(.*?))+(\\[.*?])?\\}\\$', 'gi');
 
-        // wil;l this only work once??????? :S
         let regexData: string[];
 
         while((regexData = strReplace.exec(report)) !== null) {

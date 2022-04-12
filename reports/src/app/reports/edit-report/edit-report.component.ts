@@ -326,6 +326,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 this.loadedGroup = this.report.groupId;
                 this.loadedTemplate = this.report.templateId;
                 this.loadTemplate(this.loadedTemplate);
+                // generate variables from the names stuff.
+                this.checkNameVariablesExist();
         },  error: (error) => {
                 this.isLoading = false;
                 console.log(`Error loading report with ID ${id}: ${error}`);
@@ -578,8 +580,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
     assignNameData(element: string, value: string): void {
 
       switch(element) {
-        case 'firstUsage': this.report.names.firstTime = value; this.checkNameVariablesExist(value); break;
-        case 'nthUsage': this.report.names.otherTimes = value; this.checkNameVariablesExist(value); break;
+        case 'firstUsage': this.report.names.firstTime = value; this.checkNameVariablesExist(); break;
+        case 'nthUsage': this.report.names.otherTimes = value; this.checkNameVariablesExist(); break;
         case 'radioStart': this.report.names.startSentences = value; break;
         case 'radioMid': this.report.names.midSentence = value; break;
         case 'optMultiple': this.report.names.allowRepeats = !!value; break;
@@ -588,35 +590,42 @@ export class EditReportComponent implements OnInit, OnDestroy {
       this.checkForChanges();
     }
 
-    variableAdditional: VariableValues[] = [];
+    oldSet: Set<string> = new Set([]);
 
-    checkNameVariablesExist(names: string): void {
+    checkNameVariablesExist(): void {
+      let names: string = this.report.names.firstTime + this.report.names.otherTimes;
       let vars: VariableValues[] = this.report.variables;
       let regEx: RegExp = new RegExp('\'([a-zA-Z^\W]*?)\'', 'gi');
-      let namesString: Set<string> = new Set(names.split(regEx).filter((str: string) => str.replace(/[^\w]*/, '') !== '')); // not perfect, but good enough for 'Forename', 'surname'
 
-      // remove all of these variables from the main array
-      this.variableAdditional.forEach((variable: VariableValues) => {
-        let indexVal: number = this.report.variables.findIndex((val: VariableValues) => val.identifier === variable.identifier);
+      // TODO: not perfect yet, but good enough for 'Forename', 'surname' - would struggle if there was a name in between, such as 'Forename' (Danger) 'Surname'
+      let newSet: Set<string> = new Set(names.split(regEx).filter((str: string) => str.replace(/[^\w]*/, '') !== ''));
 
-        if(indexVal !== -1) {
-          this.report.variables.splice(indexVal, 1);
+      // for anything in the newSet that is also in the old set, remove from the old set as we want to retain it.
+      // this leaves the oldset with ONLY things which dont appear in the variables list OR hte new set
+      console.log(this.oldSet, newSet);
+      newSet.forEach((str: string) => { this.oldSet.delete(str) })
+
+      // if in the report object the variables exist, then remove them from the nameString array and dont change anything
+      console.log(`Old set to delete:`, this.oldSet);
+
+      // everytning left in the oldset is no longer in the variables list, so remove anything left in oldset from the main variables.
+      vars.forEach((variable: VariableValues, index: number) => {
+        if(this.oldSet.has(variable.identifier)) {
+          vars.splice(index, 1);
+          console.log(`Splice ${index}`);
         }
-      })
+      });
 
-      let tempVariableStorage: VariableValues = JSON.parse(JSON.stringify(this.variableAdditional));
-      this.variableAdditional = [];
+      // now I only have new things left in the namesstring set, these are what I will add and so need to assign tot he oldSet to remove next time...
+      this.oldSet = newSet;
 
-      // loop over each of the added variables
-      namesString.forEach((str: string) => {
-        let index: number = vars.findIndex((variable: VariableValues) => variable.identifier === str);
-
-        if(index === -1) {
+      // loop over each of the remaining variables to add, and add them.
+      newSet.forEach((str: string) => {
+        if(!vars.find((temp: VariableValues) => temp.identifier === str)) {
           const newVar: VariableValues = { identifier: str, key: '', value: '', options: [], optional: false };
-          this.variableAdditional.push(newVar);
+          vars.push(newVar);
         }
       })
-
 
     }
 
