@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-password-change',
@@ -14,7 +14,7 @@ export class PasswordChangeComponent implements OnInit {
 
     ngOnInit(): void {
     }
-    
+
     currentPassword: string;
     newPassword: string = "";
     newPasswordRepeat: string;

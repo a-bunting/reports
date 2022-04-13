@@ -4,13 +4,13 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument, DocumentData, DocumentSnapshot, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, map, Observable, switchMap, take, TimeoutError } from 'rxjs';
-import { User } from './user.model';
+import { User } from '../utilities/authentication/user.model';
 import { sentence } from 'src/app/services/sentences.service';
 
 // does this do anything?
 // export interface AuthResponseData {
-//     kind: string, idToken: string, email: string, 
-//     refreshToken: string, expiresIn: string , localId: string, 
+//     kind: string, idToken: string, email: string,
+//     refreshToken: string, expiresIn: string , localId: string,
 //     registered?: boolean
 // }
 
@@ -24,13 +24,13 @@ export interface Transaction {
 
 /**
  * NOTE TO SELF
- * 
+ *
  * This works, but I am not happy with the flow, and needs to be more robust perhaps.
  */
 
 export class AuthenticationService implements OnInit {
 
-    user = new BehaviorSubject<User>(null); 
+    user = new BehaviorSubject<User>(null);
     keepAlive: boolean = true; //for testing = true, but needs to persist somehow... localstorage settings?
 
     constructor(public firestore: AngularFirestore,
@@ -48,16 +48,16 @@ export class AuthenticationService implements OnInit {
         //     console.log(state);
         // })
 
-        
+
 
     }
 
     /**
-     * 
+     *
      * Sign up a new user to the system.
-     * @param email 
-     * @param password 
-     * @param name 
+     * @param email
+     * @param password
+     * @param name
      * @returns Observable
      */
     signup(email: string, password: string, name: string, stayLoggedIn: boolean = true): Observable<any> {
@@ -75,7 +75,7 @@ export class AuthenticationService implements OnInit {
             return Promise.all([
                 result,
                 getIdTokenResult,
-                getTemplate.ref.get(), 
+                getTemplate.ref.get(),
                 setUser
             ]);
         }).then(([userCreation, token, sentencesTemplate, setUser]) => {
@@ -83,13 +83,13 @@ export class AuthenticationService implements OnInit {
 
             // when successful then authenticate
             const authenticate = this.handleAuthentication(
-                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, 'password', false, [], token.token 
+                email, userCreation.user.uid, name, newUserEstablishmentProfile, false, false, false, 'password', false, [], token.token
             );
 
             // set the sentences template with the users userid - this will be their own copy of the database.
-            
+
             // for NOW new users ONLY use the template...
-            
+
             // this.firestore.collection('sentences').doc(userCreation.user.uid).set(sentencesTemplate.data()).then(() => {
             //     // set the data into local storage to make it quicker ot retrieve next time...
             //     let sentenceData: sentence[] = [];
@@ -111,14 +111,14 @@ export class AuthenticationService implements OnInit {
 
     login2(email: string, password: string, stayLoggedIn: boolean = false): Observable<any> {
         return from(this.fAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
-            return this.login3(email, password, true);   
+            return this.login3(email, password, true);
         }))
     }
 
     /**
      * Logs a user in.
-     * @param email 
-     * @param password 
+     * @param email
+     * @param password
      * @returns Observable
      */
     login3(email: string, password: string, stayLoggedIn: boolean = true): Observable<any> {
@@ -131,40 +131,40 @@ export class AuthenticationService implements OnInit {
 
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
-                Promise.resolve(result), 
+                Promise.resolve(result),
                 result.user.getIdTokenResult(),
-                userDocRef.ref.get(), 
+                userDocRef.ref.get(),
                 userTransRef.ref.get()
             ]);
         }).then(([user, tokenData, userDataSnapshot, userTransReference]) => {
 
             const establishment = userDataSnapshot.get('establishment') ? userDataSnapshot.get('establishment') : {id: "freeagent", name: "Free Agent" };
-            const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
-            const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
+            const admin = tokenData.claims.admin ? tokenData.claims.admin : false;
+            const manager = tokenData.claims.manager ? tokenData.claims.manager : false;
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
             const transactions: Transaction[] = [];
 
             // set the transactions...
             userTransReference.forEach((doc: DocumentSnapshot<Transaction>) => {  transactions.push(doc.data()); })
-            
+
             this.handleAuthentication(
-                user.user.email, 
+                user.user.email,
                 user.user.uid,
                 userDataSnapshot.get('name'),
                 establishment,
                 admin,
-                manager, 
+                manager,
                 this.isMember(transactions),
                 user.additionalUserInfo.providerId,
                 autoUpdate,
                 transactions,
-                tokenData.token 
+                tokenData.token
             );
         })
 
         return from(signIn);
     }
-    
+
     GoogleAuth(stayLoggedIn: boolean = true): any {
         this.keepAlive = stayLoggedIn;
         const googleAuth = new firebase.auth.GoogleAuthProvider();
@@ -173,67 +173,67 @@ export class AuthenticationService implements OnInit {
 
     /**
      * Login OR SIGN UP via an external provider
-     * @param provider 
-     * @returns 
+     * @param provider
+     * @returns
      */
     AuthLogin(provider): Promise<boolean> {
         return this.fAuth.signInWithPopup(provider).then((result) => {
 
             const userDocRef = this.firestore.collection('users').doc(result.user.uid);
             const userTransRef = this.firestore.collection('users').doc(result.user.uid).collection('transactionHistory');
-            
+
             // promise all rejects if one fails or continues if all succeed
             return Promise.all([
-                Promise.resolve(result), 
+                Promise.resolve(result),
                 result.user.getIdTokenResult(),
                 userDocRef.ref.get(),
                 userTransRef.ref.get()
             ]);
-            
+
         }).then(([user, tokenData, userDataSnapshot, userTransReference]) => {
-            
+
             const establishment = userDataSnapshot.get('establishment') ? userDataSnapshot.get('establishment') : {id: "freeagent", name: "Free Agent" };
-            const admin = tokenData.claims.admin ? tokenData.claims.admin : false; 
-            const manager = tokenData.claims.manager ? tokenData.claims.manager : false; 
+            const admin = tokenData.claims.admin ? tokenData.claims.admin : false;
+            const manager = tokenData.claims.manager ? tokenData.claims.manager : false;
             const autoUpdate: boolean = userDataSnapshot.get('autoUpdateDb') ? userDataSnapshot.get('autoUpdateDb') : false;
             let transactions: Transaction[] = [];
-            
+
             // set the transactions...
             userTransReference.forEach((doc: DocumentSnapshot<Transaction>) => {  transactions.push(doc.data()); })
-            
+
             if(userDataSnapshot.data() === undefined) {
                 // user is new, and so needs a user profile...
                 const newUserEstablishmentProfile: { id: string, name: string } = {id: "freeagent", name: "Free Agent"};
                 // add user to the database and then handle auth...
                 this.firestore.collection('users').doc(user.user.uid).set({name: user.user.displayName, email: user.user.email, establishment: newUserEstablishmentProfile}).then((result) => {
                     this.handleAuthentication(
-                        user.user.email, 
+                        user.user.email,
                         user.user.uid,
                         user.user.displayName,
                         establishment,
                         admin,
-                        manager, 
+                        manager,
                         this.isMember(transactions),
                         user.additionalUserInfo.providerId,
                         autoUpdate,
                         transactions,
-                        tokenData.token 
+                        tokenData.token
                         );
                     });
-                    
+
                 } else {
                     this.handleAuthentication(
-                        user.user.email, 
+                        user.user.email,
                         user.user.uid,
                         user.user.displayName,
                         establishment,
                         admin,
-                        manager, 
+                        manager,
                         this.isMember(transactions),
                         user.additionalUserInfo.providerId,
                         autoUpdate,
                         transactions,
-                        tokenData.token 
+                        tokenData.token
                     );
                 }
 
@@ -252,13 +252,13 @@ export class AuthenticationService implements OnInit {
             this.user.next(null);
             this.router.navigate(['/']);
         }).catch(error => {
-            console.log(`An error occurred during logout: ${error.message}`); 
-      })) 
+            console.log(`An error occurred during logout: ${error.message}`);
+      }))
     }
 
     /**
      * Used to facilitate relogin after refresh.
-     * @returns 
+     * @returns
      */
     autoLogin() {
 
@@ -268,7 +268,7 @@ export class AuthenticationService implements OnInit {
             name: string;
             establishment: {id: string, name: string};
             admin: boolean;
-            manager: boolean; 
+            manager: boolean;
             member: boolean;
             provider: string;
             autoUpdateDb: boolean;
@@ -281,7 +281,7 @@ export class AuthenticationService implements OnInit {
         if(!userData) { return; }
 
         const loadedUser = new User(userData.email, userData.id, userData.name, userData.establishment, userData.admin, userData.manager, userData.member, userData.provider, userData.autoUpdateDb, userData.transactionHistory, userData._token, new Date(userData._tokenExpirationDate));
-        
+
         if(loadedUser.token) {
             this.user.next(loadedUser);
             // check the keepalive...
@@ -295,12 +295,12 @@ export class AuthenticationService implements OnInit {
 
 
     private logoutTimer;
-    
+
     /**
      * Auto logout feature
      */
      refreshLogoutTimer() {
-        // make sure it is cleared... 
+        // make sure it is cleared...
         this.logoutTimer = undefined;
         // set it...
         this.logoutTimer = setInterval(() => {
@@ -313,7 +313,7 @@ export class AuthenticationService implements OnInit {
       * Every 30 mins refreshes the databse instance
       */
      refreshKeepAlive(): void {
-         // make sure it is cleared... 
+         // make sure it is cleared...
         this.logoutTimer = undefined;
         console.log("keep alive active...");
         // set it...
@@ -338,7 +338,7 @@ export class AuthenticationService implements OnInit {
                     this.user.value.provider,
                     this.user.value.autoUpdateDb,
                     this.user.value.transactionHistory,
-                    this.user.value.token, 
+                    this.user.value.token,
                     new Date(token.expirationTime)
                 );
                 // set local storage
@@ -351,14 +351,22 @@ export class AuthenticationService implements OnInit {
 
     /**
      * Handles the authentication of the user and sets the user data
-     * @param email 
-     * @param userId 
-     * @param token 
-     * @param expiresIn 
+     * @param email
+     * @param userId
+     * @param token
+     * @param expiresIn
      */
     private handleAuthentication(email: string, userId: string, name: string, establishment: {id: string, name: string}, admin: boolean, manager: boolean, member: boolean, provider: string, autoUpdateDb: boolean, transactionHistory: Transaction[], token: string): void {
         const expirationDate = new Date(new Date().getTime() + (3600 * 1000));
+        // const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, transactionHistory, token, expirationDate);
+
+
+
+        // all users are currently members.
         const user = new User(email, userId, name, {id: establishment.id, name: establishment.name}, admin, manager, member, provider, autoUpdateDb, transactionHistory, token, expirationDate);
+
+
+
         // set the keep alive or auto logut...
         console.log(this.keepAlive);
         if(this.keepAlive) {
@@ -379,7 +387,7 @@ export class AuthenticationService implements OnInit {
 
   /**
      * handles any errors output from the login or signup functions
-     * @param errorResponse 
+     * @param errorResponse
      * @returns error message
      */
    private handleError(errorResponse: any): string {
@@ -388,7 +396,7 @@ export class AuthenticationService implements OnInit {
         if(!errorResponse.code) {
             return errorMessage;
         } else {
-            
+
             switch(errorResponse.code) {
                 case 'auth/weak-password':
                     errorMessage = "The password you entered is too weak. Please make a stronger password by making it longer, using a mixture of capital and small letters, numbers and/or symbols.";
@@ -411,7 +419,7 @@ export class AuthenticationService implements OnInit {
                     break;
             }
         }
-        
+
         return errorMessage;
     }
 
@@ -421,10 +429,10 @@ export class AuthenticationService implements OnInit {
     medium = new RegExp('(?=.{7,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])');
     long = new RegExp('(?=.{10,})');
     acceptable = new RegExp('(?=.{6,})');
-    
+
     /**
      * Checks if the password meets the bare minimum standards...
-     * @returns 
+     * @returns
      */
     testPassword(pass: string): boolean {
         return this.acceptable.test(pass) ? true : false;
@@ -444,8 +452,8 @@ export class AuthenticationService implements OnInit {
 
     /**
      * This will be how any password reset happens, as angularfire2 doesnt support direct changing of user credentials.
-     * @param emailAddress 
-     * @returns 
+     * @param emailAddress
+     * @returns
      */
     sendPasswordResetEmail(emailAddress: string): Observable<boolean> {
         return from(this.fAuth.sendPasswordResetEmail(emailAddress).then(() => {
@@ -458,9 +466,13 @@ export class AuthenticationService implements OnInit {
 
     /**
      * Uses the users transaction history to determine if the user is a member or not...
-     * @param transactionHistory 
+     * @param transactionHistory
      */
     isMember(transactionHistory: Transaction[]): boolean {
+
+
+      return true;
+
         const loginTime: number = new Date().getTime();
         // iterate over the transactions until you find one which has an expiration in the future, otherwise return false...
         for(let i = transactionHistory.length - 1 ; i >= 0 ; i--) {

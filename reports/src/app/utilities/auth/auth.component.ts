@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { from, Observable } from 'rxjs';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-auth',
@@ -33,7 +33,7 @@ export class AuthComponent implements OnInit {
             console.log("invalid form");
             return;
         }
-        
+
         this.isLoading = true;
         const email = form.value.registerEmail;
         const password = form.value.registerPassword;
@@ -43,12 +43,12 @@ export class AuthComponent implements OnInit {
 
         authObs.subscribe((responseData: any) => {
             this.isLoading = false;
-        }, 
+        },
         errorMessage => {
             this.error = errorMessage;
             this.isLoading = false;
         })
-        
+
         form.reset();
     }
 
@@ -59,8 +59,8 @@ export class AuthComponent implements OnInit {
     showTerms: boolean = false;
     showPrivacy: boolean = false;
 
-    toggleText(terms: boolean, privacy: boolean): void { 
+    toggleText(terms: boolean, privacy: boolean): void {
         this.showTerms = terms ? this.showTerms ? false : true : false;
-        this.showPrivacy = privacy ? this.showPrivacy ? false : true : false; 
+        this.showPrivacy = privacy ? this.showPrivacy ? false : true : false;
     }
 }

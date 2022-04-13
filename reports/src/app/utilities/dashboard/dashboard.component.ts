@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, zip } from 'rxjs';
 import { User } from '../authentication/user.model';
-import { AuthenticationService, Transaction } from '../authentication/authentication.service';
+import { AuthenticationService, Transaction } from '../../services/authentication.service';
 import { GroupsService, Group } from 'src/app/services/groups.service';
 import { Template, TemplatesService } from 'src/app/services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
@@ -29,9 +29,9 @@ export class DashboardComponent implements OnInit {
         private db: DatabaseService,
         private AuthService: AuthenticationService,
         private groupService: GroupsService,
-        private templatesService: TemplatesService, 
+        private templatesService: TemplatesService,
         private sentenceService: SentencesService,
-        private reportService: ReportsService, 
+        private reportService: ReportsService,
         private authService: AuthenticationService,
         public customService: CustomService
     ) {
@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit {
             this.tooltipMode = tooltipFlag;
         })
     }
-    
+
     ngOnInit(): void {
         // get user data...
         this.AuthService.user.subscribe((user: User) => {
@@ -113,12 +113,12 @@ export class DashboardComponent implements OnInit {
         // and return them at the same time...
         return zip(loadGroups, loadTemplate, loadSentence, loadReports);
     }
-    
+
     reportsLoading: boolean = false;
 
     loadReports(): void {
         this.reportsLoading = true;
-        this.reportService.getReports().subscribe((result: ReportTemplate[]) => { 
+        this.reportService.getReports().subscribe((result: ReportTemplate[]) => {
             this.reports = result.sort((a: ReportTemplate, b: ReportTemplate) => b.lastUpdated - a.lastUpdated).slice(0, 4);
             this.reportsLoading = false;
         });
@@ -140,7 +140,7 @@ export class DashboardComponent implements OnInit {
         this.db.modifyUserData(this.user.id, {[fieldName]: value}).subscribe({
             next: () => {
                 // switch based upon the fields
-                
+
                 switch(fieldName) {
                     case 'name': this.user.setUsername = ''+value; break;
                     case 'establishment': this.user.establishment.name = ''+value; break;
@@ -158,21 +158,21 @@ export class DashboardComponent implements OnInit {
     passwordResetFail: number = 0;
 
     sendPasswordResetEmail(): void {
-        this.passwordResetLoading = true;       
-                
+        this.passwordResetLoading = true;
+
         this.authService.sendPasswordResetEmail(this.user.email).subscribe(() => {
-            this.passwordResetLoading = false;        
+            this.passwordResetLoading = false;
             this.passwordResetSentSuccessfully = true;
         }, error => {
-            this.passwordResetLoading = false;        
+            this.passwordResetLoading = false;
             this.passwordResetSentSuccessfully = false;
         });
     }
 
     /**
      * Returns an array for the number of icons on the trial box
-     * @param numbers 
-     * @returns 
+     * @param numbers
+     * @returns
      */
     generateIcons(numbers: number): number[] {
         return Array(numbers).fill(1);

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { AuthenticationService } from './authentication.service';
 import { User } from '../utilities/authentication/user.model';
 
 @Injectable({

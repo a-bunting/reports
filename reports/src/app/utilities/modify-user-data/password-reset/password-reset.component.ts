@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthenticationService } from '../../authentication/authentication.service';
+import { AuthenticationService } from '../../../services/authentication.service';
 
 @Component({
   selector: 'app-password-reset',
@@ -12,8 +12,8 @@ export class PasswordResetComponent implements OnInit {
 
     constructor(
         public auth: AuthenticationService,
-        private activatedRoute: ActivatedRoute, 
-        private fAuth: AngularFireAuth, 
+        private activatedRoute: ActivatedRoute,
+        private fAuth: AngularFireAuth,
         private router: Router
     ) { }
 
@@ -32,7 +32,7 @@ export class PasswordResetComponent implements OnInit {
     /**
      * Updates the password
      */
-    updatePassword(): void {        
+    updatePassword(): void {
         if(this.oobCode && (this.newPassword === this.newPasswordRepeat)) {
             // set isloading to true;
             this.isLoading = true;

@@ -13,7 +13,7 @@
                     <input type="text" name="userNameInput" id="userNameInput" (blur)="modifyUserData('name', username)" (keyup.enter)="modifyUserData('name', username)" [(ngModel)]="username">
                 </div>
             </div>
-<!--             
+<!--
             <div class="dashboard__data--item">
                 <div class="dashboard__data--text">Establishment</div>
                 <div class="dashboard__data--input">
@@ -38,7 +38,7 @@
                 <div class="dashboard__db-status-indicator" [class.dashboard__db-status-indicator--green]="databaseStatus" [class.dashboard__db-status-indicator--red]="!databaseStatus">
                     {{ databaseStatusUpdating ? "Currently Updating" : databaseStatus ? "You are up to date!" : "If some of your data looks a little out of date your database may need refreshing"}}
                 </div>
-        
+
                 <div class="dashboard__db-force-update">
                     <button class="dashboard__db-force-update--button" (click)="forceLoadDataClick()" [disabled]="databaseStatus || databaseStatusUpdating">Force Database Update</button>
                 </div>
@@ -58,7 +58,7 @@
                     The video tutorials are helpful if you get stuck!
                 </p>
                 <button class="input__button u__margin-top--large" (click)="customService.toggleGreaterTooltips()">
-                    {{ tooltipMode ? 
+                    {{ tooltipMode ?
                         "Disable tooltip mode again!" :
                         "For extra tips, click me to enable 'Help Mode' which gives a few extra tooltips throughout the app to help you."
                     }}
@@ -78,11 +78,11 @@
                         <ng-container [ngSwitch]="user.provider">
                             <ng-container *ngSwitchCase="'password'">
                                 <p>To modify your password click the button below and check your email for a password change link.</p>
-                                <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to change your password" }}</button>      
+                                <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to change your password" }}</button>
                             </ng-container>
                             <ng-container *ngSwitchCase="'google.com'">
                                 <p>If you would like to transfer your account to Report Zone from Google, click the button below and set your password!</p>
-                                <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to transfer account from Google" }}</button>      
+                                <button class="input__button u__margin-top--medium" (click)="sendPasswordResetEmail()">{{ passwordResetFail > 0 ? "Password reset email failed ("+passwordResetFail+" time), try again soon!" : "Click me to transfer account from Google" }}</button>
                             </ng-container>
                             <ng-container *ngSwitchDefault>
                                 <p>Oops! Something went wrong, but dont worry, its not going to affect your experience!</p>
@@ -96,7 +96,7 @@
 
                 </ng-container>
 
-               
+
             </div>
             <!-- <div class="dashboard__tips">
                 <p>Check out these tips to help you get the best of this website!</p>
@@ -115,9 +115,9 @@
                 <div class="loading" *ngIf="reportsLoading">
                     <app-loading-spinner></app-loading-spinner>
                 </div>
-        
+
                 Here are the last reports you have been working on:
-        
+
                 <div class="dashboard__reports--report" *ngIf="!reports">
                     You have no reports yet.
                 </div>
@@ -127,7 +127,7 @@
                     <div class="dashboard__reports--name">{{ report.name }}</div>
                     <div class="dashboard__reports--lastupd">Updated {{ report.lastUpdated | date:'medium' }}</div>
                 </div>
-                
+
             </div>
 
             <div class="dashboard__member" *ngIf="user.member">
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="dashboard__trial" *ngIf="user.member">
+            <div class="dashboard__trial" *ngIf="!user.member">
                 <div class="dashboard__trial--text">
                     You are currently using a trial version of ReportZone. These are your quota allowances and current usage. To join and unlock all possibilities, please <a routerLink='/join'>join today</a>!
                 </div>
@@ -156,7 +156,7 @@
                     </div>
                     <div class="dashboard__trial--data-point">
                         <div class="dashboard__trial--data-point--text">Templates Created</div>
-                        
+
                         <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfTemplates()).length < 10">
                             <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfTemplates())">&nbsp;</div>
                             <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfTemplates())">&nbsp;</div>
@@ -169,7 +169,7 @@
                     </div>
                     <div class="dashboard__trial--data-point">
                         <div class="dashboard__trial--data-point--text">Reports Created</div>
-                        
+
                         <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfReports()).length < 10">
                             <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfReports())">&nbsp;</div>
                             <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfReports())">&nbsp;</div>
@@ -182,7 +182,7 @@
                     </div>
                     <div class="dashboard__trial--data-point">
                         <div class="dashboard__trial--data-point--text">Reports Created</div>
-                        
+
                         <div class="dashboard__trial--data-point--value" *ngIf="generateIcons(customService.getMaxNumberOfReportsGenerated()).length < 10">
                             <div class="dashboard__trial--data-point--used" *ngFor="let i of generateIcons(customService.getNumberOfReportsGenerated())">&nbsp;</div>
                             <div class="dashboard__trial--data-point--unused" *ngFor="let i of generateIcons(customService.getMaxNumberOfReportsGenerated())">&nbsp;</div>

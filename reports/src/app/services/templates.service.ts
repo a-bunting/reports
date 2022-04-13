@@ -2,19 +2,19 @@ import { Injectable } from '@angular/core';
 import { DocumentReference, DocumentSnapshot, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, of, Subject } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
-import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { AuthenticationService } from './authentication.service';
 import { User } from '../utilities/authentication/user.model';
 import { CustomService } from './custom.service';
 import { DatabaseService } from './database.service';
 
 export interface TemplateDB {
-    manager: string; public: boolean; 
+    manager: string; public: boolean;
     name: string; characters: {min: number, max: number};
     template: string[]
 }
 
 export interface Template {
-    id: string; public: boolean; 
+    id: string; public: boolean;
     name: string; characters: {min: number, max: number};
     template: [string[]]
 }
@@ -29,10 +29,10 @@ export class TemplatesService {
     templates: Template[] = [];
 
     constructor(
-        private auth: AuthenticationService, 
+        private auth: AuthenticationService,
         private db: DatabaseService,
         private customService: CustomService
-        ) { 
+        ) {
          // subscribe to the user details;
          auth.user.subscribe((user: User) => {
             this.user = user;
@@ -42,14 +42,14 @@ export class TemplatesService {
     /**
      * Get the best version of the templates and return it
      * (either from local storage or the database...)
-     * @returns 
+     * @returns
      */
-    getTemplates(forcedFromDatabase: boolean = false, uid?: string): Observable<Template[]> {    
+    getTemplates(forcedFromDatabase: boolean = false, uid?: string): Observable<Template[]> {
         this.templates = [];
         // check local sotrage first...
         if(localStorage.getItem('templates-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the templates data...
-            this.templates = JSON.parse(localStorage.getItem('templates-data'));               
+            this.templates = JSON.parse(localStorage.getItem('templates-data'));
             // set the data on the display
             return of(this.templates).pipe(take(1), tap(returnData => {
                 // set the current number of templates...
@@ -66,13 +66,13 @@ export class TemplatesService {
                     let temp: TemplateDB = template.data();
                     let routes: [string[]] = [[]];
                     let id: string = template.id;
-    
+
                     // split the routes up(entered into db as 123456|abcdef etc)
                     temp.template.forEach((route: string) => {
                         const routeIds: string[] = route.split("|");
                         routes.push(routeIds);
                     });
-    
+
                     // build the new template data to use in the app
                     let newTemplate: Template = {
                         id: id,
@@ -81,7 +81,7 @@ export class TemplatesService {
                         characters: { min: temp.characters.min, max: temp.characters.max },
                         template: routes
                     };
-    
+
                     // and add to the templayte object
                     this.templates.push(newTemplate);
                 });
@@ -93,8 +93,8 @@ export class TemplatesService {
 
     /**
      * send a single template
-     * @param id 
-     * @returns 
+     * @param id
+     * @returns
      */
     getTemplate(id: string): Template {
         let index: number = this.templates.findIndex((temp: Template) => temp.id === id);
@@ -103,9 +103,9 @@ export class TemplatesService {
 
     /**
      * When data changes emit the new data to anything that cares.
-     * @param id 
-     * @param name 
-     * @param deleted 
+     * @param id
+     * @param name
+     * @param deleted
      */
     dataChange(data: {id: string, name: string, deleted: boolean, created: boolean}): void {
         this.menuData.next(data);
@@ -113,22 +113,22 @@ export class TemplatesService {
 
     /**
      * Adds a new template to the templates.
-     * 
-     * @param newTemplate 
+     *
+     * @param newTemplate
      */
     addNewTemplate(newTemplate: TemplateDB, rawRoutes: [string[]]): Observable<DocumentReference> {
         // generate a new templatedb for the database...
         let tempDb: TemplateDB = {
-            ...newTemplate, 
-            manager: this.user.id, 
+            ...newTemplate,
+            manager: this.user.id,
             template: this.parseTemplate(rawRoutes)
         }
 
         // return the databse update object
         return this.db.addTemplate(tempDb).pipe(take(1), tap((result: DocumentReference) => {
             let temp: Template = {
-                ...newTemplate, 
-                id: result.id, 
+                ...newTemplate,
+                id: result.id,
                 template: rawRoutes
             }
             // add to the local array
@@ -141,9 +141,9 @@ export class TemplatesService {
 
     /**
      * Updates a template of a specific id and then updates local storage...
-     * @param template 
-     * @param id 
-     * @returns 
+     * @param template
+     * @param id
+     * @returns
      */
     updateTemplate(template: Template): Observable<any> {
         // find the correct template using the id and update;
@@ -160,8 +160,8 @@ export class TemplatesService {
 
     /**
      * deletes a template from the database...
-     * @param id 
-     * @returns 
+     * @param id
+     * @returns
      */
     deleteTemplate(id: string): Observable<boolean> {
         return this.db.deleteTemplate(id).pipe(take(1), tap(() => {
@@ -181,7 +181,7 @@ export class TemplatesService {
     /**
      * Updates the storage on the local machine - used to speed up the whole application
      * but essentially mirrors the database.
-     * @param templates 
+     * @param templates
      */
     updateLocalStorage(templates: Template[]): void {
         // set the current number of templates...
@@ -191,9 +191,9 @@ export class TemplatesService {
 
     /**
      * Update the database with new information.
-     * @param template 
-     * @param id 
-     * @returns 
+     * @param template
+     * @param id
+     * @returns
      */
     updateDatabase(template: Template, id: string): Observable<any> {
         // generate a new databse template format. only if templatw type passes is Template...
@@ -217,8 +217,8 @@ export class TemplatesService {
 
     /**
      * Takes a template from Template format (for use on the site) to TemplateDB format (for storage)
-     * @param routes 
-     * @returns 
+     * @param routes
+     * @returns
      */
     parseTemplate(routes: [string[]]): string[] {
         // parse the template first

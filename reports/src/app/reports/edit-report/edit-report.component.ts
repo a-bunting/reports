@@ -5,7 +5,7 @@ import { GlobalValues, Report, ReportsService, ReportTemplate, TestIndividualVal
 import { Observable, Subscription, zip } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
 import { map, take } from 'rxjs/operators';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from 'src/app/services/tests.service';
@@ -52,7 +52,6 @@ export class EditReportComponent implements OnInit, OnDestroy {
     ) {
         customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
             this.customTooltips = newFlag;
-            console.log(newFlag);
         })
     }
 
@@ -301,6 +300,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
             }, 0);
         }).then(() => {
             this.processingReport = false;
+            this.checkNameVariablesExist();
             this.checkForChanges();
         })
     }
@@ -319,15 +319,14 @@ export class EditReportComponent implements OnInit, OnDestroy {
               // as names were added after, check if this report has a names component and if not add a default...
               if(!report.names) { report.names = { firstTime: "'Forename', 'Surname'", otherTimes: "'Forename'", startSentences: 'Either', midSentence: 'Either', allowRepeats: false }; }
 
-                this.report = report;
-                // set to not loading...
-                this.isLoading = false;
-                // check if we can make the report yet...
-                this.loadedGroup = this.report.groupId;
-                this.loadedTemplate = this.report.templateId;
-                this.loadTemplate(this.loadedTemplate);
-                // generate variables from the names stuff.
-                this.checkNameVariablesExist();
+              this.report = report;
+              // set to not loading...
+              this.isLoading = false;
+              // check if we can make the report yet...
+              this.loadedGroup = this.report.groupId;
+              this.loadedTemplate = this.report.templateId;
+              console.log(this.report);
+              // this.loadTemplate(this.loadedTemplate);
         },  error: (error) => {
                 this.isLoading = false;
                 console.log(`Error loading report with ID ${id}: ${error}`);
@@ -340,6 +339,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
     newReport(): void {
         this.isLoading = false;
         this.report = {id: "", groupId: "", templateId: "", name: "", lastUpdated: Date.now(), manager: this.user.id, variables: [], globals: [], tests: [], names: { firstTime: "'Forename', 'Surname'", otherTimes: "'Forename'", startSentences: 'Either', midSentence: 'Either', allowRepeats: false }, keys: [], reports: []};
+        this.checkNameVariablesExist();
         this.loadedGroup = undefined;
     }
 
@@ -397,6 +397,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
         this.report.globals = newGlobals;
         this.report.variables = newVariables;
         this.report.tests = newTests;
+
     }
 
     /**
@@ -592,9 +593,14 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     oldSet: Set<string> = new Set([]);
 
-    checkNameVariablesExist(): void {
+    /**
+     * The variables for the names are dynamics, meaning you can add them when reports are written
+     * The variabloes needed need to be assignable though so this adds them to the variables in the report.
+     */
+    checkNameVariablesExist(): VariableValues[] {
       let names: string = this.report.names.firstTime + this.report.names.otherTimes;
       let vars: VariableValues[] = this.report.variables;
+      let newVars: VariableValues[] = [];
       let regEx: RegExp = new RegExp('\'([a-zA-Z^\W]*?)\'', 'gi');
 
       // TODO: not perfect yet, but good enough for 'Forename', 'surname' - would struggle if there was a name in between, such as 'Forename' (Danger) 'Surname'
@@ -602,17 +608,12 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
       // for anything in the newSet that is also in the old set, remove from the old set as we want to retain it.
       // this leaves the oldset with ONLY things which dont appear in the variables list OR hte new set
-      console.log(this.oldSet, newSet);
       newSet.forEach((str: string) => { this.oldSet.delete(str) })
-
-      // if in the report object the variables exist, then remove them from the nameString array and dont change anything
-      console.log(`Old set to delete:`, this.oldSet);
 
       // everytning left in the oldset is no longer in the variables list, so remove anything left in oldset from the main variables.
       vars.forEach((variable: VariableValues, index: number) => {
         if(this.oldSet.has(variable.identifier)) {
           vars.splice(index, 1);
-          console.log(`Splice ${index}`);
         }
       });
 
@@ -624,9 +625,12 @@ export class EditReportComponent implements OnInit, OnDestroy {
         if(!vars.find((temp: VariableValues) => temp.identifier === str)) {
           const newVar: VariableValues = { identifier: str, key: '', value: '', options: [], optional: false };
           vars.push(newVar);
+          newVars.push(newVar);
         }
       })
 
+      // returns this in case it is needed at the beginning of the function.
+      return newVars;
     }
 
     /**

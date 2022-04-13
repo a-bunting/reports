@@ -1,7 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Template, TemplateDB, TemplatesService } from 'src/app//services/templates.service';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
-import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
@@ -30,14 +30,14 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     helpFlag: boolean;
 
     constructor(
-        private router: ActivatedRoute, 
+        private router: ActivatedRoute,
         private navigation: Router,
-        private templateService: TemplatesService, 
-        private sentenceService: SentencesService, 
+        private templateService: TemplatesService,
+        private sentenceService: SentencesService,
         private auth: AuthenticationService,
         public customService: CustomService
-    ) 
-    { 
+    )
+    {
         customService.greaterTooltipsFlag.subscribe((newFlag: boolean) => {
             this.helpFlag = newFlag;
         })
@@ -75,7 +75,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                     this.loadTemplate(this.templateId);
                 });
         },  error: (error) => { console.log(`Error gathering the database: ${error.message}`); }});
-        
+
     }
 
     ngOnDestroy(): void {
@@ -84,11 +84,11 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Load the template 
-     * @param id 
+     * Load the template
+     * @param id
      */
     loadTemplate(id: string | undefined): void {
-        if(id !== undefined) {            
+        if(id !== undefined) {
             const templateData: Template = this.templateService.getTemplate(id);
             // and use the data to populate the template...
             this.templateCharacters.min = templateData.characters.min;
@@ -108,10 +108,10 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.exampleSentence.report = this.sentenceService.stripVariables(this.exampleSentence.report);
         }
     }
-    
+
     /**
      * Updates the viewdata for a given route...
-     * @param route 
+     * @param route
      */
     updateViewdata(route: [string[]]): void {
         this.viewData = [[[]]];
@@ -134,7 +134,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
                         this.deleteElement(this.templateRoutes.length - 1);
                     }
                 })
-            } 
+            }
         })
     }
 
@@ -151,12 +151,12 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         let parsedTemplate: string[] = this.templateService.parseTemplate(this.templateRoutes);
 
         return {
-            name: this.templateName, 
-            characters: {   min: this.templateCharacters.min, 
+            name: this.templateName,
+            characters: {   min: this.templateCharacters.min,
                             max: this.templateCharacters.max
                         },
-            manager: this.user.id, 
-            public: false, 
+            manager: this.user.id,
+            public: false,
             template: parsedTemplate
         }
     }
@@ -194,11 +194,11 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         // generate a new template
         let newTemplate: Template = {
             id: this.templateId,
-            name: this.templateName, 
-            characters: {   min: this.templateCharacters.min, 
+            name: this.templateName,
+            characters: {   min: this.templateCharacters.min,
                             max: this.templateCharacters.max
                         },
-            public: false, 
+            public: false,
             template: this.templateRoutes
         };
         // set it as updating the db.
@@ -225,7 +225,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.templateRoutes.push([""]);
             this.viewData.push(
                 this.sentenceService.getSentenceData(
-                    this.templateRoutes[this.templateRoutes.length-1], 
+                    this.templateRoutes[this.templateRoutes.length-1],
                     false,
                     ['name']
                 )
@@ -234,7 +234,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
             this.templateRoutes = [[]];
             this.viewData[0] =
                 this.sentenceService.getSentenceData(
-                    this.templateRoutes[this.templateRoutes.length-1], 
+                    this.templateRoutes[this.templateRoutes.length-1],
                     false,
                     ['name']
                 );
@@ -265,9 +265,9 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     /**
      * Updates the view and route data for the selected route templates.
-     * @param elementId 
-     * @param index 
-     * @param id 
+     * @param elementId
+     * @param index
+     * @param id
      */
     updateElementRoute(elementId: number, index: number, id: string): void {
         let idCopy: string = id;
@@ -293,7 +293,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         this.templateRoutes[elementId][index+1] = id;
         this.templateRoutes[elementId].length = index + 2;
 
-        // generate an example sentence            
+        // generate an example sentence
         this.exampleSentence = this.sentenceService.generateCompoundReport(this.templateRoutes);
         this.exampleSentence.report = this.sentenceService.stripVariables(this.exampleSentence.report);
 
@@ -313,7 +313,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
         if(this.savedTemplate) {
             let currentTemplate: string = JSON.stringify(this.generateTemplate());
             let oldTemplate: string = JSON.stringify(this.savedTemplate);
-    
+
             if(currentTemplate === oldTemplate) {
                 this.templateUpdated = false;
                 return false;
@@ -371,8 +371,8 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     /**
      * Check if a string is a route combination
-     * @param route 
-     * @returns 
+     * @param route
+     * @returns
      */
     allInclusivityChecker(route: string | undefined): boolean {
         if(route !== undefined) {
@@ -423,7 +423,7 @@ export class CreateTemplateComponent implements OnInit, OnDestroy {
 
     /**
      * listen for the escape key press to make any tempory changes go away!
-     * @param event 
+     * @param event
      */
      @HostListener('document:keydown.escape', ['$event']) onEscapeKeyPress(event: KeyboardEvent) {
         this.dragging = false;

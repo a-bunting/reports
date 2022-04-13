@@ -3,16 +3,16 @@ import { of, Observable } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { GroupsService, Student } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
-import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { AuthenticationService } from './authentication.service';
 import { User } from '../utilities/authentication/user.model';
 import { TestValues } from './reports.service';
 import { TemplateTest, Test, TestsService, TestVariable } from './tests.service';
 
 export interface sentence {
     id: string;
-    endpoint?: boolean, starter?: boolean, 
+    endpoint?: boolean, starter?: boolean,
     name?: string, sentence?: string[]
-    subcategories?: [sentence], tests?: TemplateTest[], 
+    subcategories?: [sentence], tests?: TemplateTest[],
     index?: number; order?: number
 }
 
@@ -22,9 +22,9 @@ export interface sentence {
 
 // export interface sentence {
 //     id: string;
-//     endpoint?: boolean, starter?: boolean, 
+//     endpoint?: boolean, starter?: boolean,
 //     name?: string, sentence?: string[], meta?: string | number
-//     subcategories?: [sentence], tests?: {name: string}[], 
+//     subcategories?: [sentence], tests?: {name: string}[],
 //     index?: number; order?: number
 // }
 
@@ -38,12 +38,12 @@ export class SentencesService {
     user: User;
 
     constructor(
-        private databaseService: DatabaseService, 
-        private testsService: TestsService, 
-        private groupService: GroupsService, 
+        private databaseService: DatabaseService,
+        private testsService: TestsService,
+        private groupService: GroupsService,
         private authService: AuthenticationService
     )
-    { 
+    {
         this.authService.user.subscribe((user: User) => {
             this.user = user;
         })
@@ -51,13 +51,13 @@ export class SentencesService {
 
     /**
      * Gets the sentence data from memory or from the database and returns it as an observable...
-     * @returns 
+     * @returns
      */
     getSentencesDatabase(dbId: string = 'template', forcedFromDatabase: boolean = false): Observable<sentence>{
         // check if there is an instance of the sentences database in localstorage...
         if(localStorage.getItem('sentences-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the sentence data...
-            this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));               
+            this.sentenceData = JSON.parse(localStorage.getItem('sentences-data'));
             // set the data on the display
             return of(this.sentenceData[0]).pipe(take(1), tap(returnData => {
                 // return the data array...
@@ -83,7 +83,7 @@ export class SentencesService {
     }
 
     /**
-     * 
+     *
      * @returns Returns the current state of the database.
      */
     getCurrentSentenceData(): sentence[] {
@@ -113,8 +113,8 @@ export class SentencesService {
 
     /**
     * Get the data for the route selected.
-    * 
-     * @param route the array of subcategories through the sentenceData array 
+    *
+     * @param route the array of subcategories through the sentenceData array
      * @param singleStream  whether or not to go down the route only or butterfly out
      * @param data a list of key values to return (i.e. name, sentence etc)
      */
@@ -129,10 +129,10 @@ export class SentencesService {
         let sntncData: sentence[] = this.sentenceData;
 
         // iterate over the route...
-        route.forEach((value: string, routePosition: number) => {                
+        route.forEach((value: string, routePosition: number) => {
             let subData: sentence[];
             let newReturnData: [{}] = [{}];
-            
+
             for(let i = 0 ; i < sntncData.length ; i++) {
                 if(sntncData[i].id === value) {
                     // this is the route we need...
@@ -152,14 +152,14 @@ export class SentencesService {
                             break;
                         }
                     }
-                    
+
                     // check to see if there is subdata, and if not just use the sentence stem
                     subData.forEach((dataStem: sentence, index: number) => {
                         // if a single stream is needed only select the appropriate routes...
                         if(!singleStream || (route[routePosition+1] === dataStem.id) || ((routePosition + 1) === route.length)) {
                             data.forEach((key: string) => {
                                 // get the value for the key value pair
-                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);  
+                                const val: string | boolean | number = (dataStem[key] ? dataStem[key] : undefined);
                                 // if it exists add it to the array
                                 if(val !== undefined) {
                                     const add = { [key]: val };
@@ -182,10 +182,10 @@ export class SentencesService {
 
     /**
      * Updated form of getsentencedata which takes multiple options into account...
-     * @param route 
-     * @param singleStream 
-     * @param data 
-     * @returns 
+     * @param route
+     * @param singleStream
+     * @param data
+     * @returns
      */
     getCompoundSentenceData(route: string[], singleStream: boolean = true, data: string[] = ['id']): [sentence[]][] {
         let returnSentences: [sentence[]][] = [];
@@ -201,7 +201,7 @@ export class SentencesService {
 
     /**
      * Get the names on the path for the given routes
-     * @param route 
+     * @param route
      * @returns string of names
      */
     getRouteNames(route: string[]): string[] {
@@ -224,10 +224,10 @@ export class SentencesService {
 
     /**
      * Generates all potential options for sentences that could be make from a route
-     * @param route 
+     * @param route
      */
     generateSentenceOptions(route: string[]): {sentence: string, depth: number, delete: boolean}[] {
-        
+
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
 
@@ -237,7 +237,7 @@ export class SentencesService {
             const oldSentences = [...sentences];
 
             stem.forEach((newStem: sentence) => {
-                 
+
                 if(newStem.sentence) {
                     newStem.sentence.forEach((sentenceStem: string) => {
                 // if (options) {
@@ -245,11 +245,11 @@ export class SentencesService {
 
                         const sentence = sentenceStem;
                         const starter = newStem.starter ? newStem.starter : false;
-        
+
                         if(sentence) {
                             oldSentences.forEach((previousSentence, idx) => {
                                 let newSentence: string = previousSentence.sentence + sentence;
-        
+
                                 // only if the new sentence is deeper than the old sentence can it be added.
                                 // peers do not add (sentences with the same depth)
                                 if(previousSentence.depth < (depth + 1)) {
@@ -300,7 +300,7 @@ export class SentencesService {
 
         // sort by length
         unfiltered.sort((a: {sentence: string, depth: number, delete: boolean}, b: {sentence: string, depth: number, delete: boolean}) => { return a.sentence.length - b.sentence.length });
-        
+
         return unfiltered;
     }
 
@@ -325,10 +325,10 @@ export class SentencesService {
 
                 report.map((temp: string) => { temp += str; })
                 // add all sentences to the final report array
-                str.forEach((temp: string) => { 
-                    report.push(temp); 
+                str.forEach((temp: string) => {
+                    report.push(temp);
                 })
-                
+
                 // close paragraph tag
                 if (i === route.length - 1) { report.map((temp: string) => temp += "</p>") }
             }
@@ -343,25 +343,25 @@ export class SentencesService {
         let options: string[] = [];
         const data = this.getSentenceData(route, true, ['name', 'sentence', 'starter', 'tests']);
         let sentences: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
-    
+
         // iterate over each level of the sentence builder...
         data.forEach((stem: sentence[], depth: number) => {
             // iterate overall options within a level
             const oldSentences = [...sentences];
-    
+
             stem.forEach((newStem: sentence) => {
-                 
+
                 if(newStem.sentence) {
-    
+
                     newStem.sentence.forEach((sentenceStem: string) => {
-    
+
                         const sentence = sentenceStem;
                         const starter = newStem.starter ? newStem.starter : false;
-        
+
                         if(sentence) {
                             oldSentences.forEach((previousSentence, idx) => {
                                 let newSentence: string = previousSentence.sentence + sentence;
-        
+
                                 // only if the new sentence is deeper than the old sentence can it be added.
                                 // peers do not add (sentences with the same depth)
                                 if(previousSentence.depth < (depth + 1)) {
@@ -388,10 +388,10 @@ export class SentencesService {
                     });
                 }
             })
-    
+
             // after the first iteration remove the blank first entry
             if(depth === 0) { sentences.splice(0, 1); }
-    
+
             // iterate over the sentences and delete all that need to be deleted.
             for(let i = sentences.length - 1 ; i >= 0 ; i--) {
                 if(sentences[i].delete === true) {
@@ -400,11 +400,11 @@ export class SentencesService {
             }
             return sentences;
         })
-    
+
         // for some reason there are repeat sentences, delete them simply for now...
         let unfiltered: [{sentence: string, depth: number, delete: boolean}] = [{sentence: "", depth: 0, delete: true}];
         unfiltered.shift(); // this is so hax :/
-    
+
         sentences.forEach(a => {
             let i = unfiltered.findIndex(b => a.sentence === b.sentence);
             i === -1 ? unfiltered.push(a) : null;
@@ -439,7 +439,7 @@ export class SentencesService {
     newTestSentenceOptionCreator(fullRoute: [string[]], userData?: Student, tests?: TestValues[]): string[][] {
 
         let finalOptions: string[][] = [];
-        
+
         // iterate over each part of the route...
         fullRoute.forEach((route: string[], i1: number) => {
 
@@ -447,20 +447,20 @@ export class SentencesService {
             let data: sentence[] = this.sentenceData;
 
             route.forEach((unSplitRoute: string, i2: number) => {
-    
+
                 // split the route by / bars...
                 let splitRoutes: string[] = unSplitRoute.split('/');
                 let routeData: string[][] = [];
-    
+
                 splitRoutes.forEach((routeId: string, i3:number) => {
-    
+
                     // THIS IS ALL CHECKING TESTS AGAINST USER DATA
                     // find out if this route is applicable to the user with any tests that might be happening.
                     let routeIndex: number = data.findIndex((temp: sentence) => temp.id === routeId);
                     let testResults: boolean[] = [];
                     let allTrue: boolean = true;
                     // check if there are any tests applicable on this data
-                    
+
                     // check first that the route still existts - if the template has changed the id may have disappeared.
                     // Poor system ready for renewal before its evenb launched :)
                     if(routeIndex !== -1 && tests) {
@@ -486,11 +486,11 @@ export class SentencesService {
                                 // any settings may also needed and should be added to the array
                                 // NOT SURE THIS WILL WORK...
                                 let testIndex: number = tests.findIndex((tVal: TestValues) => tVal.identifier === testTemp.identifier);
-                                
+
                                 if("settings" in test) {
                                     newUserData.data['settings'] = tests[testIndex].settings.value;
                                 }
-        
+
                                 // submit the user data to the test to check if its truthy or falsey
                                 let testValue = test.calculateValueFunction(newUserData);
 
@@ -503,37 +503,37 @@ export class SentencesService {
                         }
                     }
                     // END OF TESTS AGAINST USER DATA
-    
-    
+
+
                     if(allTrue) {
                         // iterate on the data
                         let sentenceValues: string[] = this.iterateSentenceFunction(data, routeId);
-            
+
                         // push to the main array
                         if(sentenceValues !== undefined) {
                             sentenceValues.length > 0 ? routeData.push(sentenceValues) : null;
                         }
                     }
-    
+
                 })
-    
+
                 // flatten this array so all options available to the user are on the same array...
                 textArrays.push(routeData.flat());
-    
+
                 // ALL ID1/ID2/ID3 should be the last entry, it wouldnt make sense otherwise...
                 // find the index of the category just found and  make the data variables the subcategories...
                 // will return -1 for a split route as it wont find that unique id...
                 let subIndex: number =  data.findIndex((temp: sentence) => temp.id === unSplitRoute);
-                
+
                 // all of the previous data is on the same level so only increment data after they all have run.
                 if(subIndex !== -1) {
                     if("subcategories" in data[subIndex]) {
                         data = data[subIndex].subcategories;
                     }
                 }
-    
+
             })
-    
+
             // weed out empty arrays
             let newArray: string[][] = textArrays.filter((temp: string[]) => temp.length > 0 && /\S/.test(temp[0]));
             // now to find all the sentence options by a cartesian transform on the data...
@@ -554,10 +554,10 @@ export class SentencesService {
 
     /**
      * Simply extracts sentence strings from a sentence object based upon a route id
-     * 
-     * @param data 
-     * @param routeId 
-     * @returns 
+     *
+     * @param data
+     * @param routeId
+     * @returns
      */
     iterateSentenceFunction(data: sentence[], routeId: string): string[] {
         // get the relevant sentence
@@ -579,16 +579,16 @@ export class SentencesService {
 
     /**
      * Generates an example sentence and gives the quantity of potential reports for this template
-     * 
+     *
      * Takes something of the form:
      * [
-     *  [id1, id2, id3], 
+     *  [id1, id2, id3],
      *  [newparagraph],
      *  [id4,id5,id6]... etc
      * ]
-     * 
-     * @param routeArray 
-     * @returns 
+     *
+     * @param routeArray
+     * @returns
      */
     generateExampleReport(routeArray: [string[]]): {report: string, options: number} {
         let report: string = "";
@@ -610,22 +610,22 @@ export class SentencesService {
     /**
      * Takes something of the form:
      * [
-     *  [id1, id2, id3/id4/id5/id6], 
+     *  [id1, id2, id3/id4/id5/id6],
      *  [newparagraph],
      *  [id7,id8/id9,id10]... etc
      * ]
-     * 
+     *
      * with the / to indicate options being the differentiator.
-     * 
-     * RETURNS a single report with the number of possible reports... 
-     * 
-     * @param routeArray 
+     *
+     * RETURNS a single report with the number of possible reports...
+     *
+     * @param routeArray
      */
     generateCompoundReport(routeArray: [string[]], select: number = 1): {report: string, options: number} {
         // this function takes a route with options such as id1/id2/id3 etc and translates it into a report.
         let sentenceOptions: {report: string[], options: number} = {report: [""], options: 1};
         let optionCalculator: number = 1;
-        
+
         // iterate over each sentence stem
         routeArray.forEach((route: string[]) => {
             // first get all postenital combinations
@@ -653,47 +653,47 @@ export class SentencesService {
 
     // test1: [number[]] = [[4, 5, 4, 5]];
     // test2: number[][] = [[4, 5],[4, 5]];
-    
+
     route = ['id1/id2', 'id3/id4', 'id5/id6'];
     routePreSplit: string[][] = [['id1', 'id2'], ['id3','id4'], ['id5','id6']];
-    
+
     // dont this way to make sure I am happy with the map function which I havent used before!
     output: string[][] = this.cartesianProduct(this.routePreSplit);
 
     // function is more my style :)
     /**
      * Cartesian product function... may be useful for the sentence generation also...
-     * @param route 
-     * @returns 
+     * @param route
+     * @returns
      */
     carprodcount: number = 0;
     cartesianProduct(route: string[][]): string[][] {
         this.carprodcount++;
-        // check if the length of the route is equal to 0, and if it is just return a blank array        
+        // check if the length of the route is equal to 0, and if it is just return a blank array
         if (route.length === 0) {
             return [];
         }
-        
+
         // create two new arrays, one with the first entries, and one with the rest of the entries.
-        const first: string[] = route[0]; // set first to the first entry in the route, which for the first iteration is ['id1','id2'] 
+        const first: string[] = route[0]; // set first to the first entry in the route, which for the first iteration is ['id1','id2']
         const rest: string[][] = route.slice(1); // remove this first entry from the rest of the array
-    
+
         // if the rest of the entries has no length then we do not want to carry on, so we return
         // the first entry with each individual entry set as an array.
         // in the case of the first iteration (assumeing it was a single array) this would return [['id1'],['id2']]
         if (rest.length == 0) {
             return first.map(x => [x]);
         }
-        
+
         // if this was not the last entry we first need to iterate forward towards it, so simply recurse on this
         // function with the reamining entries, in this case [['id3','id4'], ['id5','id6']]]
         const cartesianEnd = this.cartesianProduct(rest);
-    
+
         // finally caretesianEnd has the return values of all the recursive data
         // first is entered as ['id1','id2']
         // id is started as id1
         // the return values of all progressive data is then mapped as ['id1', ... then the rest of the subsequent id combinations]
-        // in successive iterations this looks differently, for example when caretesianProduct triggers the first time then 
+        // in successive iterations this looks differently, for example when caretesianProduct triggers the first time then
         // the 'first' variable has id as 'id3' and rest as 'id4'
         return first.flatMap(id => cartesianEnd.map(restOfIds => [id, ...restOfIds]))
     }
@@ -718,7 +718,7 @@ export class SentencesService {
         return returnArray;
     }
 
-    
+
     /**
      * The function used to modify the array - called with a callback from a separate function
      * DONE
@@ -733,7 +733,7 @@ export class SentencesService {
         let depth: number = 0;
         let complete: boolean = false;
         let returnValue;
-        
+
         this.sentenceData.forEach(function iterate(value: sentence, i: number) {
             if(value.id === route[depth] && !complete) {
                 if(position === depth && !complete) {
@@ -848,9 +848,9 @@ export class SentencesService {
 
     /**
      * Check if the test you want to add is already on the object
-     * 
+     *
      * UNKNWON IF NEEDED CHECK ON MAIN COMPUTER
-     * 
+     *
      * @param tests lists of the tests
      * @param name name of the test you want to add
      * @returns true or false if it exists or not...
@@ -902,7 +902,7 @@ export class SentencesService {
         }
         return this.modifyData(position, callback, route);
     }
-    
+
     /**
      * Add a new sentence to a sentence stem
      * DONE
@@ -912,7 +912,7 @@ export class SentencesService {
     addNewSentence(position: number, subPosition: number, route: string[]) {
         const callback: Function = (value: sentence) => {
             const sentencesAlreadyMade: boolean = (value.subcategories[subPosition]['sentence']) ? true : false;
-            
+
             try {
                 if(sentencesAlreadyMade) {
                     value.subcategories[subPosition]['sentence'].push("");
@@ -926,7 +926,7 @@ export class SentencesService {
         }
         return this.modifyData(position, callback, route);
     }
-    
+
     /**
      * Delete a sentence from the database
      * DONE
@@ -1053,7 +1053,7 @@ export class SentencesService {
             // and remove the initial value
             value.subcategories.splice(subPosition, 1);
         }
-        
+
         try {
             this.modifyData(position, callback, route);
             return true;
@@ -1062,11 +1062,11 @@ export class SentencesService {
             return false;
         }
     }
-    
+
     /**
      * Generate a new random ID...
      * DONE
-     * @returns 
+     * @returns
      */
      generateId(): string {
         let newId: string = "";
@@ -1087,7 +1087,7 @@ export class SentencesService {
 
     /**
      * A helper function to strip off any ${g|v|[]}$ and leave the name intact
-     * @param report 
+     * @param report
      */
     stripVariables(report: string): string {
         // first if there is a (notation) then escape it so it works properly...

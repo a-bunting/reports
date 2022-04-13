@@ -57,10 +57,10 @@
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumError": "15kb"
                 }
               ]
-            }, 
+            },
             "development": {
                 "optimization": false,
                 "outputHashing": "all",

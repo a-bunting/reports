@@ -4,7 +4,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { DatabaseService } from '../services/database.service';
-import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { AuthenticationService } from './authentication.service';
 import { User } from '../utilities/authentication/user.model';
 import { CustomService } from './custom.service';
 import { sentence, SentencesService } from './sentences.service';
@@ -783,8 +783,6 @@ export class ReportsService {
      * - Split into sentences and change the first value of ${Name}$ to whatever is required.
      * - ... and subsequent ones to whatever is required, or allowed.
      *
-     * LEFT TO DO IS TO TAKE THE MIDDLE BIT AND NOT ADD A SPACE IF ITS *'s with a *
-     *
      * @param report
      * @param namingConventions
      * @param userData
@@ -822,13 +820,15 @@ export class ReportsService {
         // loops over ewach incidence of the regex being found...
         while((regexData = replaceRegex.exec(sentences[i])) !== null) {
 
+          let subReplacement: string = subsequentReplacement + (regexData[2] !== '' ? (regexData[2].charAt(0) === '*' ? `${regexData[2].substring(1)}` : ` ${regexData[2]}`) : '')
+
           // if i is 0 this is the first sentence and has been dealt with.
           // it is isnt 0 then deal witht he first occurence of the name in the sentence
           if(i !== 0) {
             switch(namingConventions.startSentences.toLowerCase()) {
-              case 'name': sentences[i] = sentences[i].replace(regexData[0], subsequentReplacement + (regexData[2] !== '' ? ` ${regexData[2]}` : '')); nameUsed = true; break;
+              case 'name': sentences[i] = sentences[i].replace(regexData[0], subReplacement); nameUsed = true; break;
               case 'gender': sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);  break;
-              case 'either': sentences[i] = sentences[i].replace(regexData[0], Math.random() < 0.5 ? subsequentReplacement + regexData[2] : regexData[genderIndex + 3]); break;
+              case 'either': sentences[i] = sentences[i].replace(regexData[0], Math.random() < 0.5 ? subReplacement : regexData[genderIndex + 3]); break;
             }
           }
 
@@ -838,7 +838,7 @@ export class ReportsService {
             case 'name': {
               // repeats of using name may or may not be allowed...
               if(namingConventions.allowRepeats || !nameUsed) {
-                sentences[i] = sentences[i].replace(regexData[0], subsequentReplacement + (regexData[2] !== '' ? ` ${regexData[2]}` : '')); nameUsed = true;
+                sentences[i] = sentences[i].replace(regexData[0], subReplacement); nameUsed = true;
               } else {
                 sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);
               }
@@ -849,7 +849,7 @@ export class ReportsService {
 
               // repeats of using name may or may not be allowed...
               if((namingConventions.allowRepeats || !nameUsed) && choice >= 0.5) {
-                sentences[i] = sentences[i].replace(regexData[0], subsequentReplacement + (regexData[2] !== '' ? ` ${regexData[2]}` : ''));
+                sentences[i] = sentences[i].replace(regexData[0], subReplacement);
                 nameUsed = true;
               } else {
                 sentences[i] = sentences[i].replace(regexData[0], regexData[genderIndex + 3]);

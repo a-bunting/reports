@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
-import { AuthenticationService, Transaction } from '../utilities/authentication/authentication.service';
+import { AuthenticationService, Transaction } from './authentication.service';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../utilities/authentication/user.model';
 import { sentence } from './sentences.service';
@@ -18,13 +18,13 @@ export class DatabaseService {
 
     private user: User;
 
-    constructor(private auth: AuthenticationService, private firebase: AngularFirestore) { 
+    constructor(private auth: AuthenticationService, private firebase: AngularFirestore) {
         // subscribe to the user details;
         auth.user.subscribe((user: User) => {
             this.user = user;
         });
     }
-    
+
     // basic things to record basic data. To estimate firebase costs.
     statWrite: number = 0;
     statRead: number = 0;
@@ -39,7 +39,7 @@ export class DatabaseService {
     // name makes them explanatory - all return observables.
     getSentences(docname: string): Observable<any> {
         this.readOperation();
-        return this.firebase.collection('sentences').doc(docname).get();    
+        return this.firebase.collection('sentences').doc(docname).get();
     }
 
     uploadSentences(docname: string, data: sentence): Observable<any> {
@@ -106,7 +106,7 @@ export class DatabaseService {
         return this.firebase.collection('templates', template => template.where('manager', '==', userId) || template.where('open','==', true)).get();
     }
 
-    
+
     getTemplate(id: string): Observable<any> {
         this.readOperation();
         return this.firebase.collection('templates').doc(id).get();
@@ -141,7 +141,7 @@ export class DatabaseService {
 
     updateReport(data: {}, id: string): Observable<any> {
         this.writeOperation();
-        
+
         return from(this.firebase.collection('reports').doc(id).update({...data, lastUpdated: Date.now()}));
     }
 
@@ -166,7 +166,7 @@ export class DatabaseService {
         this.readOperation();
         return this.firebase.collection('bugreports').get();
     }
-    
+
     getIncompletedBugReports(): Observable<any> {
         this.readOperation();
         return this.firebase.collection('bugreports', report => report.where('addressed', '==', false)).get();

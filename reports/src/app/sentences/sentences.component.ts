@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { DatabaseService } from '../services/database.service';
 import { TestsService, Test } from '../services/tests.service';
 import { SentencesService, sentence } from '../services/sentences.service';
@@ -43,17 +43,17 @@ export class SentencesComponent implements OnInit, OnDestroy {
     // user object
     user: User;
 
-    constructor(private databaseService: DatabaseService, 
-                private auth: AuthenticationService, 
+    constructor(private databaseService: DatabaseService,
+                private auth: AuthenticationService,
                 private testsService: TestsService,
-                private sentenceService: SentencesService 
+                private sentenceService: SentencesService
     ) {
         // get the user details...
         auth.user.subscribe((newUser: User) => {
             this.user = newUser;
         })
     }
-    
+
     /**
      * On init get the database...
      */
@@ -84,13 +84,13 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Upload the changed version of the database to firebase.
-     * @param docName 
+     * @param docName
      */
     reUploadToFirebase(docName?: string) {
         if(this.databaseMismatch) {
             this.isLoading = true; // no edits allowed during reupload...
             this.databaseMismatch = false; // disable the changes button and reenable if failure.
-    
+
             this.databaseService.uploadSentences(this.user.id, this.sentenceService.getCurrentSentenceData()[0]).subscribe(() => {
                 // changes comitted
                 this.isLoading = false;
@@ -117,7 +117,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     replaceWithTemplate(): void {
         this.replaceWorking = true;
         this.isLoading = true;
-        
+
         this.sentenceService.replaceWithTemplate(this.user.id).subscribe((data: sentence) => {
             const sentenceData: sentence[] = [data];
             // set the data on the display
@@ -144,11 +144,11 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Set variables after a view change request (i.e. to navigate deeper)
-     * @param position 
-     * @param index 
-     * @param id 
+     * @param position
+     * @param index
+     * @param id
      */
-    setView(position: number, index: number, id: string) {        
+    setView(position: number, index: number, id: string) {
         this.lastPositionChange = {position: position, index: index, id: id};
         this.route[position+1] = id;
         this.route.splice(position+2);
@@ -158,8 +158,8 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Adds a test selection box to the position and index
-     * @param position 
-     * @param index 
+     * @param position
+     * @param index
      */
     addNewTestSelectionBox(position: number, index: number): void {
         this.addTest = {order: position, index: index};
@@ -167,9 +167,9 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Adds a command to the undo chain.
-     * @param command 
-     * @param data 
-     * @param fn 
+     * @param command
+     * @param data
+     * @param fn
      */
     addToUndo(command: string, data: sentence, fn: Function) {
         this.undoChain.push({commandName: command, data: data, fn: fn});
@@ -254,7 +254,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
         // set the view
         this.setView(this.lastPositionChange.position, this.lastPositionChange.index, this.lastPositionChange.id);
     }
-    
+
     errorText: string;
 
     // ORDERING FUNCTIONS - FULL DETAIL IN SENTENCE SERVICE
@@ -271,7 +271,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
     // NOT FINISHED - FINISH ON MAIN COMPUTER.
     deleteRoute(position: number, subPosition: number): void {
         const deleted: {text: string, stem: sentence, fn: Function} = this.sentenceService.deleteRoute(position, subPosition, this.route);
-        
+
         if(deleted) {
             this.addToUndo(deleted.text, deleted.stem, deleted.fn);
             this.modifySuccess();
@@ -326,10 +326,10 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Changes the value of a test option...
-     * @param position 
-     * @param index 
-     * @param testIndex 
-     * @param value 
+     * @param position
+     * @param index
+     * @param testIndex
+     * @param value
      * @param testName
      */
      changeTestOptionValue(position: number, index: number, testIndex: number, inputElement: any, testIdentifier: string) {
@@ -361,7 +361,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
      */
     copyItem(position: number, subPosition: number): void {
         const newCopyItem: sentence = this.sentenceService.copyItem(position, subPosition, this.route);
-        
+
         if(newCopyItem) {
             this.copiedItem = newCopyItem;
             this.modifySuccess();
@@ -375,7 +375,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
 
     /**
      * Paste the item...
-     * @param position 
+     * @param position
      */
     pasteItem(position: number): void {
         const paste: boolean = this.sentenceService.pasteItem(position, this.copiedItem, this.route);
@@ -393,7 +393,7 @@ export class SentencesComponent implements OnInit, OnDestroy {
      * Used for the dropdown box when adding a new test.
      * @param testsAdded lists of the tests already added
      * @param allTests List of all the tests in the system.
-     * @returns 
+     * @returns
      */
     filterTests(testsAdded: {name: string}[], allTests: Test[]): Test[] {
         if(testsAdded) {
@@ -407,11 +407,11 @@ export class SentencesComponent implements OnInit, OnDestroy {
     getRouteNames(): string[] {
         return this.sentenceService.getRouteNames(this.route);
     }
-    
+
     /**
      * Retrives the description for a test value to inform the user.
-     * @param testName 
-     * @returns 
+     * @param testName
+     * @returns
      */
      getTestDescription(testIdentifier: string): string {
         let test: Test = this.testsService.testsList.find((temp: Test) => temp.identifier === testIdentifier);

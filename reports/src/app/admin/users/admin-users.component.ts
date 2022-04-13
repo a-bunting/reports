@@ -3,7 +3,7 @@ import { AngularFirestore, DocumentSnapshot, QueryDocumentSnapshot, QuerySnapsho
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { tap, map, mergeMap, take } from 'rxjs/operators';
 import { User } from 'src/app/utilities/authentication/user.model';
-import { AuthenticationService, Transaction } from 'src/app/utilities/authentication/authentication.service';
+import { AuthenticationService, Transaction } from 'src/app/services/authentication.service';
 import { ConsoleService } from 'src/app/admin/services/console.service';
 import { Observable, zip } from 'rxjs';
 import { sentence, SentencesService } from 'src/app/services/sentences.service';
@@ -30,18 +30,18 @@ export class AdminUsersComponent implements OnInit {
     user: User;
 
     constructor(private auth: AuthenticationService,
-                private firebase: AngularFirestore, 
+                private firebase: AngularFirestore,
                 private fFunctions: AngularFireFunctions,
                 private console: ConsoleService,
                 private sentenceService: SentencesService,
-                private templateService: TemplatesService, 
-                private groupService: GroupsService, 
-                private reportService: ReportsService, 
-                private db: DatabaseService         
+                private templateService: TemplatesService,
+                private groupService: GroupsService,
+                private reportService: ReportsService,
+                private db: DatabaseService
     ) { }
 
     ngOnInit(): void {
-        // subscribe to the user authentication information.  
+        // subscribe to the user authentication information.
         this.auth.user.subscribe(user => {
             this.user = user;
         })
@@ -82,7 +82,7 @@ export class AdminUsersComponent implements OnInit {
     updateUsersList(input: string): void {
         if(input.length > 1) {
             const keywords: string[] = input.split(" ");
-    
+
             this.userList = this.fullUserList.filter((user: FirebaseUser) => {
                 let result: boolean = false;
                 keywords.forEach((word: string) => {
@@ -137,7 +137,7 @@ export class AdminUsersComponent implements OnInit {
 
     /**
      * Modify the status of the admin - toggle function
-     * 
+     *
      * @param email the email of the user to change
      * @param currentStatus true or false
      * @param button the button clicked on the page
@@ -145,14 +145,14 @@ export class AdminUsersComponent implements OnInit {
     modifyAdminStatus(email: string, currentStatus: boolean, button: any) {
         let obs: Observable<any>;
         button.target.innerHTML = "Working...";
-        
+
         // set the observable based upon the current status
         if(currentStatus === true) {
-            obs = this.removeAdmin(email);  
+            obs = this.removeAdmin(email);
         } else {
             obs = this.addAdmin(email);
         }
-        
+
         obs.subscribe(() => {
             button.target.innerHTML = "Admin";
         }, (error: any) => {
@@ -163,7 +163,7 @@ export class AdminUsersComponent implements OnInit {
 
     /**
      * Modify the status of the admin - toggle function
-     * 
+     *
      * @param email the email of the user to change
      * @param currentStatus true or false
      * @param button the button clicked on the page
@@ -171,14 +171,14 @@ export class AdminUsersComponent implements OnInit {
     modifyManagerStatus(email: string, currentStatus: boolean, button: any) {
         let obs: Observable<any>;
         button.target.innerHTML = "Working...";
-        
+
         // set the observable based upon the current status
         if(currentStatus === true) {
-            obs = this.removeManager(email);  
+            obs = this.removeManager(email);
         } else {
             obs = this.addManager(email);
         }
-        
+
         obs.subscribe(() => {
             button.target.innerHTML = "Manager";
         }, (error: any) => {
@@ -228,7 +228,7 @@ export class AdminUsersComponent implements OnInit {
                 console.log(result);
             }
         ))
-        
+
     }
 
     becomeUser(email: string, uid: string): void {
@@ -241,11 +241,11 @@ export class AdminUsersComponent implements OnInit {
     }
 
     downloadUserProfile(uid: string): Observable<[sentence, Template[], Group[], ReportTemplate[]]> {
-        let getSentenceDb = this.sentenceService.getSentencesDatabase('template', true).pipe(take(1), map((result: sentence) => { return result; }));  
+        let getSentenceDb = this.sentenceService.getSentencesDatabase('template', true).pipe(take(1), map((result: sentence) => { return result; }));
         let getTemplateDb = this.templateService.getTemplates(true, uid).pipe(take(1), map((result: Template[]) => { return result; }));
         let getGroupsDb = this.groupService.getGroups(true, uid).pipe(take(1), map((result: Group[]) => { return result; }));
         let getReportsDb = this.reportService.getReports(true, uid).pipe(take(1), map((result: ReportTemplate[]) => { return result; }));
-        
+
         return zip(getSentenceDb, getTemplateDb, getGroupsDb, getReportsDb);
     }
 

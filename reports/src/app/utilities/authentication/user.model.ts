@@ -1,12 +1,12 @@
-import { Transaction } from "./authentication.service";
+import { Transaction } from "../../services/authentication.service";
 
 export class User {
 
     init: number;
 
     constructor(
-        public email: string, 
-        public id: string, 
+        public email: string,
+        public id: string,
         public name: string,
         public establishment: {id: string, name: string},
         public admin: boolean,
@@ -15,7 +15,7 @@ export class User {
         public provider: string,
         public autoUpdateDb: boolean,
         public transactionHistory: Transaction[],
-        private _token: string, 
+        private _token: string,
         private _tokenExpirationDate: Date
     ) {
         this.init = new Date().getTime();
@@ -36,12 +36,12 @@ export class User {
         this.name = username;
         this.updateLocalStorage();
     }
-    
+
     set setAutoUpdate(value: boolean) {
         this.autoUpdateDb = value;
         this.updateLocalStorage();
     }
-    
+
     set setEst(est: {id: string, name: string}) {
         this.establishment = est;
         this.updateLocalStorage();
@@ -56,7 +56,7 @@ export class User {
         localStorage.setItem('userData', JSON.stringify(this));
     }
 
-    
+
     public getMembershipExpiryTime(): number {
         let expiryTime: number;
         let timePurchase: number = 0;
@@ -70,5 +70,5 @@ export class User {
         // return the time remaining on the membership in ms.
         return expiryTime ?? 0;
     }
-    
+
 }

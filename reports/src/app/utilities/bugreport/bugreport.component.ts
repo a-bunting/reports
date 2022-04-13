@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { AuthenticationService } from '../../services/authentication.service';
 import { User } from '../authentication/user.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { CustomService } from 'src/app/services/custom.service';
@@ -33,12 +33,12 @@ export class BugreportComponent implements OnInit {
     helpFlag: boolean;
 
     constructor(
-        private auth: AuthenticationService, 
-        private db: DatabaseService, 
-        private router: ActivatedRoute, 
+        private auth: AuthenticationService,
+        private db: DatabaseService,
+        private router: ActivatedRoute,
         private customService: CustomService
-    ) 
-    { 
+    )
+    {
         this.auth.user.subscribe((user: User) => {
             // set the user id
             this.user = user;
@@ -65,7 +65,7 @@ export class BugreportComponent implements OnInit {
             timestamp: Date.now(),
             userid: this.user.id,
             addressed: false
-        } 
+        }
 
         this.submitting = true;
 

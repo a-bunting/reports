@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomService } from '../services/custom.service';
 import { Template, TemplatesService } from '../services/templates.service';
-import { AuthenticationService } from '../utilities/authentication/authentication.service';
+import { AuthenticationService } from '../services/authentication.service';
 import { User } from '../utilities/authentication/user.model';
 
 @Component({
@@ -16,14 +16,14 @@ export class TemplatesComponent implements OnInit {
     isLoading: boolean = false;
 
     constructor(
-        private templateService: TemplatesService, 
+        private templateService: TemplatesService,
         private auth: AuthenticationService,
         public customService: CustomService
     ) {}
 
     ngOnInit(): void {
         this.isLoading = true;
-    
+
         // get the user details and then the templates when this has loaded...
         this.auth.user.subscribe({
             next:
@@ -37,12 +37,12 @@ export class TemplatesComponent implements OnInit {
 
         this.getTemplates();
 
-        // subscribe to the templates service in case this is changed...    
+        // subscribe to the templates service in case this is changed...
         this.templateService.menuData.subscribe({
             next: (newData: {id: string, name: string, deleted: boolean, created: boolean}) => {
                 const newId: number = this.templates.findIndex((element: Template) => element.id === newData.id);
-                
-                // if its new add it, if it was found then 
+
+                // if its new add it, if it was found then
                 if(newId !== -1) {
                     this.templateChanged(newData, newId);
                 } else {
@@ -81,8 +81,8 @@ export class TemplatesComponent implements OnInit {
     // deprecated...
     // templateAdded(data: {id: string, name: string, deleted: boolean, created: boolean}): void {
     //     let newTemplate: Template = {
-    //         id: data.id, public: undefined, name: data.name, 
-    //         characters: {min: undefined, max: undefined}, template: undefined 
+    //         id: data.id, public: undefined, name: data.name,
+    //         characters: {min: undefined, max: undefined}, template: undefined
     //     }
     //     this.templates.push(newTemplate);
     // }

@@ -6,7 +6,7 @@ import { ActivatedRoute, NavigationEnd, RouteConfigLoadEnd, RouteConfigLoadStart
 import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CustomService } from './services/custom.service';
-import { AuthenticationService } from './utilities/authentication/authentication.service';
+import { AuthenticationService } from './services/authentication.service';
 import { User } from './utilities/authentication/user.model';
 
 @Component({
@@ -31,15 +31,15 @@ export class AppComponent implements OnInit {
     helpFlag: boolean;
 
     constructor(
-        private authService: AuthenticationService, 
-        private router: Router, 
+        private authService: AuthenticationService,
+        private router: Router,
         private activatedRoute: ActivatedRoute,
-        private titleService: Title, 
+        private titleService: Title,
         public customService: CustomService
     ) {
         this.loadingMessage = false;
         this.loaded = true;
-        
+
         // for lazy loaded routes display a loading menu whilst loading...
         router.events.subscribe((event: RouterEvent) => {
             if(event instanceof RouteConfigLoadStart) {
@@ -70,8 +70,8 @@ export class AppComponent implements OnInit {
 
     /**
      * Recursive function tof ind the most child component open.
-     * @param activatedRoute 
-     * @returns 
+     * @param activatedRoute
+     * @returns
      */
     getChild(activatedRoute: ActivatedRoute): ActivatedRoute {
         if(activatedRoute.firstChild) {
@@ -119,16 +119,16 @@ export class AppComponent implements OnInit {
             console.log("invalid form");
             return;
         }
-        
+
         this.isLoading = true;
         const email = form.value.email;
         const password = form.value.password;
-    
+
         let authObs: Observable<any> = this.authService.login3(email, password);
-    
+
         authObs.subscribe((responseData: any) => {
             this.isLoading = false;
-        }, 
+        },
         errorMessage => {
             console.log(`Error logging in: ${errorMessage}`);
             this.errorMessage = errorMessage;
@@ -148,17 +148,17 @@ export class AppComponent implements OnInit {
     emailAddress: string;
 
     sendPasswordResetEmail(): void {
-        this.isLoading = true;       
-                
+        this.isLoading = true;
+
         this.authService.sendPasswordResetEmail(this.emailAddress).subscribe((result: boolean) => {
-            this.isLoading = false;        
+            this.isLoading = false;
             this.passwordResetSentSuccessfully = true;
             // giv eit 5 seconds to display and then take it away
             setTimeout(() => {
                 this.passwordResetSentSuccessfully = false;
             }, 5000);
         }, error => {
-            this.isLoading = false;        
+            this.isLoading = false;
             this.errorMessage = `Error: ${error}`;
         });
     }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
 import { CustomService } from 'src/app/services/custom.service';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
-import { AuthenticationService } from 'src/app/utilities/authentication/authentication.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
 
 @Component({
@@ -28,10 +28,10 @@ export class CreateGroupComponent implements OnInit {
     helpFlag: boolean;
 
     constructor(
-        private groupService: GroupsService, 
+        private groupService: GroupsService,
         private auth: AuthenticationService,
-        public customService: CustomService    
-    ) { 
+        public customService: CustomService
+    ) {
         auth.user.subscribe((user: User) => {
             this.user = user;
         })
@@ -113,10 +113,10 @@ export class CreateGroupComponent implements OnInit {
         let data: string[];
 
         data = this.userInfo.split("\n");
-        
+
         // get data and split into individual elements
         let keys: string[] = [];
-        
+
         // if there is a header row build a list of the keys to use for this dataset
         if(this.headerRow) {
             // keys = data[0].split(",").map((a: string) => a.trim());
@@ -144,7 +144,7 @@ export class CreateGroupComponent implements OnInit {
 
         // iterate over the data and build a new array
         let newData = [];
-        
+
         data.forEach((row: string) => {
             // let newUserData = row.split(",");
             let newUserData = row.split(this.separationRegEx);
@@ -166,7 +166,7 @@ export class CreateGroupComponent implements OnInit {
 
     /**
      * Returns the position of a user within their group.
-     * @param userId 
+     * @param userId
      */
     getIndexPositionById(userId: string): number {
         const index: number = this.userData.findIndex((temp: Student) => temp.id === userId);
@@ -175,9 +175,9 @@ export class CreateGroupComponent implements OnInit {
 
     /**
      * Chnage a value for one of the users.
-     * @param index 
-     * @param key 
-     * @param input 
+     * @param index
+     * @param key
+     * @param input
      */
     userValueChange(userId: string, key: string, input: string) {
         const newValue = input.split("\n");
@@ -192,7 +192,7 @@ export class CreateGroupComponent implements OnInit {
 
     /**
      * Remove a user
-     * @param index 
+     * @param index
      */
     removeUser(userId: string): void {
         const userIndex: number = this.getIndexPositionById(userId);
@@ -209,8 +209,8 @@ export class CreateGroupComponent implements OnInit {
     /**
      * Chnage one of the column values - the titles.
      * This needs to change each of the values in each of the user entries too.
-     * @param index 
-     * @param input 
+     * @param index
+     * @param input
      */
     columnValueChange(index: number, input: FocusEvent | KeyboardEvent) {
         const reference: HTMLElement = <HTMLElement>input.target;
@@ -218,9 +218,9 @@ export class CreateGroupComponent implements OnInit {
         const newValue: string[] = reference.innerText.split("\n");
 
         newKeyArray[index] = newValue[0];
-        
+
         let newData: Student[] = [];
-        
+
         // iterate over the data and build a new array
         this.userData.forEach((row: Student) => {
             let newDataUser: Student = { id: row.id, data: {} };
@@ -263,12 +263,12 @@ export class CreateGroupComponent implements OnInit {
 
     /**
      * removes a column
-     * @param index 
+     * @param index
      */
     deleteColumn(index: number): void {
         // strip from the keys array
         const colName: string = this.keys[index];
-        
+
         // and remove from each of the user data array
         this.userData.forEach((row: Student) => {
             delete row.data[colName];
@@ -281,7 +281,7 @@ export class CreateGroupComponent implements OnInit {
 
     /**
      * keyvalue pipe orders alphabetically automatically. This stop that.
-     * @returns number 0 
+     * @returns number 0
      */
     returnZero(): number {
         return 0;
@@ -322,7 +322,7 @@ export class CreateGroupComponent implements OnInit {
 
 }
 
-let testData = 
+let testData =
 `Forename,Surname,Nickname,Gender
 Minerva,Dursley,Minerva,M
 Cho,Santiago,Cho,M

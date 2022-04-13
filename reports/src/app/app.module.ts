@@ -10,7 +10,7 @@ import { ReportsComponent } from './reports/reports.component';
 import { CreateTemplateComponent } from './templates/create-template/create-template.component';
 import { LoadingSpinnerComponent } from './utilities/loading-spinner/loading-spinner.component';
 import { DashboardComponent } from './utilities/dashboard/dashboard.component';
-import { AuthenticationService } from './utilities/authentication/authentication.service';
+import { AuthenticationService } from './services/authentication.service';
 import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
@@ -48,16 +48,16 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
     EditReportComponent,
     BugreportComponent,
     IntroComponent,
-    PasswordChangeComponent, 
-    AuthComponent, 
-    PrivacyComponent, 
-    TermsComponent, 
+    PasswordChangeComponent,
+    AuthComponent,
+    PrivacyComponent,
+    TermsComponent,
     PageNotFoundComponent, GalleryComponent, GalleryItemComponent, StopwatchComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule, 
-    HttpClientModule, 
+    AppRoutingModule,
+    HttpClientModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFirestoreModule,
@@ -65,10 +65,10 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
   ],
   providers: [
         AuthenticationService,
-        AngularFireFunctions, 
-        AngularFireAuthModule, 
-        AngularFirestoreModule, 
-        Title, 
+        AngularFireFunctions,
+        AngularFireAuthModule,
+        AngularFirestoreModule,
+        Title,
         { provide: PERSISTENCE, useValue: 'local' }, // firebase persistence.
         { provide: LocationStrategy, useClass: HashLocationStrategy }
     ],
