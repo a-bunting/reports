@@ -281,7 +281,9 @@ export class EditReportComponent implements OnInit, OnDestroy {
                     })
                     // get the template and proces the variables required...
                     const template: Template = this.templatesService.getTemplate(templateId);
+                    // this.report.chars = template.characters;
                     this.processTemplate(template);
+                    this.checkForVariablesToPreset(this.report);
                 } else {
                     // the template may have been deleted, what now?
                     this.report.templateId = "";
@@ -294,6 +296,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                     this.report.globals = [];
                     this.report.variables = [];
                     this.report.tests = [];
+                    this.report.chars = { min: 100, max: 1000 };
                 }
                 // then resolve;
                 resolve();
@@ -325,8 +328,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
               // check if we can make the report yet...
               this.loadedGroup = this.report.groupId;
               this.loadedTemplate = this.report.templateId;
-              console.log(this.report);
-              // this.loadTemplate(this.loadedTemplate);
+              this.checkForVariablesToPreset(report);
         },  error: (error) => {
                 this.isLoading = false;
                 console.log(`Error loading report with ID ${id}: ${error}`);
@@ -361,6 +363,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
         let newGlobals: GlobalValues[] = [];
         let newVariables: VariableValues[] = [];
         let newTests: TestValues[] = [];
+
+        console.log('here');
 
         variables[0].forEach((variable: GlobalValues) => {
             let variableIndex: number = this.report.globals.findIndex((temp: GlobalValues) => temp.identifier === variable.identifier);
@@ -398,6 +402,19 @@ export class EditReportComponent implements OnInit, OnDestroy {
         this.report.variables = newVariables;
         this.report.tests = newTests;
 
+    }
+
+    /**
+     * If there are any elements which have only one option they can be preset and not visible to the user in the interface
+     * @param report
+     */
+    checkForVariablesToPreset(report: ReportTemplate): void {
+      report.tests.forEach((test: TestValues) => {
+        if(test.settings.options.length === 1) {
+          // only one option so preset it, there is no decision to make!
+          this.testSettingsChange(test.identifier, test.settings.options[0].name);
+        }
+      })
     }
 
     /**
@@ -840,6 +857,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
      * @param value
      */
     testSettingsChange(testName: string, value: string): void {
+        console.log(testName, value);
         let test: Test = this.testsService.getTest(testName);
         let testIndex: number = this.report.tests.findIndex((temp: TestValues) => temp.identifier === testName);
         let optionIndex: number = test.settings.options.findIndex((temp: TestOptions) => temp.name === value)
@@ -860,6 +878,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
                 report['user'].data[temp.identifier] = "";
             })
         })
+        console.log(this.report);
     }
 
     /**
@@ -928,6 +947,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
       let varIndex: number = this.report.variables.findIndex((variable: VariableValues) => variable.key === key);
 
       if(varIndex !== -1) this.report.variables[varIndex].options = options;
+
+      this.checkForChanges();
     }
 
     /**
@@ -938,6 +959,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
       // find the variable this relates to...
       let varIndex: number = this.report.variables.findIndex((variable: VariableValues) => variable.key === key);
       if(varIndex !== -1) this.report.variables[varIndex].options = [];
+
+      this.checkForChanges();
     }
 
     /**

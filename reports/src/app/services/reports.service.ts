@@ -14,7 +14,7 @@ import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './t
 export interface ReportTemplate {
     id: string; name: string; manager: string; templateId: string; groupId: string; lastUpdated: number;
     variables: VariableValues[]; globals: GlobalValues[]; tests: TestValues[]; names: ReportNamingConvention;
-    keys: string[];
+    keys: string[]; chars?: { min: number; max: number }
     reports: Report[];
 }
 
@@ -24,10 +24,8 @@ export interface ReportNamingConvention {
 
 export interface FBReportTemplate {
     id: string; name: string; manager: string;  templateId: string; groupId: string;
-    variables: any; lastUpdated: number;
-    globals: any; names: ReportNamingConvention;
-    tests: any;
-    keys: string[];
+    variables: any; lastUpdated: number; globals: any; tests: any; names: ReportNamingConvention;
+    keys: string[]; chars?: { min: number; max: number }
     reports: Report[];
 }
 

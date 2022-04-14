@@ -138,6 +138,18 @@
           <div class="tooltip">Can their name be used multiple times in a sentence? If set to OFF all names appearing midsentence will change to gender, 'John has done well, and John has made friends' becomes 'John has done well, and he has made friends'.</div>
         </div>
       </div>
+<!-- Its not for now! :)
+      <div class="divider-line divider-line__thin u__margin-top--medium u__margin-bottom--medium"></div>
+
+      <div class="reports__variable reports__variable--small-screen">
+        <div class="reports__variable--multicol">
+          <div class="reports__variable--name">Min Chars</div>
+          <input type="text" name="minCharModification" class="reports__input reports__input--text" value="{{ report.chars?.min || 0 }}">
+          <div class="reports__variable--name">Max Chars</div>
+          <input type="text" name="maxCharModification" class="reports__input reports__input--text" value="{{ report.chars?.max || 1000 }}">
+        </div>
+      </div> -->
+
     </div>
 
     <!-- variables, things that needs a value for each student -->
@@ -210,14 +222,14 @@
     <div class="reports__variable-column reports__variable-column-long" *ngIf="showTests(); else noTests">
         <div class="reports__variable reports__variable--small-screen" *ngFor="let test of report.tests; let t = index">
             <div class="reports__variable--multirow">
-                <div class="reports__variable--name reports__variable--name-bold">
+                <div class="reports__variable--name reports__variable--name-bold" *ngIf="test.settings?.options.length > 1">
                     {{ test.name }}
 
                     <div class="reports__variable--tooltip tooltipped tooltip__generic" *ngIf="customTooltips">
                         <div class="tooltip">This dropdown should be set to whatever describes the test best, so for example if you grade in the American, A+ to F system, select "American (A-D and F)" from the list and it will compare grades based upon this scale.</div>
                     </div>
                 </div>
-                <div class="reports__variable--options" *ngIf="test.settings">
+                <div class="reports__variable--options" *ngIf="test.settings?.options.length > 1">
                     <select class="reports__input reports__input--short reports__input--select" (change)="testSettingsChange(test.identifier, $event.target.value)">
                         <option value="" disabled selected>Select a {{ test.settings.name }}</option>
                         <option value="{{ opt.name }}" *ngFor="let opt of test.settings.options; let optId = index" [selected]="test.settings.value.name === opt.name">{{ opt.name }}</option>
@@ -357,7 +369,7 @@
                 <tr class="reports__data--row reports__data--data"><!-- *ngFor="let individual of report.reports; let reportId = index"> -->
                     <td class="reports__data--cell">
                         <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this user">X</button>
-                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member || !reportGenerationReady">&#9851;</button>
                     </td>
                     <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
 
@@ -411,7 +423,7 @@
                     <td class="reports__data--cell reports__data--report-options">
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)" title="Remove this user">&#10008;</button>
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)" title="Remove this user">&#10557;</button>
-                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate this report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate this report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member || !reportGenerationReady">&#9851;</button>
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)" title="Manually edit report.">&#9998;</button>
                     </td>
 
