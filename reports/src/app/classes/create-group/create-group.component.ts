@@ -4,6 +4,7 @@ import { CustomService } from 'src/app/services/custom.service';
 import { GroupsService, Student, Group } from 'src/app/services/groups.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/utilities/authentication/user.model';
+import { TemplateBindingParseResult } from '@angular/compiler';
 
 @Component({
   selector: 'app-create-group',
@@ -24,6 +25,8 @@ export class CreateGroupComponent implements OnInit {
     dataUpdated: boolean = false; // data has been saved since updating (databe is up to dtae)
     dataChanged: boolean = false;
     groupId: string; // if the class has been created this will be populated with the database id.
+
+    numberOfStudents: number;
 
     helpFlag: boolean;
 
@@ -98,7 +101,7 @@ export class CreateGroupComponent implements OnInit {
     }
 
     userInfo: string;
-    separation: string = '\\t'; //default to tab separated...
+    separation: string = ''; //default to tab separated... \\t
     separationRegEx: RegExp = new RegExp(this.separation);
 
     setDataSeparation(sepIndicator: string): void {
@@ -107,6 +110,110 @@ export class CreateGroupComponent implements OnInit {
     }
 
     generateUserData() {
+      switch(this.separation) {
+        case '': this.generateUserDataAutomatically(); break;
+        default: this.generateUserDataRowByRow(); break;
+      }
+    }
+
+    /**
+     * A function which makes an attempt to automatically detect data input...
+     */
+    generateUserDataAutomatically() {
+      // this.userDataGenerated = true;
+      // this.groupId = undefined;
+      // this.modifyData = false;
+      // let data: string[];
+      this.headerRow = false;
+      let separationTokens: string[] = [',', '\\t', '|', '@']
+
+      // first find the quantity of common things...
+      let commaCount: number = this.userInfo.split(',').length;
+      let tabCount: number = this.userInfo.split('\\t').length;
+      let newLineCount: number = this.userInfo.split('\n').length;
+      let atCount: number = this.userInfo.split('@').length;
+
+      console.log(commaCount, tabCount, newLineCount, atCount, +this.numberOfStudents);
+
+      // if number of students is given then the best thing to do is to try and match common tokens
+      if(this.numberOfStudents) {
+        let commaStudents: boolean = commaCount - (this.headerRow ? 0 : 1) === this.numberOfStudents;
+        let tabStudents: boolean = tabCount - (this.headerRow ? 0 : 1) === this.numberOfStudents;
+        let newLineStudents: boolean = newLineCount - (this.headerRow ? 0 : 1) === this.numberOfStudents;
+        let atStudents: boolean = atCount - (this.headerRow ? 0 : 1) === this.numberOfStudents;
+
+        // if any of this is true then try and use that as the change
+        if(commaStudents || tabStudents || newLineStudents || atStudents) {
+          // check which is true and try to solve that way
+          if(commaStudents) {
+            this.setDataSeparation(',');
+          } else if (tabStudents) {
+            this.setDataSeparation(',');
+          } else if (newLineStudents) {
+            this.setDataSeparation(',');
+          } else if (atStudents) {
+            let newLineIncHeader: number = newLineCount - (this.headerRow ? 1 : 0);
+
+            // have a go at working out if there are emails...
+            if(newLineIncHeader === atCount) {
+              // seems like there may be on row for each piece of data...
+              // now imagine how the data might be broken up...
+              let commaPerRow: number = commaCount / newLineIncHeader;
+              let tabPerRow: number = tabCount / newLineIncHeader;
+
+              if(commaPerRow % 1 === 0 && tabPerRow % 1 !== 0) {
+                // probably using comma deliniation
+                this.setDataSeparation(',');
+              } else if(tabPerRow % 1 === 0 && commaPerRow % 1 !== 0) {
+                // probably using tab deliniation
+                this.setDataSeparation('\\t');
+              } else if(tabPerRow % 1 === 0 && commaPerRow % 1 === 0) {
+                // probably using tab deliniation with a comma for each name
+                this.setDataSeparation('[,\\t]');
+              }
+            }
+          }
+        }
+
+      }
+
+      // first try @ count as this is likely only to show itself in an email, an email identifying each individual
+      if(atCount > 0) {
+        let newLineIncHeader: number = newLineCount - (this.headerRow ? 1 : 0);
+
+        // have a go at working out if there are emails...
+        if(newLineIncHeader === atCount) {
+          // seems like there may be on row for each piece of data...
+          // now imagine how the data might be broken up...
+          let commaPerRow: number = commaCount / newLineIncHeader;
+          let tabPerRow: number = tabCount / newLineIncHeader;
+
+          if(commaPerRow % 1 === 0 && tabPerRow % 1 !== 0) {
+            // probably using comma deliniation
+            this.setDataSeparation(',');
+          } else if(tabPerRow % 1 === 0 && commaPerRow % 1 !== 0) {
+            // probably using tab deliniation
+            this.setDataSeparation('\\t');
+          } else if(tabPerRow % 1 === 0 && commaPerRow % 1 === 0) {
+            // probably using tab deliniation with a comma for each name
+            this.setDataSeparation('[,\\t]');
+          }
+        }
+      }
+
+      // if the number of new lines is very high its likely now that each piece of data
+      // is on a new line... 35 being the upper bound for students in a class...
+      if(newLineCount > 35) {
+
+      }
+
+
+
+
+      this.generateUserData();
+    }
+
+    generateUserDataRowByRow() {
         this.userDataGenerated = true;
         this.groupId = undefined;
         this.modifyData = false;

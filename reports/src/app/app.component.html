@@ -1,7 +1,7 @@
 <div class="flex-layout">
-    
+
     <header class="header">
-        
+
         <nav class="header__menu" *ngIf="user">
             <!-- <a class="header__menu--item" *ngIf="!isAuthenticated" routerLinkActive="link-active" routerLink="auth/">Login</a> -->
             <a class="header__menu--item" *ngIf="isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="dashboard/">
@@ -26,7 +26,7 @@
                 <span>Reports</span>
             </a>
             <!-- is admin for now during testing -->
-            <a class="header__menu--item" *ngIf="isAdmin && isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="join/">
+            <a class="header__menu--item" *ngIf="!isMember && isAuthenticated" routerLinkActive="link-active link-active__menu" routerLink="join/">
                 <img src="../assets/icons/user-plus.svg" alt="Go Pro">
                 <span>Go Pro</span>
             </a>
@@ -56,7 +56,7 @@
                     <label for="email" class="header__newinput--label">Email</label>
                 </div>
                 <!-- <div class="header__login-text">Password (<span class="header__password-forgot" (click)="toggleForgot()">I forgot!</span>)</div> -->
-               
+
                 <div class="header__newinput">
                     <input  type="password" id="password" name="password" class="header__newinput--input" minLength="6" [disabled]="isLoading" *ngIf="!forgotPassword" placeholder=" " ngModel required password>
                     <label for="password" class="header__newinput--label">Password</label>
@@ -64,25 +64,25 @@
 
                 <button class="input__button" [disabled]="isLoading" *ngIf="!forgotPassword">Log In</button>
                 <button type="button" class="input__button" *ngIf="forgotPassword" (click)="sendPasswordResetEmail()">Send Password Reset Email</button>
-                
+
                 <div class="header__login-text">or</div>
                 <img src="../assets/btn_google_signin_light_normal_web.png" class="header__login--google" alt="Sign in with Google"  (click)="signInWithGoogle()">
 
             </div>
         </form>
-        
+
         <div class="header__logo">
             <img src="../assets/logo/ReportZone.png" class="header__logo--image" routerLink="/">
         </div>
-        
+
     </header>
-    
+
     <div class="header__login-error" *ngIf="errorMessage" (click)="removeErrorMessage()">
         {{ errorMessage }}
     </div>
 
     <div class="divider-line divider-line__thick u__margin-top--medium u__margin-bottom--medium"></div>
-    
+
     <main class="main">
         <router-outlet>
             <div class="loadingroute" *ngIf="loadingMessage">
@@ -93,12 +93,12 @@
             </div>
         </router-outlet>
     </main>
-    
+
     <div class="divider-line divider-line__thick u__margin-top--medium"></div>
-    
+
     <app-bugreport *ngIf="user"></app-bugreport>
     <!-- <app-stopwatch></app-stopwatch> -->
-    
+
     <footer class="footer">
         <p>Reports and everything within is copyright to Alex Bunting 2022. No parts may be reused for any purpose without express permission.</p>
         <p>

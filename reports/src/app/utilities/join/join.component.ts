@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { IPayPalConfig, ICreateOrderRequest } from 'ngx-paypal';
+import { mergeMap, Observable, take } from 'rxjs';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { User } from '../authentication/user.model';
 
 @Component({
   selector: 'app-join',
@@ -11,7 +15,14 @@ export class JoinComponent implements OnInit {
     public payPalConfig?: IPayPalConfig;
     showPaymentPane: boolean = false;
 
-    constructor() { 
+    user: User;
+
+    constructor(
+      private fFunctions: AngularFireFunctions,
+      private authService: AuthenticationService
+      ) {
+        // subscribe to the user..
+        this.authService.user.subscribe((user: User) => this.user = user );
     }
 
     ngOnInit(): void {
@@ -38,65 +49,63 @@ export class JoinComponent implements OnInit {
 
     /**
      * PAY PAL STUFF
-     * 
-     * @param cost 
-     * @param duration 
+     *
+     * @param cost
+     * @param duration
      */
-    //AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8
+    // AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8
     // https://www.npmjs.com/package/ngx-paypal
     // https://developer.paypal.com/docs/checkout/integration-features/customize-button/
 
     private initConfig(cost: number, duration: number, subscription: boolean = false): void {
         this.payPalConfig = {
-            currency: 'USD', 
-            clientId: 'sb', 
+            currency: 'USD',
+            clientId: 'sb',
             createOrderOnClient: (data) => <ICreateOrderRequest>{
-                intent: 'CAPTURE', 
-                purchase_units: [
-                    {
-                        amount: {
-                            currency_code: 'USD', 
-                            value: ''+cost, 
-                            breakdown: {
-                                item_total: {
-                                    currency_code: 'USD', 
-                                    value: ''+cost
-                                }
-                            }
-                        },
-                        items: [
-                            {
-                                name: duration + ' month pro access.', 
-                                quantity: '1', 
-                                category: 'DIGITAL_GOODS',
-                                unit_amount: {
-                                    currency_code: 'USD', 
-                                    value: ''+cost
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }, 
-            advanced: {
-                commit: 'true'
+                intent: 'CAPTURE',
+                purchase_units: [{
+                    amount: {
+                        currency_code: 'USD',
+                        value: ''+cost,
+                        breakdown: { item_total: { currency_code: 'USD', value: ''+cost } }
+                    },
+                    items: [{
+                        name: duration + ' month pro access.',
+                        quantity: '1',
+                        category: 'DIGITAL_GOODS',
+                        unit_amount: { currency_code: 'USD', value: ''+cost }
+                    }]
+                }]
             },
+            advanced: { commit: 'true' },
             style: {
-                label: 'paypal', 
+                label: 'paypal',
                 layout: 'horizontal',
-                shape: 'pill', 
+                shape: 'pill',
                 tagline: false
-                
-            }, 
+
+            },
             onApprove: (data, actions) => {
                 console.log('onApprove - transaction was approved, but not authorized', data, actions);
+
                 actions.order.get().then(details => {
+
                   console.log('onApprove - you can get full order details inside onApprove: ', details);
+                  // trigger the server function which will add the duration to the users transaction list.
+                  const userJoinSuccess = this.fFunctions.httpsCallable('userJoinSuccess');
+
+                  return userJoinSuccess({ uid: this.user.id, plan: duration }).pipe(take(1), mergeMap(() => {
+                    return null;
+                  }));
                 });
               },
+
+
+
               onClientAuthorization: (data) => {
                 console.log('onClientAuthorization - you should probably inform your server about completed transaction at this point', data);
                 this.showSuccess = true;
+
               },
               onCancel: (data, actions) => {
                 console.log('OnCancel', data, actions);
@@ -106,9 +115,6 @@ export class JoinComponent implements OnInit {
               },
               onClick: (data, actions) => {
                 console.log('onClick', data, actions);
-              }, 
-              createSubscription: (data) => {
-
               }
         }
     }

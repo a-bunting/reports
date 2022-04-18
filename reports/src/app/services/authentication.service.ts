@@ -471,7 +471,7 @@ export class AuthenticationService implements OnInit {
     isMember(transactionHistory: Transaction[]): boolean {
 
 
-      return true;
+      // return true;
 
         const loginTime: number = new Date().getTime();
         // iterate over the transactions until you find one which has an expiration in the future, otherwise return false...
