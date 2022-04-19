@@ -141,15 +141,15 @@
                 &:not(:last-of-type) {
                     margin-right: 1rem;
                 }
-            }
 
-            &--enabled {
                 &:hover {
+                  &:not(:disabled) {
                     cursor: pointer;
                     background-color: var(--color-style-juxtapose);
                     color: white;
                     border: .2rem solid white;
                     box-shadow: 0 .3rem .6rem rgba(black, .3);
+                  }
                 }
             }
 
@@ -277,6 +277,10 @@
 
             &-addcol {
                 background-color: green;
+            }
+
+            &-modify {
+              background-color: orange;
             }
         }
     }

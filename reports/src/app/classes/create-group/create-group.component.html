@@ -43,17 +43,18 @@
                   <label for="groupInputHeaderBox">Top row is header text</label>
                 </div>
 
-                <button class="create-group__text--submit--button create-group__text--submit--enabled" (click)="generateUserData()">Create Group</button>
+                <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
             </div>
         </div>
     </div>
 
     <div class="create-group__controls" *ngIf="userDataGenerated">
         <div class="create-group__control-buttons">
-            <button class="create-group__text--submit--button create-group__text--submit--enabled" *ngIf="userData" (click)="modifyGroupData()">Modify Group Data</button>
-            <button class="create-group__text--submit--button create-group__text--submit--enabled" *ngIf="userData && customService.allowGroupCreation()" (click)="createNewGroup()">Create New Group</button>
-            <button class="create-group__text--submit--button" [class.create-group__text--submit--enabled]="!dataSubmitting && groupname" *ngIf="userDataGenerated && !groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
-            <button class="create-group__text--submit--button" [class.create-group__text--submit--enabled]="!dataSubmitting && groupname && !dataUpdated" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="userDataGenerated && groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
+            <button class="create-group__text--submit--button" *ngIf="userData" (click)="modifyGroupData()">Modify Group Data</button>
+            <button class="create-group__text--submit--button" *ngIf="userData" (click)="displayNextAutoPotential()" [disabled]="potentialOptions.length === 0">{{ potentialOptions.length === 0 ? 'No more auto options' : 'Try Auto Again!' }}</button>
+            <button class="create-group__text--submit--button" *ngIf="userData && customService.allowGroupCreation()" (click)="createNewGroup()">Create New Group</button>
+            <button class="create-group__text--submit--button" *ngIf="userDataGenerated && !groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
+            <button class="create-group__text--submit--button" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="userDataGenerated && groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
         </div>
 
         <div class="create-group__success" *ngIf="groupId">
@@ -67,9 +68,20 @@
             <thead>
                 <tr class="create-group__data--row create-group__data--header">
                     <td class="create-group__data--cell" *ngFor="let key of keys; let i = index">
-                        <div class="create-group__data--cell--header">
-                            <div (keyup.enter)="columnValueChange(i, $event)" (blur)="columnValueChange(i, $event)" contenteditable="true">{{ key }}</div>
-                            <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(i)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></div>
+                        <div class="create-group__data--cell--header" *ngIf="splitColumnToggle !== i">
+                            <input type="text" class="create-group__datainput" (keyup.enter)="columnValueChange(i, $event.target.value)" (blur)="columnValueChange(i, $event.target.value)" value="{{ key }}">
+                            <div>
+                              <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(i)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></div>
+                              <div class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)"><...><div class="tooltip">Split this data</div></div>
+                            </div>
+
+                          </div>
+                          <div class="create-group__data--cell--header" *ngIf="splitColumnToggle === i">
+                            <div>
+                              <input type="text" class="input__text input__text--short" placeholder="Split by..." #splitInput>
+                              <button class="input__button" (click)="splitColumn(i, splitInput.value)">Split</button>
+                            </div>
+                            <div class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)"><...><div class="tooltip">Split this data</div></div>
                         </div>
                     </td>
                     <td class="create-group__data--cell">
@@ -80,10 +92,8 @@
             <tbody>
                 <tr class="create-group__data--row create-group__data--data" *ngFor="let row of userData; let i = index">
                     <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero; let ki = index">
-                        <!-- {{ user.value }} -->
                         <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ user.value }}" tabindex="{{ (userData.length * ki) + i }}">
                     </td>
-                    <!-- PUT TEXT BOXES IN -->
 
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(row.id)">&#10006; <div class="tooltip">Delete this user</div></div>
