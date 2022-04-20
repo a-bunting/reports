@@ -49,12 +49,12 @@
 
     &__datainput {
         width: 100%;
-        padding: .5rem 2rem;
+        padding: .2rem .6rem;
         background-color: rgba(white, .3);
-        border-radius: 1rem 2rem;
+        border-radius: .4rem .8rem;
         box-shadow: 0 .2rem .4rem rgba(black, .4);
-        font-size: 1.4rem;
-        letter-spacing: .3rem;
+        font-size: 1.2rem;
+        letter-spacing: .1rem;
     }
 
     &__text {
@@ -188,6 +188,7 @@
         &--table {
             width: 100%;
             border-collapse: collapse;
+            border-radius: 1rem;
 
             tr {
                 opacity: 0;
@@ -199,8 +200,19 @@
                     &:nth-of-type(odd) {
                         background-color: rgba(white, .2);
                     }
+
+                    .input__button {
+                      padding: .1rem .2rem;
+                      font-size: 1.2rem;
+                      transition: all .2s;
+                      border: .2rem solid transparent;
+                      text-align: center;
+                      border-radius: .5rem;
+                      margin-right: 1rem;
+                    }
                 }
             }
+
         }
 
         &--edited {
@@ -235,6 +247,7 @@
 
             &--header {
                 display: flex;
+                flex-direction: column;
                 justify-content: space-between;
                 align-items: center;
             }
@@ -255,15 +268,24 @@
             }
         }
 
+        &--colbuttons {
+          display: flex;
+          margin-top: .6rem;
+          justify-content: space-between;
+          align-items: center;
+        }
+
         &--buttons {
 
-            padding: .1rem .5rem;
-            font-size: 1.6rem;
+            padding: .1rem .2rem;
+            font-size: 1.2rem;
             transition: all .2s;
             border: .2rem solid transparent;
-            width: 3rem;
+            width: 2rem;
             text-align: center;
-            border-radius: 1rem;
+            border-radius: .5rem;
+
+            &:not(:last-of-type) { margin-right: .5rem; }
 
             &:hover {
                 cursor: pointer;

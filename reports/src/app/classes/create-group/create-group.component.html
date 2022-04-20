@@ -69,20 +69,19 @@
                 <tr class="create-group__data--row create-group__data--header">
                     <td class="create-group__data--cell" *ngFor="let key of keys; let i = index">
                         <div class="create-group__data--cell--header" *ngIf="splitColumnToggle !== i">
-                            <input type="text" class="create-group__datainput" (keyup.enter)="columnValueChange(i, $event.target.value)" (blur)="columnValueChange(i, $event.target.value)" value="{{ key }}">
-                            <div>
-                              <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(i)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></div>
-                              <div class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)"><...><div class="tooltip">Split this data</div></div>
-                            </div>
-
+                          <input type="text" class="create-group__datainput" (keyup.enter)="columnValueChange(i, $event.target.value)" (blur)="columnValueChange(i, $event.target.value)" value="{{ key }}">
+                          <div class="create-group__data--colbuttons">
+                            <button class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(key)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></button>
+                            <button class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)"><><div class="tooltip">Split this data</div></button>
                           </div>
-                          <div class="create-group__data--cell--header" *ngIf="splitColumnToggle === i">
-                            <div>
-                              <input type="text" class="input__text input__text--short" placeholder="Split by..." #splitInput>
-                              <button class="input__button" (click)="splitColumn(i, splitInput.value)">Split</button>
-                            </div>
-                            <div class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)"><...><div class="tooltip">Split this data</div></div>
                         </div>
+                        <div class="create-group__data--cell--header" *ngIf="splitColumnToggle === i">
+                          <input type="text" class="create-group__datainput" placeholder="Split by..." #splitInput>
+                          <div class="create-group__data--colbuttons">
+                            <button class="input__button" (click)="splitColumn(i, splitInput.value)">Split</button>
+                            <button class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)">&#10006;<div class="tooltip">Cancel Split</div></button>
+                          </div>
+                      </div>
                     </td>
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-addcol tooltipped" (click)="addColumn()">&#10010; <div class="tooltip">Add a new column</div></div>
@@ -91,9 +90,14 @@
             </thead>
             <tbody>
                 <tr class="create-group__data--row create-group__data--data" *ngFor="let row of userData; let i = index">
-                    <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero; let ki = index">
-                        <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ user.value }}" tabindex="{{ (userData.length * ki) + i }}">
+                    <td class="create-group__data--cell" *ngFor="let key of keys; let ki = index">
+                        <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ row.data[key] }}" tabindex="{{ (userData.length * ki) + i }}">
                     </td>
+                    <!--
+                      why do it this way?
+                      <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero; let ki = index">
+                        <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ user.value }}" tabindex="{{ (userData.length * ki) + i }}">
+                    </td> -->
 
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(row.id)">&#10006; <div class="tooltip">Delete this user</div></div>

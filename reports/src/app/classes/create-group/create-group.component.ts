@@ -172,7 +172,7 @@ export class CreateGroupComponent implements OnInit {
       }
 
       // sort the potential options os the one with the most postential is presented first
-      this.potentialOptions = potentialOptions.sort((a, b) => a.count = b.count);
+      this.potentialOptions = potentialOptions.sort((a, b) => a.count - b.count);
       console.log({...this.potentialOptions});
       this.displayNextAutoPotential();
     }
@@ -475,39 +475,52 @@ export class CreateGroupComponent implements OnInit {
      * removes a column
      * @param index
      */
-    deleteColumn(index: number): void {
-        // strip from the keys array
-        const colName: string = this.keys[index];
+    deleteColumn(index: string): void {
+      // find the key index...
+      let keyIndex: number = this.keys.findIndex((key: string) => key === index);
 
-        // and remove from each of the user data array
-        this.userData.forEach((row: Student) => {
-            delete row.data[colName];
-        });
+      // if found do the stuff...
+      if(keyIndex !== -1) {
+          // and remove from each of the user data array
+          this.userData.forEach((row: Student) => {
+            console.log(`Deleting ${row.data[index]}`);
+              delete row.data[index];
+          });
 
-        this.keys.splice(index, 1);
-        this.dataUpdated = false;
-        this.dataChanged = true;
+          // and remove from the keys index...
+          this.keys.splice(keyIndex, 1);
+          this.dataUpdated = false;
+          this.dataChanged = true;
+        }
+
+        console.log(this.userData);
     }
 
     /**
      * keyvalue pipe orders alphabetically automatically. This stop that.
+     * deprecated
      * @returns number 0
      */
-    returnZero(): number {
-        return 0;
-    }
+    // returnZero(): number {
+    //     return 0;
+    // }
 
-    sortDataForDisplay(data: {}): {} {
-        let returnValue: {} = {};
+    // deprecated
+    // sortDataForDisplay(data: {}): {} {
+    //     let returnValue: {} = {};
 
-        // sort the data into the same order as the keys.,..
-        this.keys.forEach((key: string) => {
-            const newKey: {} = { [''+key] : data[key] };
-            returnValue = {...returnValue, ...newKey};
-        })
+    //       console.log(`Soring by ${this.keys}`);
 
-        return returnValue;
-    }
+    //     // sort the data into the same order as the keys.,..
+    //     this.keys.forEach((key: string) => {
+    //         const newKey: {} = { [''+key] : data[key] };
+    //         returnValue = {...returnValue, ...newKey};
+    //     })
+
+    //     console.log(returnValue);
+
+    //     return returnValue;
+    // }
 
     modifyData: boolean = false;
 
