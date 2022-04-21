@@ -41,6 +41,8 @@
 
                   <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>
                   <label for="groupInputHeaderBox">Top row is header text</label>
+                  <input type="checkbox" name="groupInputVerticalBox" id="groupInputVerticalBox" [(ngModel)]="verticalData">
+                  <label for="groupInputVerticalBox">Data is vertical (one data per row)</label>
                 </div>
 
                 <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
