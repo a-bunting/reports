@@ -33,6 +33,7 @@
                   <select class="input__select" name="groupCreationAlgorithm" id="groupCreationAlgorithm" (chnage)="setDataSeparation($event.target.value)">
                     <option [selected]="separation === '\\t'" value="\\t">Tab Seperated (Spreadsheets)</option>
                     <option [selected]="separation === '[,\\t]'" value="[,\\t]">Tab and Comma (Powerteacher Export)</option>
+                    <option [selected]="separation === 'ptcp'" value="ptcp">Tab and Comma (Powerteacher Copy and Paste)</option>
                     <option [selected]="separation === ','" value=",">Comma Seperated (Manual or CSV Input)</option>
                     <option [selected]="separation === ''" value="">Attempt Automatic Group Generation</option>
                   </select>
@@ -93,7 +94,7 @@
             <tbody>
                 <tr class="create-group__data--row create-group__data--data" *ngFor="let row of userData; let i = index">
                     <td class="create-group__data--cell" *ngFor="let key of keys; let ki = index">
-                        <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ row.data[key] }}" tabindex="{{ (userData.length * ki) + i }}">
+                        <input class="create-group__datainput" (blur)="userValueChange(row.id, key, $event.target.value)" (keyup.enter)="userValueChange(row.id, key, $event.target.value)" value="{{ row.data[key] }}" tabindex="{{ (userData.length * ki) + i }}">
                     </td>
                     <!--
                       why do it this way?
