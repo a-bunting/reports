@@ -24,19 +24,35 @@
 
         <div class="create-group__text">
 
-            <div class="create-group__text--textbox">
-                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--textbox--input" [(ngModel)]="userInfo" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line using comma notation."></textarea>
-            </div>
-            <div class="create-group__text--submit">
-                <div class="create-group__text--header-check">
+            <div class="create-group__text--copyandpaste">
+                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--copyandpaste--input" [(ngModel)]="userInfo" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line using comma notation."></textarea>
 
-                  <select class="input__select" name="groupCreationAlgorithm" id="groupCreationAlgorithm" (chnage)="setDataSeparation($event.target.value)">
+                <div class="create-group__text--copyandpaste--options">
+
+                  <p>The more information you can specify the better your data is likely to be!</p>
+
+                  <select name="topLevelMethod" id="topLevelMethod" class="input__select" (change)="setTopDataId($event.target.value)">
+                    <option value="{{ method.id }}" *ngFor="let method of dataStructureMethods">{{ method.text }}</option>
+                  </select>
+
+                  <select name="topLevelMethod" id="topLevelMethod" class="input__select" *ngIf="dataStructureMethods[topDataId].subMethods.length > 1" (change)="setSubDataId($event.target.value)">
+                    <option value="{{ subMethod.id }}" *ngFor="let subMethod of dataStructureMethods[topDataId].subMethods">{{ subMethod.text }}</option>
+                  </select>
+
+                  <div *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].input?.length > 0">
+                    <div *ngFor="let input of dataStructureMethods[topDataId].subMethods[subDataId].input">
+                      <input type="text" class="input__text input__text--short" id="{{ input.id }}">
+                      {{ input.text }}
+                    </div>
+                  </div>
+
+                  <!-- <select class="input__select" name="groupCreationAlgorithm" id="groupCreationAlgorithm" (chnage)="setDataSeparation($event.target.value)">
                     <option [selected]="separation === '\\t'" value="\\t">Tab Seperated (Spreadsheets)</option>
                     <option [selected]="separation === '[,\\t]'" value="[,\\t]">Tab and Comma (Powerteacher Export)</option>
                     <option [selected]="separation === 'ptcp'" value="ptcp">Tab and Comma (Powerteacher Copy and Paste)</option>
                     <option [selected]="separation === ','" value=",">Comma Seperated (Manual or CSV Input)</option>
                     <option [selected]="separation === ''" value="">Attempt Automatic Group Generation</option>
-                  </select>
+                  </select> -->
 
                   <input type="text" name="numberOfStudents" id="numberOfStudents" class="input__text" style="width: 15rem;" [(ngModel)]="numberOfStudents" placeholder="Number of students" title="Optional, but very helpful to successful auto generation!">
 
@@ -44,9 +60,14 @@
                   <label for="groupInputHeaderBox">Top row is header text</label>
                   <input type="checkbox" name="groupInputVerticalBox" id="groupInputVerticalBox" [(ngModel)]="verticalData">
                   <label for="groupInputVerticalBox">Data is vertical (one data per row)</label>
+                  <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
                 </div>
+            </div>
+            <div class="create-group__text--submit">
+                <!-- <div class="create-group__text--header-check">
 
-                <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
+                </div> -->
+
             </div>
         </div>
     </div>
