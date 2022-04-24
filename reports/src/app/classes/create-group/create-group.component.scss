@@ -115,11 +115,12 @@
         &--copyandpaste {
 
           display: flex;
+          height: 100%;
 
             &--input {
-              flex: 2;
+              flex: 1;
                 width: 100%;
-                height: 12vw;
+                height: 100%;
                 border-radius: 1rem;
                 padding: .5rem;
 
@@ -129,15 +130,23 @@
             }
 
             &--options {
-              flex: 1;
+              flex-basis: 30rem;
               display: flex;
               flex-direction: column;
-              justify-content: flex-start;
               align-items: flex-start;
               margin-left: 1rem;
+              font-size: 1.4rem;
 
               & > * {
                 margin-bottom: 1rem;
+                margin-left: 1.5rem;
+              }
+
+              &--multiline {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
               }
 
               input[type='checkbox'] { display: none; }
@@ -153,9 +162,6 @@
               }
 
               label {
-
-                align-self: center;
-                margin-left: 2rem;
 
                 &::before {
                       transition: all .2s;
@@ -175,10 +181,9 @@
                       border: .2rem solid white;
                       box-shadow: 0 .2rem .4rem black;
                   }
-              }
 
-              .multi-select-dropdown {
-                width: 100%;
+                  &:last-of-type { margin-bottom: 2rem; }
+                  &:first-of-type { margin-top: 1rem ;}
               }
             }
         }
@@ -250,10 +255,17 @@
             width: 100%;
             border-collapse: collapse;
             border-radius: 1rem;
+            position: relative;
 
             tr {
                 opacity: 0;
                 animation: fadeIn .3s ease-in 0s 1 forwards;
+            }
+
+            thead {
+              position: sticky;
+              top: -1px;
+              z-index: 99;
             }
 
             tbody tr, thead tr {
@@ -327,6 +339,24 @@
             &:visited {
                 background-color: red;
             }
+        }
+
+        &--adduser {
+
+          padding: .5rem 1rem;
+          transition: all .2s;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 1rem;
+          width: 100%;
+          background-color: var(--color-style-juxtapose);
+          margin-top: 2rem;
+
+          &:hover {
+            cursor: pointer;
+            background-color: var(--color-style-main);
+          }
         }
 
         &--colbuttons {

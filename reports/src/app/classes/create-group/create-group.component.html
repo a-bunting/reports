@@ -25,42 +25,42 @@
         <div class="create-group__text">
 
             <div class="create-group__text--copyandpaste">
-                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--copyandpaste--input" [(ngModel)]="userInfo" placeholder="Paste your class data here to add to the group... For the best results make the top line your data titles, then each new line a new subject (student, employee etc) separating the data with commas... 'Alex,Bunting,Alex,alex@reportwriter.com,Other Data' would be a good example for one line using comma notation."></textarea>
+                <textarea name="groupInputBox" id="groupInputBox" class="create-group__text--copyandpaste--input" [(ngModel)]="userInfo" placeholder="Paste your data into this box and select the relevant options in the options on the right. The more data you give on the right the better your data will look after generation."></textarea>
 
                 <div class="create-group__text--copyandpaste--options">
 
-                  <p>The more information you can specify the better your data is likely to be!</p>
+                  <p>Select the best description of where your data came from</p>
 
                   <select name="topLevelMethod" id="topLevelMethod" class="input__select" (change)="setTopDataId($event.target.value)">
                     <option value="{{ method.id }}" *ngFor="let method of dataStructureMethods">{{ method.text }}</option>
                   </select>
 
-                  <select name="topLevelMethod" id="topLevelMethod" class="input__select" *ngIf="dataStructureMethods[topDataId].subMethods.length > 1" (change)="setSubDataId($event.target.value)">
+                  <select name="topLevelMethod" id="topLevelMethod" class="input__select" [disabled]="dataStructureMethods[topDataId].subMethods.length <= 1" (change)="setSubDataId($event.target.value)">
                     <option value="{{ subMethod.id }}" *ngFor="let subMethod of dataStructureMethods[topDataId].subMethods">{{ subMethod.text }}</option>
                   </select>
 
                   <div *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].input?.length > 0">
                     <div *ngFor="let input of dataStructureMethods[topDataId].subMethods[subDataId].input">
-                      <input type="text" class="input__text input__text--short" id="{{ input.id }}">
-                      {{ input.text }}
+                      <div class="create-group__text--copyandpaste--options--multiline">
+                        <p>{{ input.text }}</p>
+                        <input type="text" class="input__text input__text--short" id="{{ input.id }}">
+                      </div>
                     </div>
                   </div>
 
-                  <!-- <select class="input__select" name="groupCreationAlgorithm" id="groupCreationAlgorithm" (chnage)="setDataSeparation($event.target.value)">
-                    <option [selected]="separation === '\\t'" value="\\t">Tab Seperated (Spreadsheets)</option>
-                    <option [selected]="separation === '[,\\t]'" value="[,\\t]">Tab and Comma (Powerteacher Export)</option>
-                    <option [selected]="separation === 'ptcp'" value="ptcp">Tab and Comma (Powerteacher Copy and Paste)</option>
-                    <option [selected]="separation === ','" value=",">Comma Seperated (Manual or CSV Input)</option>
-                    <option [selected]="separation === ''" value="">Attempt Automatic Group Generation</option>
-                  </select> -->
+                  <p *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].show.studentNumbers">The more info you can specify the better your data set is likely to be!</p>
 
-                  <input type="text" name="numberOfStudents" id="numberOfStudents" class="input__text" style="width: 15rem;" [(ngModel)]="numberOfStudents" placeholder="Number of students" title="Optional, but very helpful to successful auto generation!">
+                  <div class="create-group__text--copyandpaste--options--multiline" *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].show.studentNumbers">
+                    <p>Student Numbers</p>
+                    <input type="text" name="numberOfStudents" id="numberOfStudents" class="input__text" style="width: 15rem;" [(ngModel)]="numberOfStudents" placeholder="Number of students" title="Optional, but very helpful to successful auto generation!">
+                  </div>
 
                   <input type="checkbox" name="groupInputHeaderBox" id="groupInputHeaderBox" [(ngModel)]="headerRow" checked>
-                  <label for="groupInputHeaderBox">Top row is header text</label>
+                  <label for="groupInputHeaderBox" *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].show.header">Top row is header text</label>
                   <input type="checkbox" name="groupInputVerticalBox" id="groupInputVerticalBox" [(ngModel)]="verticalData">
-                  <label for="groupInputVerticalBox">Data is vertical (one data per row)</label>
-                  <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button>
+                  <label for="groupInputVerticalBox" *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].show.vertical">Data is vertical (one data per row)</label>
+                  <!-- <button class="create-group__text--submit--button" (click)="generateUserData()">Create Group</button> -->
+                  <button class="create-group__text--submit--button" (click)="setDataStructure()" *ngIf="dataStructureMethods[topDataId].subMethods[subDataId].show.createButton">Create Group</button>
                 </div>
             </div>
             <div class="create-group__text--submit">
@@ -72,13 +72,13 @@
         </div>
     </div>
 
-    <div class="create-group__controls" *ngIf="userDataGenerated">
+    <div class="create-group__controls" *ngIf="userDataGenerated || this.userData.length > 0">
         <div class="create-group__control-buttons">
-            <button class="create-group__text--submit--button" *ngIf="userData" (click)="modifyGroupData()">Modify Group Data</button>
-            <button class="create-group__text--submit--button" *ngIf="userData" (click)="displayNextAutoPotential()" [disabled]="potentialOptions.length === 0">{{ potentialOptions.length === 0 ? 'No more auto options' : 'Try Auto Again!' }}</button>
-            <button class="create-group__text--submit--button" *ngIf="userData && customService.allowGroupCreation()" (click)="createNewGroup()">Create New Group</button>
-            <button class="create-group__text--submit--button" *ngIf="userDataGenerated && !groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
-            <button class="create-group__text--submit--button" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="userDataGenerated && groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
+            <button class="create-group__text--submit--button" (click)="modifyGroupData()">Modify Group Data</button>
+            <button class="create-group__text--submit--button" (click)="displayNextAutoPotential()" [disabled]="potentialOptions.length === 0" *ngIf="autoGenerationAttempted">{{ potentialOptions.length === 0 ? 'No more auto options' : 'Try Auto Again!' }}</button>
+            <button class="create-group__text--submit--button" *ngIf="customService.allowGroupCreation()" (click)="createNewGroup()">Create New Group</button>
+            <button class="create-group__text--submit--button" *ngIf="!groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
+            <button class="create-group__text--submit--button" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
         </div>
 
         <div class="create-group__success" *ngIf="groupId">
@@ -91,12 +91,12 @@
         <table class="create-group__data--table">
             <thead>
                 <tr class="create-group__data--row create-group__data--header">
-                    <td class="create-group__data--cell" *ngFor="let key of keys; let i = index">
+                    <td colspan="1" class="create-group__data--cell" *ngFor="let key of keys; let i = index">
                         <div class="create-group__data--cell--header" *ngIf="splitColumnToggle !== i">
                           <input type="text" class="create-group__datainput" (keyup.enter)="columnValueChange(i, $event.target.value)" (blur)="columnValueChange(i, $event.target.value)" value="{{ key }}">
                           <div class="create-group__data--colbuttons">
                             <button class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="deleteColumn(key)">&#10006; <div class="tooltip">Delete this column (cannot be reversed)</div></button>
-                            <button class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)"><><div class="tooltip">Split this data</div></button>
+                            <button class="create-group__data--buttons create-group__data--buttons-modify tooltipped" (click)="toggleSplitColumn(i)">&#247;<div class="tooltip">Split this data</div></button>
                           </div>
                         </div>
                         <div class="create-group__data--cell--header" *ngIf="splitColumnToggle === i">
@@ -107,7 +107,7 @@
                           </div>
                       </div>
                     </td>
-                    <td class="create-group__data--cell">
+                    <td colspan="1" class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-addcol tooltipped" (click)="addColumn()">&#10010; <div class="tooltip">Add a new column</div></div>
                     </td>
                 </tr>
@@ -117,23 +117,17 @@
                     <td class="create-group__data--cell" *ngFor="let key of keys; let ki = index">
                         <input class="create-group__datainput" (blur)="userValueChange(row.id, key, $event.target.value)" (keyup.enter)="userValueChange(row.id, key, $event.target.value)" value="{{ row.data[key] }}" tabindex="{{ (userData.length * ki) + i }}">
                     </td>
-                    <!--
-                      why do it this way?
-                      <td class="create-group__data--cell" *ngFor="let user of sortDataForDisplay(row.data) | keyvalue : returnZero; let ki = index">
-                        <input class="create-group__datainput" (blur)="userValueChange(row.id, user.key, $event.target.value)" (keyup.enter)="userValueChange(row.id, user.key, $event.target.value)" value="{{ user.value }}" tabindex="{{ (userData.length * ki) + i }}">
-                    </td> -->
 
                     <td class="create-group__data--cell">
                         <div class="create-group__data--buttons create-group__data--buttons-remove tooltipped" (click)="removeUser(row.id)">&#10006; <div class="tooltip">Delete this user</div></div>
                     </td>
                 </tr>
-            </tbody>
-        </table>
 
-    </div>
 
-    <div class="create-group__manual-button" *ngIf="!userData">
-      Add users manually...
+              </tbody>
+            </table>
+            <div class="create-group__data--adduser" (click)="addNewUser()"> Add a new user manually </div>
+
     </div>
 
 </div>
