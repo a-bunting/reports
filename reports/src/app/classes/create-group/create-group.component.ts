@@ -19,7 +19,6 @@ export class CreateGroupComponent implements OnInit {
     user: User;
     groupname: string;
     groupDescription: string = "";
-    userDataGenerated: boolean = false;
     dataSubmitting: boolean = false;
     dataUpdating: boolean = false; // data is currently being updated...
     dataUpdated: boolean = false; // data has been saved since updating (databe is up to dtae)
@@ -118,7 +117,7 @@ export class CreateGroupComponent implements OnInit {
         id: 1,
         text: 'Data from Powerschool',
         subMethods: [{
-          id: 0, show: { studentNumbers: false, header: true, vertical: false, createButton: true }, text: 'Copy and paste from Powerteacher Pro',
+          id: 0, show: { studentNumbers: true, header: true, vertical: false, createButton: true }, text: 'Copy and paste from Powerteacher Pro',
           image: '',
           function: () => { this.verticalColumnsDataGeneration(); this.smartSplit(); this.trimAllData(); }
         }, {
@@ -162,14 +161,18 @@ export class CreateGroupComponent implements OnInit {
     subDataId: number = 0;
 
     setTopDataId(topId: number): void { this.topDataId = topId; this.subDataId = 0; }
-    setSubDataId(subId: number): void { this.subDataId = subId; console.log(this.topDataId, this.subDataId); }
+    setSubDataId(subId: number): void { this.subDataId = subId; }
 
     setDataStructure(): void {
       // if there is more data input required then set that now...
       const method: { id: number, text: string, image: string, function?: any, input?: { id: string, type: string, text: string }[]} = this.dataStructureMethods[this.topDataId].subMethods[this.subDataId];
       const data: string[] = [];
 
-      console.log(method);
+      // remove data from previous searches.
+      this.potentialOptions = [];
+      this.verticalPotentials = [];
+      this.autoGenerationAttempted = false;
+      this.autoVerticalGenerationAttempted = false;
 
       // retrive all the user input data...
       for(let i = 0 ; i < method.input?.length ; i++) {
@@ -210,7 +213,9 @@ export class CreateGroupComponent implements OnInit {
       this.deleteEmptyColumns();
     }
 
-
+    /**
+     * Removes all empty columns from the data.
+     */
     deleteEmptyColumns(): void {
       let colsToDelete: string[] = [];
 
@@ -265,8 +270,6 @@ export class CreateGroupComponent implements OnInit {
         // also if expected students isnt set, because then we have to guess!
         if(count === expectedStudents || count === (expectedStudents - 1) || isNaN(expectedStudents)) {
           // now see how the userdata might be split up
-          console.log(`It seems to be splitting lines with ${token}`);
-
           // try each token which is not the initial token to see how the string might break up.
           // the idea here is that if say all users are aparated by a comma, each row will have the same number
           // of commas...
@@ -324,7 +327,6 @@ export class CreateGroupComponent implements OnInit {
      */
     displayNextAutoPotential(): void {
         if(this.potentialOptions.length > 0) {
-            console.log(`Displaying ${this.potentialOptions[0].token} and ${this.potentialOptions[0].subToken}`);
             this.generateUserDataRowByRow(this.potentialOptions[0].token, this.potentialOptions[0].subToken);
             this.potentialOptions.shift();
         }
@@ -390,38 +392,56 @@ export class CreateGroupComponent implements OnInit {
     }
 
     /**
+     * Gets the factors of a number, of.
+     * @param of
+     * @returns
+     */
+    getFactors(of: number): number[] {
+      let factors: number[] = [];
+      for(let i = 0 ; i < of ; i++) { if((of % i) === 0) factors.push(i); }
+      return factors;
+    }
+
+    verticalPotentials: { keys: string[], data: Student[], possibility: number }[] = [];
+    autoVerticalGenerationAttempted: boolean = false;
+
+    /**
      * If the number of students are known and that the data is vertical this should be easy...
      */
     verticalColumnsDataGeneration(): void {
-      this.userDataGenerated = true;
       this.groupId = undefined;
       this.modifyData = false;
       const dataRows: string[] = this.userInfo.split('\n');
       const rowCount: number = this.userInfo.split('\n').length;
-      const studentPlusHeaderCount: number = this.headerRow ? this.numberOfStudents + 1 : this.numberOfStudents;
       this.keys = [];
       this.userData = [];
 
-      if(this.numberOfStudents) {
-        // if we know the number of students this should be fine...
-        const rowsPerUser: number = rowCount / studentPlusHeaderCount;
+      // get the tests to conduct, if numberofstudents exists then use that, otherwise test the factors.
+      let trials: number[] = this.numberOfStudents ? [this.numberOfStudents] : this.getFactors(rowCount);
+      this.autoVerticalGenerationAttempted = trials.length > 1 ? true : false;
 
-        // add the keys...
+      // loop over the possibilities...
+      for(let i = 0 ; i < trials.length ; i++) {
+        const studentPlusHeaderCount: number = this.headerRow ? trials[i] + 1 : trials[i];
+        const rowsPerUser: number = rowCount / studentPlusHeaderCount;
+        let trialsKeys: string[] = [];
+        let trialsData: Student[] = [];
+
         for(let i = 0 ; i < rowsPerUser ; i++) {
-          // if a heade row exists use those values, if not make up random ones.
+          // if a header row exists use those values, if not make up random ones.
           if(this.headerRow) {
-            let findIndex: number = this.keys.findIndex((t: string) => t === dataRows[i]);
+            let findIndex: number = trialsKeys.findIndex((t: string) => t === dataRows[i]);
             if(findIndex === -1) {
               // key doesnt exist so just make it so.
-              this.keys.push(dataRows[i]);
+              trialsKeys.push(dataRows[i]);
             } else {
               // the key already exists so append with a number...
-              let keyCount: number = this.keys.filter((t: string) => t === dataRows[i]).length;
-              this.keys.push(dataRows[i] + keyCount);
+              let keyCount: number = trialsKeys.filter((t: string) => t === dataRows[i]).length;
+              trialsKeys.push(dataRows[i] + keyCount);
             }
           } else {
             // there is no header so generate random keys...
-            this.keys.push('Column ' + (i + 1));
+            trialsKeys.push('Column ' + (i + 1));
           }
         }
 
@@ -431,24 +451,79 @@ export class CreateGroupComponent implements OnInit {
           // and iterate over the number of rows per user...
 
           for(let o = 0 ; o < rowsPerUser ; o++) {
-              const keyName: string = this.keys[o];
+              const keyName: string = trialsKeys[o];
               const dataPoint: string = dataRows[i + o] ? dataRows[i + o] : "";
               user.data = { ...user.data, [keyName.trim()] : dataPoint };
-              // user.data = { ...user.data, [keyName.trim()] : dataPoint.trim() };
           }
 
-          this.userData.push(user);
+          trialsData.push(user);
+        }
+        this.verticalPotentials.push({ keys: trialsKeys, data: trialsData, possibility: this.generateDataPossibilityValue(trialsData) });
+      }
+
+      // sort by possibility and then by row count!
+      this.verticalPotentials = this.verticalPotentials.sort((a, b) => {
+        let poss: number = b.possibility - a.possibility
+        if(poss !== 0) return poss;
+        return a.keys.length - b.keys.length;
+      });
+
+      this.verticalTrialsNextTest();
+    }
+
+    generateDataPossibilityValue(data: Student[]): number {
+      // if there is only one student found it seems unlikely!
+      if(data.length === 1) return 1;
+
+      let student1: Student = data[0];
+      let student2: Student = data[1];
+
+      let keys: string[] = Object.keys(student1.data);
+      let testCharacters: { char: string, score: number }[] = [{ char: ',', score: 15 },{ char: '.', score: 5 },{ char: '%', score: 10 },{ char: '@', score: 30 }];
+      let score: number = 0;
+
+      for(let i = 0 ; i < keys.length ; i++) {
+        // test if the keys look the same, and each time they do assign a score.
+        // split by the test characters
+        for(let o = 0 ; o < testCharacters.length ; o++) {
+          let s1Split: number = student1.data[keys[i]].split(testCharacters[o].char).length;
+          let s2Split: number = student2.data[keys[i]].split(testCharacters[o].char).length;
+
+          if((s1Split || s2Split) !== 1) score += s1Split === s2Split ? testCharacters[0].score : (testCharacters[0].score * 0.5) / Math.abs(s1Split - s2Split);
         }
 
-      } else {
-        // if we dont, we should do some factorisation to see what might work, for example
-        // if there are 32 lines it could be 2 lines per student, 4 lines, 8 lines or 16 lines
-        // generate some options.
+        // check if the types are the same
+        let typeMatch: boolean = typeof(student1.data[keys[i]]) === typeof(student2.data[keys[i]]);
+        score += typeMatch ? 10 : 0;
+
+        // check if they are numbers (or can be cast as number)
+        let numberMatch: boolean = isNaN(student1.data[keys[i]]) === isNaN(student2.data[keys[i]]);
+        score += numberMatch ? 10 : 0;
+      }
+
+      // the score is the total divided by the column count, giving an average score per column.
+      return score / keys.length;
+    }
+
+    /**
+     * Chnage the dataset to the next one if vertical trials were utilised...
+     */
+    verticalTrialsNextTest(): void {
+      if(this.verticalPotentials.length > 0) {
+        const next: { keys: string[], data: Student[], possibility: number } = this.verticalPotentials.shift();
+        this.keys = next.keys;
+        this.userData = next.data;
+        this.smartSplit();
+        this.trimAllData();
       }
     }
 
+    /**
+     * Generate user data which is separated by a row deliminator and a col deliniator
+     * @param rows
+     * @param colDeliniator
+     */
     generateUserDataRowByRow(rows: string = '\n', colDeliniator?: string) {
-        this.userDataGenerated = true;
         this.groupId = undefined;
         this.modifyData = false;
         let data: string[];
@@ -529,9 +604,7 @@ export class CreateGroupComponent implements OnInit {
         const userIndex: number = this.getIndexPositionById(userId);
 
         if(userIndex !== -1) {
-          console.log(`Changiong ${this.userData[userIndex].data[key]} to ${input} on key ${key}`);
             this.userData[userIndex].data[key] = newValue[0];
-            console.log(`Reporting ${this.userData[userIndex].data[key]}`);
             this.dataUpdated = false;
             this.dataChanged = true;
         }
@@ -628,32 +701,6 @@ export class CreateGroupComponent implements OnInit {
         }
     }
 
-    /**
-     * keyvalue pipe orders alphabetically automatically. This stop that.
-     * deprecated
-     * @returns number 0
-     */
-    // returnZero(): number {
-    //     return 0;
-    // }
-
-    // deprecated
-    // sortDataForDisplay(data: {}): {} {
-    //     let returnValue: {} = {};
-
-    //       console.log(`Soring by ${this.keys}`);
-
-    //     // sort the data into the same order as the keys.,..
-    //     this.keys.forEach((key: string) => {
-    //         const newKey: {} = { [''+key] : data[key] };
-    //         returnValue = {...returnValue, ...newKey};
-    //     })
-
-    //     console.log(returnValue);
-
-    //     return returnValue;
-    // }
-
     modifyData: boolean = false;
 
     modifyGroupData(): void {
@@ -667,7 +714,6 @@ export class CreateGroupComponent implements OnInit {
         this.groupname = undefined;
         this.keys = undefined;
         this.modifyData = false;
-        this.userDataGenerated = false;
         this.dataSubmitting = false;
         this.dataUpdating = false; // data is currently being updated...
         this.dataUpdated = false; // data has been saved since updating (databe is up to dtae)

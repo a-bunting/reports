@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="create-group__input"  *ngIf="!userDataGenerated || modifyData">
+    <div class="create-group__input"  *ngIf="userData.length === 0 || modifyData">
 
         <div class="create-group__text">
 
@@ -72,10 +72,11 @@
         </div>
     </div>
 
-    <div class="create-group__controls" *ngIf="userDataGenerated || this.userData.length > 0">
+    <div class="create-group__controls" *ngIf="this.userData.length > 0">
         <div class="create-group__control-buttons">
             <button class="create-group__text--submit--button" (click)="modifyGroupData()">Modify Group Data</button>
-            <button class="create-group__text--submit--button" (click)="displayNextAutoPotential()" [disabled]="potentialOptions.length === 0" *ngIf="autoGenerationAttempted">{{ potentialOptions.length === 0 ? 'No more auto options' : 'Try Auto Again!' }}</button>
+            <button class="create-group__text--submit--button" (click)="displayNextAutoPotential()" [disabled]="potentialOptions.length === 0" *ngIf="autoGenerationAttempted">{{ potentialOptions.length === 0 ? 'H No more auto options' : 'Try Auto Again!' }}</button>
+            <button class="create-group__text--submit--button" (click)="verticalTrialsNextTest()" [disabled]="verticalPotentials.length === 0" *ngIf="autoVerticalGenerationAttempted">{{ verticalPotentials.length === 0 ? 'V No more auto options' : 'Try Auto Again!' }}</button>
             <button class="create-group__text--submit--button" *ngIf="customService.allowGroupCreation()" (click)="createNewGroup()">Create New Group</button>
             <button class="create-group__text--submit--button" *ngIf="!groupId" (click)="createGroup()" [disabled]="dataSubmitting || !groupname">{{ !dataSubmitting ? "Submit to Database" : "Working" }}</button>
             <button class="create-group__text--submit--button" [class.create-group__text--submit--updated]="dataUpdated" *ngIf="groupId" (click)="updateGroup()" [disabled]="dataSubmitting || !groupname || !dataChanged">{{ !dataSubmitting ? "Update Group Data" : "Updating Data" }}</button>
