@@ -82,3 +82,20 @@ exports.removeManagerRole = functions.https.onCall((data: any, context: any) => 
         return error;
     });
 });
+
+exports.confirmOrderAndAddMembership = functions.https.onCall((data: any, context: any) => {
+  const headers: Headers = new Headers();
+  headers.append('Authorization', 'Basic <AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8:EL2PnzL0Oe1gvPKwgmsMz2t0J8T1672TlLIo2JYMNUBVsfq4m3Qgc-0deoATB6FGGVOhKpCIW_vowGRi>');
+  headers.append('Content-Type', 'application/json');
+
+  fetch(`https://api.sandbox.paypal.com/v2/checkout/orders/06V622347U0470228`, { method: 'GET', headers: headers })
+  // fetch(`https://api.sandbox.paypal.com/v2/checkout/orders/${data.paymentId}`, { method: 'GET', headers: headers})
+  .then((response) => {
+    // check if the payment is actual and the same as the user details, and if so then this is a proper
+    // transaction and the user can be credited with time on their account.
+    return response;
+  })
+  .catch((error) => {
+    return `Nope:` + error.message;
+  });
+});
