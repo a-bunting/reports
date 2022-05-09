@@ -4,7 +4,7 @@ import { Student } from 'src/app/services/groups.service';
 export interface Test {
     name: string; description: string; // explanation of the test - name preceded by 'Select a '...
     identifier: string; // a unique id which identifies the test (irrespective of the name presented to the user)
-    settings?:  {   // settings are optional and let you select an option set as opposed to specifying one set of options for all situations. 
+    settings?:  {   // settings are optional and let you select an option set as opposed to specifying one set of options for all situations.
                     name: string;   // the name of the setting
                     description: string;    // descirption of the seeting
                     options: TestOptions[]  // the options, which include a set of options you assign to the variables
@@ -22,7 +22,7 @@ export interface Test {
 }
 
 export interface TestVariable {
-    name: string,   // the plain english name displayed to the user... 
+    name: string,   // the plain english name displayed to the user...
     identifier: string,  // the identifier for use in the code.
     description: string,  // a description for the user...
     options?: TestOptions[] // optional options if you want to override the settings, or do not HAVE nay settings.
@@ -63,13 +63,13 @@ export class TestsService {
 
     public testsList: Test[] = [
         {
-            name: "Grade Change", 
+            name: "Grade Change",
             identifier: "gradeDifferenceCalculator",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Calculates a value taken from two grades at different points in time and returns the difference in sublevels. For example if a student moved from a B- to an A- (American grade system) this would return 3.",
             test: {
-                name: "Expression", 
-                description: "The conditions by which this test is met, i.e. '>3' means that if they have gained over 3 subgrades this test will pass. You can do multiple tests splitting them with a comma, i.e. '>3,<8' will be true for 4, 5, 6 and 7 but false otherwise.", 
+                name: "Expression",
+                description: "The conditions by which this test is met, i.e. '>3' means that if they have gained over 3 subgrades this test will pass. You can do multiple tests splitting them with a comma, i.e. '>3,<8' will be true for 4, 5, 6 and 7 but false otherwise.",
                 validityFunction: function(expression: string): boolean {
                     // split the expression into all its individual tests
                     let multipleExpression: string[] = expression.split(',');
@@ -82,11 +82,11 @@ export class TestsService {
                         // check it makes sense..
                         if(exp.length > 1 && (exp[0] === "<" || ">" || "=" || "<=" || ">=")) {
                             // and if its a string then only = should be used...
-                            if(isNaN(Number(exp[1]))) {  
+                            if(isNaN(Number(exp[1]))) {
                                 // its a string...
                                 exp[0] === "=" ? (returnValue !== false ? returnValue = true : returnValue = false) : returnValue = false;
                             } else returnValue !== false ? returnValue = true : returnValue = false;
-                            
+
                         } else {
                             // either no number, string or expression is given, or its an inccorect format...
                             returnValue = false;
@@ -99,7 +99,7 @@ export class TestsService {
             variables: [
                 { name: "Current Grade", identifier: "curGrade", description: "The students grade at the time you write the report."},
                 { name: "Comparison Grade", identifier: "comparisonGrade", description: "The students grade you want to compare to their current grade."}
-            ], 
+            ],
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
@@ -120,7 +120,7 @@ export class TestsService {
             },
             testFunction: function(valueToTest: number|string, testPattern: string): boolean {
                 let validPattern: boolean = this.test.validityFunction(testPattern);
-                
+
                 if(validPattern) {
                     // split the expression into all its individual tests
                     let multipleExpression: string[] = testPattern.split(',');
@@ -132,7 +132,7 @@ export class TestsService {
                             let regEx: RegExp = new RegExp('([><=]{1,2})', 'ig');
                             let exp: string[] = splitExpression.split(regEx);
                             exp.shift(); // remove the first entry which is always 0
-    
+
                             // check if its a string or not in order to test it...
                             if(isNaN(Number(exp[1]))) {
                                 // its a string...
@@ -146,7 +146,7 @@ export class TestsService {
                                     case ">": +valueToTest > valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
                                     case "=": +valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
                                     case "==": +valueToTest === valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
-                                    case ">=": +valueToTest >= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break; 
+                                    case ">=": +valueToTest >= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
                                     case "<=": +valueToTest <= valueToTestAgainst ? currentPassStatus = true : currentPassStatus = false; break;
                                     default: currentPassStatus = false;
                                 }
@@ -160,15 +160,15 @@ export class TestsService {
                     return false;
                 };
             }
-        }, 
+        },
         {
-            name: "Skill Level", 
+            name: "Skill Level",
             identifier: "skillLevelTest",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Simply test if a student is at a particular skill level. To compare skill levels use the 'grade change' test.",
             test: {
-                name: "Skill Level (%age)", 
-                description: "A grade is input, and is tested against this percentage range (from-to). So for example 90-100 means this test passes if the user is in the top 90-100% of the grade range available. For An A-F scale with subgrades this would mean an A+ and an A fall into the 90-100 range and would pass this test.", 
+                name: "Skill Level (%age)",
+                description: "A grade is input, and is tested against this percentage range (from-to). So for example 90-100 means this test passes if the user is in the top 90-100% of the grade range available. For An A-F scale with subgrades this would mean an A+ and an A fall into the 90-100 range and would pass this test.",
                 validityFunction: function(expression: string): boolean {
                     // split the expression into all its individual tests
                     let returnValue: boolean;
@@ -180,7 +180,7 @@ export class TestsService {
                     // check it makes sense..
                     if(exp.length === 3) {
                         // and if its a string then only = should be used...
-                        if(isNaN(Number(exp[0])) || isNaN(Number(exp[2]))) {  
+                        if(isNaN(Number(exp[0])) || isNaN(Number(exp[2]))) {
                           // either value is a string...
                           returnValue = false;
                         } else {
@@ -189,7 +189,7 @@ export class TestsService {
                           } else {
                             returnValue = false;
                           }
-                        } 
+                        }
                     } else {
                         // either no number, string or expression is given, or its an inccorect format...
                         returnValue = false;
@@ -201,7 +201,7 @@ export class TestsService {
             variables: [
                 { name: "Current Level", identifier: "curSkillLevel", description: "The students skill level at the time you write the report."}//,
                 // { name: "Skill Name", identifier: "skillName", description: "The skill that this particular test is checking."}
-            ], 
+            ],
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
@@ -217,7 +217,7 @@ export class TestsService {
             },
             testFunction: function(valueToTest: number, testPattern: string): boolean {
                 let validPattern: boolean = this.test.validityFunction(testPattern);
-                
+
                 if(validPattern) {
                     // split into expression and value...
                     let regEx: RegExp = new RegExp('([-]{1,1})', 'ig');
@@ -233,15 +233,15 @@ export class TestsService {
                     return false;
                 };
             }
-        }, 
+        },
         {
-            name: "Grade Level", 
+            name: "Grade Level",
             identifier: "gradeLevelTest",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Simply returns a value which indicates where the student is within the grade scale as a poercentage. A student doing very well will be close to the 100% and students struggling will be closer to 0%.",
             test: {
-                name: "Grade Level (%age)", 
-                description: "A grade is input, and is tested against this percentage range (from-to). So for example 90-100 means this test passes if the user is in the top 90-100% of the grade range available. For An A-F scale with subgrades this would mean an A+ and an A fall into the 90-100 range and would pass this test.", 
+                name: "Grade Level (%age)",
+                description: "A grade is input, and is tested against this percentage range (from-to). So for example 90-100 means this test passes if the user is in the top 90-100% of the grade range available. For An A-F scale with subgrades this would mean an A+ and an A fall into the 90-100 range and would pass this test.",
                 validityFunction: function(expression: string): boolean {
                     // split the expression into all its individual tests
                     let returnValue: boolean;
@@ -253,7 +253,7 @@ export class TestsService {
                     // check it makes sense..
                     if(exp.length === 3) {
                         // and if its a string then only = should be used...
-                        if(isNaN(Number(exp[0])) || isNaN(Number(exp[2]))) {  
+                        if(isNaN(Number(exp[0])) || isNaN(Number(exp[2]))) {
                           // either value is a string...
                           returnValue = false;
                         } else {
@@ -262,7 +262,7 @@ export class TestsService {
                           } else {
                             returnValue = false;
                           }
-                        } 
+                        }
                     } else {
                         // either no number, string or expression is given, or its an inccorect format...
                         returnValue = false;
@@ -273,7 +273,7 @@ export class TestsService {
             },
             variables: [
                 { name: "Current Grade", identifier: "curGrade", description: "The students grade level at the time you write the report."}
-            ], 
+            ],
             calculateValueFunction: (userData: Student): number => {
                 // get the grading system
                 let gradingSystem: TestOptions = this.findGradingSystemByName(userData.data['settings'].name);
@@ -290,14 +290,14 @@ export class TestsService {
             },
             testFunction: function(valueToTest: number, testPattern: string): boolean {
                 let validPattern: boolean = this.test.validityFunction(testPattern);
-                
+
                 if(validPattern) {
                     // split into expression and value...
                     let regEx: RegExp = new RegExp('([-]{1,1})', 'ig');
                     let exp: string[] = testPattern.split(regEx); // should have an array of [number, '-', number]
                     // strip out any percentages user might have put in......
                     exp.forEach((section: string, i: number) => { exp[i] = section.replace('%', '');  })
-                    
+
                     if(valueToTest >= +exp[0] && valueToTest <= +exp[2]) {
                         return true;
                     } else return false;
@@ -306,15 +306,15 @@ export class TestsService {
                     return false;
                 };
             }
-        }, 
+        },
         {   // this isnt well written because data is replicated... sort out later.
-            name: "Next Stage", 
+            name: "Next Stage",
             identifier: "nextStageTest",
             settings: { name: "Their next steps", description: "Where are they going next year?", options: [{ name: "Where are they going for their next time period?", options: { 0: "Leaving school", 1: "Staying in this course", 2: "Course is over", 3: "Graduating", 4: "I am leaving"}}] },
             description: "Where are the students going for the next time period (end of year usually going to be course over, and end of a semester would be to stay in the course",
             test: {
-                name: "Student Movement", 
-                description: "This will be displayed for those students who are going to this place.", 
+                name: "Student Movement",
+                description: "This will be displayed for those students who are going to this place.",
                 options: ["Leaving school", "Staying in this course", "Course is over", "Graduating", "I am leaving"],
                 validityFunction: function(expression: string): boolean {
                     // simply check if the value is in the options available...
@@ -323,7 +323,7 @@ export class TestsService {
             },
             variables: [
                 { name: "Where are they going?", identifier: "nextSteps", description: "What are the students doing next semester with respect to this school or course?"}
-            ], 
+            ],
             calculateValueFunction: (userData: Student): string => {
                 return userData.data['nextSteps'];
             },
@@ -331,15 +331,15 @@ export class TestsService {
                 // simply a comparison between the user value and the test value
                 return valueToTest === testString;
             }
-        }, 
+        },
         {   // this isnt well written because data is replicated... sort out later.
-            name: "Effort", 
+            name: "Effort",
             identifier: "effortTest",
             settings: { name: "The effort level", description: "How much effort does the student put into their work?", options: [{ name: "Effort Level", options: { 0: "No effort", 1: "Very Little effort", 2: "Acceptable effort", 3: "Good effort", 4: "High level of effort"}}] },
             description: "A verbal description of how much effort students have put into the course. Higher outcomes (usually) yield more positive statements. Minimums means that level and above will pass the test.",
             test: {
-                name: "Effort Level", 
-                description: "This helps differentiate students by their effort levels. ALl students at this level pass the test.", 
+                name: "Effort Level",
+                description: "This helps differentiate students by their effort levels. ALl students at this level pass the test.",
                 options: ["No effort", "Very little effort|minimum",  "Very little effort", "Very little effort|maximum", "Acceptable effort|minimum", "Acceptable effort", "Acceptable effort|maximum", "Good effort|minimum", "Good effort", "Good effort|maximum", "High level of effort"],
                 validityFunction: function(expression: string): boolean {
                     // simply check if the value is in the options available...
@@ -348,7 +348,7 @@ export class TestsService {
             },
             variables: [
                 { name: "Effort Level", identifier: "effortLevel", description: "How much effort would you say the student puts into their work?"}
-            ], 
+            ],
             calculateValueFunction: (userData: Student): string => {
                 return userData.data['effortLevel'];
             },
@@ -382,16 +382,16 @@ export class TestsService {
                     return valueToTest === testString;
                 }
             }
-        }, 
+        },
         {
-            name: "Grade Pattern", 
+            name: "Grade Pattern",
             identifier: "gradePatternTest",
-            settings: { name: "Grade Pattern", description: "How have the students grades evolved over this time period?", options: [{ name: "Grade Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]}, 
-            description: "This is a simple test of students grades over a time period, it allows us to do more than just compare two grades but to make comments based on flakey or consistent grade patterns. There are no specific grades for this test but it will help build comments relating to (for example) organisation and burnout.", 
+            settings: { name: "Grade Pattern", description: "How have the students grades evolved over this time period?", options: [{ name: "Grade Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]},
+            description: "This is a simple test of students grades over a time period, it allows us to do more than just compare two grades but to make comments based on flakey or consistent grade patterns. There are no specific grades for this test but it will help build comments relating to (for example) organisation and burnout.",
             test: {
                 name: "Grade Pattern",
-                description: "A pattern matched with a grade level can distinguish how a student has performed over time.", 
-                options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"], 
+                description: "A pattern matched with a grade level can distinguish how a student has performed over time.",
+                options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"],
                 validityFunction: (expression: string): boolean => {
                     return ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"].includes(expression);;
                 }
@@ -406,16 +406,16 @@ export class TestsService {
                 console.log(valueToTest, testString);
                 return valueToTest === testString;
             }
-        }, 
+        },
         {
-            name: "Effort Pattern", 
+            name: "Effort Pattern",
             identifier: "effortPatternTest",
-            settings: { name: "Effort Pattern", description: "How has the students effort level evolved over this time period?", options: [{ name: "Effort Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]}, 
-            description: "This is a simple test of students effort over a time period, it allows us to make comments about students waning or building effort.", 
+            settings: { name: "Effort Pattern", description: "How has the students effort level evolved over this time period?", options: [{ name: "Effort Pattern", options: {0: "Consistent throughout", 1: "Ups and Downs", 2: "Slow start, good end", 3: "Good start, less good end"}}]},
+            description: "This is a simple test of students effort over a time period, it allows us to make comments about students waning or building effort.",
             test: {
                 name: "Effort Pattern",
-                description: "A pattern matched with a effort level can distinguish well a student has worked over time.", 
-                options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"], 
+                description: "A pattern matched with a effort level can distinguish well a student has worked over time.",
+                options: ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"],
                 validityFunction: (expression: string): boolean => {
                     return ["Consistent throughout", "Ups and Downs", "Slow start, good end", "Good start, less good end"].includes(expression);
                 }
@@ -429,16 +429,16 @@ export class TestsService {
             testFunction: (valueToTest: string, testString: string): boolean => {
                 return valueToTest === testString;
             }
-        }, 
+        },
         {
-            name: "Behaviour", 
+            name: "Behaviour",
             identifier: "behaviourTest",
-            settings: { name: "Behaviour", description: "What describes the students behaviour best?", options: [{ name: "Behaviour", options: {0: "Good", 1: "Chatty (OK)", 2: "Disruptive"}}]}, 
-            description: "This is a simple test of students behaviour, focused around how their behaviour impacts other students' learning.", 
+            settings: { name: "Behaviour", description: "What describes the students behaviour best?", options: [{ name: "Behaviour", options: {0: "Good", 1: "Chatty (OK)", 2: "Disruptive"}}]},
+            description: "This is a simple test of students behaviour, focused around how their behaviour impacts other students' learning.",
             test: {
                 name: "Behaviour",
-                description: "What best describes the students' behaviour in class?", 
-                options: ["Good", "Chatty (OK)", "Disruptive"], 
+                description: "What best describes the students' behaviour in class?",
+                options: ["Good", "Chatty (OK)", "Disruptive"],
                 validityFunction: (expression: string): boolean => {
                     return ["Good", "Chatty (OK)", "Disruptive"].includes(expression);
                 }
@@ -450,19 +450,18 @@ export class TestsService {
                 return userData.data['behaviourTest'];
             },
             testFunction: (valueToTest: string, testString: string): boolean => {
-                console.log(valueToTest, testString);
                 return valueToTest === testString;
             }
-        }, 
+        },
         {
-            name: "Particiation", 
+            name: "Particiation",
             identifier: "participationTest",
-            settings: { name: "Particiation", description: "How well does the student participate in class?", options: [{ name: "Particiation", options: {0: "Frequent", 1: "Good", 2: "Occasional", 3: "None Participant"}}]}, 
-            description: "A test of students' level of participation within class (however you define participation!).", 
+            settings: { name: "Particiation", description: "How well does the student participate in class?", options: [{ name: "Particiation", options: {0: "Frequent", 1: "Good", 2: "Occasional", 3: "None Participant"}}]},
+            description: "A test of students' level of participation within class (however you define participation!).",
             test: {
                 name: "Participation",
-                description: "What best describes the students' level of participation in class?", 
-                options: ["Frequent", "Good", "Occasional", "None Participant"], 
+                description: "What best describes the students' level of participation in class?",
+                options: ["Frequent", "Good", "Occasional", "None Participant"],
                 validityFunction: (expression: string): boolean => {
                     return ["Frequent", "Good", "Occasional", "None Participant"].includes(expression);
                 }
@@ -476,16 +475,16 @@ export class TestsService {
             testFunction: (valueToTest: string, testString: string): boolean => {
                 return valueToTest === testString;
             }
-        }, 
+        },
         {
-            name: "Time Management", 
+            name: "Time Management",
             identifier: "timeManagementTest",
-            settings: { name: "Time Management", description: "How good are this students time management skills?", options: [{ name: "Time Management", options: {0: "Very Good", 1: "Good", 2: "Poor"}}]}, 
-            description: "A test of students time management skills.", 
+            settings: { name: "Time Management", description: "How good are this students time management skills?", options: [{ name: "Time Management", options: {0: "Very Good", 1: "Good", 2: "Poor"}}]},
+            description: "A test of students time management skills.",
             test: {
                 name: "Time Management",
-                description: "What best describes the students' ability to manage their time?", 
-                options: ["Very Good", "Good", "Poor"], 
+                description: "What best describes the students' ability to manage their time?",
+                options: ["Very Good", "Good", "Poor"],
                 validityFunction: (expression: string): boolean => {
                     return ["Very Good", "Good", "Poor"].includes(expression);
                 }
@@ -499,16 +498,16 @@ export class TestsService {
             testFunction: (valueToTest: string, testString: string): boolean => {
                 return valueToTest === testString;
             }
-        }, 
+        },
         {
-            name: "Organisation", 
+            name: "Organisation",
             identifier: "organisationTest",
-            settings: { name: "Organisation", description: "How well organisated is this student?", options: [{ name: "Organisation", options: {0: "Excellent", 1: "Good", 2: "Poor",}}]}, 
-            description: "A test of students' organisational skills.", 
+            settings: { name: "Organisation", description: "How well organisated is this student?", options: [{ name: "Organisation", options: {0: "Excellent", 1: "Good", 2: "Poor",}}]},
+            description: "A test of students' organisational skills.",
             test: {
                 name: "Organisation",
-                description: "What word best describes the students' organisation of their learning?", 
-                options: ["Excellent", "Good", "Poor"], 
+                description: "What word best describes the students' organisation of their learning?",
+                options: ["Excellent", "Good", "Poor"],
                 validityFunction: (expression: string): boolean => {
                     return ["Excellent", "Good", "Poor"].includes(expression);
                 }
@@ -527,14 +526,14 @@ export class TestsService {
 
         // template for additional tests
         // {
-        //     name: "", 
+        //     name: "",
         //     identifier: "",
-        //     settings: { name: "", description: "", options: []}, 
-        //     description: "", 
+        //     settings: { name: "", description: "", options: []},
+        //     description: "",
         //     test: {
         //         name: "",
-        //         description: "", 
-        //         options: [], 
+        //         description: "",
+        //         options: [],
         //         validityFunction: (): boolean => {
         //             return true;
         //         }
@@ -554,8 +553,8 @@ export class TestsService {
 
     /**
      * Get a test based upon the name...
-     * @param testName 
-     * @returns 
+     * @param testName
+     * @returns
      */
     getTest(testIdentifier: string): Test {
         //get the index
@@ -567,8 +566,8 @@ export class TestsService {
 
     /**
      * Returns the variables required for a test
-     * @param testName 
-     * @returns 
+     * @param testName
+     * @returns
      */
     getTestVariables(testIdentifier: string): TestVariable[] {
         //get the index
@@ -579,8 +578,8 @@ export class TestsService {
 
     /**
      * Find a grading system by the name...
-     * @param name 
-     * @returns 
+     * @param name
+     * @returns
      */
     findGradingSystemByName(name: string): TestOptions {
         let gradingIndex: number = this.gradingSystems.findIndex((temp: TestOptions) => temp.name === name);

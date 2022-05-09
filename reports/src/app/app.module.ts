@@ -32,6 +32,8 @@ import { GalleryComponent } from './utilities/gallery/gallery.component';
 import { GalleryItemComponent } from './utilities/gallery/gallery-item/gallery-item.component';
 import { StopwatchComponent } from './utilities/stopwatch/stopwatch.component';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { DemoComponent } from './demo/demo.component';
+import { KnowledgeComponent } from './demo/knowledge/knowledge.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +54,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
     AuthComponent,
     PrivacyComponent,
     TermsComponent,
-    PageNotFoundComponent, GalleryComponent, GalleryItemComponent, StopwatchComponent
+    PageNotFoundComponent, GalleryComponent, GalleryItemComponent, StopwatchComponent, DemoComponent, KnowledgeComponent
   ],
   imports: [
     BrowserModule,

@@ -18,11 +18,17 @@ import { PageNotFoundComponent } from './utilities/page-not-found/page-not-found
 import { TemplatesGuard } from './utilities/guards/templates.guard';
 import { GroupsGuard } from './utilities/guards/groups.guard';
 import { ReportsGuard } from './utilities/guards/reports.guard';
+import { DemoComponent } from './demo/demo.component';
+import { KnowledgeComponent } from './demo/knowledge/knowledge.component';
 
 const titleNamePrexif: string = "ReportZone"
 
 const routes: Routes = [
     {path: '', component: IntroComponent, data: { title: titleNamePrexif }},
+    {path: 'demo', component: DemoComponent, data: { title: `${titleNamePrexif} - How it works` }, children: [
+      {path: 'knowledge', component: KnowledgeComponent, data: { title: `${titleNamePrexif} - Knowledge Base` }},
+      {path: 'knowledge/:page', component: KnowledgeComponent, data: { title: `${titleNamePrexif} - Knowledge Base` }},
+    ]},
     {path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], data: { title: `${titleNamePrexif} - Reports` }, children: [
         {path: 'edit-report', component: EditReportComponent, canActivate: [ReportsGuard], data: { title: `${titleNamePrexif} - Edit Report` }},
         {path: 'edit-report/:id', component: EditReportComponent, data: { title: `${titleNamePrexif} - Edit Report` }}
@@ -42,7 +48,7 @@ const routes: Routes = [
     {path: 'privacy', component: PrivacyComponent, data: { title: `${titleNamePrexif} - Privacy Policy` }},
     {path: 'fb', loadChildren: () => import('./utilities/modify-user-data/verification.module').then(m => m.VerificationModule)},
     {path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)},
-    {path: 'join', loadChildren: () => import('./utilities/join/join.module').then(m => m.JoinModule)}, 
+    {path: 'join', loadChildren: () => import('./utilities/join/join.module').then(m => m.JoinModule)},
     {path: '**', component: PageNotFoundComponent, data: { title: `${titleNamePrexif} - Page Not Found` }}
 ];
 

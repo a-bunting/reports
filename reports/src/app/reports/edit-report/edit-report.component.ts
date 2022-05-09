@@ -715,11 +715,6 @@ export class EditReportComponent implements OnInit, OnDestroy {
     }
 
 
-
-
-
-
-
     // need works on keys
     /**
      * Set a value on the data table...
@@ -738,6 +733,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
         }
 
         this.report.reports[reportId].user.data[name] = input;
+
+        console.log(this.report);
 
         this.checkForChanges();
     }
@@ -1120,13 +1117,21 @@ export class EditReportComponent implements OnInit, OnDestroy {
     populateDataFromTextOrOption(key: string, value: string): void {
         let identifierName: string[] = this.getKeyFromName(key);
 
+        console.log(key, value, identifierName);
+
         this.report.reports.forEach((student: Report, index: number) => {
             student['user'].data[key] = value;
+
+            console.log(`setting ${student['user'].data[key]} to ${value}`);
+
             // add data to new column
             identifierName.forEach((ident: string) => {
-                student['user'].data[ident] = value;
+              student['user'].data[ident] = value;
+              console.log(`setting ${student['user'].data[ident]} to ${value}`);
             })
         })
+
+        console.log(this.report);
     }
 
     /**

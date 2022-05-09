@@ -1,0 +1,118 @@
+.knowledge-base {
+
+  position: relative;
+  display: flex;
+
+  &__menu {
+    position: sticky;
+    top: 0rem;
+    flex-basis: 30rem;
+    background-color: var(--color-style-juxtapose);
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    font-size: 1.4rem;
+    overflow: hidden;
+    box-shadow: 0 .6rem 1.2rem rgba(black, .5);
+    transition: all .2s;
+
+    &:hover {
+      box-shadow: 0 .6rem 1.2rem rgba(black, .7);
+      transform: translateY(-.2rem);
+    }
+
+    &--item, &--category {
+      position: relative;
+      margin-top: .7rem;
+      transition: all .2s;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    &--item {
+      position: relative;
+      font-weight: normal;
+      margin-left: 1.5rem;
+      padding: 1rem 2rem;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 0;
+        height: 100%;
+        background-image: linear-gradient(to right, #457b9d, #e63946);
+        border-radius: .5rem;
+        transition: all .2s, width .4s;
+        z-index: -1;
+      }
+
+      &:hover {
+        color: white;
+
+        &::before {
+          width: 200%;
+          box-shadow: -.6rem 0 1.2rem rgba(black, .5) ;
+        }
+      }
+    }
+
+    &--active {
+      margin-left: -50%;
+      padding-left: 70%;
+      width: 200%;
+      height: 100%;
+      background-image: linear-gradient(to right, #457b9d, #e63946);
+      border-radius: .5rem;
+      transition: all .2s, width .4s;
+      z-index: -1;
+    }
+
+    &--category {
+      font-weight: bold;
+      border-radius: 1rem;
+      padding: 1rem 2rem;
+      transition: all .2s;
+
+      & > .knowledge-base__menu--item {
+        visibility: hidden;
+        display: none;
+        opacity: 0;
+        max-height: 0rem;
+      }
+    }
+
+    &--title {
+      padding-bottom: .3rem;
+      border-bottom: .2rem solid transparent;
+      transition: all .2s;
+
+      &:hover {
+        border-bottom: .2rem solid var(--color-style-dark);
+      }
+    }
+  }
+
+  &__content {
+    flex: 1;
+    padding: 1rem 2rem;
+    margin-left: 1rem;
+  }
+
+  &__open {
+    & > .knowledge-base__menu--item {
+      visibility: visible;
+      display: block;
+      // opacity: 1;
+      animation: slowRise .4s linear 0s 1 forwards;
+    }
+  }
+
+}
+
+@keyframes slowRise {
+  0% { max-height: 0rem; opacity: 0; }
+  100% { max-height: 5rem; opacity: 1; }
+}
