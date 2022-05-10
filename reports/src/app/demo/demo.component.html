@@ -4,17 +4,21 @@
 
 <div class="knowledge-base">
   <div class="knowledge-base__menu">
-    <div class="knowledge-base__menu--item">Knowledge Base</div>
-    <div class="knowledge-base__menu--category" [class.knowledge-base__open]="openMenu==='Tutorials'">
-      <div class="knowledge-base__menu--title" (click)="setOpenMenu('Tutorials')">Tutorials</div>
-      <div class="knowledge-base__menu--item" routerLink="knowledge" [queryParams]="{page: '1'}" routerLinkActive="knowledge-base__menu--active">Youtube Video 1</div>
-      <div class="knowledge-base__menu--item" routerLink="knowledge" [queryParams]="{page: '2'}" routerLinkActive="knowledge-base__menu--active">Youtube Video 2</div>
-      <div class="knowledge-base__menu--item" routerLink="knowledge" [queryParams]="{page: '3'}" routerLinkActive="knowledge-base__menu--active">Youtube Video 3</div>
+    <div class="knowledge-base__menu--item" routerLink="/demo">Knowledge Base</div>
+
+    <div class="knowledge-base__menu--category" [class.knowledge-base__open]="openMenu===category.name" *ngFor="let category of knowledgeBase; let i = index">
+      <div class="knowledge-base__menu--title" (click)="setOpenMenu(category.name)">{{ category.name }}</div>
+      <div class="knowledge-base__menu--item"
+        routerLink="knowledge"
+        [queryParams]="{page: catItem.name}"
+        routerLinkActive="knowledge-base__menu--active"
+        title="{{ catItem.brief }}"
+        *ngFor="let catItem of category.items; let o = index">
+        {{ catItem.name }}
+      </div>
     </div>
-    <div class="knowledge-base__menu--category" [class.knowledge-base__open]="openMenu==='WithPowerschool'">
-      <div class="knowledge-base__menu--title" (click)="setOpenMenu('WithPowerschool')">With Powerschool</div>
-      <div class="knowledge-base__menu--item" routerLink="knowledge" [queryParams]="{page: '4'}" routerLinkActive="knowledge-base__menu--active">Youtube Video 3</div>
-    </div>
+
+
   </div>
 
   <div class="knowledge-base__content">

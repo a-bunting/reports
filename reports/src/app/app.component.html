@@ -25,6 +25,11 @@
                 <img src="../assets/icons/file-text2.svg" alt="Reports">
                 <span>Reports</span>
             </a>
+            <a class="header__menu--item" routerLinkActive="link-active link-active__menu" routerLink="demo/">
+                <img src="../assets/icons/question.svg" alt="KnowledgeBase">
+                <span>Help!</span>
+            </a>
+
             <!-- is admin for now during testing -->
             <a class="header__menu--item" *ngIf="(!isMember && isAuthenticated) || (isAdmin && isAuthenticated)" routerLinkActive="link-active link-active__menu" routerLink="join/">
                 <img src="../assets/icons/user-plus.svg" alt="Go Pro">

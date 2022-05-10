@@ -33,29 +33,15 @@ export class KnowledgeComponent implements OnInit, OnDestroy {
   }
 
   loadData(page: string): void {
-    // todo
-
+    this.currentKnowledgeBase = this.knowledgeBaseService.getItemByName(page);
   }
 
+  getVideo(galleryName?: string): SafeResourceUrl {
+    return this.currentKnowledgeBase.videolink;
+  }
 
-  // getVideo(galleryName?: string): SafeResourceUrl {
-  //   // get the index...
-  //   galleryName = this.galleryDisplayName ? this.galleryDisplayName : "";
-  //   const galleryIndex: number = this.gallery.findIndex((temp: galleryItem) => temp.name.toLowerCase() === galleryName.toLowerCase());
-  //   // return
-  //   if(galleryIndex !== -1) {
-  //       return this.gallery[galleryIndex].videolink;
-  //   } else return this.default.videolink;
-  // }
-
-  // getData(key: string, galleryName?: string): string {
-  //   // get the index...
-  //   galleryName = this.galleryDisplayName ? this.galleryDisplayName : "";
-  //   const galleryIndex: number = this.gallery.findIndex((temp: galleryItem) => temp.name.toLowerCase() === galleryName.toLowerCase());
-  //   // return
-  //   if(galleryIndex !== -1) {
-  //       return this.gallery[galleryIndex][key];
-  //   } else return this.default[key];
-  // }
+  getData(key: string): string {
+    return this.currentKnowledgeBase[key];
+  }
 
 }

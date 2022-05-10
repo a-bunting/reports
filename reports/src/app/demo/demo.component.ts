@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { KnowledgeBaseCategories, KnowledgeService } from '../services/knowledge.service';
 
 @Component({
   selector: 'app-demo',
@@ -8,10 +9,12 @@ import { Component, OnInit } from '@angular/core';
 export class DemoComponent implements OnInit {
 
   openMenu: string = "";
+  knowledgeBase: KnowledgeBaseCategories[] = [];
 
-  constructor() { }
+  constructor(private knowledgeBaseService: KnowledgeService) { }
 
   ngOnInit(): void {
+    this.knowledgeBase = this.knowledgeBaseService.getData();
   }
 
   /**

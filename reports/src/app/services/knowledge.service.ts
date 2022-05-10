@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-interface KnowledgeBaseCategories {
+export interface KnowledgeBaseCategories {
   name: string; items: KnowledgeBaseItem[]
 }
 
@@ -65,6 +65,15 @@ export class KnowledgeService {
         brief: "This tutorial will help you move data from Powerteacher into Reports.zone.",
         description: "Powerteacher is a very popular student management system used by schools worldwide. This tutorial will show you how you can take data from Powerschool and import it into ReportsZone."
       }
+    ]},
+    { name: 'Quick Tips', items: [
+      {
+        name: "Rapid Text Entry",
+        keywords: [],
+        videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/Iu4LOrd0PeI"),
+        brief: "When writing reports you dont have to rely on copy and paste to quickly enter the same value multiple times!",
+        description: "In this video I show you how to quickly assign text values to multiple students, writing each word or phrase only once."
+      }
     ]}
   ]
 
@@ -74,8 +83,25 @@ export class KnowledgeService {
     return this.knowledgeBaseCategories;
   }
 
-  getDataFromKeyword(kw: string): KnowledgeBaseItem[] {
+  getDataFromKeyword(keyword: string): KnowledgeBaseItem[] {
     let searchResults: KnowledgeBaseItem[] = [];
+
+    this.knowledgeBaseCategories.forEach((kb: KnowledgeBaseCategories) => {
+      let items: KnowledgeBaseItem[] = kb.items.filter((kbItem: KnowledgeBaseItem) => { kbItem.keywords.filter((kw: string) => kw === keyword).length !== 0 }).flat();
+      searchResults = [...searchResults, ...items];
+    })
+
     return searchResults;
+  }
+
+  getItemByName(name: string): KnowledgeBaseItem {
+    let item: KnowledgeBaseItem;
+
+    this.knowledgeBaseCategories.forEach((kb: KnowledgeBaseCategories) => {
+      for(let i = 0 ; i < kb.items.length ; i++) {
+        if(kb.items[i].name === name) { item = kb.items[i]; }
+      }
+    });
+    return item;
   }
 }

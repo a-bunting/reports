@@ -33,8 +33,7 @@
     &--item {
       position: relative;
       font-weight: normal;
-      margin-left: 1.5rem;
-      padding: 1rem 2rem;
+      padding: 1rem 1rem;
 
       &::before {
         content: "";
@@ -61,8 +60,8 @@
 
     &--active {
       margin-left: -50%;
-      padding-left: 70%;
-      width: 200%;
+      padding-left: calc(50% + 1rem);
+      // width: 100%;
       height: 100%;
       background-image: linear-gradient(to right, #457b9d, #e63946);
       border-radius: .5rem;
@@ -73,7 +72,7 @@
     &--category {
       font-weight: bold;
       border-radius: 1rem;
-      padding: 1rem 2rem;
+      padding: 1rem 1rem;
       transition: all .2s;
 
       & > .knowledge-base__menu--item {
@@ -114,5 +113,5 @@
 
 @keyframes slowRise {
   0% { max-height: 0rem; opacity: 0; }
-  100% { max-height: 5rem; opacity: 1; }
+  100% { max-height: 10rem; opacity: 1; }
 }

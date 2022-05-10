@@ -1,4 +1,23 @@
-<p>knowledge works!</p>
 
-<iframe width="100%" [src]="getVideo()" title="YouTube - {{ getData('name') }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<div *ngIf="currentKnowledgeBase">
+  <div class="knowledge__title">
+    {{ getData('name') }}
+  </div>
+
+
+  <div class="knowledge__description">
+    {{ getData('description') }}
+  </div>
+
+  <div class="knowledge__video">
+    <div>
+      <iframe [src]="getVideo()" title="YouTube - {{ getData('name') }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!currentKnowledgeBase">
+
+</div>
+
 

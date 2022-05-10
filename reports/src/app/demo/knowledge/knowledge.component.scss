@@ -1,0 +1,34 @@
+.knowledge {
+
+
+  &__video {
+    max-width: 100%;
+    margin: 0px 2rem;
+
+    div {
+      position: relative;
+      height: 0px;
+      padding-bottom: 45%;
+
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        box-shadow: 0 .3rem .6rem rgba(black, .5);
+      }
+    }
+  }
+
+  &__description {
+    margin: 0 2rem 2rem 2rem;
+    font-size: 1.4rem;
+  }
+
+  &__title {
+    font-size: 2rem;
+    margin: -2rem 2rem 2rem 2rem;
+    font-weight: bold;
+  }
+}
