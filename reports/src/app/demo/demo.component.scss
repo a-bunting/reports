@@ -1,12 +1,12 @@
 .knowledge-base {
 
-  position: relative;
   display: flex;
 
   &__menu {
     position: sticky;
     top: 0rem;
     flex-basis: 30rem;
+    align-self: flex-start;
     background-color: var(--color-style-juxtapose);
     border-radius: 1rem;
     padding: 1rem 2rem;

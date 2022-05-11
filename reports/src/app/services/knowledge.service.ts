@@ -21,24 +21,24 @@ export interface KnowledgeBaseItem {
 export class KnowledgeService {
 
   knowledgeBaseCategories: KnowledgeBaseCategories[] = [
-    { name: 'Creating Reports from Start to Finish',
+    { name: 'The Basics',
       items: [
       {
-        name: "Create Groups (from spreadsheet data)",
+        name: "Step 1: Create Groups",
         keywords: [],
         videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/C5fIQjc6XAU"),
         brief: "Creating groups is easy in Reports.zone. This guide will show you how to easily import your student data from a spreadsheet.",
-        description: "Groups will inevitably end up taking the longest time in ReportsZone and so there are several ways you can import data so its as easy as possible. This video will show you how you can use your spreadsheeted data and import it very easily into ReportsZone."
+        description: "There are several ways you can import data so its as easy as possible. This video will show you how you can use your spreadsheeted data and import it very easily into ReportsZone using a spreadsheet. If you use a particular data system at your school (such as powerschool) then use the links on the left menu to find the software you use with specific directions. If your software is not represented, please submit a feature reuqest, and try the automatic detection method in group entry to try and parse your data."
       },
       {
-        name: "Templates",
+        name: "Step 2: Make Templates",
         keywords: [],
         videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/cHpZygrEgn4"),
         brief: "Templates will help you create a standard report for ReportZone to put information into.",
         description: "Templates are your main source of time saving in ReportZone. By setting up various different templates you can create groups of students who will need a similar report, and then when you get to the report generation only need data which is required for their particular template. More than this, if you do reports every year then by setting up templates, you can reuse the same report style over and over, whilst still generating unique and highly individualised reports for eacvh student."
       },
       {
-        name: "Making Reports",
+        name: "Step 3: Generate Reports",
         keywords: [],
         videolink: this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/m6HAw7_eoYA"),
         brief: "This tutorial will demonstrate how you can now use your groups and template data to produce reports for your students.",
