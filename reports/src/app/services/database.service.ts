@@ -135,13 +135,13 @@ export class DatabaseService {
     }
 
     getReport(id: string): Observable<any> {
-        this.readOperation();
+      this.readOperation();
         return this.firebase.collection('reports').doc(id).get();
     }
 
     updateReport(data: {}, id: string): Observable<any> {
         this.writeOperation();
-
+        console.log(data);
         return from(this.firebase.collection('reports').doc(id).update({...data, lastUpdated: Date.now()}));
     }
 

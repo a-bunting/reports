@@ -1,0 +1,774 @@
+{
+  "id": "w3ocS5AacLgraiFJAwrz",
+  "groupId": "",
+  "templateId": "4gXZlOkY3EQeELVPElUi",
+  "name": "test 2k 2",
+  "lastUpdated": 1652339285361,
+  "manager": "A6jRmGmVM4RhSf5Bbuci8rkrGfi2",
+  "variables": [
+    {
+      "identifier": "Gender",
+      "key": "Gender",
+      "options": [
+        "Female",
+        "Male",
+        "Plural/Other"
+      ],
+      "value": "",
+      "tooltip": "Optional: Do not assign this to a column and your reports will be gender neutral.",
+      "optional": true
+    },
+    {
+      "identifier": "Good Skill (1)",
+      "key": "Good Skill (1)",
+      "options": [],
+      "value": "",
+      "optional": false
+    },
+    {
+      "identifier": "Forename",
+      "key": "Forename",
+      "value": "",
+      "options": [],
+      "optional": false
+    },
+    {
+      "identifier": "Surname",
+      "key": "Surname",
+      "value": "",
+      "options": [],
+      "optional": false
+    }
+  ],
+  "globals": [
+    {
+      "identifier": "Time Period",
+      "options": [
+        "semester",
+        "term"
+      ],
+      "value": "semester"
+    },
+    {
+      "identifier": "Course Name",
+      "options": [],
+      "value": "physics"
+    },
+    {
+      "identifier": "School Reference Name",
+      "value": "AS",
+      "options": [],
+      "optional": false
+    }
+  ],
+  "tests": [
+    {
+      "name": "Final Grade",
+      "identifier": "gradeLevelTest",
+      "values": [
+        {
+          "identifier": "curGrade",
+          "name": "Current Grade",
+          "key": "Final Grade",
+          "value": "",
+          "options": [
+            "F",
+            "D-",
+            "D",
+            "D+",
+            "C-",
+            "C",
+            "C+",
+            "B-",
+            "B",
+            "B+",
+            "A-",
+            "A",
+            "A+"
+          ]
+        }
+      ],
+      "settings": {
+        "name": "Grade System",
+        "value": {
+          "name": "American (A - D and F)",
+          "options": {}
+        },
+        "options": [
+          {
+            "name": "A - G",
+            "options": {
+              "0": "F",
+              "1": "G-",
+              "2": "G",
+              "3": "G+",
+              "4": "F-",
+              "5": "F",
+              "6": "F+",
+              "7": "E-",
+              "8": "E",
+              "9": "E+",
+              "10": "D-",
+              "11": "D",
+              "12": "D+",
+              "13": "C-",
+              "14": "C",
+              "15": "C+",
+              "16": "B-",
+              "17": "B",
+              "18": "B+",
+              "19": "A-",
+              "20": "A",
+              "21": "A+"
+            }
+          },
+          {
+            "name": "American (A - D and F)",
+            "options": {
+              "0": "F",
+              "1": "D-",
+              "2": "D",
+              "3": "D+",
+              "4": "C-",
+              "5": "C",
+              "6": "C+",
+              "7": "B-",
+              "8": "B",
+              "9": "B+",
+              "10": "A-",
+              "11": "A",
+              "12": "A+"
+            }
+          },
+          {
+            "name": "IB",
+            "options": {
+              "0": "1",
+              "1": "2",
+              "2": "3",
+              "3": "4",
+              "4": "5",
+              "5": "6",
+              "6": "7"
+            }
+          },
+          {
+            "name": "British GCSE",
+            "options": {
+              "0": "1",
+              "1": "2",
+              "2": "3",
+              "3": "4",
+              "4": "5",
+              "5": "6",
+              "6": "7",
+              "7": "8",
+              "8": "9"
+            }
+          },
+          {
+            "name": "AS/A Levels",
+            "options": {
+              "0": "U",
+              "1": "E",
+              "2": "D",
+              "3": "C",
+              "4": "B",
+              "5": "A",
+              "6": "A*"
+            }
+          },
+          {
+            "name": "AP",
+            "options": {
+              "0": "1",
+              "1": "2",
+              "2": "3",
+              "3": "4",
+              "4": "5"
+            }
+          },
+          {
+            "name": "Standards Based",
+            "options": {
+              "0": "No Evidence",
+              "1": "Limited Proficiency",
+              "2": "Approaching Proficiency",
+              "3": "Proficient",
+              "4": "Mastery"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Effort",
+      "identifier": "effortTest",
+      "values": [
+        {
+          "identifier": "effortLevel",
+          "name": "Effort Level",
+          "key": "Effort Level",
+          "value": "",
+          "options": [
+            "No effort",
+            "Very Little effort",
+            "Acceptable effort",
+            "Good effort",
+            "High level of effort"
+          ]
+        }
+      ],
+      "settings": {
+        "name": "The effort level",
+        "value": {
+          "name": "Effort Level",
+          "options": {}
+        },
+        "options": [
+          {
+            "name": "Effort Level",
+            "options": {
+              "0": "No effort",
+              "1": "Very Little effort",
+              "2": "Acceptable effort",
+              "3": "Good effort",
+              "4": "High level of effort"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Grade Pattern",
+      "identifier": "gradePatternTest",
+      "values": [
+        {
+          "identifier": "patternGrade",
+          "name": "Grade pattern over time",
+          "key": "Grade pattern over time",
+          "value": "",
+          "options": [
+            "Consistent throughout",
+            "Ups and Downs",
+            "Slow start, good end",
+            "Good start, less good end"
+          ]
+        }
+      ],
+      "settings": {
+        "name": "Grade Pattern",
+        "value": {
+          "name": "Grade Pattern",
+          "options": {}
+        },
+        "options": [
+          {
+            "name": "Grade Pattern",
+            "options": {
+              "0": "Consistent throughout",
+              "1": "Ups and Downs",
+              "2": "Slow start, good end",
+              "3": "Good start, less good end"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Effort Pattern",
+      "identifier": "effortPatternTest",
+      "values": [
+        {
+          "identifier": "patternEffort",
+          "name": "Effort pattern over time",
+          "key": "Effort pattern over time",
+          "value": "",
+          "options": [
+            "Consistent throughout",
+            "Ups and Downs",
+            "Slow start, good end",
+            "Good start, less good end"
+          ]
+        }
+      ],
+      "settings": {
+        "name": "Effort Pattern",
+        "value": {
+          "name": "Effort Pattern",
+          "options": {}
+        },
+        "options": [
+          {
+            "name": "Effort Pattern",
+            "options": {
+              "0": "Consistent throughout",
+              "1": "Ups and Downs",
+              "2": "Slow start, good end",
+              "3": "Good start, less good end"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Good Skill Level",
+      "identifier": "skillLevelTest",
+      "values": [
+        {
+          "identifier": "curSkillLevel",
+          "name": "Current Level",
+          "key": "Current Level",
+          "value": "",
+          "options": [
+            "F",
+            "D-",
+            "D",
+            "D+",
+            "C-",
+            "C",
+            "C+",
+            "B-",
+            "B",
+            "B+",
+            "A-",
+            "A",
+            "A+"
+          ]
+        }
+      ],
+      "settings": {
+        "name": "Grade System",
+        "value": {
+          "name": "American (A - D and F)",
+          "options": {}
+        },
+        "options": [
+          {
+            "name": "A - G",
+            "options": {
+              "0": "F",
+              "1": "G-",
+              "2": "G",
+              "3": "G+",
+              "4": "F-",
+              "5": "F",
+              "6": "F+",
+              "7": "E-",
+              "8": "E",
+              "9": "E+",
+              "10": "D-",
+              "11": "D",
+              "12": "D+",
+              "13": "C-",
+              "14": "C",
+              "15": "C+",
+              "16": "B-",
+              "17": "B",
+              "18": "B+",
+              "19": "A-",
+              "20": "A",
+              "21": "A+"
+            }
+          },
+          {
+            "name": "American (A - D and F)",
+            "options": {
+              "0": "F",
+              "1": "D-",
+              "2": "D",
+              "3": "D+",
+              "4": "C-",
+              "5": "C",
+              "6": "C+",
+              "7": "B-",
+              "8": "B",
+              "9": "B+",
+              "10": "A-",
+              "11": "A",
+              "12": "A+"
+            }
+          },
+          {
+            "name": "IB",
+            "options": {
+              "0": "1",
+              "1": "2",
+              "2": "3",
+              "3": "4",
+              "4": "5",
+              "5": "6",
+              "6": "7"
+            }
+          },
+          {
+            "name": "British GCSE",
+            "options": {
+              "0": "1",
+              "1": "2",
+              "2": "3",
+              "3": "4",
+              "4": "5",
+              "5": "6",
+              "6": "7",
+              "7": "8",
+              "8": "9"
+            }
+          },
+          {
+            "name": "AS/A Levels",
+            "options": {
+              "0": "U",
+              "1": "E",
+              "2": "D",
+              "3": "C",
+              "4": "B",
+              "5": "A",
+              "6": "A*"
+            }
+          },
+          {
+            "name": "AP",
+            "options": {
+              "0": "1",
+              "1": "2",
+              "2": "3",
+              "3": "4",
+              "4": "5"
+            }
+          },
+          {
+            "name": "Standards Based",
+            "options": {
+              "0": "No Evidence",
+              "1": "Limited Proficiency",
+              "2": "Approaching Proficiency",
+              "3": "Proficient",
+              "4": "Mastery"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Next Stage",
+      "identifier": "nextStageTest",
+      "values": [
+        {
+          "identifier": "nextSteps",
+          "name": "Where are they going?",
+          "key": "Where are they going?",
+          "value": "",
+          "options": [
+            "Leaving school",
+            "Staying in this course",
+            "Course is over",
+            "Graduating",
+            "I am leaving"
+          ]
+        }
+      ],
+      "settings": {
+        "name": "Their next steps",
+        "value": {
+          "name": "Where are they going for their next time period?",
+          "options": {}
+        },
+        "options": [
+          {
+            "name": "Where are they going for their next time period?",
+            "options": {
+              "0": "Leaving school",
+              "1": "Staying in this course",
+              "2": "Course is over",
+              "3": "Graduating",
+              "4": "I am leaving"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "names": {
+    "firstTime": "'Forename', 'Surname'",
+    "otherTimes": "'Forename'",
+    "startSentences": "name",
+    "midSentence": "either",
+    "allowRepeats": false
+  },
+  "keys": [
+    "Surname",
+    "Forename",
+    "Final Grade",
+    "Where are they going?",
+    "Effort pattern over time",
+    "Grade pattern over time",
+    "Effort Level",
+    "Gender",
+    "Good Skill (1)",
+    "Current Level"
+  ],
+  "reports": [
+    {
+      "userId": "AZnI8",
+      "user": {
+        "id": "AZnI8",
+        "data": {
+          "Surname": "McGonagall",
+          "Forename": "Minerv",
+          "Final Grade": "A",
+          "nextSteps": "Staying in this course",
+          "curSkillLevel": "D",
+          "patternEffort": "Good start, less good end",
+          "patternGrade": "Good start, less good end",
+          "effortLevel": "Good effort",
+          "curGrade": "A",
+          "Gender": "Male",
+          "Good Skill (1)": "pie",
+          "Effort Level": "Good effort",
+          "Grade pattern over time": "Good start, less good end",
+          "Effort pattern over time": "Good start, less good end",
+          "Where are they going?": "Staying in this course",
+          "Current Level": "D",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "At the start of the semester, Minerva, McGonagall was achieving well, however this unfortunately did not last throughout the semester and his grade slipped towards the end. Minerva has this semester impressed me consistently with his pies skills, an important skill he will continue to use in physics.",
+      "generated": []
+    },
+    {
+      "userId": "pT2nF",
+      "user": {
+        "id": "pT2nF",
+        "data": {
+          "Surname": "Dumbledore",
+          "Forename": "Albus",
+          "Final Grade": "--",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "--",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with Albus's pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    },
+    {
+      "userId": "NTjau",
+      "user": {
+        "id": "NTjau",
+        "data": {
+          "Surname": "Potter",
+          "Forename": "Harry",
+          "Final Grade": "C-",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "C-",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with his pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    },
+    {
+      "userId": "ADXbl",
+      "user": {
+        "id": "ADXbl",
+        "data": {
+          "Surname": "Voldemort",
+          "Forename": "Lord",
+          "Final Grade": "B",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "B",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with Lord's pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    },
+    {
+      "userId": "g7mM4",
+      "user": {
+        "id": "g7mM4",
+        "data": {
+          "Surname": "Weasley",
+          "Forename": "Ronald",
+          "Final Grade": "C-",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "C-",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with Ronald's pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    },
+    {
+      "userId": "qxst3",
+      "user": {
+        "id": "qxst3",
+        "data": {
+          "Surname": "Granger",
+          "Forename": "Hermionie",
+          "Final Grade": "C-",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "C-",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "Hermionie has this semester impressed me consistently with his pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    },
+    {
+      "userId": "4oJTl",
+      "user": {
+        "id": "4oJTl",
+        "data": {
+          "Surname": "Lovegood",
+          "Forename": "Luna",
+          "Final Grade": "A",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "A",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with Luna's pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    },
+    {
+      "userId": "hK12K",
+      "user": {
+        "id": "hK12K",
+        "data": {
+          "Surname": "Longbottom",
+          "Forename": "Neville",
+          "Final Grade": "B-",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "B-",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with Neville's pies skills, an important skill he will continue to use in physics.",
+      "generated": []
+    },
+    {
+      "userId": "sfj7B",
+      "user": {
+        "id": "sfj7B",
+        "data": {
+          "Surname": "Malfoy",
+          "Forename": "Draco",
+          "Final Grade": "A+",
+          "nextSteps": "Course is over",
+          "curSkillLevel": "B",
+          "patternEffort": "Consistent throughout",
+          "patternGrade": "Slow start, good end",
+          "effortLevel": "Acceptable effort",
+          "curGrade": "A+",
+          "Gender": "Male",
+          "Good Skill (1)": "pies",
+          "Effort Level": "Acceptable effort",
+          "Grade pattern over time": "Slow start, good end",
+          "Effort pattern over time": "Consistent throughout",
+          "Where are they going?": "Course is over",
+          "Current Level": "B",
+          "behaviourTest": "",
+          "participationTest": ""
+        }
+      },
+      "templateId": "4gXZlOkY3EQeELVPElUi",
+      "report": "I have been particularly impressed this semester with Draco's pies skills, a skill that in physics we will come back to frequently.",
+      "generated": []
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { CustomService } from './custom.service';
 import { sentence, SentencesService } from './sentences.service';
 import { Template, TemplatesService } from './templates.service';
 import { TemplateTest, Test, TestOptions, TestsService, TestVariable } from './tests.service';
+import { ConsoleService } from '../admin/services/console.service';
 
 export interface ReportTemplate {
     id: string; name: string; manager: string; templateId: string; groupId: string; lastUpdated: number;
@@ -80,7 +81,9 @@ export class ReportsService {
         // if the data exists locally, grab it!
         if(localStorage.getItem('reports-data') !== null && forcedFromDatabase === false) {
             // retrieve the data from local storage and parse it into the templates data...
+            console.log(JSON.parse(localStorage.getItem('reports-data')));
             this.reports = JSON.parse(localStorage.getItem('reports-data'));
+
             // set the data on the display
             // and return the data array...
             return of(this.reports).pipe(take(1), tap((returnData: ReportTemplate[]) => {
@@ -88,6 +91,7 @@ export class ReportsService {
                 this.customService.setNumberOfReports(returnData.length);
                 // calculate recent reports...
                 this.customService.setNumberOfReportsGenerated(this.calculateRecentReports(returnData));
+                console.log(returnData);
                 return returnData;
             }));
         } else {
@@ -143,10 +147,10 @@ export class ReportsService {
                 this.reports = data;
                 // return the correct report.
                 return this.returnReport(id);
-            }, error => {
+              }, error => {
                 console.log(`Error: ${error}`);
-            }))
-        } else {
+              }))
+            } else {
             return of(this.returnReport(id));
         }
     }
@@ -338,6 +342,8 @@ export class ReportsService {
         reportCopyForFirebase.tests = newTests;
         // reportCopyForFirebase.reports = newReports;
 
+        console.log(reportCopyForFirebase);
+
         // call the database function and return true if it succeeds and false if it fails...
         return this.db.updateReport(reportCopyForFirebase, reportId).pipe(take(1), tap(() => {
             // success
@@ -423,6 +429,8 @@ export class ReportsService {
         reportCopyForFirebase.variables = newVariables;
         reportCopyForFirebase.tests = newTests;
         // reportCopyForFirebase.reports = newReports;
+
+        console.log(reportCopyForFirebase);
 
         // return the observable///
         return this.db.addNewReport(reportCopyForFirebase).pipe(take(1), tap((res: DocumentReference) => {

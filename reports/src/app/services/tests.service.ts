@@ -235,7 +235,7 @@ export class TestsService {
             }
         },
         {
-            name: "Grade Level",
+            name: "Grade Level (Skill)",
             identifier: "gradeLevelTest",
             settings: { name: "Grade System", description: "The grade system you work within", options: this.gradingSystems },
             description: "Simply returns a value which indicates where the student is within the grade scale as a poercentage. A student doing very well will be close to the 100% and students struggling will be closer to 0%.",
@@ -299,9 +299,11 @@ export class TestsService {
                     exp.forEach((section: string, i: number) => { exp[i] = section.replace('%', '');  })
 
                     if(valueToTest >= +exp[0] && valueToTest <= +exp[2]) {
-                        return true;
-                    } else return false;
-                } else {
+                      return true;
+                    } else {
+                      return false;
+                    }
+                  } else {
                     console.log(`Pattern error in test machine... ${testPattern}`);
                     return false;
                 };
@@ -358,6 +360,7 @@ export class TestsService {
                 let splitString: string[] = testString.split('|');
 
                 if(splitString.length > 1) {
+
                     switch(splitString[1]) {
                         case "minimum": {
                             // gets the locations of the users value within the array

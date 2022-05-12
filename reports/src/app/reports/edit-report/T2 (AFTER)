@@ -1,0 +1,23 @@
+{
+  "Surname": "McGonagall",
+  "Forename": "Minerva",
+  "Final Grade": "--",
+  "Final Perc": "--",
+  "Gender": "Male",
+  "Good Skill (1)": "pies",
+  "curGrade": "--",
+  "curSkillLevel": "B-",
+  "effortLevel": "Acceptable effort",
+  "patternGrade": "Ups and Downs",
+  "patternEffort": "Ups and Downs",
+  "nextSteps": "Graduating",
+  "Where are they going?": "Graduating",
+  "Current Level": "B-",
+  "Effort pattern over time": "Ups and Downs",
+  "Grade pattern over time": "Ups and Downs",
+  "Effort Level": "Acceptable effort"
+}
+
+${Name|//}$ has [found it difficult/struggled] this ${g|Time Period[semester,term]}$ in ${g|Course Name}$ to [earn a grade matching ${gn|his/her/their}$ potential/be as successful as ${gn|he/she/they}$ could be], not regularly putting in the [/higher level of/greater level of] effort that [is/would be] required to [earn a better grade/reach the higher grades/push to the next level].
+This ${g|Time Period[semester,term]} in ${g|Course Name}$, ${Name|//}$ has [struggled/found it difficult] to fully reach ${gn|his/her/their}$ potential, and with a [little more/greater level of] effort [might/could] have [been looking at/pushed for] the higher grades I am sure ${gn|he is/she is/they are}$ capable of.
+This ${g|Time Period[semester,term]}$, ${Name|//}$ has not [consistently/regularly] [shown/demonstrated/put forward] the effort it requires in ${g|Course Name}$ to attain the higher grades I am [sure/confident] ${gn|he is/she is/they are}$ capable of.

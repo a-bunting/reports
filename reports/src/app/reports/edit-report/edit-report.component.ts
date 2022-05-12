@@ -114,18 +114,20 @@ export class EditReportComponent implements OnInit, OnDestroy {
     updateReport(): void {
         this.isUpdating = true;
         // call the update function in the report service.
-        this.reportsService.updateReport(this.report, this.report.id).subscribe((result: boolean) => {
-            if(result === true) {
-                // success!
-                this.isUpdating = false;
-                this.reportSaved = true;
-                this.unsavedChanges = false;
-            }
-            this.isUpdating = false;
-        }, error => {
+        this.reportsService.updateReport(this.report, this.report.id).subscribe({
+            next: (result: boolean) => {
+              if(result === true) {
+                  // success!
+                  this.isUpdating = false;
+                  this.reportSaved = true;
+                  this.unsavedChanges = false;
+              }
+              this.isUpdating = false;
+          }, error: (error) => {
             this.errorMessage = "Update failed: " + error;
             this.isUpdating = false;
-        })
+          }
+        });
     }
 
     /**
@@ -134,18 +136,20 @@ export class EditReportComponent implements OnInit, OnDestroy {
     saveToDatabase(): void {
         this.isSaving = true;
         // call the save function in the report service...
-        this.reportsService.createReport(this.report).subscribe((result: DocumentReference) => {
-            // success, set the new id...
-            this.report.id = result.id;
-            // set the flags to control button visibility.
-            this.unsavedChanges = false;
-            this.reportSaved = true;
-            this.isSaving = false;
-            this.router.navigate(['/reports/edit-report/', this.report.id]);
-        }, error => {
-            console.log(`Unable to save: ${error}`);
-            this.reportSaved = false;
-            this.isSaving = false;
+        this.reportsService.createReport(this.report).subscribe({
+            next: (result: DocumentReference) => {
+              // success, set the new id...
+              this.report.id = result.id;
+              // set the flags to control button visibility.
+              this.unsavedChanges = false;
+              this.reportSaved = true;
+              this.isSaving = false;
+              this.router.navigate(['/reports/edit-report/', this.report.id]);
+        },  error: (error) => {
+              console.log(`Unable to save: ${error}`);
+              this.reportSaved = false;
+              this.isSaving = false;
+          }
         })
     }
 
@@ -329,6 +333,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
               this.loadedGroup = this.report.groupId;
               this.loadedTemplate = this.report.templateId;
               this.checkForVariablesToPreset(report);
+              this.checkForChanges();
         },  error: (error) => {
                 this.isLoading = false;
                 console.log(`Error loading report with ID ${id}: ${error}`);
@@ -872,7 +877,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
         this.report.reports.forEach((report: Report) => {
             this.report.tests[testIndex].values.forEach((temp: TestIndividualValue) => {
                 // change to blank...
-                report['user'].data[temp.identifier] = "";
+                report['user'].data[temp.identifier] = report['user'].data[temp.identifier] === "" ? "" : report['user'].data[temp.identifier];
             })
         })
         console.log(this.report);
@@ -1115,23 +1120,31 @@ export class EditReportComponent implements OnInit, OnDestroy {
     }
 
     populateDataFromTextOrOption(key: string, value: string): void {
-        let identifierName: string[] = this.getKeyFromName(key);
 
-        console.log(key, value, identifierName);
+      // modify the value on all elements...
+      this.report.reports.forEach((report: Report, index: number) => {
+        this.valueChange2(index, key, value);
+      })
 
-        this.report.reports.forEach((student: Report, index: number) => {
-            student['user'].data[key] = value;
+      console.log(this.report.reports);
 
-            console.log(`setting ${student['user'].data[key]} to ${value}`);
+        // let identifierName: string[] = this.getKeyFromName(key);
 
-            // add data to new column
-            identifierName.forEach((ident: string) => {
-              student['user'].data[ident] = value;
-              console.log(`setting ${student['user'].data[ident]} to ${value}`);
-            })
-        })
+        // console.log(key, value, identifierName);
 
-        console.log(this.report);
+        // this.report.reports.forEach((student: Report, index: number) => {
+        //     student['user'].data[key] = value;
+
+        //     console.log(`setting ${student['user'].data[key]} to ${value}`);
+
+        //     // add data to new column
+        //     identifierName.forEach((ident: string) => {
+        //       student['user'].data[ident] = value;
+        //       console.log(`setting ${student['user'].data[ident]} to ${value}`);
+        //     })
+        // })
+
+        // console.log(this.report);
     }
 
     /**
