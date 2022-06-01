@@ -54,7 +54,8 @@
         <div class="reports__database-buttons" *ngIf="templates.length > 0 ">
             <button class="reports__button" (click)="saveToDatabase()" *ngIf="!reportSaved" [disabled]="isSaving" title="Save this new report to the database">{{ isSaving ? "Saving..." : "Save Report Set" }}</button>
             <button class="reports__button" (click)="updateReport()" *ngIf="reportSaved" [disabled]="!unsavedChanges || isUpdating" title="Click to update your report in the database">{{ isUpdating ? "Updating..." : "Save changes"}}</button>
-            <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Generate Reports" }}</button>
+            <!-- <button class="reports__button" (click)="generateReports()" [disabled]="!reportGenerationReady" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Generate Reports" }}</button> -->
+            <button class="reports__button" (click)="generateReports()" title="Click here to generate your reports">{{ reportGenerationReady ? "Generate Reports" : "Generate Reports" }}</button>
             <!-- <div class="reports__button">Duplicate</div> -->
         </div>
     </div>
@@ -369,7 +370,8 @@
                 <tr class="reports__data--row reports__data--data"><!-- *ngFor="let individual of report.reports; let reportId = index"> -->
                     <td class="reports__data--cell">
                         <button class="reports__data-buttons reports__data-buttons--delete" (click)="deleteUserReport(reportId)" title="Remove this user">X</button>
-                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member || !reportGenerationReady">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}">&#9851;</button>
+                        <!-- <button class="reports__data-buttons reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Generate Individual Report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member || !reportGenerationReady">&#9851;</button> -->
                     </td>
                     <td class="reports__data--cell" [class.reports__data--cell--hidden]="isColumnHidden(key)" *ngFor="let key of report.keys; let i = index">
 
@@ -423,7 +425,8 @@
                     <td class="reports__data--cell reports__data--report-options">
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-delete" (click)="deleteIndividualReport(reportId)" title="Remove this user">&#10008;</button>
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-save" (click)="saveIndividualReport(reportId)" title="Remove this user">&#10557;</button>
-                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate this report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member || !reportGenerationReady">&#9851;</button>
+                        <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate this report {{ !user.member ? '(members only)' : '' }}">&#9851;</button>
+                        <!-- <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-regenerate" (click)="regenerateIndividualReport(reportId)" title="Regenerate this report {{ !user.member ? '(members only)' : '' }}" [disabled]="!user.member || !reportGenerationReady">&#9851;</button> -->
                         <button class="reports__data-buttons reports__data-buttons--flat reports__data-buttons--report-edit" (click)="editIndividualReport(reportId)" title="Manually edit report.">&#9998;</button>
                     </td>
 

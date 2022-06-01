@@ -332,6 +332,7 @@ export class EditReportComponent implements OnInit, OnDestroy {
               // check if we can make the report yet...
               this.loadedGroup = this.report.groupId;
               this.loadedTemplate = this.report.templateId;
+              this.loadTemplate(this.report.templateId);
               this.checkForVariablesToPreset(report);
               this.checkForChanges();
         },  error: (error) => {
@@ -1043,6 +1044,8 @@ export class EditReportComponent implements OnInit, OnDestroy {
 
     generateReports(): void {
         // this.report = this.reportsService.generateBatchReports(this.report);
+        console.log(this.report);
+
         this.processingReport = true;
 
         new Promise<void>((resolve, reject) => {

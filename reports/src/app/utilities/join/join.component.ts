@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { IPayPalConfig, ICreateOrderRequest } from 'ngx-paypal';
-import { mergeMap, Observable, take } from 'rxjs';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from '../authentication/user.model';
 
@@ -49,11 +48,10 @@ export class JoinComponent implements OnInit {
 
     testfunction(): void {
       const headers: Headers = new Headers();
-      headers.append('Authorization', 'Basic AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8:EL2PnzL0Oe1gvPKwgmsMz2t0J8T1672TlLIo2JYMNUBVsfq4m3Qgc-0deoATB6FGGVOhKpCIW_vowGRi');
+      headers.append('Authorization', 'Bearer AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8');
       headers.append('Content-Type', 'application/json');
 
-      fetch(`https://api.sandbox.paypal.com/v2/checkout/orders/06V622347U0470228`, { method: 'GET', headers: { Content: 'application/json', Authorization: 'Basic AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8:EL2PnzL0Oe1gvPKwgmsMz2t0J8T1672TlLIo2JYMNUBVsfq4m3Qgc-0deoATB6FGGVOhKpCIW_vowGRi'} })
-      // fetch(`https://api.sandbox.paypal.com/v2/checkout/orders/06V622347U0470228`, { method: 'GET', headers: { Content: 'application/json', Authorization: 'Bearer A21AAL7FxZQgbzP4bQCJe8yjBS6nkqEbF7gpDCcrbWjGMBixrSLCZRFSllSlg0diJKR65So03oSlYy9ziRgPri5ibELfFKzKw'} })
+      fetch(`https://api-m.sandbox.paypal.com/v2/checkout/orders/06V622347U0470228`, { method: 'GET', headers: { Content: 'application/json', Authorization: 'Basic AU156owG9pH3HWD6OQbRgk_KhVs0Ne5Mh3kknwJYYjcIFeZ8sswDvhgA_WqDgAxDYDW8bbcp_IWQVCZ8:EL2PnzL0Oe1gvPKwgmsMz2t0J8T1672TlLIo2JYMNUBVsfq4m3Qgc-0deoATB6FGGVOhKpCIW_vowGRi'} })
       .then((response) => {
         // check if the payment is actual and the same as the user details, and if so then this is a proper
         // transaction and the user can be credited with time on their account.
