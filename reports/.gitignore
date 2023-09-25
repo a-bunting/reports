@@ -2,7 +2,7 @@
 
 environment.prod.ts
 environment.ts
-/.firebaserc
+*.firebaserc
 
 # compiled output
 /dist
